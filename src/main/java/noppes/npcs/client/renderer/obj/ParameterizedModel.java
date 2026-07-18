@@ -139,7 +139,14 @@ public class ParameterizedModel {
 	public void render() {
 		GlStateManager.pushMatrix();
 		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+				GlStateManager.SourceFactor.ONE,
+				GlStateManager.DestFactor.ZERO);
+		GlStateManager.enableDepth();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(atlas);
+		boolean lit = colorMask != 0;
+		if (lit) { setupLight(); }
 		if (isDynamic) { draw(); }
 		else {
 			if (listId < 0) {
@@ -149,35 +156,46 @@ public class ParameterizedModel {
 			}
 			GlStateManager.callList(listId);
 		}
+		if (lit) { clearLight(); }
+		GlStateManager.color(0.0f, 0.0f, 0.0f, 0.0f);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
 	}
 
-	protected void draw() {
-		if (colorMask != 0) {
-			GL11.glEnable(GL11.GL_LIGHTING);
-			GL11.glEnable(GL11.GL_LIGHT0);
-			GL11.glEnable(GL11.GL_LIGHT1);
-			GL11.glEnable(GL11.GL_COLOR_MATERIAL);
-			GlStateManager.colorMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
-			// color of light from behind
-			GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION,
-					setColorBuffer((float) LIGHT1_POS.x, (float) LIGHT1_POS.y, (float) LIGHT1_POS.z, 0.0f));
-			GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, setColorBuffer(red * 0.2f, green * 0.2f, blue * 0.2f, 1.0F));
-			GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-			GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_SPECULAR, setColorBuffer(red * 0.2f, green * 0.2f, blue * 0.2f, 1.0F));
-			// color of light from the front
-			GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION,
-					setColorBuffer((float) LIGHT0_POS.x, (float) -LIGHT0_POS.y, (float) LIGHT0_POS.z, 0.0f));
-			GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, setColorBuffer(red * 0.75f, green * 0.75f, blue * 0.75f, 1.0F));
-			GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_AMBIENT, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-			GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_SPECULAR, setColorBuffer(red * 0.75f, green * 0.75f, blue * 0.75f, 1.0F));
-			GL11.glShadeModel(GL11.GL_FLAT);
-			// color of mask on model
-			GlStateManager.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, setColorBuffer(red, green, blue, 1.0F));
-		}
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
+	protected void setupLight() {
+		GlStateManager.enableLighting();
+		GlStateManager.enableLight(0);
+		GlStateManager.enableLight(1);
+		GlStateManager.enableColorMaterial();
+		GlStateManager.colorMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
+		// color of light from behind
+		GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION,
+				setColorBuffer((float) LIGHT1_POS.x, (float) LIGHT1_POS.y, (float) LIGHT1_POS.z, 0.0f));
+		GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_DIFFUSE, setColorBuffer(red * 0.2f, green * 0.2f, blue * 0.2f, 1.0F));
+		GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+		GlStateManager.glLight(GL11.GL_LIGHT0, GL11.GL_SPECULAR, setColorBuffer(red * 0.2f, green * 0.2f, blue * 0.2f, 1.0F));
+		// color of light from the front
+		GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION,
+				setColorBuffer((float) LIGHT0_POS.x, (float) -LIGHT0_POS.y, (float) LIGHT0_POS.z, 0.0f));
+		GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, setColorBuffer(red * 0.75f, green * 0.75f, blue * 0.75f, 1.0F));
+		GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_AMBIENT, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+		GlStateManager.glLight(GL11.GL_LIGHT1, GL11.GL_SPECULAR, setColorBuffer(red * 0.75f, green * 0.75f, blue * 0.75f, 1.0F));
+		GL11.glShadeModel(GL11.GL_FLAT);
+		// color of mask on model
+		GlStateManager.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, setColorBuffer(red, green, blue, 1.0F));
+	}
+
+	protected void clearLight() {
+		GlStateManager.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, setColorBuffer(0.2f, 0.2f, 0.2f, 1.0f));
 		GL11.glShadeModel(GL11.GL_SMOOTH);
+		GlStateManager.disableColorMaterial();
+		GlStateManager.disableLight(1);
+		GlStateManager.disableLight(0);
+		GlStateManager.disableLighting();
+	}
+
+	protected void draw() {
 		// draw
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
