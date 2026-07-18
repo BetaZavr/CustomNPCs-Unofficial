@@ -31,9 +31,6 @@ public class LayerNpcCloak<T extends EntityLivingBase> extends LayerInterface<T>
 		this.render.bindTexture(this.npc.textureCloakLocation);
 		GlStateManager.pushMatrix();
 		ModelPartConfig config = this.playerdata.getPartConfig(EnumParts.BODY);
-		if (this.npc.isSneaking()) {
-			GlStateManager.translate(0.0f, 0.2f, 0.0f);
-		}
 		GlStateManager.translate(config.transX, config.transY, config.transZ);
 		GlStateManager.translate(0.0f, 0.0f, 0.125f);
 		double d = this.npc.prevChasingPosX + (this.npc.chasingPosX - this.npc.prevChasingPosX) * par7 - (this.npc.prevPosX + (this.npc.posX - this.npc.prevPosX) * par7);

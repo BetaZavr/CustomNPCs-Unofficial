@@ -88,9 +88,15 @@ public class PacketSyncRemove extends PacketBasic {
             break;
          } // IKeySetting
          case 9: {
-            AnimationController.getInstance().removeAnimation(id);
+            if (id < 0) { AnimationController.getInstance().clearAnimations(); }
+            else { AnimationController.getInstance().removeAnimation(id); }
             break;
          } // custom animation
+         case 10: {
+            if (id < 0) { AnimationController.getInstance().clearEmotions(); }
+            else { AnimationController.getInstance().removeEmotion(id); }
+            break;
+         } // custom emotion
       }
       CustomNpcs.debugData.end("Packets");
    }

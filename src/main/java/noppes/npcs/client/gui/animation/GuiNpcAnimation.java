@@ -116,9 +116,12 @@ public class GuiNpcAnimation extends GuiNPCInterface
 				if (anim == null) { return; }
 				AnimationController aData = AnimationController.getInstance();
 				anim = aData.copy(anim.id, dataType.get(selType));
+				anim.name = anim.name + "_" + anim.id;
 				selAnim = anim.getSettingName();
 				selBaseAnim = anim.getSettingName();
 				if (dataType.containsKey(selType)) { animation.addAnimation(dataType.get(selType), anim.id); }
+				Packets.sendServer(new SPacketAnimationChange(2, anim.save()));
+				Packets.sendServer(new SPacketAnimationChange(3, new NBTTagCompound()));
 				isChanged = true;
 				initGui();
 				break;
@@ -130,6 +133,9 @@ public class GuiNpcAnimation extends GuiNPCInterface
 						if (agree) {
 							if (dataType.containsKey(selType)) { animation.removeAnimation(dataType.get(selType), finalAnim.id); }
 							AnimationController.getInstance().removeAnimation(finalAnim.id);
+							NBTTagCompound delData = new NBTTagCompound();
+							delData.setInteger("ID", finalAnim.id);
+							Packets.sendServer(new SPacketAnimationChange(1, delData));
 							isChanged = true;
 							initGui();
 						}
@@ -154,7 +160,7 @@ public class GuiNpcAnimation extends GuiNPCInterface
 	}
 
 	@Override
-	public void save() { Packets.sendAll(new SPacketAnimationSave(animation.save(new NBTTagCompound()))); }
+	public void save() { Packets.sendServer(new SPacketAnimationSave(animation.save(new NBTTagCompound()))); }
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -398,7 +404,7 @@ public class GuiNpcAnimation extends GuiNPCInterface
 		if (subgui instanceof SubGuiEditAnimation && ((SubGuiEditAnimation) subgui).anim != null) {
 			selAnim = ((SubGuiEditAnimation) subgui).anim.getSettingName();
 			selBaseAnim = selAnim;
-			Packets.sendAll(new SPacketAnimationChange(2, ((SubGuiEditAnimation) subgui).anim.save()));
+			Packets.sendServer(new SPacketAnimationChange(2, ((SubGuiEditAnimation) subgui).anim.save()));
 			isChanged = true;
 			initGui();
 		} // create new

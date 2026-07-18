@@ -61,6 +61,7 @@ public abstract class GuiMainMenuMixin extends GuiScreen {
 
     @Inject(method = "renderSkybox", at = @At("HEAD"), cancellable = true)
     private void npcs$renderSkybox(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
+        if (!CustomNpcs.ReplaceCustomBackground) { return; }
         Minecraft mc = Minecraft.getMinecraft();
         GlStateManager.viewport(0, 0, mc.displayWidth, mc.displayHeight);
         drawPanorama(mouseX, mouseY, partialTicks);
@@ -69,6 +70,7 @@ public abstract class GuiMainMenuMixin extends GuiScreen {
 
     @Inject(method = "drawPanorama", at = @At("HEAD"), cancellable = true)
     private void npcs$drawPanorama(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
+        if (!CustomNpcs.ReplaceCustomBackground) { return; }
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
 
@@ -153,6 +155,9 @@ public abstract class GuiMainMenuMixin extends GuiScreen {
     }
 
     @Inject(method = "rotateAndBlurSkybox", at = @At("HEAD"), cancellable = true)
-    private void npcs$rotateAndBlurSkybox(CallbackInfo ci) { ci.cancel(); }
+    private void npcs$rotateAndBlurSkybox(CallbackInfo ci) {
+        if (!CustomNpcs.ReplaceCustomBackground) { return; }
+        ci.cancel();
+    }
 
 }

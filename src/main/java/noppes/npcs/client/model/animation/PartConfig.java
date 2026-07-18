@@ -113,7 +113,8 @@ public class PartConfig implements IAnimationPart {
 			try {
 				float corr = (float) Math.PI / (i == 4 ? 2.0f : 1.0f);
 				if (v == 0) { rotation[i] = ValueUtil.correctFloat((2.0f * pi * valueR - pi) / (i == 4 ? 2.0f : 1.0f), -corr, corr); }
-				else { rotation[i] = ValueUtil.correctFloat(valueR, -corr, corr); }
+				else if (i == 4) { rotation[i] = ValueUtil.correctFloat(valueR, -corr, corr); }
+				else { rotation[i] = ValueUtil.wrapRadians(valueR); }
 			} catch (Exception e) { LogWriter.error(e); }
 			if (i > 2) {
 				continue; }
@@ -153,22 +154,17 @@ public class PartConfig implements IAnimationPart {
 
 	@Override
 	public void setRotation(float x, float y, float z) {
-		x %= 180.0f;
-		y %= 180.0f;
-		z %= 180.0f;
 		float pi = (float) Math.PI;
-		rotation[0] = ValueUtil.correctFloat(x / 180.0f * pi, -pi, pi);
-		rotation[1] = ValueUtil.correctFloat(y / 180.0f * pi, -pi, pi);
-		rotation[2] = ValueUtil.correctFloat(z / 180.0f * pi, -pi, pi);
+		rotation[0] = ValueUtil.wrapRadians(x / 180.0f * pi);
+		rotation[1] = ValueUtil.wrapRadians(y / 180.0f * pi);
+		rotation[2] = ValueUtil.wrapRadians(z / 180.0f * pi);
 	}
 
 	@Override
 	public void setRotation(float x1, float y1) {
-		x1 %= 90.0f;
-		y1 %= 90.0f;
 		float pi = (float) Math.PI;
-		rotation[3] = ValueUtil.correctFloat(x1 / 180.0f * pi, -pi, pi);
-		rotation[4] = ValueUtil.correctFloat(y1 / 180.0f * pi, -pi, pi);
+		rotation[3] = ValueUtil.wrapRadians(x1 / 180.0f * pi);
+		rotation[4] = ValueUtil.correctFloat(ValueUtil.wrapRadians(y1 / 180.0f * pi), -pi / 2.0f, pi / 2.0f);
 	}
 
 	@Override
@@ -223,10 +219,10 @@ public class PartConfig implements IAnimationPart {
 		}
 		for (int i = 0; i < 11; i++) {
 			if (inBase.length > i) {
-				if (i < 3) { rotation[i] = inBase[i]; }
+				if (i < 3) { rotation[i] = ValueUtil.wrapRadians(inBase[i]); }
 				else if (i < 6) { offset[i - 3] = inBase[i]; }
 				else if (i < 9){ scale[i - 6] = inBase[i]; }
-				else { rotation[i - 6] = inBase[i]; }
+				else { rotation[i - 6] = ValueUtil.wrapRadians(inBase[i]); }
 			}
 		}
     }

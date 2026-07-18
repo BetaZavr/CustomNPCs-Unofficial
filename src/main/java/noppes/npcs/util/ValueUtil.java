@@ -4,6 +4,18 @@ public class ValueUtil {
 
 	public static float correctFloat(float given, float min, float max) { return Math.min(Math.max(given, min), max); }
 
+	public static float wrapFloat(float given, float min, float max) {
+		float range = max - min;
+		if (range <= 0.0f) { return min; }
+		float result = (given - min) % range;
+		if (result < 0.0f) { result += range; }
+		return result + min;
+	}
+
+	public static float wrapRadians(float given) {
+		return wrapFloat(given, (float) -Math.PI, (float) Math.PI);
+	}
+
 	public static double correctDouble(double given, double min, double max) { return Math.min(Math.max(given, min), max); }
 
 	public static int correctInt(int given, int min, int max) { return Math.min(Math.max(given, min), max); }

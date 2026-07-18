@@ -324,6 +324,8 @@ public class ModelNpcAlt extends ModelPlayer {
         }
         Map<Integer, List<ModelRendererAlt>> animatedMap = animAddedChildren.get(animID);
         int entitySkinTextureID = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+        GlStateManager.pushMatrix();
+        if (!isChild && entityIn.isSneaking()) { GlStateManager.translate(0.0F, 0.2F, 0.0F); }
         // Custom parts
         if (animatedMap != null && animatedMap.containsKey(-1)) {
             for (ModelRendererAlt modelRenderer : animatedMap.get(-1)) {
@@ -334,6 +336,7 @@ public class ModelNpcAlt extends ModelPlayer {
         if (ba.get(EnumParts.HEAD) && bAW.get(EnumParts.HEAD) && bipedHead.showModel) {
             ((ModelRendererAlt) bipedHead).checkBacklightColor(r, g, b);
             if (isChild) {
+                GlStateManager.pushMatrix();
                 GlStateManager.scale(0.75F, 0.75F, 0.75F);
                 GlStateManager.translate(0.0F, 16.0F * scale, 0.0F);
 
@@ -354,12 +357,9 @@ public class ModelNpcAlt extends ModelPlayer {
                     GL11.glBindTexture(GL11.GL_TEXTURE_2D, entitySkinTextureID);
                     renderHeadWear(scale);
                 }
-                GlStateManager.scale(0.5F, 0.5F, 0.5F);
-                GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
+                GlStateManager.popMatrix();
             }
             else {
-                if (entityIn.isSneaking()) { GlStateManager.translate(0.0F, 0.2F, 0.0F); }
-
                 List<ModelRendererAlt> list = null;
                 if (animatedMap != null) { list = animatedMap.get(0); }
                 if (list != null) {
@@ -378,6 +378,10 @@ public class ModelNpcAlt extends ModelPlayer {
                     renderHeadWear(scale);
                 }
             }
+        }
+        if (isChild) {
+            GlStateManager.scale(0.5F, 0.5F, 0.5F);
+            GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
         }
         if (ba.get(EnumParts.BODY) && bAW.get(EnumParts.BODY) && bipedBody.showModel) {
             ((ModelRendererAlt) bipedBody).checkBacklightColor(r, g, b);
@@ -487,6 +491,7 @@ public class ModelNpcAlt extends ModelPlayer {
                 bipedLeftLegwear.render(scale);
             }
         }
+        GlStateManager.popMatrix();
     }
 
     protected void renderHeadWear(float scale) {
@@ -627,21 +632,10 @@ public class ModelNpcAlt extends ModelPlayer {
             ((ModelRendererAlt) bipedLeftLeg).setBaseData(npc.modelData.getPartConfig(EnumParts.LEG_LEFT));
             ((ModelRendererAlt) bipedRightLeg).setBaseData(npc.modelData.getPartConfig(EnumParts.LEG_RIGHT));
             boolean isAttacking = npc.isAttacking();
-            if (!isAttacking && npc.currentAnimation == 0) {
+            if (!isAttacking && npc.currentAnimation == 0 && npc.isPlayerSleeping()) {
                 // Vanilla animation
-                if (npc.isPlayerSleeping()) {
-                    if (bipedHead.rotateAngleX < 0.0f) {
-                        bipedHead.rotateAngleX = 0.0f;
-                    }
-                } else if (isSneak) {
-                    if (bipedCape != null) {
-                        bipedCape.offsetAnimY = -0.475f;
-                    }
-                    if (bipedCape != null) {
-                        bipedCape.offsetAnimZ = -0.235f;
-                    }
-                    rightStackData.partSets[4] = -0.475f;
-                    leftStackData.partSets[4] = -0.475f;
+                if (bipedHead.rotateAngleX < 0.0f) {
+                    bipedHead.rotateAngleX = 0.0f;
                 }
             }
             if (npc.currentAnimation != 0) {
@@ -680,14 +674,6 @@ public class ModelNpcAlt extends ModelPlayer {
                 else if (pitch > 45.0f) { pitch = 45.0f; }
                 bipedHead.rotateAngleX = (float) ((-pitch * Math.PI) / 180D);
                 npc.rotationPitch = pitch;
-            }
-        }
-        else {
-            if (isSneak) {
-                bipedCape.offsetAnimY = -0.475f;
-                bipedCape.offsetAnimZ = -0.235f;
-                rightStackData.partSets[4] = -0.475f;
-                leftStackData.partSets[4] = -0.475f;
             }
         }
         if (CustomNpcs.ShowCustomAnimation && animation != null) {

@@ -127,6 +127,10 @@ public class JobPuppet extends JobInterface implements IJobPuppet {
             valNext = 1.0f - (MathHelper.cos((ticks + 1) / speed * (float) Math.PI / 2.0f) + 1.0f) / 2.0f;
             prevTicks = npc.ticksExisted;
         }
+        float result = r - r2;
+        if (Math.abs(result) > 1.0f) {
+            r2 = 2.0f * (result < 0.0f ? -1.0f : 1.0f) + r2;
+        }
         return r + (r2 - r) * (val + (valNext - val) * partialTicks);
     }
 

@@ -56,7 +56,7 @@ public class AnimationConfig implements IAnimation {
 	@Override
 	public IAnimationFrame addFrame(int frameId, IAnimationFrame frame) {
 		if (frame == null) { return addFrame(); }
-		if (frameId < 0) {
+		if (frameId < 0 || frameId >= frames.size()) {
 			frameId = frames.size();
 			frames.put(frameId, ((AnimationFrameConfig) frame).copy());
 			frames.get(frameId).id = frameId;

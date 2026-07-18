@@ -25,7 +25,6 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketItemChange;
 import noppes.npcs.shared.client.gui.components.*;
-import noppes.npcs.shared.client.gui.components.custom.GuiColorButton;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
 import noppes.npcs.shared.client.gui.listeners.ISliderListener;
 import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
@@ -248,7 +247,7 @@ public class GuiCreationParts extends GuiCreationScreenInterface<ContainerLayer>
 				button = getButton(23).setSize(40, 14);
 				button.setX(x1);
 				button.setY(y);
-				((GuiColorButton) getButton(23).setHoverTexts("display.hover.part.eye.color.r")).color = eyes.eyeColor[1];
+				getButton(23).setHoverTexts("display.hover.part.eye.color.r").setColor(eyes.eyeColor[1]);
 				addButton(45, x1 + 42, y, "-")
 						.setSize(18, 14)
 						.setHoverTexts("display.hover.part.eye.color");

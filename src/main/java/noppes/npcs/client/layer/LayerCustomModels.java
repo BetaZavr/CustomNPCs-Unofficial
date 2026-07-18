@@ -54,6 +54,7 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
             blue = (color & 0xFF) / 255.0f;
         }
         GlStateManager.pushMatrix();
+        if (npc.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
         GlStateManager.enableAlpha();
         GlStateManager.enableBlend();
         if (isInvisible) {
@@ -95,7 +96,6 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
     }
 
     public void preRender(float red, float green, float blue) {
-        if (npc.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
         if (dispatcher == null) { dispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher(); }
 
         if (!npc.animation.isAnimated(AnimationKind.DIES) && npc.hurtTime > 0 || npc.deathTime > 0) { return; }

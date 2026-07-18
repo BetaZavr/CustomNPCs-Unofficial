@@ -164,6 +164,12 @@ public class CustomEmotionHandler {
                                     break;
                                 }
                             }
+                            value_0 = ValueUtil.wrapFloat(value_0, -180.0f, 180.0f);
+                            value_1 = ValueUtil.wrapFloat(value_1, -180.0f, 180.0f);
+                            float result = value_0 - value_1;
+                            if (Math.abs(result) > 180.0f) {
+                                value_1 = 360.0f * (result < 0.0f ? -1.0f : 1.0f) + value_1;
+                            }
                             break;
                         }
                         default: { // offsets

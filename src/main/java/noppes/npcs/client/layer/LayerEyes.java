@@ -290,7 +290,6 @@ extends LayerInterface<T> {
 
 		GlStateManager.pushMatrix();
 		model.bipedHead.postRender(0.0625f);
-		if (npc.isSneaking()) { GlStateManager.translate(0.0F, -0.2F, 0.0F); }
 		GlStateManager.scale(scale, scale, -scale);
 		GlStateManager.translate(0.0f, (((playerdata.eyes.type != 0) ? 1 : 2) - playerdata.eyes.eyePos), 0.0f);
 		GlStateManager.enableRescaleNormal(); // Normalization of vertex normals

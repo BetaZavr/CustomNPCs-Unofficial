@@ -44,7 +44,8 @@ public class ModelBipedAW extends ModelBipedAlt {
         catch (Exception e) { LogWriter.error(e); }
         if (distance > d) { return; }
 
-        if (entityIn.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
+        GlStateManager.pushMatrix();
+        if (!isChild && entityIn.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
         setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 
         IWardrobeCap wardrobe = ArmourersWorkshopApi.getEntityWardrobeCapability(entityIn);
@@ -182,6 +183,7 @@ public class ModelBipedAW extends ModelBipedAlt {
                 catch (Exception ignore) { }
             }
         }
+        GlStateManager.popMatrix();
     }
 
 }

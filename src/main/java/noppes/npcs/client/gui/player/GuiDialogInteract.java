@@ -536,7 +536,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		if (!textures.isEmpty()) {
 			for (int linePos : textures.keySet()) {
 				DialogTexture dt = textures.get(linePos);
-				if (dt.left < guiLeft) { continue; }
+				dt.left = guiLeft + 1 + ClientProxy.Font.width(dt.line.getName() + ": ");
 				int tys = fontHeight * (linePos - lineStart);
 				int tye = tys + dt.vS / 2;
 				if (tye >= 0 && tys <= dialogHeight - 4) {

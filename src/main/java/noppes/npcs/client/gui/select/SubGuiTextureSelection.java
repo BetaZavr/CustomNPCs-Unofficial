@@ -167,7 +167,7 @@ public class SubGuiTextureSelection extends ResourceSelection {
 			if (type == 0) { rot = minecraft.world == null ? 0 : (int) (3 * minecraft.world.getTotalWorldTime() % 360); }
 			else if (type == 1) { rot = 215; }
 			else { rot = 325; }
-			if (npc.textureLocation != null) { drawNpc(displayEntity, 312, 178, s, rot, 0, mouse); }
+			if (npc.textureLocation != null) { drawNpc(displayEntity, x - guiLeft + w / 2, 178, s, rot, 0, mouse); }
 		}
 	}
 

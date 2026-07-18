@@ -100,19 +100,13 @@ public class AnimationController implements IAnimationHandler {
 
 	public int getUnusedEmtnId() {
 		int id = 0;
-		for (int i : emotions.keySet()) {
-			if (i != id) { break; }
-			id = i + 1;
-		}
+		while (emotions.containsKey(id)) { id++; }
 		return id;
 	}
 
 	public int getUnusedAnimId() {
-		int id = baseMaxAnimID;
-		for (int i : animations.keySet()) {
-			if (i != id) { break; }
-			id = i + 1;
-		}
+		int id = Math.max(baseMaxAnimID, 0);
+		while (animations.containsKey(id)) { id++; }
 		return id;
 	}
 
@@ -163,7 +157,6 @@ public class AnimationController implements IAnimationHandler {
 			if (animDir.exists()) {
 				try {
 					loadAnimations(animDir);
-					Util.instance.removeFile(animDir);
 					save();
 				}
 				catch (Exception e) { LogWriter.error(e); }
@@ -172,7 +165,6 @@ public class AnimationController implements IAnimationHandler {
 			if (emtnDir.exists()) {
 				try {
 					loadEmotions(emtnDir);
-					Util.instance.removeFile(emtnDir);
 					save();
 				}
 				catch (Exception e) { LogWriter.error(e); }
@@ -370,7 +362,7 @@ public class AnimationController implements IAnimationHandler {
 	}
 
 	public void sendTo(EntityPlayerMP player) {
-		if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) { return; }
+		if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer() && player.getName().equals(CustomNpcs.Server.getServerOwner())) { return; }
 		Packets.send(player, new PacketSyncRemove(-1, 9));
 		Packets.send(player, new PacketSyncRemove(-1, 10));
 		for (AnimationConfig ac : animations.values()) { Packets.send(player, new PacketSyncUpdate(0, 9, ac.save())); }
@@ -414,8 +406,8 @@ public class AnimationController implements IAnimationHandler {
 			NBTTagCompound data = emotions.containsKey(id) ? emotions.get(id).save() : null;
 			for (EntityPlayerMP player : CustomNpcs.Server. getPlayerList().getPlayers()) {
 				if (id < 0) { sendTo(player); }
-				else if (data == null) { Packets.send(player, new PacketSyncRemove(id, 9)); }
-				else { Packets.send(player, new PacketSyncUpdate(0, 9, data)); }
+				else if (data == null) { Packets.send(player, new PacketSyncRemove(id, 10)); }
+				else { Packets.send(player, new PacketSyncUpdate(0, 10, data)); }
 			}
 		}
 	}

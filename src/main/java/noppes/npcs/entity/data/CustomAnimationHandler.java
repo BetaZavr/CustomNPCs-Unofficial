@@ -234,8 +234,8 @@ public class CustomAnimationHandler {
                             break;
                         }
                         default: {
-                            value_0 = part0.rotation[a];
-                            value_1 = part1.rotation[a];
+                            value_0 = ValueUtil.wrapRadians(part0.rotation[a]);
+                            value_1 = ValueUtil.wrapRadians(part1.rotation[a]);
                             float result =  value_0 - value_1; // adjusting the nearest number
                             if (Math.abs(result) > Math.PI) { // example: to rotate in a circle
                                 value_1 = (float) Math.PI * (result < 0.0f ? -2.0f : 2.0f) + value_1;
@@ -274,6 +274,31 @@ public class CustomAnimationHandler {
         data.clear();
         movementAnimation.clear();
         AnimationController aData = AnimationController.getInstance();
+        Map<Integer, Integer> remap = new HashMap<>();
+        if (compound.hasKey("AllAnimationsData", 9) && entity != null && entity.isServerWorld()) {
+            boolean changed = false;
+            for (int i = 0; i < compound.getTagList("AllAnimationsData", 10).tagCount(); i++) {
+                NBTTagCompound nbt = compound.getTagList("AllAnimationsData", 10).getCompoundTagAt(i);
+                int oldId = nbt.getInteger("ID");
+                String name = nbt.getString("Name");
+                AnimationConfig exist = aData.getAnimation(oldId);
+                if (exist != null && exist.getName().equals(name)) { continue; }
+                AnimationConfig byName = aData.getAnimation(name);
+                if (byName != null) {
+                    remap.put(oldId, byName.id);
+                    continue;
+                }
+                AnimationConfig anim = aData.createNewAnim();
+                int newId = anim.id;
+                anim.load(nbt);
+                anim.id = newId;
+                anim.immutable = false;
+                Packets.sendAll(new PacketSyncUpdate(newId, 9, anim.save()));
+                remap.put(oldId, newId);
+                changed = true;
+            }
+            if (changed) { aData.save(); }
+        }
         for (int c = 0; c < compound.getTagList("AllAnimations", 10).tagCount(); c++) {
             NBTTagCompound nbtCategory = compound.getTagList("AllAnimations", 10).getCompoundTagAt(c);
             int t = nbtCategory.getInteger("Category");
@@ -287,6 +312,7 @@ public class CustomAnimationHandler {
             int tagType = nbtCategory.getTag("Animations").getId();
             if (tagType == 11) { // OLD version
                 for (int id : nbtCategory.getIntArray("Animations")) {
+                    if (remap.containsKey(id)) { id = remap.get(id); }
                     if (!list.contains(id)) { list.add(id); }
                 }
             }
@@ -298,7 +324,7 @@ public class CustomAnimationHandler {
                         int id = nbt.getInteger("ID");
                         String name = entity.getName() + "_" + nbt.getString("Name");
                         AnimationConfig anim = aData.getAnimation(id);
-                        if (entity.world.getEntityByID(entity.getEntityId()) != null && anim == null || !anim.getName().equals(name)) {
+                        if (anim == null || !anim.getName().equals(name)) {
                             boolean found = false;
                             if (anim != null) {
                                 for (AnimationConfig ac : aData.getAnimations()) {
@@ -314,7 +340,7 @@ public class CustomAnimationHandler {
                                 if (!anim.immutable) { anim.load(nbt); }
                                 anim.name = name;
                                 anim.id = id;
-                                Packets.sendAll(new PacketSyncUpdate(id, 10, anim.save()));
+                                Packets.sendAll(new PacketSyncUpdate(id, 9, anim.save()));
                             }
                         }
                         if (!list.contains(id)) { list.add(id); }
@@ -323,6 +349,7 @@ public class CustomAnimationHandler {
                 else if (listType == 3) { // NOW
                     for (int i = 0; i < nbtCategory.getTagList("Animations", 3).tagCount(); i++) {
                         int id = nbtCategory.getTagList("Animations", 3).getIntAt(i);
+                        if (remap.containsKey(id)) { id = remap.get(id); }
                         if (!list.contains(id)) { list.add(id); }
                     }
                 }
@@ -333,7 +360,9 @@ public class CustomAnimationHandler {
         if (compound.hasKey("MovementAnimations", 9) && entity != null && (entity.world == null || entity.world.isRemote)) {
             for (int c = 0; c < compound.getTagList("MovementAnimations", 10).tagCount(); c++) {
                 NBTTagCompound nbt = compound.getTagList("MovementAnimations", 10).getCompoundTagAt(c);
-                movementAnimation.put(AnimationKind.get(nbt.getInteger("Type")), nbt.getInteger("ID"));
+                int id = nbt.getInteger("ID");
+                if (remap.containsKey(id)) { id = remap.get(id); }
+                movementAnimation.put(AnimationKind.get(nbt.getInteger("Type")), id);
             }
             AnimationKind base = getCurrentMovementAnimation();
             if (base != null) {
@@ -360,6 +389,21 @@ public class CustomAnimationHandler {
             allAnimations.appendTag(nbtCategory);
         }
         compound.setTag("AllAnimations", allAnimations);
+
+        if (entity != null && entity.world != null && !entity.world.isRemote) {
+            AnimationController aData = AnimationController.getInstance();
+            Set<Integer> usedIds = new TreeSet<>();
+            for (List<Integer> ids : data.values()) {
+                if (ids != null) { usedIds.addAll(ids); }
+            }
+            usedIds.addAll(movementAnimation.values());
+            NBTTagList fullData = new NBTTagList();
+            for (int id : usedIds) {
+                AnimationConfig ac = aData.getAnimation(id);
+                if (ac != null) { fullData.appendTag(ac.save()); }
+            }
+            if (fullData.tagCount() > 0) { compound.setTag("AllAnimationsData", fullData); }
+        }
 
         if (entity != null && entity.world != null && !entity.world.isRemote && !movementAnimation.isEmpty()) {
             NBTTagList movementAnimations = new NBTTagList();

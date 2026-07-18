@@ -155,7 +155,7 @@ public class ModelRendererAlt
 			if (smallArms) { ox += part == EnumParts.ARM_LEFT ? -0.020833f : 0.020833f; }
 			GlStateManager.translate(ox, offsetAnimY, offsetAnimZ);
 		}
-		GlStateManager.translate(rotationPointX * scale, (rotationPointY + offsetAnimY) * scale, (rotationPointZ + offsetAnimZ) * scale);
+		GlStateManager.translate(rotationPointX * scale, rotationPointY * scale, rotationPointZ * scale);
 
 		if (rotateAngleZ != 0.0F) { GlStateManager.rotate(rotateAngleZ * (180F / (float)Math.PI), 0.0F, 0.0F, 1.0F); }
 		if (rotateAngleY != 0.0F) { GlStateManager.rotate(rotateAngleY * (180F / (float)Math.PI), 0.0F, 1.0F, 0.0F); }
