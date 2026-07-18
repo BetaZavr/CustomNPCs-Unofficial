@@ -6,8 +6,8 @@ buildscript {
         mavenLocal()
         mavenCentral()
         flatDir { dirs 'libs' }
-        //maven { url = 'https://maven.minecraftforge.net/' }
-        //maven { url 'https://repo.spongepowered.org/maven' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url 'https://repo.spongepowered.org/maven' }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.14'

@@ -143,7 +143,7 @@ public class DataScenes {
 				EntityProjectile projectile = npc.shoot(entity2, 100, stack, false);
 				projectile.damage = damage;
 			} else if (event.type == SceneType.ANIMATE) {
-				npc.animateAi.tempAnimation = AnimationType.get(event.param);
+				npc.animateAi.temp = AnimationType.get(event.param);
 			} else if (event.type == SceneType.COMMAND) {
 				NoppesUtilServer.runCommand(npc, npc.getName(), event.param, null);
 			} else if (event.type == SceneType.STATS) {
