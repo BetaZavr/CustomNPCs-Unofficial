@@ -439,9 +439,9 @@ public class GuiBasicContainer<T extends Container> extends GuiContainer impleme
 
     @Override
     public void drawDefaultBackground() {
-        if (drawDefaultBackground) {
-            super.drawDefaultBackground();
-            if (wrapper.subgui == null) {
+        if (drawDefaultBackground) { super.drawDefaultBackground(); }
+        if (wrapper.subgui == null) {
+            {
                 postDrawBackground();
                 if (background != null && !(this instanceof GuiContainerNPCInterface2)) {
                     GlStateManager.pushMatrix();
@@ -511,6 +511,7 @@ public class GuiBasicContainer<T extends Container> extends GuiContainer impleme
         super.drawScreen(x, y, partialTicks);
         zLevel = 0.0f;
         RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.disableLighting();
         for (IComponentGui component : new ArrayList<>(wrapper.components)) { component.render(x, y, partialTicks); }
         RenderHelper.disableStandardItemLighting();
         if (wrapper.subgui != null) {

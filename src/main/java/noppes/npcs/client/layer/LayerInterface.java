@@ -62,7 +62,7 @@ implements LayerRenderer<T> {
 		if (npc.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
 		GlStateManager.enableRescaleNormal();
 		render(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-		GlStateManager.disableRescaleNormal();
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		if (entity.isInvisible()) {
 			GlStateManager.disableBlend();
 			GlStateManager.alphaFunc(516, 0.1f);

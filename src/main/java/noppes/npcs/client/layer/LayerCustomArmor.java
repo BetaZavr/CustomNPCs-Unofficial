@@ -38,6 +38,7 @@ public class LayerCustomArmor<T extends ModelBiped> extends LayerArmorBase<T> {
 
 	@Override
 	public void doRenderLayer(@Nonnull EntityLivingBase entityIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+		GlStateManager.enableRescaleNormal();
 		renderArmorLayer(entityIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale, EntityEquipmentSlot.CHEST);
 		renderArmorLayer(entityIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale, EntityEquipmentSlot.LEGS);
 		renderArmorLayer(entityIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale, EntityEquipmentSlot.FEET);

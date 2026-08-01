@@ -72,6 +72,7 @@ import noppes.npcs.client.gui.global.*;
 import noppes.npcs.client.gui.mainmenu.GuiNpcGlobalMainMenu;
 import noppes.npcs.client.gui.mainmenu.GuiNpcInv;
 import noppes.npcs.client.gui.mainmenu.GuiNpcAI;
+import noppes.npcs.client.gui.select.ResourceSelection;
 import noppes.npcs.client.gui.mainmenu.GuiNpcAdvanced;
 import noppes.npcs.client.gui.mainmenu.GuiNpcDisplay;
 import noppes.npcs.client.gui.mainmenu.GuiNpcStats;
@@ -659,6 +660,8 @@ public class ClientProxy extends CommonProxy {
 			}
 		}
 		mcWrapper = new WrapperMinecraft(mc);
+
+		ResourceSelection.preload(".png");
 	}
 
 	@Override

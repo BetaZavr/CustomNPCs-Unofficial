@@ -225,6 +225,14 @@ public class SubGuiSoundSelection extends ResourceSelection {
 	}
 
 	@Override
+	protected void loadFiles() {
+		Map<String, TreeMap<ResourceLocation, Long>> cache = resourcesData.get(suffix);
+		if (cache != null) { data.putAll(cache); return; }
+		resetFiles();
+		resourcesData.put(suffix, new TreeMap<>(data));
+	}
+
+	@Override
 	protected void resetFiles() {
 		data.clear();
 		handler = (ISoundRegistryMixin) ((ISoundHandlerMixin) minecraft.getSoundHandler()).getSoundRegistry();

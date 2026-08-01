@@ -66,36 +66,38 @@ public class SubGuiTextureSelection extends ResourceSelection {
 
 	@Override
 	public void buttonEvent(GuiButtonNop button) {
-		super.buttonEvent(button);
 		if (button.id == 3) {
 			dark = ((GuiCheckBoxNop) button).selected();
 			return;
 		}
-		String res = baseResource;
-		if (button.id == 2 && resource != null) { res = resource.toString(); }
-		if (npc != null && type >= 0 && type <= 2 && resource != null) {
-			switch (type) {
-				case 1: {
-					npc.display.setCapeTexture(res);
-					if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setCapeTexture(resource.toString()); }
-					break;
-				}
-				case 2: {
-					npc.display.setOverlayTexture(res);
-					if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setOverlayTexture(resource.toString()); }
-					break;
-				}
-				default: {
-					npc.display.setSkinTexture(res);
-					if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setSkinTexture(resource.toString()); }
-					break;
-				}
-			}
+		if (button.id == 2 && npc != null && type >= 0 && type <= 2 && resource != null) {
+			applyTexture(resource.toString());
 			npc.textureLocation = null;
 		}
+		super.buttonEvent(button);
 		if (button.id != 1 && button.id != 2 && button.id != 66) { onClose(); }
 		if (wrapper.parent instanceof GuiScreen) {
 			wrapper.parent.initGui();
+		}
+	}
+
+	protected void applyTexture(String res) {
+		switch (type) {
+			case 1: {
+				npc.display.setCapeTexture(res);
+				if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setCapeTexture(res); }
+				break;
+			}
+			case 2: {
+				npc.display.setOverlayTexture(res);
+				if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setOverlayTexture(res); }
+				break;
+			}
+			default: {
+				npc.display.setSkinTexture(res);
+				if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setSkinTexture(res); }
+				break;
+			}
 		}
 	}
 
@@ -174,25 +176,10 @@ public class SubGuiTextureSelection extends ResourceSelection {
     @Override
 	public void scrollClicked(GuiCustomScrollNop scroll) {
 		super.scrollClicked(scroll);
-		if (!scroll.getNormalSelected().equals(back) && selectDir != null && scroll.getSelected().endsWith(suffix)) {
-			if (npc != null && type >= 0 && type <= 2) {
-				switch (type) {
-					case 1: {
-						npc.display.setCapeTexture(resource.toString());
-						if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setCapeTexture(resource.toString()); }
-						break;
-					}
-					case 2: {
-						npc.display.setOverlayTexture(resource.toString());
-						if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setOverlayTexture(resource.toString()); }
-						break;
-					}
-					default: {
-						npc.display.setSkinTexture(resource.toString());
-						if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setSkinTexture(resource.toString()); }
-						break;
-					}
-				}
+		if (!scroll.getNormalSelected().equals(back) && selectDir != null && selectedName(scroll).toLowerCase().endsWith(suffix)) {
+			if (npc != null && type >= 0 && type <= 2 && resource != null) {
+				applyTexture(resource.toString());
+				npc.textureLocation = null;
 			}
 		}
 	}

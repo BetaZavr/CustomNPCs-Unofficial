@@ -73,6 +73,7 @@
     "client.gui.GuiListWorldSelectionEntryMixin",
     "client.gui.GuiMainMenuMixin",
     "client.gui.GuiMultiplayerMixin",
+    "client.gui.GuiScreenBackgroundMixin",
     "client.gui.IGuiButton",
     "client.gui.IGuiYesNoMixin",
     "client.gui.inventory.GuiContainerCreativeMixin",

@@ -148,7 +148,6 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
                     mc.getRenderItem().renderItem(lm.getStack(), ItemCameraTransforms.TransformType.FIXED);
                 }
             }
-            GlStateManager.disableRescaleNormal();
             GlStateManager.popMatrix();
         }
         GlStateManager.popMatrix();
@@ -199,7 +198,6 @@ public class LayerCustomModels<T extends EntityLivingBase> extends LayerInterfac
                     mc.getRenderItem().renderItem(lm.getStack(), ItemCameraTransforms.TransformType.FIXED);
                 }
             }
-            GlStateManager.disableRescaleNormal();
             GlStateManager.popMatrix();
         }
         GlStateManager.popMatrix();

@@ -1,6 +1,7 @@
 package noppes.npcs.shared.client.gui.components.custom;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -8,6 +9,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.chat.Component;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.ICustomGuiComponent;
@@ -87,7 +89,9 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
       GlStateManager.pushMatrix();
       GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
       GlStateManager.enableColorMaterial();
-      RenderHelper.enableStandardItemLighting();
+      float lastBrightnessX = OpenGlHelper.lastBrightnessX;
+      float lastBrightnessY = OpenGlHelper.lastBrightnessY;
+      OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
 
       EntityNPCInterface npc = null;
       if (entity instanceof EntityNPCInterface) { npc = (EntityNPCInterface)entity; }
@@ -134,12 +138,11 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
 
       float scaledZoom = 30.0F * scale * zoomed;
       GlStateManager.pushMatrix();
-      GlStateManager.translate(0.0F, 0.0F, 1050.0F);
-      GlStateManager.scale(1.0F, 1.0F, -1.0F);
-      GlStateManager.translate(guiLeft + (float) x, guiTop + (float) y, 0.0F);
-      GlStateManager.scale(scaledZoom, scaledZoom, scaledZoom);
+      GlStateManager.translate(guiLeft + (float) x, guiTop + (float) y, 50.0F);
+      GlStateManager.scale(scaledZoom, scaledZoom, -scaledZoom);
       GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
       GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
+      RenderHelper.enableStandardItemLighting();
       if (followCursor == 1) {
          GlStateManager.rotate(rotation, 0.0F, 1.0F, 0.0F);
          GlStateManager.rotate(vertical, 1.0F, 0.0F, 0.0F);
@@ -150,7 +153,6 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
       renderManager.setRenderShadow(true);
 
       GlStateManager.popMatrix();
-      GlStateManager.translate(0.0F, 0.0F, -1050.0F);
 
       entity.rotationYaw = originalYaw;
       entity.rotationPitch = originalPitch;
@@ -168,12 +170,22 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
          if (cnpc.modelData.getEntity(cnpc) != null) { EntityUtil.Copy(npc, cnpc.modelData.getEntity(cnpc)); }
       }
 
+      OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastBrightnessX, lastBrightnessY);
       RenderHelper.disableStandardItemLighting();
       GlStateManager.disableColorMaterial();
       GlStateManager.disableRescaleNormal();
       GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
       GlStateManager.disableTexture2D();
       GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+      GlStateManager.enableTexture2D();
+      GlStateManager.enableCull();
+      GlStateManager.depthMask(true);
+      GlStateManager.depthFunc(515);
+      GlStateManager.shadeModel(7424);
+      GlStateManager.alphaFunc(516, 0.1F);
+      GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+      GlStateManager.disableBlend();
+      GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
       GlStateManager.popMatrix();
    }
 

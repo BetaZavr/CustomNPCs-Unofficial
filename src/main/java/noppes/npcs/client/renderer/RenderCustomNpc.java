@@ -230,6 +230,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 					GlStateManager.enableLighting();
 					GlStateManager.color(1.0f, 1.0f, 1.0f, f1);
 					GlStateManager.depthFunc(515);
+					GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 					GlStateManager.disableBlend();
 				}
 			}

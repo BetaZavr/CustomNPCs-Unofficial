@@ -3,6 +3,7 @@ package noppes.npcs.client;
 import net.minecraft.client.resources.*;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.client.gui.select.ResourceSelection;
 import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nonnull;
@@ -44,6 +45,8 @@ public class CustomNpcResourceListener implements IResourceManagerReloadListener
 			FolderResourcePack pack = new FolderResourcePack(CustomNpcs.Dir);
 			simplemanager.reloadResourcePack(pack);
 			CustomNpcResourceListener.DefaultTextColor = CustomNpcs.LableColor.getRGB();
+			ResourceSelection.resourcesData.clear();
+			ResourceSelection.preload(".png");
 		}
 	}
 

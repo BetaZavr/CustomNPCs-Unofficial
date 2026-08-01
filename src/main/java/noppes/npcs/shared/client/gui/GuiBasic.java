@@ -528,7 +528,7 @@ public class GuiBasic extends GuiScreen implements IGuiInterface {
 
     @Override
     public void drawDefaultBackground() {
-        super.drawDefaultBackground();
+        if (drawDefaultBackground) { super.drawDefaultBackground(); }
         if (background != null) {
             GlStateManager.pushMatrix();
             GlStateManager.translate((float)guiLeft, (float) guiTop, 0.0F);
@@ -577,7 +577,7 @@ public class GuiBasic extends GuiScreen implements IGuiInterface {
         wrapper.mouseY = mouseY;
         int x = hasSubGui() ? 0 : mouseX;
         int y = hasSubGui() ? 0 : mouseY;
-        if (drawDefaultBackground) { drawDefaultBackground(); }
+        drawDefaultBackground();
         if (title != null && !title.getFormattedText().isEmpty()) {
             GuiButtonNop.renderString(title, guiLeft + 4, guiTop + 5, guiLeft + imageWidth - 8, guiTop + 15,
                     CustomNpcs.LableColor.getRGB(), false, true, null);

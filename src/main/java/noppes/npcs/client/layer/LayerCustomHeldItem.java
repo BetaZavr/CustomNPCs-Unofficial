@@ -135,6 +135,7 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 		GlStateManager.pushMatrix();
 		if (isAWShow && ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(stack)) {
 			renderHeldAWItem(ArmourersWorkshopApi.getSkinNBTUtils().getSkinDescriptor(stack), entity.isSneaking(), handSide, distance, scale);
+			GlStateManager.popMatrix();
 			return;
 		}
 		model.postRenderArm(scale, handSide);
@@ -309,7 +310,6 @@ public class LayerCustomHeldItem<T extends EntityLivingBase> extends LayerInterf
 			GlStateManager.popMatrix();
 			return;
 		}
-		GlStateManager.disableRescaleNormal();
 		GlStateManager.popMatrix();
 	}
 
