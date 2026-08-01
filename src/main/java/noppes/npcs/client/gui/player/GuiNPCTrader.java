@@ -126,9 +126,9 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 			initGui();
 			return;
 		}
-		if (button instanceof SectionButton) {
+		if (button instanceof SectionButton && button.id >= 20) {
 			int s = button.id - 20 + ceilList * ceilHeight;
-			if (button.id >= 20 && s != section) {
+			if (s != section) {
 				section = s;
 				selectDealData = null;
 				scrollY = 0;
@@ -142,7 +142,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 		}
 		if (button instanceof TradeButton) {
 			TradeButton tradeB = (TradeButton) button;
-			if ((tradeB.deal.getAmount() > 0 || player.isCreative()) && (selectDealData == null || selectDealData.deal.getId() != tradeB.deal.getId())) {
+			if (selectDealData == null || selectDealData.deal == null || selectDealData.deal.getId() != tradeB.deal.getId()) {
 				selectDealData = tradeB.dm;
 				hoverY = 0;
 				rotateX = 0.0f;
@@ -298,8 +298,8 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 			if (isMouseHover(mouseX, mouseY, xSize - 100, ySize - 142, 100, 24)) {
 				setHoverText(Component.translatable("market.hover.you.level", "" + (md.level + 1),
 						"" + Math.min(md.xp, mm.xp), "" + mm.xp,
-						(mm.buy <= 0.0f ? TextFormatting.GREEN: TextFormatting.RED) + "" + (int) (mm.buy * 100.0f),
-						(mm.sell < 0.0f ? TextFormatting.RED: TextFormatting.GREEN) + "" + (int) (mm.sell * 100.0f)));
+						(mm.buy <= 0.0f ? TextFormatting.GREEN: TextFormatting.RED) + "" + Math.round(mm.buy * 100.0f),
+						(mm.sell < 0.0f ? TextFormatting.RED: TextFormatting.GREEN) + "" + Math.round(mm.sell * 100.0f)));
 			} // hover market xp
 		}
 
@@ -452,14 +452,6 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 			}
 			GlStateManager.popMatrix();
 		}
-		if (Mouse.hasWheel()) {
-			if (isMouseHover(mouseX, mouseY, 3, 3, scrollWidth * 2 - 6, ySize - 50)) {
-				scrollY = ValueUtil.correctInt(scrollY + (int) (Mouse.getDWheel() / 120.0d * 28.0d), -scrollMaxY, 0);
-			}
-			else if (isMouseHover(mouseX, mouseY, xSize - 153, 76, 128, hoverHeightMax - 4)) {
-				hoverY = ValueUtil.correctInt(hoverY + (int) (Mouse.getDWheel() / 120.0d * ((double) fontRenderer.FONT_HEIGHT + 1.0d)), -hoverMaxY, 0);
-			}
-		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
@@ -579,7 +571,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 		for (Deal deal : data.values()) {
 			add(new TradeButton(this, deal, level, 5, 15 + i * 28, (scrollWidth * 2) - (scrollMaxY == 0 ? 9 : 22), dealInTrade.contains(deal) || caseInTrade.contains(deal)));
 			i++;
-			if ((selectDealData == null || selectDealData.deal == null) && (player.isCreative() || deal.getMaxCount() > 0 && deal.getAmount() > 0)) { selectDealData = mData.getBuyData(marcet, deal, level, count); }
+			if ((selectDealData == null || selectDealData.deal == null) && (player.isCreative() || deal.getMaxCount() == 0 || deal.getAmount() > 0)) { selectDealData = mData.getBuyData(marcet, deal, level, count); }
 		}
 		if (selectDealData != null && selectDealData.deal != null) {
 			selectDealData = mData.getBuyData(marcet, selectDealData.deal, level, count);
@@ -597,6 +589,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 				hoverY = 0;
 				rotateX = 0.0f;
 				rotateZ = 0.0f;
+				return;
 			}
 			hovers.clear();
 			List<Component> temp = new ArrayList<>();
@@ -653,7 +646,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 		canBuy.clear();
 		if (enableBuy) {
 			if (wait || selectDealData.deal.getType() == 1) { canBuy.add(1); }
-			if (selectDealData.deal.getAmount() <= 0 && selectDealData.deal.getMaxCount() <= 0) { canBuy.add(6); }
+			if (selectDealData.deal.getMaxCount() != 0 && selectDealData.deal.getAmount() <= 0) { canBuy.add(6); }
 			if (!selectDealData.deal.availability.isAvailable(player)) { canBuy.add(2); }
 			PlayerData pd = CustomNpcs.proxy.getPlayerData(player);
 			if (selectDealData.buyMoney > 0 && pd.game.getMoney() < selectDealData.buyMoney) { canBuy.add(3); }
@@ -687,7 +680,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 				if (selectDealData.sellMoney > marcet.money) { canSell.add(4); }
 				if (!selectDealData.sellItems.isEmpty() && !Util.instance.canRemoveItems(marcet.inventory,  selectDealData.sellItems, selectDealData.ignoreDamage, selectDealData.ignoreNBT)) { canSell.add(5); }
 			}
-			if (selectDealData.deal.getMaxCount() == 0 && selectDealData.deal.getAmount() <= 0 && selectDealData.deal.getType() != 1) { canSell.add(6); }
+			if (selectDealData.deal.getType() == 1) { canSell.add(6); }
 			if (sellButton.isActive()) {
 				if (!player.isCreative()) { sellButton.setIsEnabled(canSell.isEmpty()); }
 				if (!canSell.isEmpty()) { sellButton.layerColor = 0xFF800000; }
@@ -697,7 +690,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 		if (selectDealData != null && selectDealData.deal != null) {
 			List<Component> hoverBuy = new ArrayList<>();
 			List<Component> hoverSell = new ArrayList<>();
-			if (selectDealData.deal.getAmount() > 0 || (minecraft.player != null && minecraft.player.isCreative())) {
+			{
 				if (!canBuy.isEmpty()) {
 					for (int id : canBuy) { hoverBuy.add(Component.translatable("market.hover.notbuy." + id)); }
 				}
@@ -948,7 +941,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 
 			GL11.glEnable(GL11.GL_SCISSOR_TEST);
 			int c = parent.xSize < mc.displayWidth ? (int) Math.round((double) mc.displayWidth / (double) parent.xSize) : 1;
-			GL11.glScissor(4 * c, 15 * c, (parent.scrollWidth * 2) * c, (parent.ySize - 47) * c);
+			GL11.glScissor(4 * c, 47 * c, (parent.scrollWidth * 2) * c, (parent.ySize - 62) * c);
 
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0, parent.scrollY, 0);
@@ -1082,12 +1075,12 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 				if (!dm.buyItems.isEmpty()) {
 					float sc = 1.0f;
 					int size = dm.buyItems.size();
-					mw = size * 16;
-					if (width - 34 < mw) { sc = (width - 34.0f) / (float) mw; }
+					int bw = size * 16;
+					if (width - 34 < bw) { sc = (width - 34.0f) / (float) bw; }
 					float s = 0.666666f * sc;
 					// slots
 					GlStateManager.pushMatrix();
-					GlStateManager.translate(getX() + width - 2 - mw * sc, getY() + height - 2.0f - 16.0f * sc, 0.0f);
+					GlStateManager.translate(getX() + width - 2 - bw * sc, getY() + height - 2.0f - 16.0f * sc, 0.0f);
 					GlStateManager.scale(s, s, s);
 					mc.getTextureManager().bindTexture(ICONS);
 					for (int i = 0; i < size; i++) {
@@ -1106,7 +1099,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 					for (ItemStack stack : dm.buyItems.keySet()) {
 						mc.getRenderItem().renderItemAndEffectIntoGUI(stack, i * 18, 0);
 						GlStateManager.pushMatrix();
-						String sCount = Util.instance.getTextReducedNumber(dm.buyItems.get(stack), true, true, false);
+						String sCount = String.valueOf(dm.buyItems.get(stack));
 						GlStateManager.translate(i * 18.0f + 17.0f, 16.0f, 200.0f);
 						GlStateManager.scale(0.75f, 0.75f, 0.75f);
 						GlStateManager.disableLighting();
@@ -1169,7 +1162,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 
 		@Override
 		public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
-			if (active && visible && isValidClickButton(mouseButton) && isHovered) {
+			if (enabled && visible && isValidClickButton(mouseButton) && isHovered) {
 				onClick(mouseX, mouseY);
 				return true;
 			}
@@ -1243,9 +1236,9 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 			Minecraft mc = Minecraft.getMinecraft();
 
 			boolean lmb = Mouse.isButtonDown(0);
-			int stateL = !active ? 40 : hoverL ? (display.length > 1 ? lmb ? 40 : 20 : 0) : 0;
-			int stateR = !active ? 40 : hoverR ? (display.length > 1 ? lmb ? 40 : 20 : 0) : 0;
-			int state = !active ? 40 : isHovered && display.length > 1 ? 20 : 0;
+			int stateL = !enabled ? 40 : hoverL ? (display.length > 1 ? lmb ? 40 : 20 : 0) : 0;
+			int stateR = !enabled ? 40 : hoverR ? (display.length > 1 ? lmb ? 40 : 20 : 0) : 0;
+			int state = !enabled ? 40 : isHovered && display.length > 1 ? 20 : 0;
 			int wl = (width - 38) / 2;
 			int wr = width - 39 - wl;
 

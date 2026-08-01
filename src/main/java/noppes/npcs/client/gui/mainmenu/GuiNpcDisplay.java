@@ -1,6 +1,7 @@
 package noppes.npcs.client.gui.mainmenu;
 
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.Component;
 import noppes.npcs.CustomNpcs;
@@ -47,9 +48,11 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 		baseHitBoxWidth = npc.baseWidth;
 		baseHitBoxHeight = npc.baseHeight;
 		if (npc instanceof EntityCustomNpc && display.getModel() != null) {
-			ModelData modeldata = ((EntityCustomNpc) npc).modelData;
-			baseHitBoxWidth = modeldata.entity.width;
-			baseHitBoxHeight = modeldata.entity.height;
+			EntityLivingBase model = ((EntityCustomNpc) npc).modelData.getEntity(npc);
+			if (model != null) {
+				baseHitBoxWidth = model.width;
+				baseHitBoxHeight = model.height;
+			}
 		}
 		Packets.sendServer(new SPacketMenuGet(EnumMenuType.DISPLAY));
 	}
@@ -213,8 +216,11 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 				scaleHead = Math.max(model.scaleX, model.scaleZ);
 				model = modeldata.getPartConfig(EnumParts.BODY);
 				scaleBody = Math.max(model.scaleX, model.scaleZ);
-				hitBoxWidth = modeldata.entity.width;
-				hitBoxHeight = modeldata.entity.height;
+				EntityLivingBase modelEntity = modeldata.getEntity(npc);
+				if (modelEntity != null) {
+					hitBoxWidth = modelEntity.width;
+					hitBoxHeight = modelEntity.height;
+				}
 			}
 			hitBoxWidth *= Math.max(scaleHead, scaleBody);
 			hitBoxWidth = hitBoxWidth / 5.0f * display.getSize();

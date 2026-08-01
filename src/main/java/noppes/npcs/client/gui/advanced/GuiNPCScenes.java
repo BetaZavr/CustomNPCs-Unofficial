@@ -35,7 +35,7 @@ public class GuiNPCScenes extends GuiNPCInterface2 {
 		int x1 = x0 + 82;
 		int x2 = x1 + 64;
 		int x3 = x2 + 64;
-		int x4 = x3 + (CustomNpcs.SceneButtonsEnabled ? 124 : 0);
+		int x4 = x3 + (CustomNpcs.SceneButtonsEnabled ? 141 : 0);
 		int y = guiTop + 5;
 		if (CustomNpcs.SceneButtonsEnabled && !scenes.scenes.isEmpty()) {
 			addLabel(102, x3 + 2, y, Component.translatable("gui.button").append(":"));

@@ -20,7 +20,8 @@ public class GuiCheckBoxNop extends GuiButtonNop {
     protected Component falseLabel;
 
     public GuiCheckBoxNop(IGuiInterface gui, int id, int x, int y, Object trueLabel, Object falseLabel, boolean select) {
-        super(gui, id, x, y, 120, 14, Component.empty());
+        super(gui, id, Component.empty(), x, y, null);
+        setSize(120, 14);
         textColor = CustomNpcs.LableColor.getRGB();
         showShadow = false;
         selected = select;
@@ -45,7 +46,7 @@ public class GuiCheckBoxNop extends GuiButtonNop {
         Minecraft.getMinecraft().getTextureManager().bindTexture(TEXTURE);
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        drawTexturedModalRect(0, 0, isFocused() ? 80 : 0, selected ? 80 : 0, 80, 80);
+        drawTexturedModalRect(0, 0, isHovered ? 80 : 0, selected ? 80 : 0, 80, 80);
         GlStateManager.popMatrix();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         renderString(getMessage(), getX() + height + 1, getY(), getX() + width - 1, getY() + height,
@@ -57,7 +58,7 @@ public class GuiCheckBoxNop extends GuiButtonNop {
 
     @Override
     public int getFGColor() {
-        if (packedFGColor != -1) { return packedFGColor; }
+        if (packedFGColor != 0) { return packedFGColor; }
         else if (!enabled) { return CustomNpcs.NotEnableColor.getRGB(); }
         else if (isHovered) { return CustomNpcs.HoverColor.getRGB(); }
         return CustomNpcs.LableColor.getRGB();
@@ -81,6 +82,7 @@ public class GuiCheckBoxNop extends GuiButtonNop {
 
     public void setColor(int newTextColor, boolean isShowShadow) {
         textColor = newTextColor;
+        packedFGColor = newTextColor;
         showShadow = isShowShadow;
     }
 

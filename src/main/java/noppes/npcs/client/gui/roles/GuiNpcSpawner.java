@@ -145,7 +145,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2
 		// del
 		addButton(10, guiLeft + 238, guiTop + 116, "gui.remove")
 				.setSize(56, 20)
-				.setIsEnabled(slot >= 0)
+				.setIsEnabled(isDead && slot >= 0)
 				.setHoverTexts(Component.translatable("spawner.hover.del").append(strDead));
 		// edit mode
 		addButton(11, guiLeft + 296, guiTop + 116, "advanced.editingmode")
@@ -191,11 +191,11 @@ public class GuiNpcSpawner extends GuiNPCInterface2
 				.setHoverTexts(Component.translatable("spawner.hover.axis.offset", "Z").append(strDead));
 		addCheckBox(15, guiLeft + 180, guiTop + 176, "spawner.despawn", null, job.getDespawnOnTargetLost(true))
 				.setSize(170, 14)
-				.setHoverTexts(Component.translatable("spawner.hover.des.tr.lost").append(strAlive));
+				.setHoverTexts(Component.translatable("spawner.hover.des.tr.lost").append(strDead));
 		addLabel(13, guiLeft + 180, guiTop + 195, "spawner.type");
 		addButton(16, guiLeft + 238, guiTop + 190, false, job.getSpawnType(true), "spawner.one", "spawner.all", "spawner.random")
 				.setSize(55, 20)
-				.setHoverTexts(Component.translatable("spawner.hover.type.1."+job.getSpawnType(true)).append(strAlive));
+				.setHoverTexts(Component.translatable("spawner.hover.type.1."+job.getSpawnType(true)).append(strDead));
 		// Both
 		Component strBoth = Component.translatable("spawner.hover.sp.2");
 		addCheckBox(17, guiLeft + 357, guiTop + 161, "type.exact", null, job.exact)
@@ -206,7 +206,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2
 				.setHoverTexts(Component.translatable("spawner.hover.reset").append(strBoth));
 		// cooldown
 		addLabel(14, guiLeft + 358, guiTop + 132, "spawner.cooldown")
-				.setIsEnabled(!aliveScroll.getList().isEmpty());
+				.setIsVisible(!aliveScroll.getList().isEmpty());
 		addTextField(6, guiLeft + 357, guiTop + 144, 55, 15, "" + job.getCooldown() / 50L)
 				.setMinMaxDefault(0, 6000, (int) (job.getCooldown() / 50L))
 				.setIsVisible(!aliveScroll.getList().isEmpty())
@@ -238,7 +238,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2
 				break;
 			} // up alive
 			case 5: {
-				if (isDead || slot >= job.size(false)) { return; }
+				if (isDead || slot >= job.size(false) - 1) { return; }
 				Packets.sendServer(new SPacketNpcJobSpawnerMove(slot, false, false));
 				break;
 			} // down alive
@@ -276,7 +276,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2
 				Packets.sendServer(new SPacketNpcJobSpawnerMove(slot, false, true));
 				break;
 			} // down Dead
-			case 14: job.get(true).clear(); break; // clear Dead
+			case 14: Packets.sendServer(new SPacketNpcJobSpawnerRemove(-1, true)); break; // clear Dead
 			case 15: job.setDespawnOnTargetLost(true, ((GuiCheckBoxNop) button).selected()); break; // targetLost Dead
 			case 16: job.setSpawnType(true, button.getValue()); break; // type Dead
 			case 17: job.exact = ((GuiCheckBoxNop) button).selected(); break; // exact
@@ -296,7 +296,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2
 		SubGuiNpcMobSpawnerSelector selector = (SubGuiNpcMobSpawnerSelector) gui;
 		if (selector.showingClones == 2) {
 			String selected = selector.getSelected();
-			if (selected.isEmpty()) { Packets.sendServer(new SPacketNpcJobSpawnerAdd(isDead, selected, selector.activeTab, new NBTTagCompound())); }
+			if (!selected.isEmpty()) { Packets.sendServer(new SPacketNpcJobSpawnerAdd(isDead, selected, selector.activeTab, new NBTTagCompound())); }
 		}
 		else {
 			NBTTagCompound nbtNpc = selector.getCompound();

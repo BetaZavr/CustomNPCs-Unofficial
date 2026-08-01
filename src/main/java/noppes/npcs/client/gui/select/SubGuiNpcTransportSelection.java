@@ -81,7 +81,7 @@ public class SubGuiNpcTransportSelection extends GuiBasic implements ICustomScro
     public void buttonEvent(GuiButtonNop button) {
         if (button.id == 2) {
             if (selectedTransport != null) { scrollDoubleClicked(null); }
-            onClose();
+            else { onClose(); }
         }
     }
 

@@ -12,7 +12,6 @@ import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketNpcJobSave;
 import noppes.npcs.roles.JobBard;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
-import noppes.npcs.shared.client.gui.components.GuiButtonYesNo;
 import noppes.npcs.shared.client.gui.components.GuiTextFieldNop;
 import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
 
@@ -35,7 +34,7 @@ public class GuiNpcBard extends GuiNPCInterface2 implements ITextfieldListener {
 		int x2 = x1 + 122;
 		int y = guiTop + 20;
 		// song
-		addTextField(1, x0 + 1, y + 1, 240, 18, job.song)
+		addTextField(1, x0 + 1, y + 1, 240, 18, job.song == null ? "" : job.song.toString())
 				.setHoverTexts("bard.hover.song");
 		// select sound
 		addButton(0, x2, y, "gui.selectSound")
@@ -122,13 +121,13 @@ public class GuiNpcBard extends GuiNPCInterface2 implements ITextfieldListener {
 			} // select sound
 			case 1: {
 				job.song = null;
-				getLabel(0).setMessage(Component.empty());
 				getTextField(1).setValue("");
 				MusicController.Instance.stopSounds();
+				initGui();
 				break;
 			} // clear sound
 			case 2: job.isStreamer = button.getValue() == 0; initGui(); break;
-			case 3: job.hasOffRange = ((GuiButtonYesNo) button).getBoolean(); initGui(); break;
+			case 3: job.hasOffRange = button.getValue() == 0; initGui(); break;
 			case 4: job.isRange = button.getValue() == 0; initGui(); break;
 		}
 	}
@@ -144,7 +143,6 @@ public class GuiNpcBard extends GuiNPCInterface2 implements ITextfieldListener {
 	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiSoundSelection && ((SubGuiSoundSelection) subgui).resource != null) {
 			job.song = ((SubGuiSoundSelection) subgui).resource;
-			getLabel(0).setMessage(Component.translatable(job.song.toString()));
 			initGui();
 		}
 	}

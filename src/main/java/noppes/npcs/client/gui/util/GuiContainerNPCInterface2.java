@@ -35,7 +35,7 @@ extends GuiContainerNPCInterface<T> implements INpcMenuGui {
 	@Override
 	public void initGui() {
 		super.initGui();
-		menuTabs.initGui(guiLeft, guiTop + menuYOffset, xSize);
+		if (!hasSubGui()) { menuTabs.initGui(guiLeft, guiTop + menuYOffset, xSize); }
 	}
 
 	@Override

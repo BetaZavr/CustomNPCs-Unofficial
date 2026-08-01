@@ -36,8 +36,6 @@ public class GuiNPCDialogNpcOptions
 
 	public GuiNPCDialogNpcOptions(EntityNPCInterface npc) {
 		super(npc);
-		drawDefaultBackground = true;
-
 		backGui = EnumGuiType.MainMenuAdvanced;
 		Packets.sendServer(new SPacketNpcDialogsGet());
 	}

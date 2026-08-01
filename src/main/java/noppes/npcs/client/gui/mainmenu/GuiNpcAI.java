@@ -29,7 +29,7 @@ public class GuiNpcAI extends GuiNPCInterface2 implements ITextfieldListener, IG
 	static {
 		tactics = new Object[EnumNpcTactics.values().length];
 		int i = 0;
-		for (EnumSeeTarget est : EnumSeeTarget.values()) { tactics[i++] = "ai.tactic." + est.name().toLowerCase(); }
+		for (EnumNpcTactics tactic : EnumNpcTactics.values()) { tactics[i++] = "ai.tactic." + tactic.name().toLowerCase(); }
 		directs = new Object[EnumSeeTarget.values().length];
 		i = 0;
 		for (EnumSeeTarget est : EnumSeeTarget.values()) { directs[i++] = "ai.direct." + est.name().toLowerCase(); }
@@ -125,7 +125,7 @@ public class GuiNpcAI extends GuiNPCInterface2 implements ITextfieldListener, IG
 				.setSize(60, 20)
 				.setIsEnabled(!ai.aiDisabled && ai.onAttack == 0)
 				.setHoverTexts(mess);
-		addLabel(lId, x0, (y += hStep) + 5, "ai.mountcontrol");
+		addLabel(lId++, x0, (y += hStep) + 5, "ai.mountcontrol");
 		addYesNo(22, x1, y, npc.ais.mountControl)
 				.setSize(60, 20);
 		addLabel(lId++, x0, (y += hStep) + 7, "ai.cansprint")

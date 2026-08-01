@@ -37,6 +37,7 @@ public class GuiPermissionsEdit extends GuiNPCInterface implements ICustomScroll
 
     @Override
     public void initGui() {
+        wait = false;
         super.initGui();
         int w = imageWidth / 2 - 6;
         CustomNpcsPermissions.putToData(data);

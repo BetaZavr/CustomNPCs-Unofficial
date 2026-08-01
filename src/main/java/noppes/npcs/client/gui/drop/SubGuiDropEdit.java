@@ -339,7 +339,7 @@ public class SubGuiDropEdit extends GuiContainerNPCInterface<ContainerNPCDropSet
 	public void save() {
 		if (drop.pos == -1) {
 			if (drop.item.isEmpty()) { return; }
-			if (drop.getMinAmount() == 1 && drop.getMinAmount() == 1) { drop.setAmount(drop.item.getCount(), drop.item.getCount()); }
+			if (drop.getMinAmount() == 1 && drop.getMaxAmount() == 1) { drop.setAmount(drop.item.getCount(), drop.item.getCount()); }
 		}
 		drop.item.setCount(1);
 		if (menu.dataType == 0 ) { Packets.sendServer(new SPacketNpcInvDropSetSave(menu.dropType, menu.groupId, drop.pos, drop.save())); }

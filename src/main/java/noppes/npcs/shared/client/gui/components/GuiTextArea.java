@@ -497,7 +497,7 @@ public class GuiTextArea
     public void setText(String textIn) {
         textIn = textIn.replace("\r", "");
         if (text == null || !text.equals(textIn)) {
-            if (listener instanceof ITextChangeListener) { ((ITextChangeListener) listener).textUpdate(this, text); }
+            if (listener instanceof ITextChangeListener) { ((ITextChangeListener) listener).textUpdate(this, textIn); }
 
             if (!undoing) {
                 undoList.add(new AreaUndoData(text, cursorPosition, startSelection, endSelection, scrolledLine));
@@ -568,8 +568,8 @@ public class GuiTextArea
     public GuiTextArea setIsFocused(boolean isFocused) {
         if (isFocused != focused) {
             focused = isFocused;
+            active = isFocused;
             if (isFocused) { cursorCounter = 0; }
-            if (Minecraft.getMinecraft().currentScreen != null) { Minecraft.getMinecraft().currentScreen.setFocused(isFocused); }
         }
         return this;
     }

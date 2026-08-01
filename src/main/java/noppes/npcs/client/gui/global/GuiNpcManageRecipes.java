@@ -35,7 +35,6 @@ import noppes.npcs.shared.client.gui.components.GuiCheckBoxNop;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.components.GuiTextFieldNop;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
-import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nullable;
 
@@ -142,6 +141,7 @@ public class GuiNpcManageRecipes
 			htsG.put(i++, ht);
 		}
 		LinkedHashMap<Integer, List<Component>> htsR = new LinkedHashMap<>();
+		i = 0;
 		if (data.get(recipe.isGlobal).containsKey(recipe.group)) {
 			for (WrapperRecipe wrapper : data.get(recipe.isGlobal).get(recipe.group)) {
 				String domen = wrapper.id.getResourceDomain();
@@ -304,7 +304,6 @@ public class GuiNpcManageRecipes
 
 	@Override
 	public boolean mouseButtonEvent(GuiButtonNop button, int mouseButton) {
-		LogWriter.info("[DEBUG] buttonID: "+button.id+"; mouseButton: "+mouseButton);
 		ItemStack heldStack = player.inventory.getItemStack().copy();
 		boolean isModRecipe = recipe.id.getResourceDomain().equals(CustomNpcs.MODID);
 		int id = button.id;
@@ -401,6 +400,7 @@ public class GuiNpcManageRecipes
 						} // show list of ingredients
 						int pos = id - 11;
 						ItemStack[] array = recipe.ingredients.get(pos);
+						if (array == null) { array = new ItemStack[0]; }
 						if (GuiScreen.isCtrlKeyDown()) {
 							if (heldStack.isEmpty() || array.length >= 16) { return false; }
 							if (array.length == 0) {

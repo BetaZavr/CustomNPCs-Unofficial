@@ -226,6 +226,13 @@ public class GuiBasic extends GuiScreen implements IGuiInterface {
             eventButton = -1;
             mouseReleased(mouseX, mouseY, mouseButton);
         }
+        else if (eventButton != -1 && lastMouseEvent > 0L) {
+            double dx = (double) Mouse.getEventDX() / (double) scaledResolution.getScaleFactor();
+            double dy = (double) -Mouse.getEventDY() / (double) scaledResolution.getScaleFactor();
+            mouseDragged(mouseX, mouseY, eventButton, dx, dy);
+        }
+        int dWheel = Mouse.getEventDWheel();
+        if (dWheel != 0) { mouseScrolled(mouseX, mouseY, dWheel / 120); }
     }
 
     @Override
@@ -263,7 +270,10 @@ public class GuiBasic extends GuiScreen implements IGuiInterface {
     }
 
     @Override
-    public void setFocused(boolean hasFocusedControlIn) { wrapper.initFocus(); }
+    public void setFocused(boolean hasFocusedControlIn) {
+        if (hasFocusedControlIn) { wrapper.initFocus(); }
+        else { wrapper.setFocus(null); }
+    }
 
     public IComponentGui getFocused() { return wrapper.getFocused(); }
 
@@ -278,20 +288,31 @@ public class GuiBasic extends GuiScreen implements IGuiInterface {
 
     public boolean keyPressed(char typedChar, int keyCode) {
         if (wrapper.subgui == null) { checkAltH(); }
-        if (closeOnEsc  && isEscKey(keyCode)) {
-            onClose();
-            return true;
+        if (isEscKey(keyCode)) {
+            if (wrapper.subgui != null) { return wrapper.keyPressed(typedChar, keyCode); }
+            if (GuiTextFieldNop.getActive() != null) {
+                GuiTextFieldNop.unfocus();
+                return true;
+            }
+            if (closeOnEsc) {
+                onClose();
+                return true;
+            }
         }
         boolean bo = wrapper.keyPressed(typedChar, keyCode);
         if (!bo) {
+            boolean typing = GuiTextFieldNop.getActive() != null;
             switch (keyCode) {
-                case Keyboard.KEY_TAB:
-                case Keyboard.KEY_DOWN: {
+                case Keyboard.KEY_TAB: {
                     focusedNextComponent();
                     return true;
                 } // focused next component
+                case Keyboard.KEY_DOWN: {
+                    if (!typing) { focusedNextComponent(); }
+                    return true;
+                } // focused next component
                 case Keyboard.KEY_UP: {
-                    focusedPrevComponent();
+                    if (!typing) { focusedPrevComponent(); }
                     return true;
                 } // focused prev component
             }
@@ -503,17 +524,7 @@ public class GuiBasic extends GuiScreen implements IGuiInterface {
     public void save() { }
 
     @Override
-    public void preDrawScreen(int mouseX, int mouseY) {
-        if (wrapper.subgui == null) {
-            if (eventButton != -1 && lastMouseEvent > 0L && (Mouse.getEventDX() != 0 || Mouse.getEventDY() != 0)) {
-                double dx = (double) Mouse.getEventDX() / (double) scaledResolution.getScaleFactor();
-                double dy = (double) Mouse.getEventDY() / (double) scaledResolution.getScaleFactor();
-                mouseDragged(mouseX, mouseY, eventButton, dx, dy);
-            }
-            int dWheel = Mouse.getDWheel();
-            if (dWheel != 0) { mouseScrolled(mouseX, mouseY, dWheel); }
-        }
-    }
+    public void preDrawScreen(int mouseX, int mouseY) { }
 
     @Override
     public void drawDefaultBackground() {

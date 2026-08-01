@@ -34,12 +34,12 @@ public class SubGuiDropValueNbt  extends GuiNPCInterface implements ITextfieldLi
 		switch (button.id) {
 			case 66: onClose(); break;
 			case 90: {
-				tag.setType(Integer.parseInt(button.getVariants()[button.getValue()].getString().replace("tag.type.", "")));
+				tag.setType(Integer.parseInt(String.valueOf(tagIds[button.getValue()]).replace("tag.type.", "")));
 				initGui();
 				break;
 			} // type
 			case 92: {
-				tag.setTypeList(Integer.parseInt(button.getVariants()[button.getValue()].getString().replace("tag.type.", "")));
+				tag.setTypeList(Integer.parseInt(String.valueOf(tagListIds[button.getValue()]).replace("tag.type.", "")));
 				initGui();
 				break;
 			} // list type
@@ -167,7 +167,7 @@ public class SubGuiDropValueNbt  extends GuiNPCInterface implements ITextfieldLi
 		}
 		else {
 			String ch = tag.checkValue(vs, tag.getType());
-			if (ch != null) { return true; }
+			if (ch == null) { return false; }
 		}
 		return true;
 	}

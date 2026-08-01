@@ -1,7 +1,9 @@
 package noppes.npcs.shared.client.gui.components;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
@@ -73,17 +75,11 @@ public class GuiButtonBiDirectional extends GuiButtonNop {
    }
 
    @Override
-   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-      int value = getValue();
-      if (isHovered && display != null && display.length != 0) {
-         if (hoverR) { value = (value + 1) % display.length; }
-         if (hoverL) {
-            if (value <= 0) { value = display.length; }
-            --value;
-         }
-         setDisplay(value);
-      }
-      return super.mouseClicked(mouseX, mouseY, button);
+   protected void onClick(double x, double y) {
+      if (display != null && display.length != 0) { setDisplay(hoverL ? displayValue - 1 : displayValue + 1); }
+      if (hasSound) { Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F)); }
+      if (onPress != null) { onPress(); }
+      else if (listener != null) { listener.buttonEvent(this); }
    }
 
    @Override

@@ -45,7 +45,7 @@ public class CustomGuiScroll
       List<Component> list = new ArrayList<>();
       for (String line : component.getList()) { list.add(Component.translatable(line)); }
       setUnsortedList(list);
-      if (component.getDefaultSelection() >= 0) {
+      if (!component.isMultiSelect() && component.getSelection().length <= 1 && component.getDefaultSelection() >= 0) {
          int defaultSelect = component.getDefaultSelection();
          if (defaultSelect < getList().size()) { setSelected(list.get(defaultSelect)); }
       }

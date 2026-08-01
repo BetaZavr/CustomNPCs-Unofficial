@@ -34,7 +34,7 @@ public class SubGuiNpcConversationLine extends GuiBasic implements ITextfieldLis
 		addTextField(0, x + 1, y += 11, 200, 18, line);
 		// sound
 		addLabel(1, x + 1, y += 22, Component.translatable("stats.firesound").append(":"));
-		addTextField(1, x + 1, y += 11, 200, 18, sound)
+		addTextField(1, x + 1, y += 11, 200, 18, sound == null ? "" : sound.toString())
 				.setResourceLocationType(1);
 		addButton(1, x, y += 22, "gui.selectSound")
 				.setSize(90, 20);
@@ -48,7 +48,7 @@ public class SubGuiNpcConversationLine extends GuiBasic implements ITextfieldLis
 	@Override
 	public void buttonEvent(GuiButtonNop button) {
 		switch (button.id) {
-			case 1: setSubGui(new SubGuiSoundSelection(this, 0, null, sound.toString())); break;
+			case 1: setSubGui(new SubGuiSoundSelection(this, 0, null, sound == null ? "" : sound.toString())); break;
 			case 2: sound = null; initGui(); break;
 			case 66: onClose(); break;
 		}

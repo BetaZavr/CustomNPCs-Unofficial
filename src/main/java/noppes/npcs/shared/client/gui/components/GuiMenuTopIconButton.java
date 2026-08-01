@@ -57,7 +57,6 @@ public class GuiMenuTopIconButton extends GuiMenuTopButton {
             mc.getRenderItem().renderItemOverlays(mc.fontRenderer, item, getX() + 6, getY() + 10);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             GlStateManager.popMatrix();
-            GlStateManager.disableDepth();
         }
     }
 

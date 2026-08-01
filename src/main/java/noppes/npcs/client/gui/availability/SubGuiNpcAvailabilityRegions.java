@@ -45,7 +45,7 @@ public class SubGuiNpcAvailabilityRegions
                 if (!data.containsKey(select)) { return; }
                 Zone3D region = BorderController.getInstance().regions.get(data.get(select));
                 if (region != null) {
-                    Packets.sendAll(new SPacketTeleportTo(region.dimension, region.getCenter().getMCBlockPos()));
+                    Packets.sendServer(new SPacketTeleportTo(region.dimension, region.getCenter().getMCBlockPos()));
                 }
                 break;
             }
@@ -146,7 +146,7 @@ public class SubGuiNpcAvailabilityRegions
         if (isSelect) { scroll.setSelected(select); }
         add(scroll.setPos(guiLeft + 4, guiTop + 14));
         EnumAvailabilityRegion aData = null;
-        if (isSelect && data.containsKey(select) && availability.regions.containsKey(data.get(scroll.getNormalSelected()))) { aData = availability.regions.get(data.get(scroll.getNormalSelected())); }
+        if (isSelect && data.containsKey(select) && availability.regions.containsKey(data.get(select))) { aData = availability.regions.get(data.get(select)); }
         // tp
         addButton(0, x += 73, y, "TP")
                 .setSize(20, 20)

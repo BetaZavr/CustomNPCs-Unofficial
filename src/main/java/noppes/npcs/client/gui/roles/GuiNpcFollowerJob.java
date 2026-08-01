@@ -55,7 +55,10 @@ public class GuiNpcFollowerJob extends GuiNPCInterface2
 	public void save() { Packets.sendServer(new SPacketNpcJobSave(job.save(new NBTTagCompound()))); }
 
 	@Override
-	public void scrollClicked(GuiCustomScrollNop scroll) { getTextField(0).setValue(scroll.getSelected()); }
+	public void scrollClicked(GuiCustomScrollNop scroll) {
+		job.name = scroll.getSelected();
+		getTextField(0).setValue(scroll.getSelected());
+	}
 
 	@Override
 	public void scrollDoubleClicked(GuiCustomScrollNop scroll) { }

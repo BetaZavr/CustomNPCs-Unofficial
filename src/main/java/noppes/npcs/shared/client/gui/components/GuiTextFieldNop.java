@@ -342,12 +342,14 @@ public class GuiTextFieldNop extends Gui implements IComponentGui {
             }
         }
         if (numbersOnly) {
-            return Character.isDigit(typedChar) || (typedChar == '-' && selectAll || getCursorPosition() == 0 && !text.contains("" + typedChar));
+            return Character.isDigit(typedChar)
+                    || (typedChar == '-' && (selectAll || getCursorPosition() == 0) && !text.contains("-"));
         }
         if (doublesOnly) {
             boolean hasDot = text.contains(".") || text.contains(",");
-            return Character.isDigit(typedChar) || (typedChar == '-' && selectAll || getCursorPosition() == 0 && !text.contains("" + typedChar))
-                    || (!hasDot || selectAll && (typedChar == '.' || typedChar == ','));
+            return Character.isDigit(typedChar)
+                    || (typedChar == '-' && (selectAll || getCursorPosition() == 0) && !text.contains("-"))
+                    || ((typedChar == '.' || typedChar == ',') && (selectAll || !hasDot));
         }
         if (resourceLocationType != 0) {
             if (typedChar == ':' && (resourceLocationType != 1 || text.contains(":"))) { return false; }
@@ -391,9 +393,9 @@ public class GuiTextFieldNop extends Gui implements IComponentGui {
 
     public void unFocused() {
         if (numbersOnly) {
-            if (isEmpty() || !isInteger()) { setValue(def + ""); }
-            else if (getInteger() < min) { setValue(min + ""); }
-            else if (getInteger() > max) { setValue(max + ""); }
+            if (isEmpty() || !isLong()) { setValue(def + ""); }
+            else if (getLong() < min) { setValue(min + ""); }
+            else if (getLong() > max) { setValue(max + ""); }
         }
         else if (doublesOnly) {
             if (isEmpty() || !isDouble()) { setValue(defD + ""); }
@@ -517,6 +519,7 @@ public class GuiTextFieldNop extends Gui implements IComponentGui {
         tessellator.draw();
         GlStateManager.disableColorLogic();
         GlStateManager.enableTexture2D();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     public GuiTextFieldNop setMaxStringLength(int length) {
@@ -724,12 +727,13 @@ public class GuiTextFieldNop extends Gui implements IComponentGui {
     @Override
     public GuiTextFieldNop setIsFocused(boolean isFocused) {
         if (canLoseFocus || isFocused) {
+            boolean wasFocused = focused;
             focused = isFocused;
             if (isFocused) {
                 cursorCounter = 0;
                 activeTextfield = this;
             }
-            else if (activeTextfield == this) { unFocused(); }
+            else if (wasFocused) { unFocused(); }
         }
         return this;
     }

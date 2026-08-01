@@ -119,7 +119,7 @@ public class GuiNpcNaturalSpawns extends GuiNPCInterface2
 				.setMinMaxDefault(1, 8, spawn.group)
 				.setHoverTexts("spawning.hover.group");
 		// distance
-		addLabel(lId, x, (y += 25) - 10, "spawning.range");
+		addLabel(lId++, x, (y += 25) - 10, "spawning.range");
 		addSlider(4, x, y, (float) spawn.range / 16.0f)
 				.setSize(160, 12)
 				.setHoverTexts("spawning.hover.chance");

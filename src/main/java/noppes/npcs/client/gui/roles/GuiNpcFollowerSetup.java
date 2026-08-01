@@ -66,7 +66,7 @@ public class GuiNpcFollowerSetup
 		addCheckBox(8, x, y += 16, "follower.guiDisabled", null, role.disableGui)
 				.setSize(286, 14)
 				.setHoverTexts("follower.hover.disable.gui");
-		addCheckBox(9, x, y += 16, "follower.allowSoulstone", null, role.refuseSoulStone)
+		addCheckBox(9, x, y += 16, "follower.allowSoulstone", null, !role.refuseSoulStone)
 				.setSize(286, 14)
 				.setHoverTexts(Component.translatable("follower.hover.soulstone",
 						Component.translatable("item.customnpcs.npcsoulstoneempty").getFormattedText()));
@@ -101,7 +101,7 @@ public class GuiNpcFollowerSetup
 		switch (button.id) {
 			case 7: role.infiniteDays = ((GuiCheckBoxNop) button).selected(); break;
 			case 8: role.disableGui = ((GuiCheckBoxNop) button).selected(); break;
-			case 9: role.refuseSoulStone = ((GuiCheckBoxNop) button).selected(); break;
+			case 9: role.refuseSoulStone = !((GuiCheckBoxNop) button).selected(); break;
 			case 10: role.killed(); break;
 		}
 	}

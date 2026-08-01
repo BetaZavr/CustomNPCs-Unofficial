@@ -64,7 +64,6 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData {
 				.setHoverTexts(mess);
 		// line 2
 		addLabel(lId++, x, (y += 22) + 5, "job.name");
-		if (ais.aiDisabled) { getButton(4).setHoverTexts("hover.ai.disabled"); }
 		int id = npc.job.getType();
 		mess = Component.translatable("advanced.menu.hover.job." + id);
 		if (id > 9) { id--; } // puppet is now separate
@@ -76,7 +75,8 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData {
 		addButton(4, x + 230, y, "selectServer.edit")
 				.setSize(60, 20)
 				.setIsEnabled(!ais.aiDisabled && npc.job.getEnumType().hasSettings
-						&& npc.job.getType() != 0 && npc.job.getType() != 8 && npc.job.getType() != 10);
+						&& npc.job.getType() != 0 && npc.job.getType() != 8 && npc.job.getType() != 10)
+				.setHoverTexts(ais.aiDisabled ? "hover.ai.disabled" : null);
 
 		// New from Unofficial (BetaZavr): line 3
 		addLabel(lId++, x, (y += 22) + 5, "movement.animation");

@@ -404,6 +404,7 @@ public class GuiScriptInterface extends GuiNPCInterface
 
 	@Override
 	public void textUpdate(IComponentGui component, String text) {
+		if (activeTab <= 0 || activeTab > handler.getScripts().size()) { return; }
 		ScriptContainer container = handler.getScripts().get(activeTab - 1);
 		if (container != null) { container.script = text; }
 	}

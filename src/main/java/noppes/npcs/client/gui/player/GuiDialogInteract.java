@@ -623,18 +623,8 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 			}
 			else { scrollO = null; }
 			// Dialog
-			int drag = Mouse.getDWheel() / 120;
-			if (lineTotal > lineVisibleSize && drag != 0 && isMouseHover(mouseX, mouseY, guiLeft, 0, guiSettings.dialogWidth, dialogHeight)) {
-				lineStart -= drag;
-				if (lineStart < 0) { lineStart = 0; }
-				else if (lineStart > lineTotal - lineVisibleSize) { lineStart = lineTotal - lineVisibleSize; }
-			}
 			// cursor select option
 			if (isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, guiSettings.dialogWidth, height - dialogHeight)) { // options text
-				if (selectedSize > selectedVisibleSize && drag != 0) {
-					selectedStart -= drag;
-					checkSelected();
-				}
 				int y = (int) Math.floor(((double) mouseY - (double) dialogHeight) / (double) fontHeight);
 				i = 0;
 				int optPos = 0;

@@ -29,9 +29,9 @@ public class GuiNPCAdvancedLinkedNpc extends GuiNPCInterface2 implements IScroll
 		super.initGui();
 		int x = guiLeft + 137;
 		if (scroll == null) { scroll = addScroll(0).setSize(143, 208); }
-		add(scroll.setSelected(npc.linkedName)
+		add(scroll.setList(data)
 				.setPos(x, guiTop + 5)
-				.setList(data));
+				.setSelected(npc.linkedName));
 		// clear
 		addButton(1, x + scroll.width + 3, guiTop + 38, "gui.clear")
 				.setSize(60, 20);

@@ -77,7 +77,6 @@ public class SubGuiNpcAvailabilityMoneys extends GuiNPCInterface implements ITex
         addTextField(0, x0, (y += 12) + 1, 110, 18, dataM != null ? dataM.value : "")
                 .setMinMaxDefault(-1, Integer.MAX_VALUE, dataM != null ? dataM.value : 0)
                 .setHoverTexts("availability.hover.money.value");
-        if (dataM != null) { getTextField(0).setValue(""); }
         addButton(0, x1, y, false, m, types)
                 .setSize(50, 20)
                 .setHoverTexts("availability.hover.money.type");
@@ -87,7 +86,6 @@ public class SubGuiNpcAvailabilityMoneys extends GuiNPCInterface implements ITex
         addTextField(1, x0, (y += 12) + 1, 110, 18, dataD != null ? dataD.value : "")
                 .setMinMaxDefault(-1, Integer.MAX_VALUE, dataD != null ? dataD.value : 0)
                 .setHoverTexts("availability.hover.donat.value");
-        if (dataD != null) { getTextField(1).setValue(""); }
         addButton(1, x1, y, false, d, types)
                 .setSize(50, 20)
                 .setHoverTexts("availability.hover.money.type");

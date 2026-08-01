@@ -52,13 +52,13 @@ public class GuiNPCSoundsMenu extends GuiNPCInterface2 implements ITextfieldList
 		}
 		addLabel(5, x0, y + 5, "advanced.haspitch")
 				.setSize(w + 200, 10);
-		addYesNo(5, x2, y, npc.advanced.disablePitch)
+		addYesNo(5, x2, y, !npc.advanced.disablePitch)
 				.setSize(80, 20);
 	}
 
 	@Override
 	public void buttonEvent(GuiButtonNop button) {
-		if (button.id == 5) { npc.advanced.disablePitch = ((GuiButtonYesNo) button).getBoolean(); }
+		if (button.id == 5) { npc.advanced.disablePitch = !((GuiButtonYesNo) button).getBoolean(); }
 		else if (button.id < 10) {
 			selectedField = getTextField(button.id);
 			setSubGui(new SubGuiSoundSelection(this, 0, npc, selectedField.getValue()));

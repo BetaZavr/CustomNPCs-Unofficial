@@ -52,7 +52,7 @@ public class GuiNpcItemGiver extends GuiContainerNPCInterface2<ContainerNpcItemG
 				.setSize(162, 10);
 		x += 142;
 		for(int i = 0; i < 3; ++i) {
-			addTextField(i + 1, x + 1, guiTop + 7 + i * 24, 236, 18, i < role.lines.size() - 1 ? role.lines.get(i) : "");
+			addTextField(i + 1, x + 1, guiTop + 7 + i * 24, 236, 18, i < role.lines.size() ? role.lines.get(i) : "");
 		}
 		addLabel(4, x += 24, guiTop + 92, Component.translatable("availability.options").append(":"))
 				.setSize(118, 10);

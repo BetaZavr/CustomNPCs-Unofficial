@@ -16,10 +16,11 @@ public class GuiColorButtonNop extends GuiButtonNop {
 
     @Override
     public void renderWidget(int mouseX, int mouseY, float partialTicks) {
+        isHovered = visible && mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
         if (!visible) { return; }
         int x = getX();
         int y = getY();
-        drawRect(x, y, x + width, y + height, new Color(0x80, 0x80, 0x80, 0xFF).getRGB());
+        drawRect(x, y, x + width, y + height, isHovered ? 0xFFFFFFFF : new Color(0x80, 0x80, 0x80, 0xFF).getRGB());
         drawRect(x + 1, y + 1, x + width - 1, y + height - 1, color);
     }
 

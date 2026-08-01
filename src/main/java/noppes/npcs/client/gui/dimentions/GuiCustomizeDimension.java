@@ -57,7 +57,7 @@ public class GuiCustomizeDimension extends GuiScreen
 		public boolean tryParseValidFloat(String value) {
 			Float f = null;
 			try { f = Float.parseFloat(value); }
-			catch (Exception e) { LogWriter.error(e); }
+			catch (Exception ignored) { }
 			return value.isEmpty() || f != null && Floats.isFinite(f) && f >= 0.0F;
 		}
 
@@ -836,7 +836,7 @@ public class GuiCustomizeDimension extends GuiScreen
 			case 112: settings.biomeDepthWeight = value; break;
 			case 113: settings.biomeDepthOffset = value; break;
 			case 114: settings.biomeScaleWeight = value; break;
-			case 115: settings.biomeScaleOffset = value;
+			case 115: settings.biomeScaleOffset = value; break;
             case 157: settings.dungeonChance = (int) value; break;
 			case 158: settings.waterLakeChance = (int) value; break;
 			case 159: settings.lavaLakeChance = (int) value; break;

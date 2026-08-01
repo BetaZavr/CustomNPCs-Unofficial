@@ -13,6 +13,7 @@ import noppes.npcs.NBTTags;
 import noppes.npcs.client.gui.GuiNpcDimension;
 import noppes.npcs.client.gui.global.GuiNpcManageDialogs;
 import noppes.npcs.client.gui.global.GuiNpcManageQuest;
+import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.global.GuiNpcManageRecipes;
 import noppes.npcs.client.gui.global.GuiPermissionsEdit;
 import noppes.npcs.config.ConfigLoader;
@@ -102,6 +103,7 @@ public class PacketSync extends PacketBasic {
          } // quests
          case 4: {
             if (!data.getKeySet().isEmpty()) { CustomNpcs.proxy.getPlayerData(player).questData.load(data); }
+            if (mc.currentScreen instanceof GuiLog) { mc.currentScreen.initGui(); }
             break;
          } // questData
          case 5: {

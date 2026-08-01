@@ -65,8 +65,10 @@ public class CustomGuiSlider extends GuiSliderNop implements IComponentCustomGui
 
    @Override
    public void render(int mouseX, int mouseY, float partialTicks) {
-      isHovered = false;
-      if (!visible) { return; }
+      if (!visible) {
+         isHovered = false;
+         return;
+      }
       super.render(mouseX, mouseY, partialTicks);
       if (textfield != null) {
          textfield.render(mouseX, mouseY, partialTicks);
@@ -105,6 +107,7 @@ public class CustomGuiSlider extends GuiSliderNop implements IComponentCustomGui
 
    @Override
    public void renderWidget(int mouseX, int mouseY, float partialTicks) {
+      isHovered = visible && mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
       if (!visible) { return; }
       Minecraft minecraft = Minecraft.getMinecraft();
       FontRenderer font = minecraft.fontRenderer;
@@ -121,7 +124,7 @@ public class CustomGuiSlider extends GuiSliderNop implements IComponentCustomGui
    }
 
    public int getFGColor() {
-      if (packedFGColor != -1) { return packedFGColor; }
+      if (packedFGColor != 0) { return packedFGColor; }
       else if (!active) { return CustomNpcs.NotEnableColor.getRGB(); }
       else if (isHovered) { return CustomNpcs.HoverColor.getRGB(); }
       return CustomNpcs.ButtonColor.getRGB();
@@ -151,6 +154,8 @@ public class CustomGuiSlider extends GuiSliderNop implements IComponentCustomGui
 
    @Override
    public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double dx, double dy) {
+      if (mouseButton != 0 || (!isHovered && !isDrag)) { return false; }
+      isDrag = true;
       setSliderValue((float)(mouseX - (double)(getX() + 4)) / (float)(width - 8));
       return true;
    }

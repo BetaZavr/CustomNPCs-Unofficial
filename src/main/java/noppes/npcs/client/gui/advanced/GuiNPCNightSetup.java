@@ -53,7 +53,8 @@ public class GuiNPCNightSetup extends GuiNPCInterface2 implements IGuiData {
 		if (data.editingModus) {
 			addButton(11, x2, y, "advanced.loadday")
 					.setHoverTexts(Component.translatable("transform.hover.loadday")
-							.append(Component.translatable("transform.hover.state")));
+							.append(Component.translatable("transform.hover.state")))
+					.setSize(120, 20);
 		}
 		addLabel(2, x0, (y += 22) + 5, "menu.ai")
 				.setSize(w, 10);
@@ -63,7 +64,8 @@ public class GuiNPCNightSetup extends GuiNPCInterface2 implements IGuiData {
 		if (data.editingModus) {
 			addButton(12, x2, y, "advanced.loadnight")
 					.setHoverTexts(Component.translatable("transform.hover.loadnight")
-							.append(Component.translatable("transform.hover.state")));
+							.append(Component.translatable("transform.hover.state")))
+					.setSize(120, 20);
 		}
 		addLabel(3, x0, (y += 22) + 5, "menu.inventory")
 				.setSize(w, 10);

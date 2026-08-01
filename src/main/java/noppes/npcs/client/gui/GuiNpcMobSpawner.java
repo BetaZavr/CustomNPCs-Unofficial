@@ -58,14 +58,14 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 		else { scroll.clear();}
 		add(scroll.setPos(guiLeft + 4, guiTop + 4).setSelect(sel));
 		// clones
-		GuiMenuTopButton button = addTopButton(3, guiLeft + 4, guiTop - 17, "spawner.clones")
-				.setIsEnabled(showingClones == 0);
+		GuiMenuTopButton button = addTopButton(3, guiLeft + 4, guiTop - 17, "spawner.clones");
+		button.active = showingClones == 0;
 		// entities
-		button = addTopButton(4, button.getX() + button.getWidth(), button.getY(), "spawner.entities")
-				.setIsEnabled(showingClones == 1);
+		GuiMenuTopButton buttonEntities = addTopButton(4, button.getX() + button.getWidth(), button.getY(), "spawner.entities");
+		buttonEntities.active = showingClones == 1;
 		// server
-		addTopButton(5, button.getX() + button.getWidth(), button.getY(), "gui.server")
-				.setIsEnabled(showingClones == 2);
+		addTopButton(5, buttonEntities.getX() + buttonEntities.getWidth(), buttonEntities.getY(), "gui.server")
+				.active = showingClones == 2;
 		int x = guiLeft + 171;
 		int y = guiTop + 6;
 		addButton(1, x, y, "gui.spawn").setSize(82, 20);
@@ -78,7 +78,7 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 		else {
 			for (int id = 0; id < 9; id++) {
 				addSideButton(21 + id, guiLeft, guiTop + 3 + id * 21, Component.translatable("gui.tab").append(" " + (id + 1)))
-						.setIsEnabled(activeTab == id + 1);
+						.active = activeTab == id + 1;
 			}
 			addButton(6, guiLeft + 170, guiTop + 30, "gui.remove")
 					.setSize(82, 20);

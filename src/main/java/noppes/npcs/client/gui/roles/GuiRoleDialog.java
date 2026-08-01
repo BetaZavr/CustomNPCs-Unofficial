@@ -48,7 +48,7 @@ public class GuiRoleDialog extends GuiNPCInterface2 implements ITextfieldListene
 		for(int i = 1; i <= 6; ++i) {
 			addLabel(lId++, x0, y + 4, i + ":")
 					.setSize(10, 10);
-			addTextField(i, x1, y + 1, 280, 18, role.options.get(i))
+			addTextField(i, x1, y + 1, 280, 18, role.options.getOrDefault(i, ""))
 					.setHoverTexts(Component.translatable("role.dialog.hover.option", "" + i));
 			addButton(i, x2, y, "selectServer.edit")
 					.setSize(60, 20)

@@ -86,7 +86,7 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2
 	public void buttonEvent(GuiButtonNop button) {
 		switch (button.id) {
 			case 0: npc.advanced.attackOtherFactions = button.getValue() == 1; break;
-			case 1: npc.advanced.defendFaction = button.getValue() == 1; break;
+			case 1: npc.advanced.defendFaction = button.getValue() == 1; initGui(); break;
 			case 2: {
 				HashMap<Component, Integer> corData = new HashMap<>();
 				for (Component name : data.keySet()) {

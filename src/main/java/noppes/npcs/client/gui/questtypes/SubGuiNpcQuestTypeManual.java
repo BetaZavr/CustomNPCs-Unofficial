@@ -125,7 +125,7 @@ public class SubGuiNpcQuestTypeManual
 				.setSize(180, 16)
 				.setHoverTexts(Component.translatable("quest.hover.compass.dim", dimIDs[p]).append(compass));
 		// region ID
-		addLabel(lId, x + 40, (y += 17) + 2, "P:")
+		addLabel(lId++, x + 40, (y += 17) + 2, "P:")
 				.setSize(12, 10);
 		addTextField(9, x + 47, y, 32, 14, "" + task.regionID)
 				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, task.regionID)
@@ -191,7 +191,7 @@ public class SubGuiNpcQuestTypeManual
 				break;
 			} // set player pos
 			case 11: {
-				Packets.sendAll(new SPacketTeleportTo(task.dimension, task.pos));
+				Packets.sendServer(new SPacketTeleportTo(task.dimension, task.pos));
 				break;
 			}
 			case 66: {

@@ -128,7 +128,7 @@ public class CustomGuiTextField extends GuiTextFieldNop implements IComponentCus
             if (focused != null) { focused.setIsFocused(false); }
             focused = this;
          }
-         if (!isFocused() && focused != this) { focused = null; }
+         if (!isFocused() && focused == this) { focused = null; }
       }
       return this;
    }

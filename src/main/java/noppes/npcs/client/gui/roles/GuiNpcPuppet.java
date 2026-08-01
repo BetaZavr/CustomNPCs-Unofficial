@@ -10,7 +10,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.packets.Packets;
-import noppes.npcs.packets.server.SPacketNpcJobSave;
+import noppes.npcs.packets.server.SPacketNpcPuppetSave;
 import noppes.npcs.roles.JobPuppet;
 import noppes.npcs.shared.client.gui.components.*;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
@@ -34,7 +34,7 @@ public class GuiNpcPuppet extends GuiNPCInterface
         imageWidth = 400;
 
         parent = parentIn;
-        job = (JobPuppet)npc.job;
+        job = npc.puppet;
     }
 
     @Override
@@ -140,21 +140,24 @@ public class GuiNpcPuppet extends GuiNPCInterface
         GuiSliderNop slider = addSlider(10, x1, y, (config.rotationX + 1.0F) / 2.0F)
                 .setSize(120, 16);
         float percent = slider.sliderValue * 360.0F;
-        addTextField(10, x2, y + 1, 35, 14, Math.round(percent * 10.0f) / 10.0f);
+        addTextField(10, x2, y + 1, 35, 14, Math.round(percent * 10.0f) / 10.0f)
+                .setMinMaxDefault(0.0d, 360.0d, 180.0d);
         addLabel(11, x0, (y += 18) + 3, "Y:")
                 .setSize(12, 10)
                 .setColor(CustomNpcs.MainColor.getRGB());
         slider = addSlider(11, x1, y, (config.rotationY + 1.0F) / 2.0F)
                 .setSize(120, 16);
         percent = slider.sliderValue * 360.0F;
-        addTextField(11, x2, y + 1, 35, 14, Math.round(percent * 10.0f) / 10.0f);
+        addTextField(11, x2, y + 1, 35, 14, Math.round(percent * 10.0f) / 10.0f)
+                .setMinMaxDefault(0.0d, 360.0d, 180.0d);
         addLabel(12, x0, (y += 18) + 3, "Z:")
                 .setSize(12, 10)
                 .setColor(CustomNpcs.MainColor.getRGB());
         slider = addSlider(12, x1, y, (config.rotationZ + 1.0F) / 2.0F)
                 .setSize(120, 16);
         percent = slider.sliderValue * 360.0F;
-        addTextField(12, x2, y + 1, 35, 14, Math.round(percent * 10.0f) / 10.0f);
+        addTextField(12, x2, y + 1, 35, 14, Math.round(percent * 10.0f) / 10.0f)
+                .setMinMaxDefault(0.0d, 360.0d, 180.0d);
     }
 
     @Override
@@ -166,7 +169,7 @@ public class GuiNpcPuppet extends GuiNPCInterface
     @Override
     public void onClose() {
         minecraft.displayGuiScreen(parent);
-        Packets.sendServer(new SPacketNpcJobSave(job.save(new NBTTagCompound())));
+        Packets.sendServer(new SPacketNpcPuppetSave(job.save(new NBTTagCompound())));
     }
 
     @Override

@@ -352,7 +352,7 @@ public class SubGuiQuestEdit
 			while (has) {
 				has = false;
 				for (Quest qes : quest.category.quests.values()) {
-					if (qes.id != quest.id && qes.title.equalsIgnoreCase(quest.title)) {
+					if (qes.id != quest.id && qes.title.equalsIgnoreCase(t.toString())) {
 						has = true;
 						break;
 					}

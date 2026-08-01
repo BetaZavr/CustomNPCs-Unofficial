@@ -217,9 +217,10 @@ public class GuiNpcManageDialogs extends GuiNPCInterface2 implements ICustomScro
 				if (!categoryData.containsKey(selectedCategory)) { return; }
 				ConfirmScreen guiYesNo = new ConfirmScreen((bo) -> {
 					if (bo) {
+						int catId = categoryData.get(selectedCategory).id;
 						selectedCategory = Component.empty();
 						selectedDialog = Component.empty();
-						Packets.sendServer(new SPacketDialogCategoryRemove(categoryData.get(selectedCategory).id));
+						Packets.sendServer(new SPacketDialogCategoryRemove(catId));
 					}
 					NoppesUtil.openGUI(player, this);
 				},

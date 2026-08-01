@@ -1346,7 +1346,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
 						Util.instance.getTextReducedNumber(mail.ransom, true, false, false)
 								+ " " + CustomNpcs.displayCurrencies);
 			}
-			if (mail.money > 0) {
+			else if (mail.money > 0) {
 				addLabel(7, x, y + 18, "market.currency");
 				addLabel(8, x + 2, y + 28,
 						Util.instance.getTextReducedNumber(mail.money, true, false, false)

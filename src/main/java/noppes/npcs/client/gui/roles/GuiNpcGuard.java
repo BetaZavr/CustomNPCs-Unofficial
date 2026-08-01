@@ -44,8 +44,8 @@ public class GuiNpcGuard extends GuiNPCInterface2 implements ICustomScrollListen
 				Entity entity = ent.newInstance(player.world);
 				if (entity != null) {
 					if (EntityLivingBase.class.isAssignableFrom(entity.getClass())) {
-						entityData.put(ent.getName(), ent);
-						namesData.put(Component.translatable("entity." + ent.getName() + ".name"), ent.getName());
+						entityData.put("entity." + ent.getName() + ".name", ent);
+						namesData.put(Component.translatable("entity." + ent.getName() + ".name"), "entity." + ent.getName() + ".name");
 					}
 					entity.isDead = true;
 				}

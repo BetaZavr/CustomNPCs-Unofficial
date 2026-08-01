@@ -251,7 +251,8 @@ public class GuiNpcHealer
 	@Override
 	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiNpcJobHealerSettings && configured.hasSelected()) {
-			int id = potions.get(displays_1.get(configured.getNormalSelected()));
+			Integer id = potions.get(displays_1.get(configured.getNormalSelected()));
+			if (id == null) { return; }
 			job.effects.put(id, ((SubGuiNpcJobHealerSettings) subgui).healerSettings);
 			initGui();
 		}

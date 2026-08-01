@@ -62,7 +62,7 @@ public class SubGuiQuestSelection extends GuiBasic implements ICustomScrollListe
 	public void buttonEvent(GuiButtonNop button) {
 		if (button.id == 2) {
 			if (selectedQuest != null) { scrollDoubleClicked(null); }
-			onClose();
+			else { onClose(); }
 		}
 	}
 

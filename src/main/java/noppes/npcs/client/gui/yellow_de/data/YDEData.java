@@ -317,10 +317,7 @@ public class YDEData {
     public List<YDENode> getToLinks(int nodeId) {
         List<YDENode> list = new ArrayList<>();
         for (YDELink link : new ArrayList<>(links)) {
-            if (link.next == nodeId && nodes.containsKey(link.back)) {
-                list.add(nodes.get(link.back));
-                break;
-            }
+            if (link.next == nodeId && nodes.containsKey(link.back)) { list.add(nodes.get(link.back)); }
         }
         return list;
     }
@@ -328,10 +325,7 @@ public class YDEData {
     public List<YDENode> getFromLinks(int nodeId) {
         List<YDENode> list = new ArrayList<>();
         for (YDELink link : new ArrayList<>(links)) {
-            if (link.back == nodeId && nodes.containsKey(link.next)) {
-                list.add(nodes.get(link.next));
-                break;
-            }
+            if (link.back == nodeId && nodes.containsKey(link.next)) { list.add(nodes.get(link.next)); }
         }
         return list;
     }

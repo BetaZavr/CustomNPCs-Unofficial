@@ -169,6 +169,7 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
       }
 
       RenderHelper.disableStandardItemLighting();
+      GlStateManager.disableColorMaterial();
       GlStateManager.disableRescaleNormal();
       GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
       GlStateManager.disableTexture2D();

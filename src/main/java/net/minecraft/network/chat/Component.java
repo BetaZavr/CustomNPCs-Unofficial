@@ -128,4 +128,14 @@ public class Component {
 
     public ITextComponent getParent() { return parent; }
 
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) { return true; }
+        if (!(other instanceof Component)) { return false; }
+        return getFormattedText().equals(((Component) other).getFormattedText());
+    }
+
+    @Override
+    public int hashCode() { return getFormattedText().hashCode(); }
+
 }

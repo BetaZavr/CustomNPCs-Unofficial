@@ -54,6 +54,7 @@ public class CustomGuiButton extends GuiButtonNop implements IComponentCustomGui
       background = new CustomGuiTexturedRect(listener, component.getTextureRect());
       setMessage(Component.translatable(component.getLabel()));
       active = component.getEnabled() && component.getVisible();
+      enabled = component.getEnabled();
       visible = component.getVisible();
    }
 

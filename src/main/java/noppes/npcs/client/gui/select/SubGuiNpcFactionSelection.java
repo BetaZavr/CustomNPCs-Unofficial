@@ -38,6 +38,7 @@ public class SubGuiNpcFactionSelection extends GuiNPCInterface implements ICusto
 		super.initGui();
 		Component selected = Component.empty();
 		List<Component> list = new ArrayList<>();
+		data.clear();
 		for (Faction faction : FactionController.instance.factions.values()) {
 			Component key = Component.empty()
 					.append(Component.literal("ID:" + faction.getId() + " "))

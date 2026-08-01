@@ -6,7 +6,6 @@ import java.util.Map;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.text.TextFormatting;
-import noppes.npcs.client.gui.select.SubGuiDialogSelection;
 import noppes.npcs.client.gui.select.SubGuiQuestSelection;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityQuest;
@@ -121,7 +120,7 @@ public class SubGuiNpcAvailabilityQuest
 				.setIsEnabled(isSelect);
 		getButton(1).setIsEnabled(p != 0 || !isSelect)
 				.setDisplayText(quest == null ? "availability.select" : quest.getName());
-		getButton(2).setIsEnabled(p != 0);
+		getButton(2).setIsEnabled(isSelect);
 	}
 
 	@Override
@@ -170,6 +169,7 @@ public class SubGuiNpcAvailabilityQuest
 		if (id <= 0) { return; }
 		if (dataIDs.containsKey(select)) { availability.quests.remove(dataIDs.get(select)); }
 		Quest quest = QuestController.instance.quests.get(id);
+		if (quest == null) { return; }
 		select = Component.literal("ID:" + id + " - ")
 				.append(Component.translatable(quest.category.getName() + "/").withStyle(TextFormatting.GRAY))
 				.append(Component.literal(quest.getName()).withStyle(TextFormatting.RESET))
@@ -189,7 +189,7 @@ public class SubGuiNpcAvailabilityQuest
 
 	@Override
 	public void scrollDoubleClicked(GuiCustomScrollNop scroll) {
-		setSubGui(new SubGuiDialogSelection(dataIDs.get(select)));
+		setSubGui(new SubGuiQuestSelection(dataIDs.getOrDefault(select, 0)));
 	}
 
 	@Override

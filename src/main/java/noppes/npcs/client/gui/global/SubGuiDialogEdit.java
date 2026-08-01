@@ -199,7 +199,7 @@ public class SubGuiDialogEdit
 				while (has) {
 					has = false;
 					for (Dialog dia : dialog.category.dialogs.values()) {
-						if (dia.id != dialog.id && dia.title.equalsIgnoreCase(dialog.title)) {
+						if (dia.id != dialog.id && dia.title.equalsIgnoreCase(t.toString())) {
 							has = true;
 							break;
 						}

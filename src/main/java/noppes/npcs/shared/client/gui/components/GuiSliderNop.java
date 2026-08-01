@@ -148,7 +148,6 @@ public class GuiSliderNop extends Gui implements IComponentGui {
         }
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();
-        GlStateManager.disableDepth();
     }
 
     @Override
@@ -192,7 +191,7 @@ public class GuiSliderNop extends Gui implements IComponentGui {
             GlStateManager.enableBlend();
             Minecraft mc = Minecraft.getMinecraft();
             mc.getTextureManager().bindTexture(GuiButtonNop.WIDGETS_LOCATION);
-            int lvt_4_1_ = (isHovered || isFocused() ? 2 : 1) * 20;
+            int lvt_4_1_ = (isHovered ? 2 : 1) * 20;
             int x = getX() + (int)((double)sliderValue * (double)(getWidth() - 8));
             int y = getY();
             int h0 = getHeight() / 2;

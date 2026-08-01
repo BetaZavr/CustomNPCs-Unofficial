@@ -34,7 +34,7 @@ public class CustomGuiTextArea extends GuiTextArea implements IComponentCustomGu
 
    @Override
    public void render(int mouseX, int mouseY, float partialTicks) {
-      if (visible) { return; }
+      if (!visible) { return; }
       if (height <= 0) { height = 10; }
       GlStateManager.pushMatrix();
       GlStateManager.translate(0.0F, 0.0F, (float)id);

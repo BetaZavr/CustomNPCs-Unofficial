@@ -20,9 +20,9 @@ public class YDEDialog extends YDENode {
         type = EnumYDEType.DIALOG;
 
         id = idIn;
-        dialog = DialogController.instance.get(dialogId);
         category = categoryIn;
         dialogId = dialogIdIn;
+        dialog = DialogController.instance.get(dialogId);
     }
 
     @Override

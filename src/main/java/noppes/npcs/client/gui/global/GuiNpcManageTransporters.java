@@ -337,7 +337,7 @@ public class GuiNpcManageTransporters extends GuiContainerNPCInterface2<Containe
 	}
 
 	private void transfer(TransportLocation loc) {
-		if (loc != null) { Packets.sendAll(new SPacketTeleportTo(loc.dimension, loc.pos)); }
+		if (loc != null) { Packets.sendServer(new SPacketTeleportTo(loc.dimension, loc.pos)); }
 	}
 
 }

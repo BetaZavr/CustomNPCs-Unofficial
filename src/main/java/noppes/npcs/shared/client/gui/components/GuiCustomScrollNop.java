@@ -104,7 +104,7 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
         listHeight = lineHeight * listSize;
         if (listHeight > 0) { scrollHeight = (int)((double)(height - 2) / (double)listHeight * (double)(height - 2)); }
         else { scrollHeight = Integer.MAX_VALUE; }
-        maxScrollY = listHeight - (height - 2) - 1;
+        maxScrollY = Math.max(0, listHeight - (height - 2) - 1);
         resetRoll();
         return this;
     }
@@ -121,6 +121,8 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
         else { listSize = (int) list.stream().filter((line) -> isSearched(line.getString())).count(); }
         setSize(width, height + textFieldHeight());
         if (selected >= 0 && selected >= list.size()) { selected = -1; }
+        selectedList.clear();
+        lastClickedItem = -1;
     }
 
     private boolean isSearched(String s) {
@@ -176,22 +178,6 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
             int sy = y;
             int ex = width + x;
             int ey = height + y;
-            if (enabled && isFocused()) {
-                int sv = y;
-                int ev = y + height - 1;
-                if (hasSearch && textField.isVisible()) {
-                    drawHorizontalLine(x, x + width - 1, sv, 0xFFFFFFFF);
-                    sv -= 22;
-                }
-                drawHorizontalLine(x, x + width - 1, sv, 0xFFFFFFFF);
-                drawHorizontalLine(x, x + width - 1, ev, 0xFFFFFFFF);
-                drawVerticalLine(x, sv, ev, 0xFFFFFFFF);
-                drawVerticalLine(x + width - 1, sv, ev, 0xFFFFFFFF);
-                sx = x + 1;
-                sy = y + 1;
-                ex = width + x - 1;
-                ey = height + y - 1;
-            }
             drawGradientRect(sx, sy, ex, ey, colorBackS, colorBackE);
         }
 
@@ -215,7 +201,7 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
             if (isScrolling) {
                 isScrolling = Mouse.isButtonDown(0);
                 if (isScrolling) {
-                    scrollY = (mouseY - 2) * listHeight / (height - 2) - scrollHeight;
+                    scrollY = (int) ((mouseY - 1 - scrollHeight / 2.0d) * listHeight / (height - 2));
                     if (scrollY < 0) { scrollY = 0; }
                     if (scrollY > maxScrollY) { scrollY = maxScrollY; }
                 }
@@ -272,7 +258,8 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
         int xOffset = scrollHeight < height - 2 ? 10 : 0;
         int posX = 4;
         int posY = lineHeight * displayIndex + 4 - scrollY;
-        return mouseX >= posX - 1 && mouseX < width - 2 - xOffset && mouseY >= posY - 1 && mouseY < posY + 8;
+        if (posY < 4 || posY + 10 >= height) { return false; }
+        return mouseX >= posX - 1 && mouseX < width - 2 - xOffset && mouseY >= posY - 3 && mouseY < posY + lineHeight - 2;
     }
 
     protected void drawItems() {
@@ -303,7 +290,7 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
                         (i == hover ? CustomNpcs.HoverColor.getRGB() : CustomNpcs.MainColor.getRGB()), true, false, customFont);
             }
             if (multipleSelection && selectedList.contains(i) ||
-                    isSimpleSelect && hover == i ||
+                    hover == i ||
                     !multipleSelection && selected == i) {
                 GlStateManager.pushMatrix();
                 GlStateManager.translate(left - 2.0f, top - 3.0f, 0.0f);
@@ -325,7 +312,8 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
                     drawHorizontalLine(1, r - left + 2, lineHeight, -1);
                 }
                 GlStateManager.popMatrix();
-                GuiButtonNop.renderString(displayString, left, top, right, top + 10, CustomNpcs.MainColor.getRGB() | alpha, true, false, customFont);
+                GuiButtonNop.renderString(displayString, left, top, right, top + 10,
+                        (i == hover ? CustomNpcs.HoverColor.getRGB() : CustomNpcs.MainColor.getRGB()) | alpha, true, false, customFont);
             }
             else if (i == hover) {
                 GuiButtonNop.renderString(displayString, left, top, right, top + 10, CustomNpcs.HoverColor.getRGB() | alpha, true, false, customFont);
@@ -391,6 +379,7 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
 
     @Override
     public boolean keyPressed(char typedChar, int keyCode) {
+        if (!visible || !enabled) { return false; }
         if (hasSearch && textField.isFocused()) {
             boolean bo = textField.keyPressed(typedChar, keyCode);
             if (!searchStr.equals(textField.getValue())) {
@@ -439,7 +428,7 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
         if (scrollHeight < height - 2) {
             double xPos = mouseX - x;
             double yPos = mouseY - y;
-            if (hasSearch) { yPos -= 24; }
+            if (hasSearch) { yPos -= textFieldHeight(); }
             isScrolling = xPos >= width - 10 && xPos < width - 1 && yPos >= 1 && yPos < height - 2;
             if (isScrolling) { return true; }
         }

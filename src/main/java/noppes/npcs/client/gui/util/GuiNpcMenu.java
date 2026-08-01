@@ -234,6 +234,7 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 	}
 
 	private void close() {
+		Keyboard.enableRepeatEvents(false);
 		if (parent instanceof GuiContainerNPCInterface2<?>) { ((GuiContainerNPCInterface2<?>) parent).backGui = null; }
 		else if (parent instanceof GuiNPCInterface2) { ((GuiNPCInterface2) parent).backGui = null; }
 		if (parent != null) { parent.onClose(); }

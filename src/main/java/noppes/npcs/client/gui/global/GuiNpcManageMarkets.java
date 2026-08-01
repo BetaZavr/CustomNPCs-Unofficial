@@ -431,7 +431,7 @@ public class GuiNpcManageMarkets extends GuiNPCInterface2
 			case 5: {
 				if (dealId < 0) { return; }
 				SubGuiNPCManageDeal.parent = this;
-				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, new BlockPos(marcetId, mData.getUnusedDealId(), 0));
+				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, new BlockPos(marcetId, dealId, 0));
 				onClose();
 				break;
 			} // Deal settings

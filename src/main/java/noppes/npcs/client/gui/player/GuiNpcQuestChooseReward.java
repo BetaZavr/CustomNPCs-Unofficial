@@ -35,7 +35,7 @@ public class GuiNpcQuestChooseReward extends GuiNPCInterface {
 		addButton(0, guiLeft + imageWidth - 114, guiTop + imageHeight - 24, "quest.no.thanks")
 				.setSize(110, 20);
 		for (Map.Entry<Integer, ItemStack> entry : rewardItems.entrySet()) {
-			addButton(0, x + (entry.getKey() % 9) * 18, y + (int) Math.floor((entry.getKey() / 9.0f) * 18), "quest.no.thanks")
+			addButton(entry.getKey() + 1, x + (entry.getKey() % 9) * 18, y + (int) Math.floor((entry.getKey() / 9.0f) * 18), "quest.no.thanks")
 					.setSize(18, 18)
 					.setTexture(RESOURCE_SLOT)
 					.setUV(220, 0, 36, 36)

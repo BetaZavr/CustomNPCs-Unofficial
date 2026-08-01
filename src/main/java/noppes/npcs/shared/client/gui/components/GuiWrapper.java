@@ -60,8 +60,11 @@ public class GuiWrapper {
             }
         }
         // and at end if there is only one scroll
-        if (onlyScroll != null) { onlyScroll.mouseForcedScrolled(scrolled); }
-        return true;
+        if (onlyScroll != null) {
+            onlyScroll.mouseForcedScrolled(scrolled);
+            return true;
+        }
+        return false;
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
@@ -132,27 +135,8 @@ public class GuiWrapper {
             if (subgui instanceof IGuiInterface) { return ((IGuiInterface) subgui).keyPressed(typedChar, keyCode); }
             return true;
         }
-        boolean active = GuiTextFieldNop.getActive() != null;
-        if (!active) {
-            for (IComponentGui component : new ArrayList<>(components)) {
-                if (component.isFocused()) {
-                    active = true;
-                    break;
-                }
-            }
-        }
-        boolean shouldCloseOnEsc = (gui instanceof GuiBasic && ((GuiBasic) gui).closeOnEsc) || (gui instanceof GuiBasicContainer && ((GuiBasicContainer<?>) gui).closeOnEsc);
-        if (gui instanceof GuiScreen && shouldCloseOnEsc && GuiBasic.isEscKey(keyCode) && active) {
-            ((GuiScreen) gui).onGuiClosed();
-            return true;
-        }
-        else {
-            for (IComponentGui component : new ArrayList<>(components)) {
-                if (component.keyPressed(typedChar, keyCode)) {
-                    setFocus(component);
-                    return true;
-                }
-            }
+        for (IComponentGui component : new ArrayList<>(components)) {
+            if (component.keyPressed(typedChar, keyCode)) { return true; }
         }
         return false;
     }
@@ -161,7 +145,7 @@ public class GuiWrapper {
         CustomGuiEntityDisplay.drawEntity(entity, x, y, zoomed, yaw, pitch, mouseX, mouseY, (float) guiLeft, (float) guiTop, followCursor);
     }
 
-    private void setFocus(IComponentGui focused) {
+    public void setFocus(IComponentGui focused) {
         if (focused != null && !focused.isHovered()) { return; }
         for (IComponentGui component : new ArrayList<>(components)) {
             component.setIsFocused(component == focused);
@@ -203,8 +187,6 @@ public class GuiWrapper {
         ((GuiScreen) gui).setFocused(false);
         subgui = subguiIn;
         if (subgui != null) {
-            GuiScreen g = (GuiScreen) gui;
-            subgui.setWorldAndResolution(g.mc, g.width, g.height);
             if (subgui instanceof IGuiInterface) {
                 ((IGuiInterface) subgui).getWrapper().parent = (GuiScreen) gui;
             }
@@ -246,16 +228,6 @@ public class GuiWrapper {
         newComponents.add(element);
         //newComponents.sort(Comparator.comparing(IComponentGui::getElementType).thenComparingInt(IComponentGui::getId));
         components = newComponents;
-        boolean found = false;
-        IComponentGui first = null;
-        for (IComponentGui component : newComponents) {
-            if (!component.getElementType().isSelectable() || !component.isVisible() || !component.isEnabled()) {
-                continue;
-            }
-            if (first == null) { first = component; }
-            if (component.isFocused()) { found = true; break; }
-        }
-        if (!found && first != null) { first.setIsFocused(true); }
     }
 
     public <C extends IComponentGui> List<C> getComponents(Class<C> clazz) {
@@ -296,7 +268,6 @@ public class GuiWrapper {
             }
             else if (found && !component.isFocused()) {
                 component.setIsFocused(true);
-                LogWriter.info("[DEBUG] "+component.getId()+" - "+component);
                 change = true;
                 break;
             }
@@ -312,7 +283,7 @@ public class GuiWrapper {
         boolean change = false;
         IComponentGui last = null;
         for (IComponentGui component : new ArrayList<>(components)) {
-            if (!component.getElementType().isSelectable()) { continue; }
+            if (!component.getElementType().isSelectable() || !component.isVisible() || !component.isEnabled()) { continue; }
             if (component.isFocused()) {
                 component.setIsFocused(false);
                 if (last != null) {

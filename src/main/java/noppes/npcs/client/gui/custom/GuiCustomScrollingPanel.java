@@ -44,6 +44,7 @@ public class GuiCustomScrollingPanel extends GuiCustomComponents {
 
     @Override
     public void render(int mouseX, int mouseY, float partialTicks) {
+        if (comps == null) { return; }
         mouseX -= comps.x;
         mouseY -= comps.y;
         GlStateManager.pushMatrix();
@@ -154,11 +155,11 @@ public class GuiCustomScrollingPanel extends GuiCustomComponents {
     public boolean canScroll() { return maxSize > comps.height; }
 
     public boolean panelHovered(double x, double y) {
-        return canScroll() && x >= 0.0D && y >= 0.0D && x < (double)comps.width && y < (double)comps.height;
+        return comps != null && canScroll() && x >= 0.0D && y >= 0.0D && x < (double)comps.width && y < (double)comps.height;
     }
 
     private boolean scrollBarHovered(double x, double y) {
-        return panelHovered(x, y) && x >= (double)scrollbar.getX() && y >= (double)scrollbar.getY() && x < (double)(scrollbar.getY() + scrollbar.getWidth()) && y < (double)(scrollbar.getY() + scrollbar.getHeight());
+        return panelHovered(x, y) && x >= (double)scrollbar.getX() && y >= (double)scrollbar.getY() && x < (double)(scrollbar.getX() + scrollbar.getWidth()) && y < (double)(scrollbar.getY() + scrollbar.getHeight());
     }
 
     private boolean scrollButtonHovered(double x, double y) {

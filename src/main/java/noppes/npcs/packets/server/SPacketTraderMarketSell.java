@@ -95,7 +95,6 @@ public class SPacketTraderMarketSell extends PacketServerBasic {
                 player.sendMessage(Component.translatable("marcet.message.not.deal").getParent());
                 return;
             }
-            marcet.money -= dm.sellMoney;
             Map<ItemStack, Integer> mainItem = new LinkedHashMap<>();
             mainItem.put(dm.main, dm.count);
             marcet.addInventoryItems(mainItem);

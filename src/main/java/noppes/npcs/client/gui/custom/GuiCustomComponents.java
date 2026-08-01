@@ -70,6 +70,7 @@ public class GuiCustomComponents extends Gui {
                 case 4:
                     CustomGuiScroll scroll = new CustomGuiScroll(gui, (CustomGuiScrollWrapper) comp);
                     newComponents.put(scroll.getId(), scroll);
+                    break;
                 case 6:
                     if (comp instanceof CustomGuiTextAreaWrapper) {
                         CustomGuiTextArea textArea = new CustomGuiTextArea(gui, (CustomGuiTextAreaWrapper) comp);
@@ -98,6 +99,7 @@ public class GuiCustomComponents extends Gui {
                 case 12:
                     CustomGuiItemRenderer itemRenderer = new CustomGuiItemRenderer(gui, (CustomGuiItemRendererWrapper) comp);
                     newComponents.put(itemRenderer.getId(), itemRenderer);
+                    break;
                 default:
                     break;
             }
@@ -168,7 +170,7 @@ public class GuiCustomComponents extends Gui {
 
     public boolean mouseScrolled(double mouseX, double mouseY, double mouseScrolled) {
         for (IComponentGui comp : components.values()) {
-            if (comp.getId() == draggingId && comp.mouseScrolled(mouseX, mouseY, mouseScrolled)) { return true; }
+            if (comp.mouseScrolled(mouseX, mouseY, mouseScrolled)) { return true; }
         }
         return false;
     }

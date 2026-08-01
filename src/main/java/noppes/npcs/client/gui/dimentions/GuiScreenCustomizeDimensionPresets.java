@@ -68,9 +68,9 @@ public class GuiScreenCustomizeDimensionPresets extends GuiScreen {
 
 		private void blitIcon(int insideLeft, int yPos, ResourceLocation texture) {
 			int i = insideLeft + 5;
-			drawHorizontalLine(i - 1, i + 32, yPos - 1, 0xFE0E0E0);
+			drawHorizontalLine(i - 1, i + 32, yPos - 1, 0xFFE0E0E0);
 			drawHorizontalLine(i - 1, i + 32, yPos + 32, 0xFFA0A0A0);
-			drawVerticalLine(i - 1, yPos - 1, yPos + 32, 0xFE0E0E0);
+			drawVerticalLine(i - 1, yPos - 1, yPos + 32, 0xFFE0E0E0);
 			drawVerticalLine(i + 32, yPos - 1, yPos + 32, 0xFFA0A0A0);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			mc.getTextureManager().bindTexture(texture);

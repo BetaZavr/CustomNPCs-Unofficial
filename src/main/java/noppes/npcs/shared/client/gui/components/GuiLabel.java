@@ -120,10 +120,9 @@ public class GuiLabel extends Gui implements IComponentGui {
         GlStateManager.enableBlend();
         drawBox();
         GuiButtonNop.renderString(getMessage(), getX(), getY(), getX() + width, getY() + height,
-                textColor, showShadow, centered, customFont);
+                textColor | 0xFF000000, showShadow, centered, customFont);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();
-        GlStateManager.disableDepth();
     }
 
     @Override

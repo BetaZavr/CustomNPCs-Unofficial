@@ -84,7 +84,7 @@ public class SubGuiNpcMovement extends GuiBasic implements ITextfieldListener {
 				addLabel(6, x0, y + 5, "movement.rotation");
 				addLabel(5, guiLeft + 142, y + 5, "(0-359)");
 			}
-			if (ai.getStandingType() == 1 || ai.getStandingType() == 3) {
+			if (ai.animationType != 2 && (ai.getStandingType() == 1 || ai.getStandingType() == 3)) {
 				addTextField(5, guiLeft + 165, y, 40, 20, ai.orientation)
 						.setMinMaxDefault(0, 359, 0)
 						.setHoverTexts("ai.hover.interact");

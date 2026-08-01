@@ -67,7 +67,6 @@ public class GuiMenuSideButton extends GuiButtonNop {
                 getFGColor() | (int) Math.ceil(alpha * 255.0F) << 24, showShadow, true, customFont);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();
-        GlStateManager.disableDepth();
     }
 
     // New from Unofficial (BetaZavr)
@@ -82,6 +81,9 @@ public class GuiMenuSideButton extends GuiButtonNop {
         }
         return enabled && super.mouseClicked(mouseX, mouseY, mouseButton);
     }
+
+    @Override
+    protected boolean clicked(double mouseX, double mouseY) { return visible && enabled && isHovered; }
 
     @Override
     public GuiComponentType getElementType() { return GuiComponentType.SIDE_BUTTON; }

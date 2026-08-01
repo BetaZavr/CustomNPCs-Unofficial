@@ -191,6 +191,7 @@ public class QuestObjective implements IQuestObjective {
 		PlayerData data = PlayerData.get(player);
 		if (type == EnumQuestTask.DIALOG) { return data.dialogData.has(id) ? 1 : 0; }
 		QuestData questData = data.questData.activeQuests.get(parentID);
+		if (questData == null) { return 0; }
 		if (type == EnumQuestTask.LOCATION) {
 			for (NBTBase dataNBT : questData.extraData.getTagList("Locations", 10)) {
 				if (name.equalsIgnoreCase(((NBTTagCompound) dataNBT).getString("Location"))) {
@@ -199,7 +200,6 @@ public class QuestObjective implements IQuestObjective {
 			}
 			return 0;
 		}
-		if (questData == null) { return 0; }
 		if (type == EnumQuestTask.KILL || type == EnumQuestTask.AREAKILL || type == EnumQuestTask.MANUAL) {
 			HashMap<String, Integer> killed = getKilled(questData);
 			if (!killed.containsKey(name)) { return 0; }

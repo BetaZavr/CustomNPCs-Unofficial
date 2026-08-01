@@ -6,7 +6,6 @@ import java.util.Map;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.text.TextFormatting;
-import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.select.SubGuiNpcFactionSelection;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityFaction;
@@ -113,10 +112,10 @@ public class SubGuiNpcAvailabilityFaction
 				.setHoverTexts("availability.hover.faction.type");
 		// select
 		addButton(1, guiLeft + 110, guiTop + imageHeight - 46, "availability.select")
-				.setSize(140, 20)
+				.setSize(118, 20)
 				.setHoverTexts("availability.hover.faction");
 		// del
-		addButton(2, guiLeft + 290, guiTop + imageHeight - 46, "X")
+		addButton(2, guiLeft + 230, guiTop + imageHeight - 46, "X")
 				.setSize(20, 20)
 				.setHoverTexts("availability.hover.remove");
 		// extra
@@ -157,8 +156,7 @@ public class SubGuiNpcAvailabilityFaction
 				break;
 			}
 			case 1: {
-				SubGuiNpcFactionSelection gui = new SubGuiNpcFactionSelection(this, dataIDs.getOrDefault(select, -1));
-				NoppesUtil.openGUI(player, gui);
+				setSubGui(new SubGuiNpcFactionSelection(this, dataIDs.getOrDefault(select, -1)));
 				break;
 			}
 			case 2: {
@@ -211,8 +209,7 @@ public class SubGuiNpcAvailabilityFaction
 
 	@Override
 	public void scrollDoubleClicked(GuiCustomScrollNop scroll) {
-		SubGuiNpcFactionSelection gui = new SubGuiNpcFactionSelection(this, dataIDs.get(select));
-		NoppesUtil.openGUI(player, gui);
+		setSubGui(new SubGuiNpcFactionSelection(this, dataIDs.getOrDefault(select, -1)));
 	}
 
 	@Override
@@ -276,7 +273,7 @@ public class SubGuiNpcAvailabilityFaction
 				.setIsEnabled(isSelect);
 		getButton(1).setIsEnabled(p != 0 || !isSelect)
 				.setDisplayText(faction == null ? "availability.select" : faction.getName());
-		getButton(2).setIsEnabled(p != 0);
+		getButton(2).setIsEnabled(isSelect);
 	}
 
 }

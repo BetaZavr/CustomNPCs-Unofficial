@@ -94,7 +94,10 @@ public class CustomGuiScrollWrapper extends CustomGuiComponentWrapper implements
 		super.toNBT(compound);
 		compound.setIntArray("selection", selection);
 		NBTTagList listTag = new NBTTagList();
-		for (String line : list) { listTag.appendTag(new NBTTagString(line)); }
+		if (list != null) {
+			for (String line : list) { listTag.appendTag(new NBTTagString(line == null ? "" : line)); }
+		}
+		compound.setTag("list", listTag);
 		compound.setBoolean("multiSelect", multiSelect);
 		compound.setBoolean("hasSearch", hasSearch);
 		return compound;

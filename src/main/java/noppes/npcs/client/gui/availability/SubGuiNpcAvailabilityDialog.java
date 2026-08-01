@@ -209,7 +209,7 @@ public class SubGuiNpcAvailabilityDialog
 				.setIsEnabled(isSelect);
 		getButton(1).setIsEnabled(p != 0 || !isSelect)
 				.setDisplayText(dialog == null ? "availability.select" : dialog.getName());
-		getButton(2).setIsEnabled(p != 0);
+		getButton(2).setIsEnabled(isSelect);
 	}
 
 }

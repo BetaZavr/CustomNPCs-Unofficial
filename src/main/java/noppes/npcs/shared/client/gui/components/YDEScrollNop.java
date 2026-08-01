@@ -213,9 +213,9 @@ public class YDEScrollNop extends GuiBasic
                 int thumbWidth = Math.max(20, (int) (trackWidth - maxScrollX));
                 int thumbX = (int) (scrollRatio * (trackWidth - thumbWidth));
                 float f0 = guiLeft + 2.0f + thumbX;
-                if (mouseX < f0) { scrollX = ValueUtil.correctFloat(scrollX - f0 + (float) mouseX, 0, maxScrollY); }
+                if (mouseX < f0) { scrollX = ValueUtil.correctFloat(scrollX - f0 + (float) mouseX, 0, maxScrollX); }
                 float f1 = f0 + thumbWidth;
-                if (mouseX > f1) { scrollX = ValueUtil.correctFloat(scrollX + (float) mouseX - f1, 0, maxScrollY); }
+                if (mouseX > f1) { scrollX = ValueUtil.correctFloat(scrollX + (float) mouseX - f1, 0, maxScrollX); }
                 return true;
             }
         }

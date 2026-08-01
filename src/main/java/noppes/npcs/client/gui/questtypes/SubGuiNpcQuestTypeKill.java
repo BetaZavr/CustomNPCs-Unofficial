@@ -266,7 +266,7 @@ public class SubGuiNpcQuestTypeKill
 				initGui();
 				break;
 			} // set player pos
-			case 11: Packets.sendAll(new SPacketTeleportTo(task.dimension, task.pos)); break;
+			case 11: Packets.sendServer(new SPacketTeleportTo(task.dimension, task.pos)); break;
 			case 66: onClose(); break;
 		}
 	}

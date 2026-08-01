@@ -107,7 +107,7 @@ public class GuiNpcConversation extends GuiNPCInterface2
 			if (scroll.getSelectedIndex() > 0) {
 				addLabel(lId++, x1, y + 3, Component.translatable("conversation.delay").append(":"))
 						.setSize(120, 10);
-				addTextField(1, x2 + 1, y, 68, 18, line.npc)
+				addTextField(1, x2 + 1, y, 68, 18, line.delay)
 						.setMinMaxDefault(5, 1000, 40)
 						.setHoverTexts("job.conversation.hover.delay");
 			}

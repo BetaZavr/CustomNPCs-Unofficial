@@ -312,6 +312,12 @@ public class GuiCustomWindowNop extends GuiBasic
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+        if (!enabled || !visible) { return false; }
+        return super.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
+    @Override
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double dx, double dy) {
         if (enabled && visible && isHovered) {
             boolean bo = wrapper.mouseDragged(mouseX, mouseY, mouseButton, dx, dy);

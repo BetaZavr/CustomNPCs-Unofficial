@@ -296,6 +296,10 @@ public class ClientTickHandler {
 		boolean isShiftPressed = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
 		boolean isAltPressed = Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
 		boolean isMetaPressed = Keyboard.isKeyDown(Keyboard.KEY_LMETA) || Keyboard.isKeyDown(Keyboard.KEY_RMETA); // Windows and Command
+		if (Minecraft.getMinecraft().player == null || Minecraft.getMinecraft().world == null) {
+			CustomNpcs.debugData.end(null);
+			return;
+		}
 		IPlayer<?> iPlayer = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(Minecraft.getMinecraft().player);
 		if (key < 0) {
 			Event event = new PlayerEvent.MouseMoveEvent(iPlayer, x, y, dx, dy, dWheel, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed);

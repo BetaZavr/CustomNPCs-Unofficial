@@ -116,7 +116,7 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ICustomScrollListen
 		if (scroll == null) { scroll = addScroll(0).setSize(130, 174); }
 		scroll.setList(new ArrayList<>())
 				.setUnsortedList(ds);
-		if (selectedMark != null && !selMark.getFormattedText().isEmpty()) { scroll.setSelected(selMark); }
+		if (selectedMark != null && data.marks.contains(selectedMark)) { scroll.setSelect(data.marks.indexOf(selectedMark)); }
 		add(scroll.setPos(guiLeft + 5, guiTop + 14));
 		if (selectedMark == null) { selectedMark = data.getNewMark(); }
 		// type

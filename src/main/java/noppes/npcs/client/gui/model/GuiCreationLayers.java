@@ -124,7 +124,9 @@ public class GuiCreationLayers  extends GuiCreationScreenInterface<ContainerLaye
 
     @Override
     public void scrollClicked(GuiCustomScrollNop scroll) {
-        playerdata.setDisableLayers(scroll.getList().toArray(new String[0]));
+        List<String> disabled = new ArrayList<>();
+        for (Component line : scroll.getSelectedList()) { disabled.add(line.getString()); }
+        playerdata.setDisableLayers(disabled.toArray(new String[0]));
         initGui();
     }
 

@@ -201,14 +201,14 @@ public class SubGuiNpcMarketSettings extends GuiNPCInterface
 				.setSize(48, 12);
 		addLabel(lID++, x + 174, y + 5, "%")
 				.setSize(10, 12);
-		addTextField(2, x + 120, y, 50, 20, "" + (int) (md.buy * 100.0f))
-				.setMinMaxDefault(-100, 500, (int) (md.buy * 100.0f))
+		addTextField(2, x + 120, y, 50, 20, "" + Math.round(md.buy * 100.0f))
+				.setMinMaxDefault(-100, 500, Math.round(md.buy * 100.0f))
 				.setHoverTexts("market.hover.extra.buy");
 		// sell
 		addLabel(lID++, x + 238, y + 5, "%")
 				.setSize(10, 12);
-		addTextField(3, x + 184, y, 50, 20, "" + (int) (md.sell * 100.0f))
-				.setMinMaxDefault(-500, 100, (int) (md.sell * 100.0f))
+		addTextField(3, x + 184, y, 50, 20, "" + Math.round(md.sell * 100.0f))
+				.setMinMaxDefault(-500, 100, Math.round(md.sell * 100.0f))
 				.setHoverTexts("market.hover.extra.sell");
 		// xp
 		addLabel(lID++, x + 76, (y += 22) + 5, "quest.exp")
@@ -278,9 +278,7 @@ public class SubGuiNpcMarketSettings extends GuiNPCInterface
 						}
 					}
 				}
-				MarcetSection ms = new MarcetSection(idSel);
-				ms.name = name;
-				marcet.sections.put(ms.getId(), ms);
+				marcet.sections.get(idSel).name = name;
 			}
 			initGui();
 		}

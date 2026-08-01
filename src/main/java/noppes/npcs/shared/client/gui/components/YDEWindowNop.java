@@ -61,6 +61,8 @@ public class YDEWindowNop extends GuiCustomWindowNop {
     @Override
     public void initGui() {
         super.initGui();
+        add(exit);
+        add(lock);
         int w = imageWidth - 6;
         int h0 = UtilYDE.FONT.getHeight() + 2;
         int y = h0;

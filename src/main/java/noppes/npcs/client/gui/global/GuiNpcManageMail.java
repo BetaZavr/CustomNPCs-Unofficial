@@ -152,6 +152,10 @@ public class GuiNpcManageMail extends GuiNPCInterface2
 				textField.setValue("" + vd[1]);
 				break;
 			}
+			case 3: case 4: case 5: case 6: case 7: {
+				CustomNpcs.MailCostSendingLetter[textField.id - 3] = textField.getInteger();
+				break;
+			}
 		}
 	}
 

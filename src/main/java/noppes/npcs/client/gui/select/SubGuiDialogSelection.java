@@ -41,7 +41,7 @@ public class SubGuiDialogSelection extends GuiBasic implements ICustomScrollList
 	public void buttonEvent(GuiButtonNop button) {
 		if (button.id == 2) {
 			if (selectedDialog != null) { scrollDoubleClicked(null); }
-			onClose();
+			else { onClose(); }
 		}
 	}
 

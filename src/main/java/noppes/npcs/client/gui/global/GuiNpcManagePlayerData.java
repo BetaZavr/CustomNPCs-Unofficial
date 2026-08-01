@@ -438,7 +438,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			} // change market slot
 			return;
 		}
-		if (subgui instanceof SubGuiDataSend) { Packets.sendServer(new SPacketPlayerDataCleaning(((SubGuiDataSend) subgui).time)); }
+		if (subgui instanceof SubGuiDataSend && !((SubGuiDataSend) subgui).cancelled) { Packets.sendServer(new SPacketPlayerDataCleaning(((SubGuiDataSend) subgui).time)); }
 	}
 
 	@Override

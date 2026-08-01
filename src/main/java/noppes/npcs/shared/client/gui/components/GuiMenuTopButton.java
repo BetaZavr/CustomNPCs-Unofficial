@@ -43,7 +43,6 @@ public class GuiMenuTopButton extends GuiButtonNop {
                     getFGColor() | (int) Math.ceil(alpha * 255.0F) << 24, showShadow, true, customFont);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             GlStateManager.popMatrix();
-            GlStateManager.disableDepth();
         }
     }
 
@@ -51,7 +50,7 @@ public class GuiMenuTopButton extends GuiButtonNop {
     public void onClick(double x, double y) {
         if (hasSound) { Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F)); }
         if (onPress != null) { onPress.onPress(this); }
-        if (listener != null) { listener.buttonEvent(this); }
+        else if (listener != null) { listener.buttonEvent(this); }
     }
 
     // New from Unofficial (BetaZavr)

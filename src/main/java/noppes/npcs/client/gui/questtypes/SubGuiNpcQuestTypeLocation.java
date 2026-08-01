@@ -171,7 +171,7 @@ public class SubGuiNpcQuestTypeLocation
 				break;
 			} // set player pos
 			case 11: {
-				Packets.sendAll(new SPacketTeleportTo(task.dimension, task.pos));
+				Packets.sendServer(new SPacketTeleportTo(task.dimension, task.pos));
 				break;
 			}
 			case 66: {
