@@ -21,8 +21,10 @@ public class PacketClearMarcets extends PacketBasic {
     @Override
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
-        MarcetController.getInstance().markets.clear();
-        MarcetController.getInstance().deals.clear();
+        if (!MarcetController.hasLocalServerData()) {
+            MarcetController.getInstance().markets.clear();
+            MarcetController.getInstance().deals.clear();
+        }
         CustomNpcs.debugData.end("Packets");
     }
 

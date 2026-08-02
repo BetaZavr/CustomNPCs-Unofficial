@@ -39,7 +39,7 @@ public class ContainerNPCTrader extends ContainerNpcInterface {
 	@Override
 	public void onContainerClosed(@Nonnull EntityPlayer playerIn) {
 		super.onContainerClosed(playerIn);
-		if (playerIn instanceof EntityPlayerMP) { marcet.removeListener(playerIn, true); }
+		if (marcet != null && playerIn instanceof EntityPlayerMP) { marcet.removeListener(playerIn, true); }
 	}
 
 	private void reAddSlot(Slot slot) {

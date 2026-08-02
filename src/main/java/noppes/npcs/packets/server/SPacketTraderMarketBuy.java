@@ -79,32 +79,34 @@ public class SPacketTraderMarketBuy extends PacketServerBasic {
         Marcet marcet = MarcetController.getInstance().getMarcet(marcetID);
         if (marcet == null || marcet.notHasListener(player)) {
             Packets.send(player, new PacketUpdateMarcetGui());
+            CustomNpcs.debugData.end("Packets");
             return;
         }
         Deal deal = marcet.getDeal(dealID);
         if (deal == null || deal.getType() == 1) {
             Packets.send(player, new PacketUpdateMarcetGui());
+            CustomNpcs.debugData.end("Packets");
             return;
         }
         PlayerData data = PlayerData.get(player);
         DealMarkup dm = MarcetController.getInstance().getBuyData(marcet, deal, data.game.getMarcetLevel(marcet.getId()), count);
+        if (!deal.isCase() && (dm.main.isEmpty() || dm.count <= 0)) {
+            Packets.send(player, new PacketUpdateMarcetGui());
+            CustomNpcs.debugData.end("Packets");
+            return;
+        }
         boolean notGiveItem = !deal.availability.isAvailable(player) ||
                 dm.buyMoney > data.game.getMoney() || // has money
                 dm.buyDonat > data.game.getDonat() || // has donal
                 !Util.instance.canRemoveItems(player.inventory.mainInventory, dm.buyItems, dm.ignoreDamage, dm.ignoreNBT); // has items
-        if (marcet.isLimited) {
-            boolean notBuy = false;
-            Map<ItemStack, Integer> mainItem = new LinkedHashMap<>();
-            mainItem.put(dm.main, dm.count);
-            if (!deal.isCase() && !Util.instance.canRemoveItems(marcet.inventory, mainItem, dm.ignoreDamage, dm.ignoreNBT)) { notBuy = true; }
-            if (notBuy) {
-                marcet.detectAndSendChanges();
-                Packets.send(player, new PacketUpdateMarcetGui());
-                player.sendMessage(Component.translatable("marcet.message.not.deal").getParent());
-                return;
-            }
-            marcet.money += dm.buyMoney;
-            if (!deal.isCase()) { marcet.removeInventoryItems(mainItem); }
+        Map<ItemStack, Integer> mainItem = new LinkedHashMap<>();
+        mainItem.put(dm.main, dm.count);
+        if (marcet.isLimited && !deal.isCase() && !Util.instance.canRemoveItems(marcet.inventory, mainItem, dm.ignoreDamage, dm.ignoreNBT)) {
+            marcet.detectAndSendChanges();
+            Packets.send(player, new PacketUpdateMarcetGui());
+            player.sendMessage(Component.translatable("marcet.message.not.deal").getParent());
+            CustomNpcs.debugData.end("Packets");
+            return;
         }
         npc = null;
         Entity entity = player.world.getEntityByID(npcID);
@@ -114,12 +116,17 @@ public class SPacketTraderMarketBuy extends PacketServerBasic {
             if (notGiveItem) {
                 if (npc != null) { EventHooks.onNPCRole(npc, new RoleEvent.TradeFailedEvent(player, npc.wrappedNPC, dm.main, dm.buyItems)); }
                 Packets.send(player, new PacketUpdateMarcetGui());
+                CustomNpcs.debugData.end("Packets");
                 return;
             }
             data.game.addMoney(-1 * dm.buyMoney); // remove money
             data.game.addDonat(-1 * dm.buyDonat); // remove donat
             // Del Items
             for (ItemStack st : dm.buyItems.keySet()) { Util.instance.removeItem(player, st, dm.buyItems.get(st), dm.ignoreDamage, dm.ignoreNBT); }
+        }
+        if (marcet.isLimited) {
+            marcet.money += dm.buyMoney;
+            if (!deal.isCase()) { marcet.removeInventoryItems(mainItem); }
         }
         boolean bo;
         if (deal.isCase()) {
@@ -172,10 +179,16 @@ public class SPacketTraderMarketBuy extends PacketServerBasic {
     }
 
     private void spawnItem(ItemStack stack) {
-        EntityItem ie = new EntityItem(player.world, player.posX, player.posY, player.posZ, stack);
-        ie.lifespan = 100;
-        ie.isDead = false;
-        player.world.spawnEntity(ie);
+        if (stack == null || stack.isEmpty()) { return; }
+        ItemStack rest = stack.copy();
+        player.inventory.addItemStackToInventory(rest);
+        if (!rest.isEmpty()) {
+            EntityItem ie = new EntityItem(player.world, player.posX, player.posY, player.posZ, rest);
+            ie.setPickupDelay(0);
+            ie.isDead = false;
+            player.world.spawnEntity(ie);
+        }
+        Util.instance.updatePlayerInventory(player);
     }
 
 }

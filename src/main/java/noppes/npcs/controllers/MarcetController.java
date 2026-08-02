@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.containers.NpcMiscInventory;
 import noppes.npcs.packets.Packets;
@@ -25,6 +26,7 @@ import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.DealMarkup;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarcetSection;
+import noppes.npcs.controllers.data.MarkupData;
 import noppes.npcs.entity.data.DropSet;
 
 public class MarcetController implements IMarcetHandler {
@@ -36,6 +38,10 @@ public class MarcetController implements IMarcetHandler {
 		}
 		return MarcetController.instance;
 	}
+	public static boolean hasLocalServerData() {
+		return FMLCommonHandler.instance().getMinecraftServerInstance() != null;
+	}
+
 	private static boolean newInstance() {
 		if (MarcetController.instance == null) {
 			return true;
@@ -73,10 +79,14 @@ public class MarcetController implements IMarcetHandler {
 	public DealMarkup getBuyData(Marcet marcet, Deal deal, int marcetLevel, int countIn) {
 		DealMarkup dm = new DealMarkup();
 		if (deal != null) { dm.set(deal); }
-		if (marcet != null) {
-			dm.set(marcet.markup.containsKey(marcetLevel) ? marcet.markup.get(marcetLevel)
-					: marcetLevel >= marcet.markup.size() ? marcet.markup.get(marcet.markup.size() - 1)
-					: marcet.markup.get(0), countIn);
+		if (marcet != null && !marcet.markup.isEmpty()) {
+			MarkupData md = marcet.markup.get(marcetLevel);
+			if (md == null) {
+				for (Map.Entry<Integer, MarkupData> entry : marcet.markup.entrySet()) {
+					if (md == null || entry.getKey() <= marcetLevel) { md = entry.getValue(); }
+				}
+			}
+			dm.set(md, countIn);
 		}
 		return dm;
 	}

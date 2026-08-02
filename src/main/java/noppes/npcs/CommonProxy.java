@@ -90,8 +90,10 @@ public class CommonProxy implements IGuiHandler {
 			}
 			case SetupTraderDeal: { // Change
 				MarcetController mData = MarcetController.getInstance();
-				int marcetId = buffer.readInt();
-				int dealId = buffer.readInt();
+				buffer.readInt(); // npc id
+				BlockPos ids = buffer.readBlockPos();
+				int marcetId = ids.getX();
+				int dealId = ids.getY();
 				Marcet marcet = mData.getMarcet(marcetId);
 				if (marcet == null) { marcet = new Marcet(marcetId); }
 				Deal deal = mData.getDeal(dealId);

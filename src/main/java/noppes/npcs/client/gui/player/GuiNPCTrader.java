@@ -800,9 +800,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 	}
 
 	@Override
-	public void save() {
-		if (marcet != null) { Packets.sendServer(new SPacketTraderLivePlayer(marcet.getId())); }
-	}
+	public void save() { }
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
@@ -1007,7 +1005,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 				GlStateManager.popMatrix();
 			}
 			if (renderStack != null && !renderStack.isEmpty()) {
-				mc.getTextureManager().bindTexture(ICONS);
+				mc.getTextureManager().bindTexture(GuiNPCTrader.ICONS);
 				drawTexturedModalRect(x + 6, y + 2, 0, getState(true) * 24, 24, 24);
 				if (!inTrade) { GlStateManager.color(0.4F, 0.4F, 0.4F, 1.0F); }
 				mc.getRenderItem().renderItemAndEffectIntoGUI(mc.player, renderStack, x + 10, y + 6);
@@ -1082,7 +1080,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(getX() + width - 2 - bw * sc, getY() + height - 2.0f - 16.0f * sc, 0.0f);
 					GlStateManager.scale(s, s, s);
-					mc.getTextureManager().bindTexture(ICONS);
+					mc.getTextureManager().bindTexture(GuiNPCTrader.ICONS);
 					for (int i = 0; i < size; i++) {
 						drawTexturedModalRect(i * 24, 0, 0, 0, 24, 24);
 					}
@@ -1090,7 +1088,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 					s = 0.875f * sc;
 					// stacks
 					GlStateManager.pushMatrix();
-					x = (int) (getX() + width - 1 - mw * sc);
+					x = (int) (getX() + width - 1 - bw * sc);
 					y = (int) (getY() + height - 1.0f - 16.0f * sc);
 					GlStateManager.translate(x, y, 0.0f);
 					GlStateManager.scale(s, s, s);
@@ -1178,7 +1176,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 			super(gui, id, Component.empty(), x, y);
 			setWidth(sectionIn == null ? 16 : 24);
 			setHeight(sectionIn == null ? 9 : 24);
-			texture = ICONS;
+			texture = GuiNPCTrader.ICONS;
 			if (sectionIn != null) {
 				txrX = (sectionIn.getIcon() % 10) * 24;
 				txrY = (int) Math.floor((float) sectionIn.getIcon() / 10.0f) * 72;

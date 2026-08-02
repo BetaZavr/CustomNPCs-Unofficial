@@ -41,10 +41,12 @@ public class PacketDealUpdate extends PacketBasic {
     @Override
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
-        Marcet marcet = MarcetController.getInstance().getMarcet(marcetID);
-        if (marcet != null) {
-            Deal deal = marcet.getDeal(dealData.getInteger("DealID"));
-            if (deal != null) { deal.loadData(dealData); }
+        if (!MarcetController.hasLocalServerData()) {
+            Marcet marcet = MarcetController.getInstance().getMarcet(marcetID);
+            if (marcet != null) {
+                Deal deal = marcet.getDeal(dealData.getInteger("DealID"));
+                if (deal != null) { deal.loadData(dealData); }
+            }
         }
         if (Minecraft.getMinecraft().currentScreen instanceof IGuiData) { ((IGuiData) Minecraft.getMinecraft().currentScreen).setGuiData(new NBTTagCompound()); }
         CustomNpcs.debugData.end("Packets");

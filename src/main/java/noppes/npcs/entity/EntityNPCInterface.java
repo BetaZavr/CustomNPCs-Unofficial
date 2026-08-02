@@ -1608,7 +1608,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		stats.setLevel(compound.getInteger("NPCLevel"));
 		stats.setRarity(compound.getInteger("NPCRarity"));
 		stats.setRarityTitle(compound.getString("NPCRarityTitle"));
-		stats.setMaxHealth(compound.getInteger("MaxHealth"));
+		stats.setMaxHealth(compound.getDouble("MaxHealth"));
 		stats.hideKilledBody = compound.getBoolean("DeadBody");
 		stats.aggroRange = compound.getInteger("AggroRange");
 		if (stats.aggroRange < 1) {

@@ -3,7 +3,6 @@ package noppes.npcs.shared.client.gui.util;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.List;
@@ -73,9 +72,8 @@ public class TrueTypeFont {
 	public void setSpecial(char c) { specialChar = c; }
 
 	public int draw(String text, float x, float y, int color) {
-		processPendingUploads();
-
 		GlyphCache cache = getOrCreateCache(text);
+		processPendingUploads();
 		float a = (color >> 24 & 255) / 255.0f;
 		float r = (color >> 16 & 255) / 255.0f;
 		float g = (color >> 8 & 255) / 255.0f;
@@ -363,9 +361,8 @@ public class TrueTypeFont {
 			cache.g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			cache.g.drawString("" + c, g.x, g.y + metrics.getAscent());
 			g.texture = cache.textureId;
-			// load texture
-			if (Minecraft.getMinecraft().isCallingFromMinecraftThread()) { uploadTexture(cache); }
-			else if (!cache.uploaded) { pendingUploads.offer(cache); }
+			cache.uploaded = false;
+			if (!pendingUploads.contains(cache)) { pendingUploads.offer(cache); }
 			glyphCache.put(c, g);
 		}
 		return g;
@@ -374,10 +371,6 @@ public class TrueTypeFont {
 	private void uploadTexture(TextureCache cache) {
 		pendingUploads.remove(cache);
 		if (!cache.uploaded) {
-			int[] pixels = new int[TEXTURE_SIZE * TEXTURE_SIZE];
-			cache.bufferedImage.getRGB(0, 0, TEXTURE_SIZE, TEXTURE_SIZE, pixels, 0, TEXTURE_SIZE);
-			ByteBuffer byteBuffer = ByteBuffer.allocateDirect(pixels.length * 4);
-			byteBuffer.asIntBuffer().put(pixels).flip();
 			TextureUtil.uploadTextureImage(cache.textureId, cache.bufferedImage);
 			GlStateManager.bindTexture(cache.textureId);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);

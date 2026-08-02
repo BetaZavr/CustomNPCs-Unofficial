@@ -73,18 +73,22 @@ public class SPacketTraderMarketSell extends PacketServerBasic {
         Marcet marcet = MarcetController.getInstance().getMarcet(marcetID);
         if (marcet == null || marcet.notHasListener(player)) {
             Packets.send(player, new PacketUpdateMarcetGui());
+            CustomNpcs.debugData.end("Packets");
             return;
         }
         Deal deal = marcet.getDeal(dealID);
         if (deal == null || deal.getType() == 0 ||
                 ((deal.isCase() && deal.getCaseItems().length == 0) || (!deal.isCase() && deal.getProduct().isEmpty()))) {
             Packets.send(player, new PacketUpdateMarcetGui());
+            CustomNpcs.debugData.end("Packets");
             return;
         }
         PlayerData data = PlayerData.get(player);
         DealMarkup dm = MarcetController.getInstance().getBuyData(marcet, deal, data.game.getMarcetLevel(marcet.getId()), count);
         Entity entity = player.world.getEntityByID(npcID);
         if (entity instanceof EntityNPCInterface) { npc = (EntityNPCInterface) entity; }
+        Map<ItemStack, Integer> mainItem = new LinkedHashMap<>();
+        mainItem.put(dm.main, dm.count);
         if (marcet.isLimited) {
             boolean notSell = marcet.money < dm.sellMoney;
             if (!notSell && !dm.sellItems.isEmpty() &&
@@ -93,14 +97,17 @@ public class SPacketTraderMarketSell extends PacketServerBasic {
                 marcet.detectAndSendChanges();
                 Packets.send(player, new PacketUpdateMarcetGui());
                 player.sendMessage(Component.translatable("marcet.message.not.deal").getParent());
+                CustomNpcs.debugData.end("Packets");
                 return;
             }
-            Map<ItemStack, Integer> mainItem = new LinkedHashMap<>();
-            mainItem.put(dm.main, dm.count);
-            marcet.addInventoryItems(mainItem);
-            marcet.removeInventoryItems(dm.sellItems);
         }
-        if (player.isCreative() || Util.instance.removeItem(player, dm.main, dm.ignoreDamage, dm.ignoreNBT)) {
+        if (player.isCreative() ||
+                (Util.instance.canRemoveItems(player.inventory.mainInventory, mainItem, dm.ignoreDamage, dm.ignoreNBT)
+                        && Util.instance.removeItem(player, dm.main, dm.count, dm.ignoreDamage, dm.ignoreNBT))) {
+            if (marcet.isLimited) {
+                marcet.addInventoryItems(mainItem);
+                marcet.removeInventoryItems(dm.sellItems);
+            }
             // Add Items
             if (!dm.sellItems.isEmpty()) {
                 boolean change = false;

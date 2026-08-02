@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.chat.Component;
@@ -698,6 +699,9 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
 
     private void drawStacks() {
         int displayIndex = 0;
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.enableRescaleNormal();
+        RenderHelper.enableGUIStandardItemLighting();
         for (int i = 0; i < list.size() && i < stacks.size(); ++i) {
             if (!isSearched(list.get(i).getString())) { continue; }
             int k = lineHeight * displayIndex + 4 - scrollY;
@@ -710,6 +714,9 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
             minecraft.getRenderItem().renderItemAndEffectIntoGUI(stacks.get(i), 0, 0);
             GlStateManager.popMatrix();
         }
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.disableLighting();
     }
 
     private void drawPrefixes() {

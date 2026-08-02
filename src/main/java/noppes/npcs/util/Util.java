@@ -600,6 +600,9 @@ public class Util implements IMethods {
 		if (player == null || stack == null || stack.isEmpty()) {
 			return false;
 		}
+		if (count <= 0) {
+			return true;
+		}
 		for (int i = 0; i < player.inventory.mainInventory.size(); ++i) {
 			ItemStack is = player.inventory.getStackInSlot(i);
 			if (NoppesUtilServer.isItemStackNull(is)) {
@@ -613,9 +616,14 @@ public class Util implements IMethods {
 				}
 				count -= is.getCount();
 				player.inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+				if (count <= 0) {
+					updatePlayerInventory(player);
+					return true;
+				}
 			}
 		}
-		return count <= 0;
+		updatePlayerInventory(player);
+		return false;
 	}
 
 	/* Vanilla Teleport in world */
@@ -801,6 +809,11 @@ public class Util implements IMethods {
 	}
 
 	public void updatePlayerInventory(EntityPlayerMP player) {
+		if (player == null) {
+			return;
+		}
+		if (player.openContainer != null) { player.openContainer.detectAndSendChanges(); }
+		else { player.inventoryContainer.detectAndSendChanges(); }
 		PlayerQuestData playerdata = PlayerData.get(player).questData;
 		for (QuestData data : playerdata.activeQuests.values()) {
 			for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {

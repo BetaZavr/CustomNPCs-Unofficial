@@ -1,10 +1,11 @@
 package noppes.npcs.client.gui;
 
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.text.ITextComponent;
 
-public class ConfirmScreen extends GuiScreen {
+public class ConfirmScreen extends GuiYesNo {
 
     protected static final ITextComponent GUI_YES = Component.translatable("gui.yes").getParent();
     protected static final ITextComponent GUI_NO = Component.translatable("gui.no").getParent();
@@ -21,13 +22,6 @@ public class ConfirmScreen extends GuiScreen {
         }
     }
 
-    protected final ITextComponent message;
-    protected final ITextComponent title;
-    protected final ITextComponent yesButton;
-    protected final ITextComponent noButton;
-    protected String confirmButtonText;
-    protected String cancelButtonText;
-    protected int parentButtonClickedId;
     protected final BooleanConsumer callback;
 
     public ConfirmScreen(BooleanConsumer callbackIn, ITextComponent messageLine1In, ITextComponent messageLine2In) {
@@ -35,11 +29,23 @@ public class ConfirmScreen extends GuiScreen {
     }
 
     public ConfirmScreen(BooleanConsumer callbackIn, ITextComponent messageLine1In, ITextComponent messageLine2In, ITextComponent yesButtonIn, ITextComponent noButtonIn) {
+        super(null,
+                text(messageLine1In),
+                text(messageLine2In),
+                text(yesButtonIn == null ? GUI_YES : yesButtonIn),
+                text(noButtonIn == null ? GUI_NO : noButtonIn),
+                0);
         callback = callbackIn;
-        title = messageLine1In;
-        message = messageLine2In;
-        yesButton = yesButtonIn;
-        noButton = noButtonIn;
+    }
+
+    private static String text(ITextComponent component) { return component == null ? "" : component.getFormattedText(); }
+
+    @Override
+    protected void actionPerformed(GuiButton button) { callback.accept(button.id == 0); }
+
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) {
+        if (keyCode == 1) { callback.accept(false); }
     }
 
 }

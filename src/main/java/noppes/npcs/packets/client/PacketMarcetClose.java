@@ -31,7 +31,6 @@ public class PacketMarcetClose extends PacketBasic {
         CustomNpcs.debugData.start("Packets");
         Marcet m = MarcetController.getInstance().getMarcet(marcetID);
         if (m != null) {
-            m.removeListener(player, false);
             if (Minecraft.getMinecraft().currentScreen instanceof GuiNPCTrader &&
                     GuiNPCTrader.marcet != null &&
                     GuiNPCTrader.marcet.getId() == marcetID) { ((GuiNPCTrader) Minecraft.getMinecraft().currentScreen).onClose(); }

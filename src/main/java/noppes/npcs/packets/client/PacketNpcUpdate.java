@@ -6,6 +6,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.FriendlyByteBuf;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.api.gui.INpcMenuGui;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.shared.common.PacketBasic;
 
@@ -43,7 +45,10 @@ public class PacketNpcUpdate extends PacketBasic {
       WorldClient world = Minecraft.getMinecraft().world;
       if (world != null) {
          Entity entity = world.getEntityByID(id);
-         if (entity instanceof EntityNPCInterface) { ((EntityNPCInterface) entity).readSpawnData(data); }
+         if (entity instanceof EntityNPCInterface) {
+            if (Minecraft.getMinecraft().currentScreen instanceof INpcMenuGui && NoppesUtilServer.getEditingNpc(player) == entity) { return; }
+            ((EntityNPCInterface) entity).readSpawnData(data);
+         }
       }
       CustomNpcs.debugData.end("Packets");
    }

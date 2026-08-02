@@ -12,6 +12,7 @@ public class PacketGuiOpen extends PacketBasic {
 
    protected static int channelId;
    private EnumGuiType gui;
+   private int windowId;
    private FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
 
    public PacketGuiOpen() {}
@@ -26,15 +27,23 @@ public class PacketGuiOpen extends PacketBasic {
       buffer = bufferIn;
    }
 
+   public PacketGuiOpen(EnumGuiType guiIn, FriendlyByteBuf bufferIn, int windowIdIn) {
+      gui = guiIn;
+      buffer = bufferIn;
+      windowId = windowIdIn;
+   }
+
    @Override
    public void encode(FriendlyByteBuf buf) {
       buf.writeEnum(gui);
+      buf.writeInt(windowId);
       buf.writeBytes(buffer.nioBuffer());
    }
 
    @Override
    public void decode(FriendlyByteBuf buf) {
       gui = buf.readEnum(EnumGuiType.class);
+      windowId = buf.readInt();
       buffer = new FriendlyByteBuf(buf.readBytes(buf.readableBytes()));
    }
 
@@ -45,6 +54,9 @@ public class PacketGuiOpen extends PacketBasic {
    protected void handle() {
       CustomNpcs.debugData.start("Packets");
       CustomNpcs.proxy.openGui(NoppesUtilServer.getEditingNpc(player), gui, buffer);
+      if (windowId != 0 && player != null && player.openContainer != null && player.openContainer != player.inventoryContainer) {
+         player.openContainer.windowId = windowId;
+      }
       CustomNpcs.debugData.end("Packets");
    }
 

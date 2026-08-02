@@ -178,25 +178,27 @@ public class NoppesUtilServer {
 		SPacketGuiOpen.sendOpenGui(player, gui, npc, BlockPos.ORIGIN);
 	}
 
-	public static void openContainerGui(EntityPlayerMP player, EnumGuiType gui, Consumer<FriendlyByteBuf> extraDataWriter) {
-		if (!gui.hasContainer) { return; }
+	public static boolean openContainerGui(EntityPlayerMP player, EnumGuiType gui, Consumer<FriendlyByteBuf> extraDataWriter) {
+		if (!gui.hasContainer) { return false; }
 		try {
 			final FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
 			extraDataWriter.accept(buffer);
+			player.getNextWindowId();
+			player.closeContainer();
 			Container container = CommonProxy.getContainer(gui, player, buffer.copy());
 			if (container != null) {
-				player.getNextWindowId();
-				player.closeContainer();
 				int windowId = player.currentWindowId;
 				player.openContainer = container;
 				player.openContainer.windowId = windowId;
-				player.openContainer.addListener(player);
 				net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.player.PlayerContainerEvent.Open(player, player.openContainer));
-				Packets.send(player, new PacketGuiOpen(gui, buffer));
+				Packets.send(player, new PacketGuiOpen(gui, buffer, windowId));
+				player.openContainer.addListener(player);
 				player.openContainer.detectAndSendChanges();
+				return true;
 			}
 		}
 		catch (Exception e) { LogWriter.error(e); }
+		return false;
 	}
 
 	public static void sendScrollData(EntityPlayerMP player, Map<String, Integer> map) {

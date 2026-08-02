@@ -253,7 +253,7 @@ public class Deal implements IDeal, IDropSetData {
 		inventoryProduct.setInventorySlotContents(0, product);
 		if (count[1] != 0 && count[1] >= count[0]) {
 			amount = 0;
-			if (chance <= (float) Math.random()) { amount = count[0] + (int) (Math.random() * (count[1] - count[0])); }
+			if (chance >= (float) Math.random()) { amount = count[0] + (int) (Math.random() * (count[1] - count[0])); }
 		}
 		else { amount = 1; }
 		inventoryCurrency.clear();

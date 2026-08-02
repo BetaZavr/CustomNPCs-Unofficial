@@ -116,7 +116,7 @@ public class GuiNpcManageMarkets extends GuiNPCInterface2
 						.append(Component.literal(marcet.name).withStyle(TextFormatting.RESET)));
 				if (!marcet.isValid()) {
 					info.add(Component.translatable("market.hover.nv.market"));
-					for (MarcetSection ms : selectedMarcet.sections.values()) {
+					for (MarcetSection ms : marcet.sections.values()) {
 						for (Deal deal : ms.deals) {
 							if (deal.isValid()) { continue; }
 							if (deal.getProduct().getMCItemStack() == null || deal.getProduct().getMCItemStack().getItem() == Items.AIR) {info.add(Component.translatable("market.hover.nv.market.deal.0", "" + deal.getId())); }
@@ -136,7 +136,7 @@ public class GuiNpcManageMarkets extends GuiNPCInterface2
 				.setHoverTexts(htsM);
 		if (selectedMarcet != null) { scrollMarkets.setSelected(selectedMarcet.getSettingName()); }
 		// Deals:
-		if (!dataDeals.isEmpty()) {
+		if (!dataDeals.isEmpty() && selectedMarcet != null) {
 			List<Component> allDeals = new ArrayList<>(dataDeals.keySet());
 			LinkedHashMap<Integer, List<Component>> htsAD = new LinkedHashMap<>();
 			List<ItemStack> stacks = new ArrayList<>();
@@ -341,15 +341,18 @@ public class GuiNpcManageMarkets extends GuiNPCInterface2
 				.setIsEnabled(selectedDeal != null)
 				.setHoverTexts("market.hover.deal.settings");
 		// market tabs
-		Object[] tabs = new Object[selectedMarcet.sections.size()];
-		int i = 0;
-		for (MarcetSection tab : selectedMarcet.sections.values()) {
-			tabs[i] = Component.translatable(tab.name);
-			i++;
+		if (selectedMarcet != null) {
+			Object[] tabs = new Object[selectedMarcet.sections.size()];
+			int i = 0;
+			for (MarcetSection tab : selectedMarcet.sections.values()) {
+				tabs[i] = Component.translatable(tab.name);
+				i++;
+			}
+			if (tabSelect >= tabs.length) { tabSelect = 0; }
+			addButton(6, x1, y, true, tabSelect, tabs)
+					.setSize(w, 20)
+					.setHoverTexts("market.hover.section");
 		}
-		addButton(6, x1, y, true, tabSelect, tabs)
-				.setSize(w, 20)
-				.setHoverTexts("market.hover.section");
 		// work buttons
 		int x3 = x2 - 43;
 		y = guiTop + 44;
@@ -392,21 +395,23 @@ public class GuiNpcManageMarkets extends GuiNPCInterface2
 				save();
 				selectedMarcet = mData.addMarcet();
 				marcetId = selectedMarcet.getId();
-				initGui();
+				Packets.sendServer(new SPacketMarcetSave(selectedMarcet.save()));
+				setGuiData(null);
 				CustomNPCsScheduler.runTack(() -> setSubGui(new SubGuiNpcMarketSettings(selectedMarcet)), 50);
 				break;
 			} // Add market
 			case 1: {
+				if (selectedMarcet == null) { return; }
+				final int removeId = marcetId;
 				ConfirmScreen guiYesNo = new ConfirmScreen((agree) -> {
 					if (agree) {
-						if (selectedMarcet == null) { return; }
 						selectedMarcet = null;
-						Packets.sendServer(new SPacketMarcetDelete(marcetId));
-						marcetId = 0;
+						marcetId = -1;
+						Packets.sendServer(new SPacketMarcetDelete(removeId));
 					}
 					NoppesUtil.openGUI(player, this);
 				},
-						scrollMarkets.getNormalSelected().getParent(),
+						selectedMarcet.getSettingName().getParent(),
 						Component.translatable("message.delete").getParent());
 				setScreen(guiYesNo);
 				break;
@@ -425,14 +430,13 @@ public class GuiNpcManageMarkets extends GuiNPCInterface2
 				if (!dataDeals.containsKey(scrollAllDeals.getNormalSelected()) && !dataDeals.containsKey(scrollDeals.getNormalSelected())) { return; }
 				selectedDeal = null;
 				Packets.sendServer(new SPacketDealDelete(dealId));
-				dealId = 0;
+				dealId = -1;
 				break;
 			} // Del deal
 			case 5: {
 				if (dealId < 0) { return; }
 				SubGuiNPCManageDeal.parent = this;
 				NoppesUtil.requestOpenGUI(EnumGuiType.SetupTraderDeal, new BlockPos(marcetId, dealId, 0));
-				onClose();
 				break;
 			} // Deal settings
 			case 6: {
