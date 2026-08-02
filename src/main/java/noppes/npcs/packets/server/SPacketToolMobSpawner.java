@@ -13,6 +13,7 @@ import net.minecraft.tileentity.MobSpawnerBaseLogic;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.WeightedSpawnerEntity;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import noppes.npcs.CustomItems;
@@ -50,7 +51,7 @@ public class SPacketToolMobSpawner extends PacketServerBasic {
    }
 
    @Override
-   public boolean toolAllowed(ItemStack item) { return item.getItem() == CustomItems.wand; }
+   public boolean toolAllowed(ItemStack item) { return item.getItem() == CustomItems.wand || item.getItem() == CustomItems.cloner || item.getItem() == CustomItems.mount; }
 
    @Override
    public boolean requiresNpc() { return false; }
@@ -104,7 +105,7 @@ public class SPacketToolMobSpawner extends PacketServerBasic {
          if (createSpawner) { createMobSpawner(pos, compound, player); }
          else {
             if (!isServerClone) { nbtData.setTag("EntityNBT", compound); }
-            Entity entity = SPacketToolMobSpawner.spawnClone(compound, pos.getX() + 0.5d, pos.getY() + 0.5d, pos.getZ() + 0.5d, player.world);
+            Entity entity = SPacketToolMobSpawner.spawnClone(compound, pos.getX() + 0.5d, pos.getY() + groundOffset(player.world, pos), pos.getZ() + 0.5d, player.world);
             ItemStack stack = player.getHeldItemMainhand();
             NBTTagCompound nbt = null;
             if (stack.getItem() == CustomItems.cloner) {
@@ -128,6 +129,15 @@ public class SPacketToolMobSpawner extends PacketServerBasic {
          }
       }
       CustomNpcs.debugData.end("Packets");
+   }
+
+   private static double groundOffset(World world, BlockPos pos) {
+      AxisAlignedBB area = new AxisAlignedBB(pos).expand(0.0d, -1.0d, 0.0d);
+      List<AxisAlignedBB> list = world.getCollisionBoxes(null, area);
+      if (list.isEmpty()) { return 0.0d; }
+      double top = area.minY;
+      for (AxisAlignedBB box : list) { top = Math.max(box.maxY, top); }
+      return top - pos.getY();
    }
 
    public static @Nullable Entity spawnClone(NBTTagCompound compound, double x, double y, double z, World world) {

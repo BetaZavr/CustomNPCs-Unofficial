@@ -63,7 +63,7 @@ public class NoppesUtilServer {
 	public static void setEditingNpc(EntityPlayer player, EntityNPCInterface npc) {
 		PlayerData data = PlayerData.get(player);
 		data.editingNpc = npc;
-		if (npc != null && player instanceof EntityPlayerMP) { Packets.send((EntityPlayerMP) player, new PacketNpcEdit(npc.getEntityId())); }
+		if (player instanceof EntityPlayerMP) { Packets.send((EntityPlayerMP) player, new PacketNpcEdit(npc == null ? -1 : npc.getEntityId())); }
 	}
 
 	public static EntityNPCInterface getEditingNpc(EntityPlayer player) { return PlayerData.get(player).editingNpc; }
@@ -213,7 +213,7 @@ public class NoppesUtilServer {
 		for (Map.Entry<String, Integer> e : map.entrySet()) {
 			buf.writeUtf(e.getKey());
 			buf.writeInt(e.getValue());
-			if (buf.array().length > 65536) {
+			if (buf.writerIndex() > 65536) {
 				content.put(content.size(), part);
 				buf.clear();
 				buf.writeInt(content.size() + 1);
@@ -245,7 +245,7 @@ public class NoppesUtilServer {
 		Vector<String> part = new Vector<>();
 		for (String s : list) {
 			buf.writeUtf(s);
-			if (buf.array().length > 65536) {
+			if (buf.writerIndex() > 65536) {
 				content.put(content.size(), part);
 				buf.clear();
 				buf.writeInt(content.size() + 1);

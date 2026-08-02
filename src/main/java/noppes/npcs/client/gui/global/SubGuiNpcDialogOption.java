@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.global;
 
+import net.minecraft.init.Blocks;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ResourceLocation;
@@ -31,7 +32,7 @@ public class SubGuiNpcDialogOption
 	public static int LastColor = new Color(0xE0E0E0).getRGB();
 
 	// New from Unofficial (BetaZavr)
-	public static final Object[] options = new Object[] { "gui.close", "dialog.dialog", "gui.disabled", "menu.role", "block.minecraft.command_block" };
+	public static final Object[] options = new Object[] { "gui.close", "dialog.dialog", "gui.disabled", "menu.role", Blocks.COMMAND_BLOCK.getUnlocalizedName() + ".name" };
 	public final GuiScreen parent;
 	private final Map<Component, DialogOption.OptionDialogID> data = new HashMap<>(); // {scrollTitle, dialogID}
 	private GuiCustomScrollNop scroll;

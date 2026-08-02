@@ -250,7 +250,7 @@ public class ClientTickHandler {
 			String openGui = mc.currentScreen == null ? "" : mc.currentScreen.getClass().getName();
 			Packets.sendServer(new SPacketPlayerKeyPressed(key, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed, isDown, openGui));
 			PlayerData data = CustomNpcs.proxy.getPlayerData(mc.player);
-			if (mc.currentScreen == null && !data.overlay.keyPress.isEmpty()) {
+			if (mc.currentScreen == null) {
 				if (isDown) { data.overlay.keyPress.add(key); }
 				else { data.overlay.keyPress.remove(key); }
 			}

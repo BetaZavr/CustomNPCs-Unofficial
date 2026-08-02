@@ -1,13 +1,18 @@
 package noppes.npcs.client.gui.advanced;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.text.TextFormatting;
+import noppes.npcs.controllers.FactionController;
+import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.client.gui.SubGuiNpcFactionOptions;
 import noppes.npcs.client.gui.SubGuiNpcFactionSelect;
 import noppes.npcs.client.gui.util.*;
@@ -122,13 +127,20 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2
 
 	@Override
 	public void setData(Vector<String> dataList, Map<String, Integer> dataMap) {
-		String name = npc.getFaction().name;
+		int selectedId = npc.getFaction().id;
 		data.clear();
-		for (Map.Entry<String, Integer> entry : dataMap.entrySet()) {
-			data.put(Component.translatable(entry.getKey()), entry.getValue());
+		Component select = null;
+		List<Faction> factions = new ArrayList<>(FactionController.instance.factions.values());
+		factions.sort(Comparator.comparingInt(f -> f.id));
+		for (Faction f : factions) {
+			Component key = Component.empty()
+					.append(Component.literal("ID:" + f.id + " ").withStyle(TextFormatting.GRAY))
+					.append(Component.translatable(f.name).withStyle(TextFormatting.RESET).withColor(f.color));
+			data.put(key, f.id);
+			if (f.id == selectedId) { select = key; }
 		}
-		scrollFactions.setNormalList(new ArrayList<>(data.keySet()));
-		if (name != null) { setSelected(name); }
+		scrollFactions.setUnsortedList(new ArrayList<>(data.keySet()));
+		if (select != null) { scrollFactions.setSelected(select); }
 	}
 
 	@Override
@@ -136,7 +148,13 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2
 
 	@Override
 	public void scrollClicked(GuiCustomScrollNop guiCustomScroll) {
-		if (guiCustomScroll.id == 0) { Packets.sendServer(new SPacketNpcFactionSet(data.get(scrollFactions.getNormalSelected()))); }
+		if (guiCustomScroll.id == 0) {
+			Integer factionId = data.get(scrollFactions.getNormalSelected());
+			if (factionId != null) {
+				npc.setFaction(factionId);
+				Packets.sendServer(new SPacketNpcFactionSet(factionId));
+			}
+		}
 	}
 
 	@Override

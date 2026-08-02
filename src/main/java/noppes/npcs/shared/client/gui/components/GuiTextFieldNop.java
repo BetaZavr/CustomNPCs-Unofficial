@@ -417,22 +417,16 @@ public class GuiTextFieldNop extends Gui implements IComponentGui {
     public boolean mouseScrolled(double mouseX, double mouseY, double mouseScrolled) {
         if (isHovered && (doublesOnly || numbersOnly) && mouseScrolled != 0) {
             if (doublesOnly) {
-                double d = getDouble();
-                double v = maxD - minD;
-                double f = (mouseScrolled < 0 ? -v : v) / (double) width;
-                double t = d + f;
-                if (t < minD) { t = t - minD + maxD; }
-                else if (t > maxD) { t = t - maxD + minD; }
+                double d = isDouble() ? getDouble() : defD;
+                double step = Math.max((maxD - minD) / 100.0d, 0.001d);
+                double t = d + (mouseScrolled > 0 ? step : -step);
                 setValue("" + ValueUtil.correctDouble(Math.round(t * 1000.0d) / 1000.0d, minD, maxD));
             }
             else {
-                int i = getInteger();
-                int v = (int) (max - min);
-                int f = (mouseScrolled < 0 ? -v : v) / width;
-                int t = i + f;
-                if (t < min) { t = t - (int) (min + max); }
-                else if (t > max) { t = t - (int) (max + min); }
-                setValue("" + ValueUtil.correctInt((int) (Math.round((double) t * 1000.0d) / 1000.0d), (int) min, (int) max));
+                long i = isLong() ? getLong() : def;
+                long step = Math.max((max - min) / 100L, 1L);
+                long t = i + (mouseScrolled > 0 ? step : -step);
+                setValue("" + ValueUtil.correctLong(t, min, max));
             }
             if (listener instanceof ITextfieldListener) { ((ITextfieldListener) listener).unFocused(this); }
             return true;

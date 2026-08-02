@@ -37,7 +37,7 @@ public enum RoleType {
 	public static Object[] getNames() {
 		List<Component> list = new ArrayList<>();
 		for (RoleType er : RoleType.values()) {
-			if (er == COMPANION) { list.add(er.name.append(" (WIP)")); }
+			if (er == COMPANION) { list.add(Component.from(er.name.createCopy()).append(" (WIP)")); }
 			else { list.add(er.name); }
 		}
 		return list.toArray(new Component[0]);

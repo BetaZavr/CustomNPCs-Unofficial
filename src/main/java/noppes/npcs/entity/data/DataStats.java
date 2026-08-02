@@ -228,7 +228,7 @@ public class DataStats implements INPCStats {
 
 	@Override
 	public void setRarity(int rarityIn) {
-		rarity = EnumCreatureRarity.values()[ValueUtil.correctInt(rarityIn, 0, EnumCreatureRarity.values().length)];
+		rarity = EnumCreatureRarity.values()[ValueUtil.correctInt(rarityIn, 0, EnumCreatureRarity.values().length - 1)];
 		npc.updateClient = true;
 	}
 

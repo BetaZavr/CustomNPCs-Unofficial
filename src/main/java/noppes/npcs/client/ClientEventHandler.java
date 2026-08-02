@@ -2030,6 +2030,7 @@ public class ClientEventHandler extends Gui {
 		PlayerCompassData compassData = playerData.compass;
 
 		if (CustomNpcs.TypeShowQuestCompass == 4 || !compassData.getShowOfPlayer()) return;
+		if (CustomNpcs.HideCompassInFirstPerson) return;
 
 		// Compass requirement check
 		boolean isShow = true;

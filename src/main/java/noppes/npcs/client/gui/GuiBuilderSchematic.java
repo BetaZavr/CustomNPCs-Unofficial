@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui;
 
+import net.minecraft.init.Blocks;
 import java.awt.*;
 import java.io.File;
 import java.io.InputStream;
@@ -177,7 +178,7 @@ public class GuiBuilderSchematic extends GuiBasic implements ICustomScrollListen
 		addLabel(5, guiLeft + 4, guiTop + 4, Component.translatable("gui.file.list").append(" [?]:"))
 				.setHoverTexts("builder.hover.list", "" + maxRange);
 		if (type == 3) {
-			addCheckBox(5, guiLeft + 120, guiTop + 72, "block.minecraft.air", null, builder.addAir)
+			addCheckBox(5, guiLeft + 120, guiTop + 72, Blocks.AIR.getUnlocalizedName() + ".name", null, builder.addAir)
 					.setSize(99, 15)
 					.setHoverTexts("schematic.schem.air");
 			addCheckBox(6, guiLeft + 120, guiTop + 87, "drop.type.all", null, builder.replaceAir)

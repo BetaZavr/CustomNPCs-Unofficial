@@ -57,7 +57,6 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements IGuiData, IT
 			case 0: {
 				String name = getTextField(0).getValue();
 				if (name.isEmpty()) { return; }
-				int tab = button.getValue() + 1;
 				if (!serverSide) {
 					if (ClientCloneController.Instance.getCloneData(null, name, tab) != null) {
 						setScreen(new ConfirmScreen(this::accept, Component.empty().getParent(),
@@ -96,6 +95,8 @@ public class GuiNpcMobSpawnerAdd extends GuiNPCInterface implements IGuiData, IT
 			String name = getTextField(0).getValue();
 			if (!serverSide) { ClientCloneController.Instance.addClone(compound, name, tab); }
 			else { Packets.sendServer(new SPacketCloneSave(name, tab)); }
+			GuiNpcMobSpawner.showingClones = serverSide ? 2 : 0;
+			GuiNpcMobSpawner.activeTab = tab;
 			onClose();
 		}
 		else { setScreen(this); }

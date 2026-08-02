@@ -187,11 +187,11 @@ public class GuiBasic extends GuiScreen implements IGuiInterface {
     public void initGui() {
         super.initGui();
         buttonList.clear();
-        setFocused(!hasSubGui());
         guiLeft = (width - imageWidth) / 2;
         guiTop = (height - imageHeight) / 2;
         scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
         wrapper.initGui(mc, width, height);
+        setFocused(!hasSubGui());
     }
 
     @Override

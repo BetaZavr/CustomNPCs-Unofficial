@@ -30,7 +30,6 @@ public class EntityAIReturn extends EntityAIBase {
 	@Override
 	public void resetTask() {
 		wasAttacked = false;
-		npc.setAttackTarget(null);
 	}
 
 	@Override
@@ -81,7 +80,7 @@ public class EntityAIReturn extends EntityAIBase {
 			}
 			else if (wasAttacked) { return true; }
 			else if (npc.homeDimensionId != npc.world.provider.getDimension()) { return true; }
-			else if (npc.ais.getMovingType() == 2 && npc.ais.getDistanceSqToPathPoint() < (double) (CustomNpcs.NpcNavRange * CustomNpcs.NpcNavRange)) { return false; }
+			else if (npc.ais.getMovingType() == 2) { return npc.ais.getDistanceSqToPathPoint() >= (double) (CustomNpcs.NpcNavRange * CustomNpcs.NpcNavRange); }
 			else if (npc.ais.getMovingType() == 1) { return !npc.isInRange(npc.getStartXPos(), -6666.0D, npc.getStartZPos(), npc.ais.walkingRange); }
 			else if (npc.ais.getMovingType() == 0) { return !npc.isVeryNearAssignedPlace(); }
 		}
@@ -99,6 +98,7 @@ public class EntityAIReturn extends EntityAIBase {
 	@Override
 	public void updateTask() {
 		++totalTicks;
+		if (!wasAttacked && finishApproach()) { return; }
 		if (totalTicks > MaxTotalTicks) { tryBackHome(endPos); }
 		else {
 			if (stuckTicks > 0) { --stuckTicks; }
@@ -110,6 +110,20 @@ public class EntityAIReturn extends EntityAIBase {
 			}
 			else { stuckCount = 0; }
 		}
+	}
+
+	private boolean finishApproach() {
+		double dx = npc.getStartXPos() - npc.posX;
+		double dz = npc.getStartZPos() - npc.posZ;
+		double distSq = dx * dx + dz * dz;
+		if (distSq > 2.25d) { return false; }
+		npc.getNavigator().clearPath();
+		if (distSq < 0.0025d) {
+			npc.setPositionAndUpdate(npc.getStartXPos(), npc.posY, npc.getStartZPos());
+			return true;
+		}
+		npc.getMoveHelper().setMoveTo(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos(), 1.0d);
+		return true;
 	}
 
 	private boolean isTooFar() {

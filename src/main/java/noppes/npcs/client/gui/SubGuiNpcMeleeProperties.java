@@ -1,5 +1,7 @@
 package noppes.npcs.client.gui;
 
+import net.minecraft.init.Enchantments;
+import net.minecraft.init.Blocks;
 import net.minecraft.potion.Potion;
 import noppes.npcs.api.constants.PotionEffectType;
 import noppes.npcs.entity.data.DataMelee;
@@ -21,9 +23,9 @@ public class SubGuiNpcMeleeProperties extends GuiBasic implements ITextfieldList
 		list.add("gui.none");
 		for(PotionEffectType ept : PotionEffectType.values()) {
 			Potion pt = PotionEffectType.getMCType(ept.get());
-			if (pt != null && pt.getRegistryName() != null) { list.add(pt.getRegistryName().toString()); }
+			if (pt != null && pt.getRegistryName() != null) { list.add(pt.getName()); }
 		}
-		list.add("block.minecraft.fire");
+		list.add(Blocks.FIRE.getUnlocalizedName() + ".name");
 		potionNames = list.toArray(new String[0]);
 	}
 
@@ -55,7 +57,7 @@ public class SubGuiNpcMeleeProperties extends GuiBasic implements ITextfieldList
 				.setMinMaxDefault(1, 1000, 20)
 				.setHoverTexts("stats.hover.attack.speed");
 		// knockback
-		addLabel(4, guiLeft + 5, guiTop + 105, "enchantment.minecraft.knockback");
+		addLabel(4, guiLeft + 5, guiTop + 105, Enchantments.KNOCKBACK.getName());
 		addTextField(4, guiLeft + 105, guiTop + 100, 100, 18, stats.getKnockback())
 				.setMinMaxDefault(0, 4, 0)
 				.setHoverTexts("stats.hover.attack.knockback");

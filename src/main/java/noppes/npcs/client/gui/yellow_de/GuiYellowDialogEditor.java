@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.yellow_de;
 
+import net.minecraft.init.Blocks;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -1691,7 +1692,7 @@ public class GuiYellowDialogEditor extends GuiBasic
                                 w, 0.5f, false,
                                 YDEController.componentLineColor & 0xFFFFFF | 0xC0000000)
                                 .setScale(0.5f));
-                        rightTab.yde_scroll.addLabel(lId, 1, y += 2, Component.translatable("block.minecraft.command_block").append(":"))
+                        rightTab.yde_scroll.addLabel(lId, 1, y += 2, Component.translatable(Blocks.COMMAND_BLOCK.getUnlocalizedName() + ".name").append(":"))
                                 .setCustomFont(UtilYDE.FONT)
                                 .setColor(YDEController.textColor)
                                 .setSize(w - 2, lH);

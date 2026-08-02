@@ -86,11 +86,11 @@ public class GuiBasicContainer<T extends Container> extends GuiContainer impleme
     public void initGui() {
         super.initGui();
         buttonList.clear();
-        setFocused(!hasSubGui());
         guiLeft = (width - xSize) / 2;
         guiTop = (height - ySize) / 2;
         scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
         wrapper.initGui(mc, width, height);
+        setFocused(!hasSubGui());
     }
 
     public static ResourceLocation getResource(String texture) {

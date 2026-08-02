@@ -1,5 +1,8 @@
 package noppes.npcs.client.gui;
 
+import net.minecraft.init.Enchantments;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.MobEffects;
 import net.minecraft.potion.Potion;
 import noppes.npcs.api.constants.PotionEffectType;
 import noppes.npcs.entity.data.DataRanged;
@@ -22,9 +25,9 @@ public class SubGuiNpcProjectiles extends GuiBasic implements ITextfieldListener
 		list.add("gui.none");
 		for(PotionEffectType ept : PotionEffectType.values()) {
 			Potion pt = PotionEffectType.getMCType(ept.get());
-			if (pt != null && pt.getRegistryName() != null) { list.add(pt.getRegistryName().toString()); }
+			if (pt != null && pt.getRegistryName() != null) { list.add(pt.getName()); }
 		}
-		list.add("block.minecraft.fire");
+		list.add(Blocks.FIRE.getUnlocalizedName() + ".name");
 		potionNames = list.toArray(new String[0]);
 	}
 
@@ -41,12 +44,12 @@ public class SubGuiNpcProjectiles extends GuiBasic implements ITextfieldListener
 	public void initGui() {
 		super.initGui();
 		// attack strength / arrow damage
-		addLabel(1, guiLeft + 5, guiTop + 15, "effect.minecraft.strength");
+		addLabel(1, guiLeft + 5, guiTop + 15, MobEffects.STRENGTH.getName());
 		addTextField(1, guiLeft + 45, guiTop + 10, 50, 18, stats.getStrength())
 				.setMinMaxDefault(0, Integer.MAX_VALUE, 5)
 				.setHoverTexts("stats.hover.attack.strength");
 		// arrow knockback
-		addLabel(2, guiLeft + 110, guiTop + 15, "enchantment.minecraft.knockback");
+		addLabel(2, guiLeft + 110, guiTop + 15, Enchantments.KNOCKBACK.getName());
 		addTextField(2, guiLeft + 150, guiTop + 10, 50, 18, stats.getKnockback())
 				.setMinMaxDefault(0, 3, 0)
 				.setHoverTexts("stats.hover.attack.knockback");

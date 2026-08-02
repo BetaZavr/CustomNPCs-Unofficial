@@ -60,6 +60,7 @@ public class Faction implements IFaction {
 		attackFactions.addAll(NBTTags.getIntegerSet(compound.getTagList("AttackFactions", 10)));
 
 		// New from Unofficial (BetaZavr)
+		frendFactions.clear();
 		frendFactions.addAll(NBTTags.getIntegerSet(compound.getTagList("FrendFactions", 10)));
 		if (compound.hasKey("Flag", 8)) { setFlag(compound.getString("Flag")); }
 		if (compound.hasKey("Description", 8)) {

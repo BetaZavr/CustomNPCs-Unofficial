@@ -33,9 +33,9 @@ import org.lwjgl.input.Keyboard;
 public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICustomScrollListener {
 
 	protected static int showingClones = 0;
+	protected static int activeTab = 1;
 	protected final BlockPos pos;
 	protected final List<String> list = new ArrayList<>();
-	protected int activeTab = 1;
 	protected GuiCustomScrollNop scroll;
 
 	// New from Unofficial (BetaZavr)
@@ -69,9 +69,9 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 		int x = guiLeft + 171;
 		int y = guiTop + 6;
 		addButton(1, x, y, "gui.spawn").setSize(82, 20);
-		addButton(2, x, y + 94, "spawner.mobspawner")
+		addButton(2, x, y + 142, "spawner.mobspawner")
 				.setSize(82, 20);
-		addButton(66, x, y + 116, "gui.done")
+		addButton(66, x, y + 164, "gui.done")
 				.setSize(80, 20)
 				.setHoverTexts("hover.exit");
 		if (showingClones != 0 && showingClones != 2) { showEntities(); }
@@ -129,19 +129,16 @@ public class GuiNpcMobSpawner extends GuiNPCInterface implements IGuiData, ICust
 				if (scroll.hasSelected()) {
 					String name = scroll.getSelected();
 					if (!name.isEmpty()) {
-						scroll.setSelect(scroll.getSelectedIndex() - 1);
-						if (scroll.getSelectedIndex() < 0) {
-							if (scroll.getList() == null || scroll.getList().isEmpty()) { scroll.setSelect(-1); }
-							else { scroll.setSelect(0); }
-						}
-						sel = scroll.getSelectedIndex();
+						int next = scroll.getSelectedIndex() - 1;
+						if (next < 0) { next = scroll.getList() == null || scroll.getList().size() <= 1 ? -1 : 0; }
+						sel = next;
 						selectNpc = null;
+						scroll.clearSelection();
 						if (showingClones == 2) {
-							Packets.sendServer(new SPacketCloneRemove(scroll.getSelected(), activeTab));
+							Packets.sendServer(new SPacketCloneRemove(name, activeTab));
 							return;
 						}
-						ClientCloneController.Instance.removeClone(scroll.getSelected(), activeTab);
-						scroll.clearSelection();
+						ClientCloneController.Instance.removeClone(name, activeTab);
 						initGui();
 					}
 				}

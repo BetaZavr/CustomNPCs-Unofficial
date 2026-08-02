@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.mainmenu;
 
+import net.minecraft.init.MobEffects;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.text.TextFormatting;
@@ -52,8 +53,6 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 	public void initGui() {
 		int level = stats.getLevel() - 1;
 		int rarity = stats.getRarity();
-		if (getButton(41) != null) { level = getButton(41).getValue(); }
-		if (getButton(43) != null) { rarity = getButton(43).getValue(); }
 		super.initGui();
 		int lw = 78;
 		int bw = 56;
@@ -67,8 +66,8 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 		// health
 		addLabel(0, x0, y + 5, "stats.health")
 				.setSize(lw, 10);
-		addTextField(0, x1 + 1, y, bw - 2, 18, stats.maxHealth)
-				.setMinMaxDefault(0, Integer.MAX_VALUE, 20)
+		addTextField(0, x1 + 1, y, bw - 2, 18, (int) stats.maxHealth)
+				.setMinMaxDefault(1, Integer.MAX_VALUE, 20)
 				.setHoverTexts("stats.hover.max.health");
 		// aggro
 		addLabel(1, x2, y + 5, "stats.aggro")
@@ -124,7 +123,7 @@ public class GuiNpcStats extends GuiNPCInterface2 implements ITextfieldListener,
 				.setIsEnabled(!ais.aiDisabled)
 				.setHoverTexts(hover);
 		// resistance
-		addLabel(15, x0, (y += 34) + 5, "effect.minecraft.resistance")
+		addLabel(15, x0, (y += 34) + 5, MobEffects.RESISTANCE.getName())
 				.setSize(lw, 10);
 		addButton(15, x1, y, "selectServer.edit")
 				.setSize(bw, 20)

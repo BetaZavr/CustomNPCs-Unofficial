@@ -95,6 +95,16 @@ public class GuiButtonNop extends Gui implements IComponentGui {
     public boolean visible = true;
     public int packedFGColor;
 
+    private static int customColorOf(ITextComponent component) {
+        int color = ((IStyleMixin) component.getStyle()).npcs$getColor();
+        if (color != 0) { return color; }
+        for (ITextComponent sibling : component.getSiblings()) {
+            color = customColorOf(sibling);
+            if (color != 0) { return color; }
+        }
+        return 0;
+    }
+
     public static void renderString(@Nonnull Component message,
                                     int left, int top, int right, int bottom, int color, boolean showShadow,
                                     boolean centered, ClientProxy.FontContainer customFont) {
@@ -107,7 +117,7 @@ public class GuiButtonNop extends Gui implements IComponentGui {
         }
         int width = right - left;
         GlStateManager.pushMatrix();
-        int c = ((IStyleMixin) message.getStyle()).npcs$getColor();
+        int c = customColorOf(message.getParent());
         if (c != 0) {
             int alpha = color >>> 24;
             if (color == 0 || (color & 0xFFFFFF) == 0xFFFFFF) { color = (alpha << 24) | (c & 0xFFFFFF); }
@@ -432,8 +442,10 @@ public class GuiButtonNop extends Gui implements IComponentGui {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double mouseScrolled) {
-        if (display != null && display.length != 0 && isHovered) {
-            setDisplay((displayValue + (mouseScrolled > 0 ? -1 : 1)) % display.length);
+        if (display != null && display.length != 0 && isHovered && mouseScrolled != 0.0d) {
+            setDisplay(displayValue + (mouseScrolled > 0 ? 1 : -1));
+            if (onPress != null) { onPress(); }
+            else if (listener != null) { listener.buttonEvent(this); }
             return true;
         }
         return false;
@@ -547,7 +559,7 @@ public class GuiButtonNop extends Gui implements IComponentGui {
 
 
     public GuiButtonNop setVariants(Object ... variants) {
-        Set<Component> lines = new LinkedHashSet<>();
+        List<Component> lines = new ArrayList<>();
         for (Object o : variants) {
             if (o == null) { lines.add(Component.empty()); }
             else if (o instanceof Component) { lines.add(((Component) o)); }

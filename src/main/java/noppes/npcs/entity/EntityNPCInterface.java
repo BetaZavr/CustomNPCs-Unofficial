@@ -640,12 +640,15 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		BlockPos startPos = ais.startPos();
 		while (pos.getY() > 0) {
 			IBlockState state = world.getBlockState(pos);
-			AxisAlignedBB bb = state.getBoundingBox(world, pos).offset(pos);
-            if (ais.movementType != 2 || startPos.getY() > pos.getY() || state.getMaterial() != Material.WATER) {
-				return bb.maxY;
+			if (ais.movementType == 2 && startPos.getY() <= pos.getY() && state.getMaterial() == Material.WATER) {
+				pos = pos.down();
+				continue;
 			}
-            pos = pos.down();
-        }
+			if (state.getCollisionBoundingBox(world, pos) != null) {
+				return state.getBoundingBox(world, pos).offset(pos).maxY;
+			}
+			pos = pos.down();
+		}
 		return 0.0;
 	}
 
@@ -1084,8 +1087,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	public boolean isVeryNearAssignedPlace() {
 		double xx = posX - getStartXPos();
+		double yy = posY - getStartYPos();
 		double zz = posZ - getStartZPos();
-		return xx >= -0.2 && xx <= 0.2 && zz >= -0.2 && zz <= 0.2;
+		return xx >= -0.1 && xx <= 0.1 && zz >= -0.1 && zz <= 0.1 && yy >= -0.6 && yy <= 0.6;
 	}
 
 	public boolean isWalking() {
@@ -1480,7 +1484,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				}
 			}
 			// fell out of the world
-			startYPos = calculateStartYPos(ais.startPos()) + 1.0D;
+			startYPos = calculateStartYPos(ais.startPos());
 			if (startYPos < 0.0d && isServerWorld()) { isDead = true; }
 			// to script event
 			EventHooks.onNPCTick(this);

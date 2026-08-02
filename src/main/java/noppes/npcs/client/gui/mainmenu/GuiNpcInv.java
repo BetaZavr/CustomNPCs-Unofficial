@@ -145,6 +145,7 @@ public class GuiNpcInv extends GuiContainerNPCInterface2<ContainerNPCInv>
 				break;
 			} // group ID
 			case 9: {
+				if (temp == null) { break; }
 				groupId = temp.groups.size();
 				temp.groups.put(groupId, new TreeMap<>());
 				initGui();

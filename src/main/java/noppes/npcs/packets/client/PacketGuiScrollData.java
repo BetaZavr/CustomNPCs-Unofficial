@@ -61,13 +61,12 @@ public class PacketGuiScrollData extends PacketBasic {
    @Override
    protected void handle() {
       CustomNpcs.debugData.start("Packets");
-      if (step != size) {
-         if (!scrollData.containsKey(id)) { scrollData.put(id, new HashMap<>()); }
-         scrollData.get(id).putAll(data);
-      } else {
+      if (!scrollData.containsKey(id)) { scrollData.put(id, new HashMap<>()); }
+      scrollData.get(id).putAll(data);
+      if (step == size) {
          GuiScreen gui = Minecraft.getMinecraft().currentScreen;
          while (gui instanceof IGuiInterface && ((IGuiInterface) gui).hasSubGui()) { gui = ((IGuiInterface) gui).getSubGui(); }
-         Map<String, Integer> map = scrollData.getOrDefault(id, new HashMap<>());
+         Map<String, Integer> map = scrollData.get(id);
          if (gui instanceof IScrollData) { ((IScrollData) gui).setData(new Vector<>(map.keySet()), map); }
          scrollData.remove(id);
       }

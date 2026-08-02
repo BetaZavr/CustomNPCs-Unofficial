@@ -121,6 +121,7 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
         if (searchWords.length == 0) { listSize = list.size(); }
         else { listSize = (int) list.stream().filter((line) -> isSearched(line.getString())).count(); }
         setSize(width, height + textFieldHeight());
+        scrollY = ValueUtil.correctInt(scrollY, 0, maxScrollY);
         if (selected >= 0 && selected >= list.size()) { selected = -1; }
         selectedList.clear();
         lastClickedItem = -1;
@@ -259,7 +260,7 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
         int xOffset = scrollHeight < height - 2 ? 10 : 0;
         int posX = 4;
         int posY = lineHeight * displayIndex + 4 - scrollY;
-        if (posY < 4 || posY + 10 >= height) { return false; }
+        if (posY < 4 || posY + 10 > height) { return false; }
         return mouseX >= posX - 1 && mouseX < width - 2 - xOffset && mouseY >= posY - 3 && mouseY < posY + lineHeight - 2;
     }
 
@@ -273,7 +274,7 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
             int left = x + 3;
             int top = lineHeight * displayIndex + 4 - scrollY;
             ++displayIndex;
-            if (top < 4 || top + 10 >= height) { continue; }
+            if (top < 4 || top + 10 > height) { continue; }
             top += y;
             int r = left + width - 5 - xOffset;
             Component displayString = list.get(i) == null ? Component.literal("null") : list.get(i);
@@ -326,7 +327,7 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
     }
 
     public @Nonnull String getSelected() {
-        return selected >= 0 && selected < list.size() ? list.get(selected).getFormattedText() : "";
+        return selected >= 0 && selected < list.size() ? list.get(selected).getString() : "";
     }
 
     public @Nonnull Component getNormalSelected() {
@@ -580,7 +581,7 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
 
     public List<String> getList() {
         List<String> retList = new ArrayList<>();
-        for (Component line : list) { retList.add(line.getFormattedText()); }
+        for (Component line : list) { retList.add(line.getString()); }
         return retList;
     }
 
@@ -729,7 +730,7 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
             int k = lineHeight * displayIndex + 4 - scrollY;
             displayIndex++;
             if (rd == null || rd.resource == null || rd.width <= 0 || rd.height <= 0) { continue; }
-            if (k < 4 || k + 12 >= height) { continue; }
+            if (k < 4 || k + 12 > height) { continue; }
             GlStateManager.pushMatrix();
             if (rd.isOBJ()) {
                 GlStateManager.translate(x + 5.0f + rd.tW, y + k + 3.0f + rd.tH, rd.tD);

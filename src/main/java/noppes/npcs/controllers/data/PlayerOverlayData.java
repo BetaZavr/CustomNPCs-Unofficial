@@ -42,12 +42,8 @@ public class PlayerOverlayData implements IPlayerData {
             list.appendTag(nbt);
         }
         overlayNBT.setTag("ShowElementTypes", list);
-        int[] iK = overlayNBT.getIntArray("KeyPress");
-        int[] iM = overlayNBT.getIntArray("MousePress");
-        keyPress.clear();
-        mousePress.clear();
-        for (int key : iK) { keyPress.add(key); }
-        for (int key : iM) { mousePress.add(key); }
+        overlayNBT.setIntArray("KeyPress", getKeyPressed());
+        overlayNBT.setIntArray("MousePress", getMousePressed());
         overlayNBT.setDouble("ScreenWidth", screenSize.getWidth());
         overlayNBT.setDouble("ScreenHeight", screenSize.getHeight());
         compound.setTag(dataName, overlayNBT);
@@ -75,7 +71,7 @@ public class PlayerOverlayData implements IPlayerData {
 
     @Override
     public void load(NBTTagCompound compound) {
-        if (compound == null || !compound.hasKey(dataName, 10) || !compound.hasKey("HUDData", 10)) { return; }
+        if (compound == null || (!compound.hasKey(dataName, 10) && !compound.hasKey("HUDData", 10))) { return; }
         NBTTagCompound overlayNBT = compound.hasKey(dataName, 10) ? compound.getCompoundTag(dataName) : compound.getCompoundTag("HUDData");
         int[] iK = overlayNBT.getIntArray("KeyPress");
         int[] iM = overlayNBT.getIntArray("MousePress");
@@ -134,9 +130,9 @@ public class PlayerOverlayData implements IPlayerData {
         return false;
     }
 
-    public boolean isPressedCtrl() { return hasOrKeysPressed(341, 345); }
+    public boolean isPressedCtrl() { return hasOrKeysPressed(29, 157); }
 
-    public boolean isPressedShift() { return hasOrKeysPressed(54, 42); }
+    public boolean isPressedShift() { return hasOrKeysPressed(42, 54); }
 
     public ScreenSize getWindowSize() { return screenSize; }
 

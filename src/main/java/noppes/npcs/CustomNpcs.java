@@ -88,7 +88,6 @@ import javax.annotation.Nullable;
 		acceptedMinecraftVersions = "1.12, 1.12.1, 1.12.2",
 		guiFactory = "noppes.npcs.config.CustomNpcsGuiFactory")
 public class CustomNpcs {
-
 	@ConfigProp(info = "Number of chunk loading npcs that can be active at the same time", def = "20")
 	public static int ChuckLoaders = 20;
 	@ConfigProp(info = "Default interact line. Leave empty to not have one", def = "Hello @p")
@@ -269,6 +268,8 @@ public class CustomNpcs {
 	public static boolean ShowHealingParticles = true;
 	@ConfigProp(info = "To display script errors in chat or not", def = "true", type = "client")
 	public static boolean DisplayErrorInChat= true;
+	@ConfigProp(info = "Hide the quest compass while the camera is in first person view", def = "false", type = "client")
+	public static boolean HideCompassInFirstPerson = false;
 	@ConfigProp(info = "Show additional buttons in the GUI menu or not", def = "false", type = "client")
 	public static boolean ShowButtonsInGuiMenu = false;
 	@ConfigProp(info = "Replace background in menu", def = "true", type = "client")

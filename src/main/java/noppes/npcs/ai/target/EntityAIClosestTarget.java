@@ -5,19 +5,16 @@ import java.util.List;
 
 import com.google.common.base.Predicate;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
 import net.minecraft.entity.ai.EntityAITarget;
 import net.minecraft.entity.monster.EntityMob;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.constants.EnumSeeTarget;
-import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.CustomNPCsScheduler;
 
 public class EntityAIClosestTarget extends EntityAITarget {
 
+	private final EntityNPCInterface npc;
 	private final int targetChance;
 	private EntityLivingBase targetEntity;
 	private final Predicate<EntityLivingBase> targetEntitySelector;
@@ -25,42 +22,39 @@ public class EntityAIClosestTarget extends EntityAITarget {
 
 	public EntityAIClosestTarget(EntityNPCInterface npcIn, int targetChanceIn, EnumSeeTarget checkSight, boolean onlyNearby, Predicate<EntityLivingBase> attackEntitySelector) {
 		super(npcIn, checkSight != EnumSeeTarget.NONE && checkSight != EnumSeeTarget.BLIND, onlyNearby);
+		npc = npcIn;
 		targetChance = targetChanceIn;
 		theNearestAttackableTargetSorter = new EntityAINearestAttackableTarget.Sorter(npcIn);
         setMutexBits(1);
 		targetEntitySelector = attackEntitySelector;
 	}
 
+	@Override
 	public boolean shouldExecute() {
-		if ((targetChance > 0 && taskOwner.getRNG().nextInt(targetChance) != 0)) { return false; }
-		CustomNPCsScheduler.runTack(() -> {
-			CustomNpcs.debugData.start(taskOwner);
-			try {
-				double dist = getTargetDistance();
+		if (npc.isKilled() || npc.getAttackTarget() != null) { return false; }
+		if (targetChance > 0 && taskOwner.getRNG().nextInt(targetChance) != 0) { return false; }
+		double dist = Math.max(getTargetDistance(), npc.stats.aggroRange);
+		List<EntityLivingBase> list = new ArrayList<>(taskOwner.world.getEntitiesWithinAABB(EntityLivingBase.class,
+				taskOwner.getEntityBoundingBox().grow(dist, 4.0d, dist), targetEntitySelector));
+		if (list.isEmpty()) { return false; }
+		list.sort(theNearestAttackableTargetSorter);
+		targetEntity = list.get(0);
+		return true;
+	}
 
-				List<EntityLivingBase> list = new ArrayList<>();
-				for (Entity entity : new ArrayList<>(taskOwner.world.loadedEntityList)) {
-					if (!(entity instanceof EntityLivingBase) ||
-							!entity.isEntityAlive() ||
-							taskOwner.getDistance(entity) > dist ||
-							!targetEntitySelector.apply((EntityLivingBase) entity))
-					{ continue; }
-					list.add((EntityLivingBase) entity);
-				}
+	@Override
+	public void startExecuting() {
+		taskOwner.setAttackTarget(targetEntity);
+		if (targetEntity instanceof EntityMob && ((EntityMob) targetEntity).getAttackTarget() == null) {
+			((EntityMob) targetEntity).setAttackTarget(taskOwner);
+		}
+		super.startExecuting();
+	}
 
-				if (!list.isEmpty()) {
-					list.sort(theNearestAttackableTargetSorter);
-					targetEntity = list.get(0);
-					taskOwner.setAttackTarget(targetEntity);
-					if (targetEntity instanceof EntityMob && ((EntityMob) targetEntity).getAttackTarget() == null) {
-						((EntityMob) targetEntity).setAttackTarget(taskOwner);
-					}
-					super.startExecuting();
-				}
-			} catch (Exception e) { LogWriter.error(e); }
-			CustomNpcs.debugData.end(taskOwner);
-		});
-		return false;
+	@Override
+	public void resetTask() {
+		targetEntity = null;
+		super.resetTask();
 	}
 
 }

@@ -162,6 +162,7 @@ public class NBTTags {
 		NBTTagList nbtList = new NBTTagList();
 		if (inventory != null) {
 			for (Map.Entry<Integer, IItemStack> entry : inventory.entrySet()) {
+				if (entry.getValue() == null) { continue; }
 				if (!NoppesUtilServer.isItemStackNull(entry.getValue().getMCItemStack())) {
 					NBTTagCompound compound = new NBTTagCompound();
 					compound.setByte("Slot", entry.getKey().byteValue());

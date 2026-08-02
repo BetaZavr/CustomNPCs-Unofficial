@@ -22,7 +22,7 @@ public class SPacketCloneSet extends PacketServerBasic {
     public SPacketCloneSet(NBTTagCompound dataIn) { data = dataIn; }
 
     @Override
-    public boolean toolAllowed(ItemStack item) { return item.getItem() == CustomItems.wand; }
+    public boolean toolAllowed(ItemStack item) { return item.getItem() == CustomItems.wand || item.getItem() == CustomItems.cloner || item.getItem() == CustomItems.mount; }
 
     @Override
     public boolean requiresNpc() { return true; }

@@ -396,7 +396,7 @@ public class DataInventory implements IInventory, INPCInventory, IDropSetData {
 
 	@Override
 	public void setArmor(int slot, IItemStack item) {
-		armor.put(slot, item);
+		if (item == null) { armor.remove(slot); } else { armor.put(slot, item); }
 		npc.updateClient = true;
 	}
 
@@ -436,17 +436,17 @@ public class DataInventory implements IInventory, INPCInventory, IDropSetData {
 	}
 
 	public void setLeftHand(IItemStack item) {
-		weapons.put(2, item);
+		if (item == null) { weapons.remove(2); } else { weapons.put(2, item); }
 		npc.updateClient = true;
 	}
 
 	public void setProjectile(IItemStack item) {
-		weapons.put(1, item);
+		if (item == null) { weapons.remove(1); } else { weapons.put(1, item); }
 		npc.updateAI = true;
 	}
 
 	public void setRightHand(IItemStack item) {
-		weapons.put(0, item);
+		if (item == null) { weapons.remove(0); } else { weapons.put(0, item); }
 		npc.updateClient = true;
 	}
 

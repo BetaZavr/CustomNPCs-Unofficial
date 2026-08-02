@@ -154,17 +154,7 @@ public class GuiNpcManageFactions
 			case 0: {
 				save();
 				String name = Component.translatable("gui.new").getString();
-				while (true) {
-					boolean found = false;
-					for (Component key : data.keySet()) {
-						if (key.getString().equals(name)) {
-							name += "_";
-							found = true;
-							break;
-						}
-					}
-					if (!found) { break; }
-				}
+				while (FactionController.instance.hasName(name)) { name += "_"; }
 				Faction faction = new Faction(-1, name, 0x00FF00, 1000);
 				NBTTagCompound compound = new NBTTagCompound();
 				faction.save(compound);
@@ -302,25 +292,20 @@ public class GuiNpcManageFactions
 	@Override
 	public void setData(Vector<String> dataList, Map<String, Integer> dataMap) {
 		data.clear();
-		List<Entry<String, Integer>> newList = new ArrayList<>(dataMap.entrySet());
+		List<Faction> newList = new ArrayList<>(FactionController.instance.factions.values());
 		newList.sort((f_0, f_1) -> {
-			if (sortByName) { return f_0.getKey().compareTo(f_1.getKey()); }
-			else { return f_0.getValue().compareTo(f_1.getValue()); }
+			if (sortByName) {
+				return Component.translatable(f_0.name).getString().compareTo(Component.translatable(f_1.name).getString());
+			}
+			else { return Integer.compare(f_0.id, f_1.id); }
 		});
 		Component select = Component.empty();
-		for (Entry<String, Integer> entry : newList) {
-			int id = entry.getValue();
-			Faction f = FactionController.instance.getFaction(id);
-			Component name;
-			if (f != null) {
-				name = Component.translatable(f.name).withStyle(TextFormatting.RESET).withColor(f.color);
-			}
-			else { name = Component.translatable(entry.getKey()).withStyle(TextFormatting.RESET); }
+		for (Faction f : newList) {
 			Component key = Component.empty()
-					.append(Component.literal("ID:" + id + " ").withStyle(TextFormatting.GRAY))
-					.append(name);
-			data.put(key, id);
-			if (faction.id == id) { select = key; }
+					.append(Component.literal("ID:" + f.id + " ").withStyle(TextFormatting.GRAY))
+					.append(Component.translatable(f.name).withStyle(TextFormatting.RESET).withColor(f.color));
+			data.put(key, f.id);
+			if (faction.id == f.id) { select = key; }
 		}
 		if (scroll != null) {
 			scroll.setUnsortedList(new ArrayList<>(data.keySet()))
@@ -394,17 +379,7 @@ public class GuiNpcManageFactions
 		if (faction.id == -1) { return; }
 		if (textField.id == 0) {
 			String name = textField.getValue();
-			while (true) {
-				boolean found = false;
-				for (Component key : data.keySet()) {
-					if (key.getString().equals(name)) {
-						name += "_";
-						found = true;
-						break;
-					}
-				}
-				if (!found) { break; }
-			}
+			while (!name.equals(faction.name) && FactionController.instance.hasName(name)) { name += "_"; }
 			if (!textField.getValue().equals(name)) { textField.setValue(name); }
 			if (!name.isEmpty()) {
 				Component old = scroll.getNormalSelected();

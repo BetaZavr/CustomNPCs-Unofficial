@@ -1,5 +1,6 @@
 package noppes.npcs.shared.client.gui.components;
 
+import net.minecraft.init.Blocks;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -306,7 +307,7 @@ public class YDEWindowNop extends GuiCustomWindowNop {
                     break;
                 }
                 case COMMAND_BLOCK: {
-                    UtilYDE.FONT.draw(Component.translatable("block.minecraft.command_block").append(":"), 3, y, YDEController.textColor);
+                    UtilYDE.FONT.draw(Component.translatable(Blocks.COMMAND_BLOCK.getUnlocalizedName() + ".name").append(":"), 3, y, YDEController.textColor);
                     break;
                 }
             }

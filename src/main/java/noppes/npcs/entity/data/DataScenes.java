@@ -107,19 +107,19 @@ public class DataScenes {
 					itemstack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(item, i, j));
 				}
 				if (args[0].equalsIgnoreCase("main")) {
-					npc.inventory.weapons.put(0, itemstack);
+					npc.inventory.setRightHand(itemstack);
 				} else if (args[0].equalsIgnoreCase("off")) {
-					npc.inventory.weapons.put(2, itemstack);
+					npc.inventory.setLeftHand(itemstack);
 				} else if (args[0].equalsIgnoreCase("proj")) {
-					npc.inventory.weapons.put(1, itemstack);
+					npc.inventory.setProjectile(itemstack);
 				} else if (args[0].equalsIgnoreCase("head")) {
-					npc.inventory.armor.put(0, itemstack);
+					npc.inventory.setArmor(0, itemstack);
 				} else if (args[0].equalsIgnoreCase("body")) {
-					npc.inventory.armor.put(1, itemstack);
+					npc.inventory.setArmor(1, itemstack);
 				} else if (args[0].equalsIgnoreCase("legs")) {
-					npc.inventory.armor.put(2, itemstack);
+					npc.inventory.setArmor(2, itemstack);
 				} else if (args[0].equalsIgnoreCase("boots")) {
-					npc.inventory.armor.put(3, itemstack);
+					npc.inventory.setArmor(3, itemstack);
 				}
 			} else if (event.type == SceneType.ATTACK) {
 				if (event.param.equals("none")) {
