@@ -235,6 +235,7 @@ public class DataRanged implements INPCRanged {
 		// New from Unofficial (BetaZavr)
 		if (compound.hasKey("MaxFiringRange", 3)) { rangedRange = compound.getInteger("MaxFiringRange"); }
 		else { rangedRange = compound.getDouble("MaxFiringRange"); }
+		rangedRange = ValueUtil.correctDouble(rangedRange, 1.0d, 64.0d);
 	}
 
 	@Override

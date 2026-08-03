@@ -846,8 +846,8 @@ public class ModelNpcAlt extends ModelPlayer {
 
     private float updateRotation(float base, float value) {
         float f = MathHelper.wrapDegrees(value - base);
-        if (f > (float) 1.5) { f = (float) 1.5; }
-        if (f < -(float) 1.5) { f = -(float) 1.5; }
+        if (f > 10.0f) { f = 10.0f; }
+        if (f < -10.0f) { f = -10.0f; }
         return base + f;
     }
 

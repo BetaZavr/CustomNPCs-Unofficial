@@ -138,6 +138,12 @@ public class EntityProjectile extends EntityThrowable {
 		dataManager.register(EntityProjectile.Sticks, false);
 	}
 
+	public static double maxBallisticRange(double speed, double eyeHeight) {
+		if (speed <= 0.0d) { return 0.0d; }
+		double g = 0.03d;
+		return speed / g * Math.sqrt(speed * speed + 2.0d * g * eyeHeight) * 0.75d;
+	}
+
 	public float getAngleForXYZ(double varY, double horizontalDist, boolean arc) {
 		float g = getGravityVelocity();
 		float var1 = getSpeed() * getSpeed();
@@ -145,7 +151,7 @@ public class EntityProjectile extends EntityThrowable {
 		double var3 = g * horizontalDist * horizontalDist + 2.0 * varY * var1;
 		double var4 = var1 * var1 - g * var3;
 		if (var4 < 0.0) {
-			return 30.0f;
+			return 45.0f;
 		}
 		float var5 = arc ? (var1 + MathHelper.sqrt(var4)) : (var1 - MathHelper.sqrt(var4));
         return (float) Math.atan2(var5, var2) * 180.0f / 3.141592653589793f;
