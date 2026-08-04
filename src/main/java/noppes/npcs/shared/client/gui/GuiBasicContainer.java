@@ -456,10 +456,8 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
 
    @Override
    public void renderBackground(@Nonnull GuiGraphics graphics) {
-      if (drawDefaultBackground && wrapper.subgui == null) {
-         postDrawBackground();
-         super.renderBackground(graphics);
-      }
+      if (drawDefaultBackground) { super.renderBackground(graphics); }
+      if (wrapper.subgui == null) { postDrawBackground(); }
    }
 
    public void postDrawBackground() { }

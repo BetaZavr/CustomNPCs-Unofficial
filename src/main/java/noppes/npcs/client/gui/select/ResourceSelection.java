@@ -45,6 +45,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -54,6 +55,7 @@ public abstract class ResourceSelection
         implements ICustomScrollListener {
 
     public static Map<String, Map<String, TreeMap<ResourceLocation, Long>>> resourcesData = new HashMap<>();
+    private static final Set<String> loadingSuffixes = ConcurrentHashMap.newKeySet();
 
     protected final Map<String, TreeMap<ResourceLocation, Long>> data = new TreeMap<>(); // (Directory, Files)
     protected final Screen parent;
@@ -96,8 +98,7 @@ public abstract class ResourceSelection
             catch (Exception ignored) { }
         }
         if (!data.containsKey(loc.getNamespace())) {
-            resetFiles();
-            resourcesData.put(suffix, data);
+            loadFiles();
         }
         baseResource = startIn;
         if (!startIn.isEmpty()) {
@@ -131,11 +132,11 @@ public abstract class ResourceSelection
         guiLeft += offsetX;
         int h = guiTop + imageHeight - 25;
         if (minecraft == null) { minecraft = Minecraft.getInstance(); }
-        addButton(2, guiLeft + 271, h, "gui.done")
-                .setSize(90, 20)
+        addButton(2, guiLeft + 296, h, "gui.done")
+                .setSize(65, 20)
                 .setHoverTexts("selection.hover.done");
         addButton(1, guiLeft + 5, h, "gui.cancel")
-                .setSize(90, 20)
+                .setSize(65, 20)
                 .setHoverTexts("hover.back");
         if (scroll == null) { scroll = addScroll(0).setSize(scrollWidth, 180); }
         Component domain = Component.literal("All Data in Game (mods)/");
@@ -145,9 +146,10 @@ public abstract class ResourceSelection
             Map<String, Long> ds = new TreeMap<>();
             Map<String, Long> fs = new TreeMap<>();
             String path = selectDir.getPath();
-            for (ResourceLocation res : data.get(selectDir.getNamespace()).keySet()) {
+            TreeMap<ResourceLocation, Long> files = data.getOrDefault(selectDir.getNamespace(), new TreeMap<>());
+            for (ResourceLocation res : files.keySet()) {
                 if (!res.getPath().contains("/")) {
-                    fs.put(res.getPath(), data.get(selectDir.getNamespace()).get(res));
+                    fs.put(res.getPath(), files.get(res));
                 }
                 else if (res.getPath().indexOf(path) == 0) {
                     String key = res.getPath().substring(path.length() + 1);
@@ -267,6 +269,327 @@ public abstract class ResourceSelection
         }
     }
 
+    public static String normalizeSuffix(String suffixIn) {
+        String s = suffixIn == null ? "" : suffixIn.toLowerCase().trim();
+        if (!s.isEmpty() && !s.startsWith(".")) {
+            s = "." + s;
+        }
+        return s;
+    }
+
+    public static boolean isLoading(String suffixIn) {
+        return loadingSuffixes.contains(normalizeSuffix(suffixIn));
+    }
+
+    public static void preload(String suffixIn) {
+        String key = normalizeSuffix(suffixIn);
+        if (key.isEmpty() || resourcesData.containsKey(key) || !loadingSuffixes.add(key)) { return; }
+
+        List<ResourceLocation> registered = key.equals(".png")
+                ? collectRegisteredTextures()
+                : Collections.emptyList();
+
+        Thread thread = new Thread(() -> {
+            Map<String, TreeMap<ResourceLocation, Long>> map = new TreeMap<>();
+            try {
+                for (ResourceLocation location : registered) {
+                    addFile(map, key, location, resourceSize(location));
+                }
+                scanSources(map, key);
+                resourcesData.put(key, map);
+            } catch (Exception e) {
+                LogWriter.error(e);
+            } finally {
+                loadingSuffixes.remove(key);
+            }
+        }, "CustomNpcs Resources " + key);
+        thread.setDaemon(true);
+        thread.setPriority(Thread.MIN_PRIORITY);
+        thread.start();
+    }
+
+    private static List<ResourceLocation> collectRegisteredTextures() {
+        Minecraft mc = Minecraft.getInstance();
+        List<ResourceLocation> list = new ArrayList<>();
+        try {
+            list.addAll(((ITextureManagerMixin) mc.getTextureManager()).getByPath().keySet());
+        } catch (Exception ignored) {
+        }
+        try {
+            Map<ResourceLocation, TextureAtlasSprite> texturesByName =
+                    ((ITextureAtlasMixin) mc.getModelManager()
+                            .getAtlas(new ResourceLocation("minecraft", "textures/atlas/blocks.png")))
+                            .getTexturesByName();
+            for (ResourceLocation key : texturesByName.keySet()) {
+                try {
+                    list.add(new ResourceLocation(key.getNamespace(),
+                            "textures/" + key.getPath() + ".png"));
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return list;
+    }
+
+    private static long resourceSize(ResourceLocation location) {
+        try {
+            Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(location);
+            if (res.isPresent()) {
+                try (InputStream is = res.get().open()) {
+                    return is.available();
+                }
+            }
+        } catch (Exception ignored) {}
+        return 0L;
+    }
+
+    private static void scanSources(Map<String, TreeMap<ResourceLocation, Long>> out, String suffix) {
+        List<Callable<Map<String, TreeMap<ResourceLocation, Long>>>> tasks = new ArrayList<>();
+        /* Mod jars */
+        for (IModInfo mod : ModList.get().getMods()) {
+            Optional<? extends ModContainer> modContainer = ModList.get().getModContainerById(mod.getModId());
+            modContainer.ifPresent(container -> {
+                Path modPath = modContainer.get().getModInfo().getOwningFile().getFile().getFilePath();
+                tasks.add(() -> {
+                    Map<String, TreeMap<ResourceLocation, Long>> local = new TreeMap<>();
+                    progressPath(local, suffix, modPath);
+                    return local;
+                });
+            });
+        }
+        /* Resource packs */
+        PackRepository repos = Minecraft.getInstance().getResourcePackRepository();
+        for (Pack pack : repos.getSelectedPacks()) {
+            if (pack == null) { continue; }
+            try {
+                PackResources packResources = pack.open();
+                tasks.add(() -> {
+                    Map<String, TreeMap<ResourceLocation, Long>> local = new TreeMap<>();
+                    scanPackResources(local, suffix, packResources);
+                    return local;
+                });
+            } catch (Exception ignored) {
+            }
+        }
+        /* Custom mod resources */
+        tasks.add(() -> {
+            Map<String, TreeMap<ResourceLocation, Long>> local = new TreeMap<>();
+            checkFolder(local, suffix, new File(CustomNpcs.Dir, "assets"));
+            return local;
+        });
+
+        int threads = Math.max(1, Math.min(8, Runtime.getRuntime().availableProcessors() - 1));
+        ExecutorService pool = Executors.newFixedThreadPool(threads, r -> {
+            Thread t = new Thread(r, "CustomNpcs Resource Scan");
+            t.setDaemon(true);
+            t.setPriority(Thread.MIN_PRIORITY);
+            return t;
+        });
+
+        List<Future<Map<String, TreeMap<ResourceLocation, Long>>>> futures = new ArrayList<>();
+        for (Callable<Map<String, TreeMap<ResourceLocation, Long>>> task : tasks) { futures.add(pool.submit(task)); }
+        pool.shutdown();
+
+        for (Future<Map<String, TreeMap<ResourceLocation, Long>>> future : futures) {
+            try { merge(out, future.get()); }
+            catch (Exception e) { LogWriter.error(e); }
+        }
+    }
+
+    private static void merge(Map<String, TreeMap<ResourceLocation, Long>> out,
+                              Map<String, TreeMap<ResourceLocation, Long>> in) {
+        for (Map.Entry<String, TreeMap<ResourceLocation, Long>> entry : in.entrySet()) {
+            TreeMap<ResourceLocation, Long> target = out.get(entry.getKey());
+            if (target == null) {
+                out.put(entry.getKey(), entry.getValue());
+            } else {
+                for (Map.Entry<ResourceLocation, Long> file : entry.getValue().entrySet()) {
+                    target.putIfAbsent(file.getKey(), file.getValue());
+                }
+            }
+        }
+    }
+
+    private static void addFile(Map<String, TreeMap<ResourceLocation, Long>> map,
+                                String suffix, ResourceLocation location, long size) {
+        if (!suffix.isEmpty() && !location.getPath().toLowerCase().endsWith(suffix)) {
+            return;
+        }
+        TreeMap<ResourceLocation, Long> domain = map.computeIfAbsent(location.getNamespace(), k -> new TreeMap<>());
+        domain.putIfAbsent(location, size);
+    }
+
+    private static void addFile(Map<String, TreeMap<ResourceLocation, Long>> map,
+                                String suffix, String path, long size) {
+        if (path == null || !path.contains("assets")) {
+            return;
+        }
+        if (!suffix.isEmpty() && !path.toLowerCase().endsWith(suffix)) {
+            return;
+        }
+        path = path.replace('\\', '/');
+        path = path.substring(path.lastIndexOf("assets") + 7);
+        int split = path.indexOf("/");
+        if (split <= 0) {
+            return;
+        }
+        try {
+            addFile(map, suffix,
+                    new ResourceLocation(path.substring(0, split), path.substring(split + 1)),
+                    size);
+        } catch (Exception ignored) {
+        }
+    }
+
+
+    private static void scanPackResources(Map<String, TreeMap<ResourceLocation, Long>> map,
+                                          String suffix,
+                                          PackResources packResources) {
+        if (packResources instanceof IFilePackResourcesMixin filePack) {
+            progressFile(map, suffix, filePack.getFile());
+            try {
+                checkZipFile(map, suffix, filePack.getZipFile());
+            } catch (Exception ignored) {
+            }
+        } else if (packResources instanceof DelegatingPackResources delegatingPack) {
+            Map<String, List<PackResources>> namespaces =
+                    ((IDelegatingPackResourcesMixin) delegatingPack).getNamespacesAssets();
+            for (List<PackResources> list : namespaces.values()) {
+                for (PackResources packRes : list) {
+                    scanPackResources(map, suffix, packRes);
+                }
+            }
+        } else if (packResources instanceof VanillaPackResources vanillaPack) {
+            Map<PackType, List<Path>> pathsForType =
+                    ((IVanillaPackResourcesMixin) vanillaPack).getPathsForType();
+            List<Path> paths = pathsForType.get(PackType.CLIENT_RESOURCES);
+            if (paths != null) {
+                for (Path path : paths) {
+                    progressPath(map, suffix, path);
+                }
+            }
+        }
+    }
+
+    private static void progressPath(Map<String, TreeMap<ResourceLocation, Long>> map,
+                                     String suffix,
+                                     Path path) {
+        if (path == null) return;
+        try {
+            progressFile(map, suffix, path.toFile());
+            return;
+        } catch (Throwable ignored) {
+        }
+        if (!Files.exists(path)) return;
+        Set<Path> allPaths = new HashSet<>();
+        try (Stream<Path> stream = Files.walk(path, FileVisitOption.FOLLOW_LINKS)) {
+            stream.filter(Files::isRegularFile).forEach(allPaths::add);
+        } catch (Throwable ignored) {
+            return;
+        }
+        for (Path p : allPaths) {
+            addPath(map, suffix, p);
+        }
+    }
+
+    private static void addPath(Map<String, TreeMap<ResourceLocation, Long>> map,
+                                String suffix,
+                                Path path) {
+        if (path == null) return;
+        String p = path.toString();
+        if (!p.startsWith("assets")) return;
+        p = p.substring(7);
+        if (!p.contains("/")) return;
+
+        long size = 0L;
+        try {
+            BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+            size = attrs.size();
+        } catch (Exception e) {
+            LogWriter.info("Error create png file path: " + e);
+        }
+
+        try {
+            ResourceLocation location = new ResourceLocation(
+                    p.substring(0, p.indexOf("/")),
+                    p.substring(p.indexOf("/") + 1));
+            if (!suffix.isEmpty() && !location.getPath().toLowerCase().endsWith(suffix.toLowerCase())) return;
+
+            TreeMap<ResourceLocation, Long> domain = map.get(location.getNamespace());
+            if (domain == null) {
+                map.put(location.getNamespace(), domain = new TreeMap<>());
+            } else {
+                for (ResourceLocation r : domain.keySet()) {
+                    if (r.getPath().equals(location.getPath())) return;
+                }
+            }
+            domain.put(location, size);
+        } catch (Exception ignored) {}
+    }
+
+    private static void checkZipFile(Map<String, TreeMap<ResourceLocation, Long>> map,
+                                     String suffix,
+                                     ZipFile zip) throws IOException {
+        if (zip == null) return;
+        try (zip) {
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry zipentry = entries.nextElement();
+                String entryName = zipentry.getName();
+                if (entryName.contains("assets")) {
+                    addFile(map, suffix, entryName, zipentry.getSize());
+                }
+            }
+        }
+    }
+
+    private static void progressFile(Map<String, TreeMap<ResourceLocation, Long>> map,
+                                     String suffix,
+                                     File file) {
+        try {
+            if (!file.isDirectory() && (file.getName().endsWith(".jar") || file.getName().endsWith(".zip"))) {
+                checkZipFile(map, suffix, new ZipFile(file));
+            } else if (file.isDirectory()) {
+                checkFolder(map, suffix, file);
+            }
+        } catch (Exception e) {
+            LogWriter.error(e);
+        }
+    }
+
+    private static void checkFolder(Map<String, TreeMap<ResourceLocation, Long>> map,
+                                    String suffix,
+                                    File file) {
+        if (file == null) return;
+        File[] files = file.listFiles();
+        if (files == null) return;
+        for (File f : files) {
+            if (f.isDirectory()) {
+                checkFolder(map, suffix, f);
+            } else {
+                addFile(map, suffix, f.getAbsolutePath(), f.length());
+            }
+        }
+    }
+
+    protected void loadFiles() {
+        Map<String, TreeMap<ResourceLocation, Long>> cache = resourcesData.get(suffix);
+        if (cache != null) { data.putAll(cache); }
+        else { preload(suffix); }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (!data.isEmpty()) { return; }
+        Map<String, TreeMap<ResourceLocation, Long>> cache = resourcesData.get(suffix);
+        if (cache != null && !cache.isEmpty()) {
+            data.putAll(cache);
+            init();
+        }
+    }
+
     protected void cancel() {
         if (!baseResource.isEmpty()) { resource = new ResourceLocation(baseResource); }
         else { resource = null; }
@@ -295,8 +618,7 @@ public abstract class ResourceSelection
         }
         /* Resource packs */
         PackRepository repos = Minecraft.getInstance().getResourcePackRepository();
-        for (String packName : repos.getAvailableIds()) {
-            Pack pack = repos.getPack(packName);
+        for (Pack pack : repos.getSelectedPacks()) {
             if (pack == null) { continue; }
             progressPackResources(pack.open());
         }
@@ -312,15 +634,11 @@ public abstract class ResourceSelection
         else if (packResources instanceof DelegatingPackResources delegatingPack) {
             Map<String, List<PackResources>> map = ((IDelegatingPackResourcesMixin) delegatingPack).getNamespacesAssets();
             for (String mod : map.keySet()) {
-                for (PackResources packRes : map.get(mod)) {
-                    progressPackResources(packRes);
-                }
+                for (PackResources packRes : map.get(mod)) { progressPackResources(packRes); }
             }
         }
         else if (packResources instanceof VanillaPackResources vanillaPack) {
-            for (Path path : ((IVanillaPackResourcesMixin) vanillaPack).getPathsForType().get(PackType.CLIENT_RESOURCES)) {
-                progressPath(path);
-            }
+            for (Path path : ((IVanillaPackResourcesMixin) vanillaPack).getPathsForType().get(PackType.CLIENT_RESOURCES)) { progressPath(path); }
         }
     }
 

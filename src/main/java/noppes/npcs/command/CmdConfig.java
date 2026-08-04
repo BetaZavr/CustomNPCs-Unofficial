@@ -7,7 +7,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import noppes.npcs.CreaterAPITypeJS;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.controllers.ChunkController;
@@ -86,9 +85,6 @@ public class CmdConfig {
       command.then(Commands.literal("debug").requires((source) -> source.hasPermission(4)).executes((context) -> {
          CustomNpcs.VerboseDebug = !CustomNpcs.VerboseDebug;
          context.getSource().sendSuccess(() -> Component.translatable("command.debug." + CustomNpcs.VerboseDebug), false);
-
-         CreaterAPITypeJS.checkLocations();
-
          return 1;
       }).then(Commands.argument("value", StringArgumentType.string()).executes((context) -> {
          String arg = StringArgumentType.getString(context, "value");

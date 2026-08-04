@@ -25,7 +25,6 @@ import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.renderer.RenderNPCInterface;
-import noppes.npcs.client.renderer.obj.ModelBuffer;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.KeyController;
@@ -119,18 +118,24 @@ public class ClientTickHandler {
          EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new PlayerEvent.UpdateEvent(ClientProxy.mcWrapper.getPlayer()));
       }
       // sounds
-      for (MusicData md : new ArrayList<>(musics)) {
-         if (md != null) {
-            if (md.channel.playing()) { md.createClientEvent(event, mc.player, 1); }
-            else if (md.channel.stopped()) {
+      try {
+         Iterator<MusicData> it = musics.iterator();
+         while (it.hasNext()) {
+            MusicData md = it.next();
+            if (md == null) {
+               it.remove();
+               continue;
+            }
+            if (md.channel.playing()) {
+               md.createClientEvent(event, mc.player, 1);
+            } else if (md.channel.stopped()) {
                md.createClientEvent(event, mc.player, 2);
-               musics.remove(md);
+               it.remove();
                if (mc.level != null && mc.getConnection() != null) { Packets.sendServer(new SPacketPlayerSound(false, md)); }
             }
          }
-         else { musics.remove(null); }
-      }
-      // any 0.5 sec
+      } catch (Exception ignored) { }
+       // any 0.5 sec
       if (ticks % 10 == 0) {
          // markets update
          MarcetController.getInstance().updateTime();
@@ -167,10 +172,6 @@ public class ClientTickHandler {
          }
          // music bards
          if (mc.player != null) { MusicController.Instance.checkBards(mc.player); }
-      }
-      // clear hash
-      if (ticks % 60 == 0) {
-         ModelBuffer.clear();
       }
       // mails
       if (checkMails || CustomNpcs.MailWindow != -1 && ticks % 100 == 0) {

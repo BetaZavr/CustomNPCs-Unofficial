@@ -55,7 +55,8 @@ public class SubGuiSoundSelection extends ResourceSelection {
    @Override
    public void init() {
       super.init();
-      if (scroll == null) { scroll = addScroll(0).setSize(scrollWidth, 152); }
+      if (scroll == null) { scroll = addScroll(0); }
+      scroll.setSize(scrollWidth, 180);
       int h = guiTop + imageHeight - 25;
       List<Object> options = new ArrayList<>();
       options.add("spawner.random");
@@ -74,15 +75,15 @@ public class SubGuiSoundSelection extends ResourceSelection {
             }
          }
       }
-      addButton(5, guiLeft + 199, h - 28, options.size() > 1, option, options.toArray(new Object[0]))
-              .setSize(162, 14)
+      addButton(5, guiLeft + 216, h, options.size() > 1, option, options.toArray(new Object[0]))
+              .setSize(78, 20)
               .setIsEnabled(options.size() > 1)
               .setHoverTexts("selection.sound.hover.options");
-      addButton(3, guiLeft + 199, h, "gui.play")
+      addButton(3, guiLeft + 144, h, "gui.play")
               .setSize(70, 20)
               .setIsEnabled(selectDir != null && resource != null && scroll.hasSelected())
               .hasSound = false;
-      addButton(4, guiLeft + 127, h, "gui.copy")
+      addButton(4, guiLeft + 72, h, "gui.copy")
               .setSize(70, 20)
               .setIsEnabled(selectDir != null && resource != null && scroll.hasSelected());
       if (selectDir != null && !selectDir.getNamespace().isEmpty()) {
@@ -230,6 +231,14 @@ public class SubGuiSoundSelection extends ResourceSelection {
          getButton(4).setIsEnabled(selectDir != null && resource != null && scroll.hasSelected());
       }
       init();
+   }
+
+   @Override
+   protected void loadFiles() {
+      Map<String, TreeMap<ResourceLocation, Long>> cache = resourcesData.get(suffix);
+      if (cache != null) { data.putAll(cache); return; }
+      resetFiles();
+      resourcesData.put(suffix, new TreeMap<>(data));
    }
 
    @Override

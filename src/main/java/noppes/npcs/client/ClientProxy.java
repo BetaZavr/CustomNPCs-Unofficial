@@ -87,6 +87,7 @@ import noppes.npcs.client.gui.roles.GuiNpcFollowerSetup;
 import noppes.npcs.client.gui.roles.GuiNpcItemGiver;
 import noppes.npcs.client.gui.roles.GuiNpcTransporter;
 import noppes.npcs.client.gui.script.*;
+import noppes.npcs.client.gui.select.ResourceSelection;
 import noppes.npcs.client.gui.yellow_de.GuiYellowDialogEditor;
 import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.client.model.animation.AnimationConfig;
@@ -270,6 +271,8 @@ public class ClientProxy extends CommonProxy {
       }, CustomItems.scripted_item);
       mcWrapper = new WrapperMinecraft(mc);
       ArmorersWorkshopHelper.register();
+
+      ResourceSelection.preload(".png");
    }
 
    private void createFolders() {

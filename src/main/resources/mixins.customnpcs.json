@@ -65,7 +65,9 @@
     "world.level.block.entity.BannerBlockEntityMixin",
     "world.level.block.state.IBlockBehaviourPropertiesMixin",
     "world.level.block.state.properties.IIntegerPropertyMixin",
+    "world.level.entity.EntitySectionStorageMixin",
     "world.level.entity.IPersistentEntitySectionManagerMixin",
+    "world.level.entity.LevelEntityGetterAdapterMixin",
     "world.level.levelgen.NoiseChunkGeneratorMixin",
     "world.level.pathfinder.IPathMixin",
     "world.scores.IScoreboardMixin"

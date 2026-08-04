@@ -439,7 +439,7 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
 
    @Override
    public void renderBackground(@Nonnull GuiGraphics graphics) {
-      super.renderBackground(graphics);
+      if (drawDefaultBackground) { super.renderBackground(graphics); }
       if (background != null) {
          PoseStack matrixStack = graphics.pose();
          matrixStack.pushPose();
@@ -490,7 +490,7 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
       int x = hasSubGui() ? 0 : (int) (mouseX / bgScale);
       int y = hasSubGui() ? 0 : (int) (mouseY / bgScale);
       matrixStack.scale(bgScale, bgScale, bgScale);
-      if (drawDefaultBackground) { renderBackground(graphics); }
+      renderBackground(graphics);
       if (title != null && !title.getString().isEmpty()) {
          GuiButtonNop.renderString(graphics, title, guiLeft + 4, guiTop + 5, guiLeft + imageWidth - 8, guiTop + 15,
                  CustomNpcs.LableColor.getRGB(), false, true, null);

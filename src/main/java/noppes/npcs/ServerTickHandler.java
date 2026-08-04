@@ -3,7 +3,6 @@ package noppes.npcs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent.LevelTickEvent;
@@ -63,8 +62,7 @@ public class ServerTickHandler {
             EntityNPCInterface npc = null;
             if (fs.npc != null) { npc = fs.npc; }
             if (npc == null) {
-               Entity e = Util.instance.getEntityByUUID(fs.id, player.level(), false);
-               if (e instanceof EntityNPCInterface) { npc = (EntityNPCInterface) e; }
+               if (Util.instance.getEntityByUUID(fs.id, player.level(), false) instanceof EntityNPCInterface cNpc) { npc = cNpc; }
             }
             if (npc == null || !npc.isAlive() || !(npc.role instanceof RoleFollower)) { del.add(fs); }
             else {
@@ -149,9 +147,9 @@ public class ServerTickHandler {
    public void cnpcServerTick(ServerTickEvent event) {
       if (event.side != LogicalSide.SERVER || event.phase != Phase.START) { return; }
       CustomNpcs.debugData.start("Mod");
-      BorderController.getInstance().update();
       ticks++;
       // New from Unofficial (BetaZavr)
+      if (ticks % 5 == 0) { BorderController.getInstance().update(); }
       if (ticks % 20 == 0) {
          SchematicController.Instance.updateBuilding();
          MarcetController.getInstance().update();

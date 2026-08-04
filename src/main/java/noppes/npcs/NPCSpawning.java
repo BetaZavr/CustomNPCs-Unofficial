@@ -173,6 +173,7 @@ public class NPCSpawning {
       return Math.max((float)blockLight, (float)skyLight / 15.0F * skyLightValue);
    }
 
+   @SuppressWarnings("deprecation")
    public static boolean canCreatureTypeSpawnAtLocation(SpawnData data, LevelReader level, BlockPos pos) {
       if (level.getWorldBorder().isWithinBounds(pos) && level.noCollision(CustomEntities.entityCustomNpc.getAABB(pos.getX(), pos.getY(), pos.getZ()))) {
          if (data.type == 1 && getLightLevel(level, pos) > 8.0F || data.type == 2 && getLightLevel(level, pos) <= 8.0F) {

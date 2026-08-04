@@ -28,7 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.entity.TransientEntitySectionManager;
+import net.minecraft.world.level.entity.*;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
@@ -51,6 +51,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IQuestObjective;
+import noppes.npcs.api.mixin.world.level.entity.ILevelEntityGetterAdapterMixin;
 import noppes.npcs.api.util.IRayTraceResults;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
@@ -1428,9 +1429,9 @@ public class Util implements IMethods {
 
     @SuppressWarnings({"JavaReflectionMemberAccess", "unchecked"})
     public @Nullable Entity getEntityByUUID(UUID uuid, Level startWorld, boolean onlyInLevel) {
+        Entity entity = null;
         if (startWorld != null) {
-            Entity entity = null;
-            if (startWorld instanceof ServerLevel serverLevel) { entity = serverLevel.getEntity(uuid); }
+            if (startWorld instanceof ServerLevel serverLevel) { entity = getEntityInWorld(uuid, serverLevel.getEntities()); }
             else {
                 if (entityStorage == null) {
                     try {
@@ -1445,7 +1446,8 @@ public class Util implements IMethods {
                 if (entityStorage != null) {
                     try {
                         entityStorage.trySetAccessible();
-                        entity = ((TransientEntitySectionManager<Entity>) entityStorage.get(startWorld)).getEntityGetter().get(uuid);
+                        entity = getEntityInWorld(uuid,
+                                ((TransientEntitySectionManager<Entity>) entityStorage.get(startWorld)).getEntityGetter());
                     }
                     catch (Exception ignored) {}
                 }
@@ -1459,13 +1461,24 @@ public class Util implements IMethods {
                 if (server != null) {
                     for (ServerLevel level : server.getAllLevels()) {
                         if (!level.dimension().equals(startWorld.dimension())) {
-                            entity = level.getEntity(uuid);
-                            break;
+                            entity = getEntityInWorld(uuid, level.getEntities());
+                            if (entity != null) { break; }
                         }
                     }
                 }
             }
-            return entity;
+        }
+        return entity;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends EntityAccess> Entity getEntityInWorld(UUID uuid, LevelEntityGetter<T> getter) {
+        if (uuid != null && getter != null) {
+            EntityAccess entityAccess = getter.get(uuid);
+            if (entityAccess == null && getter instanceof LevelEntityGetterAdapter<T> getterAdapter) {
+                entityAccess = ((ILevelEntityGetterAdapterMixin<T>) getterAdapter).npcs$getStorage(uuid);
+            } // unloaded
+            if (entityAccess instanceof Entity entity) { return entity; }
         }
         return null;
     }

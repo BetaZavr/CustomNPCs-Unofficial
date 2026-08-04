@@ -3,6 +3,7 @@ package noppes.npcs.packets.client;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.command.CmdHeapAnalyzer;
 import noppes.npcs.shared.common.PacketBasic;
 
@@ -36,11 +37,13 @@ public class PacketHeapAnalyzer extends PacketBasic {
 
     @OnlyIn(Dist.CLIENT)
     protected void handle() {
+        CustomNpcs.debugData.start("Packets");
         switch (type) {
             case START -> CmdHeapAnalyzer.startTracking(null, count);
             case STOP -> CmdHeapAnalyzer.stopTracking(null, count);
             case MANUAL -> CmdHeapAnalyzer.manual(null, count);
         }
+        CustomNpcs.debugData.end("Packets");
     }
 
 }
