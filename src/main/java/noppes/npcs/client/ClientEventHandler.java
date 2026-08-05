@@ -1410,6 +1410,8 @@ public class ClientEventHandler {
         }
         matrixStack.popPose();
         // Block Poses
+        int guiSelect = -1;
+        if (mc.screen instanceof GuiNpcPather gui && gui.scroll != null) { guiSelect = gui.scroll.getSelectedIndex(); }
         for (int i = 0; i < list.size(); i++) {
             if (i == 0) {
                 r = 0.8f;
@@ -1423,9 +1425,12 @@ public class ClientEventHandler {
             if (state.isCollisionShapeFullBlock(EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) { yo = 1.0d; }
             matrixStack.pushPose();
             matrixStack.translate(pos[0] + dx + 0.5d, pos[1] + dy + 0.5d + yo, pos[2] + dz + 0.5d);
-            double m = i == 0 ? -0.125d : -0.075d;
-            double n = i == 0 ? 0.125d : 0.075d;
-            LevelRenderer.renderLineBox(matrixStack, consumerLine, new AABB(m, m, m, n, n, n), r, g, b, 1.0f);
+            double s = i == 0 ? 0.125d : 0.075d;
+            LevelRenderer.renderLineBox(matrixStack, consumerLine, new AABB(-s, -s, -s, s, s, s), r, g, b, 1.0f);
+            if (guiSelect == i) {
+                s *= 1.75d;
+                LevelRenderer.renderLineBox(matrixStack, consumerLine, new AABB(-s, -s, -s, s, s, s), 0.0f, 1.0f, 1.0f, 0.8f);
+            }
             matrixStack.popPose();
         }
     }

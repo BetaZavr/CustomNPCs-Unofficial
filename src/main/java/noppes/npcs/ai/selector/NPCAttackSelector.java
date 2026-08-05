@@ -24,6 +24,7 @@ public class NPCAttackSelector implements Predicate<LivingEntity> {
               entity != npc &&
               npc.isInRange(entity, npc.stats.aggroRange) &&
               entity.getHealth() >= 0.1F) {
+         if (npc.aiAttackTarget != null && !npc.aiAttackTarget.canNewAttack()) { return false; }
          if (npc.ais.directLOS != EnumSeeTarget.NONE && !npc.canSee(entity)) { return false; }
          if (!npc.isFollower() && npc.ais.shouldReturnHome()) {
             int allowedDistance = npc.stats.aggroRange * 2;
@@ -48,11 +49,9 @@ public class NPCAttackSelector implements Predicate<LivingEntity> {
             }
             return false;
          }
-         if (entity instanceof EntityNPCInterface npcEntity) {
-            if (npcEntity.isKilled()) { return false; }
-            if (npc.advanced.attackOtherFactions) { return npc.faction.isAggressiveToNpc(npcEntity); }
+         if (entity instanceof EntityNPCInterface cNpc) {
+            if (!cNpc.isKilled() && npc.advanced.attackOtherFactions) { return npc.faction.isAggressiveToNpc(cNpc); }
          }
-         //return npc.aiAttackTarget == null || npc.aiAttackTarget.canNewAttack();
          return false;
       }
       return false;
