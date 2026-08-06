@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.constants.AnimationKind;
@@ -169,6 +170,7 @@ public class DataAnimation implements INPCAnimation {
 
     // used to select a new animation in EntityNPCInterface
     public AnimationConfig tryRunAnimation(AnimationKind type) {
+        if (!CustomNpcs.ShowCustomAnimation) { return null; }
         AnimationConfig anim = animationHandler.selectAnimation(type);
         if (anim == null) { return null; }
         return tryRunAnimation(anim, type);

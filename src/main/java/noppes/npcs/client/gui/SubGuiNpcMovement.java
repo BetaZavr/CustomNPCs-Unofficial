@@ -22,105 +22,121 @@ public class SubGuiNpcMovement extends GuiBasic implements ITextfieldListener {
    @Override
    public void init() {
       super.init();
-      int x0 = guiLeft + 4;
-      int x1 = x0 + 76;
-      int y = guiTop + 4;
-      addLabel(0, x0, y + 5, "movement.type");
+      int lw = 98;
+      int x0 = guiLeft + 6;
+      int x1 = x0 + lw + 2;
+      int y = guiTop + 6;
+      addLabel(0, x0, y + 3, "movement.type")
+              .setSize(lw, 10);
       addButton(0, x1, y, false, ai.getMovingType(), "ai.standing", "ai.wandering", "ai.movingpath")
-              .setSize(100, 20)
+              .setSize(100, 16)
               .setHoverTexts("ai.hover.walking.type");
-      y += 22;
+      y += 18;
       addButton(15, x1, y, false, ai.movementType, "movement.ground", "movement.flying", "movement.swimming")
-              .setSize(100, 20)
+              .setSize(100, 16)
               .setHoverTexts("ai.hover.walking");
-      addLabel(15, x0, y + 5, "movement.navigation");
+      addLabel(15, x0, y + 3, "movement.navigation")
+              .setSize(lw, 10);
       if (ai.getMovingType() == 1) {
-         addTextField(4, x1 += 20, y += 22, 60, 20, ai.walkingRange)
+         addTextField(4, x1, y += 18, 60, 14, ai.walkingRange)
                  .setMinMaxDefault(0, 1000, 10)
                  .setHoverTexts("ai.hover.walking.range");
-         addLabel(4, x0, y + 5, "gui.range");
-         addTextField(10, x1, y += 22, 60, 20, ai.activeRange)
+         addLabel(4, x0, y + 3, "gui.range");
+         addTextField(10, x1, y += 18, 60, 14, ai.activeRange)
                  .setMinMaxDefault(32, 1000, 10);
-         addLabel(10, x0, y + 5, "gui.active range");
-         addYesNo(5, x1, y += 22, ai.npcInteracting)
-                 .setSize(50, 20)
+         addLabel(10, x0, y + 3, "gui.active range");
+         addYesNo(5, x1, y += 18, ai.npcInteracting)
+                 .setSize(50, 16)
                  .setHoverTexts("ai.hover.interact");
-         addLabel(5, x0, y + 5, "movement.wanderinteract");
-         addYesNo(9, x1 - 20, y += 22, ai.movingPause)
-                 .setSize(80, 20)
+         addLabel(5, x0, y + 3, "movement.wanderinteract");
+         addYesNo(9, x1, y += 18, ai.movingPause)
+                 .setSize(80, 16)
                  .setHoverTexts("ai.hover.moving.pause");
-         addLabel(9, x0, y + 5, "movement.pauses");
+         addLabel(9, x0, y + 3, "movement.pauses");
       }
       else if (ai.getMovingType() == 0) {
-         addLabel(17, x0, y + 27, "spawner.posoffset");
-         addLabel(7, guiLeft + 89, y + 27, "X:");
-         addTextField(7, x1 + 19, y += 22, 24, 20, ai.bodyOffsetX)
-                 .setMinMaxDefault(0.0f, 10.0f, 5.0f)
+         addLabel(17, x0, (y += 18) + 3, "spawner.posoffset")
+                 .setSize(lw, 10);
+         addLabel(7, x1, y + 3, "X:")
+                 .setSize(12, 10);
+         addTextField(7, x1 + 9, y + 1, 24, 14, ai.bodyOffsetX)
+                 .setMinMaxDefault(0.0d, 10.0d, 5.0d)
                  .setHoverTexts("ai.hover.offset.x");
-         addLabel(8, guiLeft + 125, y + 5, "Y:");
-         addTextField(8, guiLeft + 135, y, 24, 20, ai.bodyOffsetY)
-                 .setMinMaxDefault(0.0f, 100.0f, 5.0f)
+         addLabel(8, x1 + 36, y + 3, "Y:")
+                 .setSize(12, 10);
+         addTextField(8, x1 + 45, y + 1, 24, 14, ai.bodyOffsetY)
+                 .setMinMaxDefault(0.0d, 20.0d, 5.0d)
                  .setHoverTexts("ai.hover.offset.y");
-         addLabel(9, guiLeft + 161, y + 5, "Z:");
-         addTextField(9, guiLeft + 171, y, 24, 20, ai.bodyOffsetZ)
-                 .setMinMaxDefault(0.0f, 10.0f, 5.0f)
+         addLabel(9, x1 + 72, y + 3, "Z:")
+                 .setSize(12, 10);
+         addTextField(9, x1 + 81, y + 1, 24, 14, ai.bodyOffsetZ)
+                 .setMinMaxDefault(0.0d, 10.0d, 5.0d)
                  .setHoverTexts("ai.hover.offset.z");
-         addButton(3, x1, y += 22, false, ai.animationType,
+         addButton(3, x1, y += 18, false, ai.animationType,
                  "stats.normal", "movement.sitting", "movement.lying", "movement.hug", "movement.sneaking",
-                 "movement.dancing", "movement.aiming", "movement.crawling").setSize(100, 20)
+                 "movement.dancing", "movement.aiming", "movement.crawling")
+                 .setSize(100, 16)
                  .setHoverTexts("ai.hover.walking.anim");
-         addLabel(3, x0, y + 5, "movement.animation");
+         addLabel(3, x0, y + 3, "movement.animation")
+                 .setSize(lw, 10);
          if (ai.animationType != 2) {
-            addButton(4, x1, y += 22, false, ai.getStandingType(), "movement.body", "movement.manual", "movement.stalking", "movement.head")
-                    .setSize(80, 20)
+            addButton(4, x1, y += 18, false, ai.getStandingType(), "movement.body", "movement.manual", "movement.stalking", "movement.head")
+                    .setSize(80, 16)
                     .setHoverTexts("ai.hover.rotation");
-            addLabel(1, x0, y + 5, "movement.rotation");
+            addLabel(1, x0, y + 3, "movement.rotation")
+                    .setSize(lw, 10);
          }
          else {
-            addTextField(5, x1 + 19, y += 22, 40, 20, ai.orientation)
+            addTextField(5, x1 + 19, (y += 18) + 1, 40, 14, ai.orientation)
                     .setMinMaxDefault(0, 359, 0)
                     .setHoverTexts("ai.hover.interact");
-            addLabel(6, x0, y + 5, "movement.rotation");
-            addLabel(5, guiLeft + 142, y + 5, "(0-359)");
+            addLabel(6, x0, y + 3, "movement.rotation")
+                    .setSize(lw, 10);
+            addLabel(5, guiLeft + 142, y + 3, "(0-359)");
          }
-         if (ai.getStandingType() == 1 || ai.getStandingType() == 3) {
-            addTextField(5, guiLeft + 165, y, 40, 20, ai.orientation)
+         if (ai.animationType != 2 && (ai.getStandingType() == 1 || ai.getStandingType() == 3)) {
+            addTextField(5, x1 + 83, y + 1, 40, 14, ai.orientation)
                     .setMinMaxDefault(0, 359, 0)
                     .setHoverTexts("ai.hover.interact");
-            addLabel(5, guiLeft + 207, y + 5, "(0-359)");
+            addLabel(5, x1 + 126, y + 3, "(0-359)");
          }
       }
       if (ai.getMovingType() != 0) {
-         addButton(12, x1, y += 22, false, EntityAIAnimation.getWalkingAnimationGuiIndex(ai.animationType),
+         addButton(12, x1, y += 18, false, EntityAIAnimation.getWalkingAnimationGuiIndex(ai.animationType),
                  "stats.normal", "movement.sneaking", "movement.aiming", "movement.dancing", "movement.crawling", "movement.hug")
-                 .setSize(100, 20)
+                 .setSize(100, 16)
                  .setHoverTexts("ai.hover.walking.anim");
-         addLabel(12, x0, y + 5, "movement.animation");
+         addLabel(12, x0, y + 3, "movement.animation")
+                 .setSize(lw, 10);
       }
       if (ai.getMovingType() == 2) {
-         x1 = guiLeft + 80;
-         addButton(8, x1, y += 22, false, ai.movingPattern, "ai.looping", "ai.backtracking")
-                 .setSize(80, 20)
+         addButton(8, x1, y += 18, false, ai.movingPattern, "ai.looping", "ai.backtracking")
+                 .setSize(80, 16)
                  .setHoverTexts("ai.hover.path.closed");
-         addLabel(8, x0, y + 5, "movement.name");
-         addYesNo(9, x1, y += 22, ai.movingPause).setSize(80, 20);
-         addLabel(9, x0, y + 5, "movement.pauses");
+         addLabel(8, x0, y + 3, "movement.name")
+                 .setSize(lw, 10);
+         addYesNo(9, x1, y += 18, ai.movingPause)
+                 .setSize(80, 16);
+         addLabel(9, x0, y + 3, "movement.pauses")
+                 .setSize(lw, 10);
       }
-      x1 = guiLeft + 100;
-      addYesNo(13, x1, y += 22, ai.stopAndInteract)
-              .setSize(50, 20)
+      addYesNo(13, x1, y += 18, ai.stopAndInteract)
+              .setSize(60, 16)
               .setHoverTexts("ai.hover.stop.interact");
-      addLabel(13, x0, y + 5, "movement.stopinteract");
-      addTextField(14, x1 - 20, y += 22, 50, 18, ai.getWalkingSpeed())
+      addLabel(13, x0, y + 3, "movement.stopinteract")
+              .setSize(lw, 10);
+      addTextField(14, x1 + 1, (y += 18) + 1, 50, 14, ai.getWalkingSpeed())
               .setMinMaxDefault(0, 100, ai.getWalkingSpeed())
               .setHoverTexts("ai.hover.walking.speed");
-      addLabel(14, x0, y + 5, "stats.movespeed");
-      addTextField(15, x1 - 20, y += 22, 50, 18, ai.stepheight)
+      addLabel(14, x0, y + 3, "stats.movespeed")
+              .setSize(lw, 10);
+      addTextField(15, x1 + 1, (y += 18) + 1, 50, 14, ai.stepheight)
               .setMinMaxDefault(0.1d, 3.0d, ai.stepheight)
               .setHoverTexts("ai.hover.step.height");
-      addLabel(16, x0, y + 5, "stats.stepheight");
+      addLabel(16, x0, y + 3, "stats.stepheight")
+              .setSize(lw, 10);
       addButton(66, guiLeft + 190, guiTop + 190, "gui.done")
-              .setSize(60, 20)
+              .setSize(60, 16)
               .setHoverTexts("hover.back");
    }
 

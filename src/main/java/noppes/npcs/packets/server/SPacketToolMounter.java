@@ -97,9 +97,9 @@ public class SPacketToolMounter extends PacketServerBasic {
             }
          }
          else if (type == 1) {
-            entity = (Entity) ServerCloneController.Instance.spawn(data.mounted.getX(), data.mounted.getY(), data.mounted.getZ(),
+            entity = ServerCloneController.Instance.spawn(data.mounted.getX(), data.mounted.getY(), data.mounted.getZ(),
                     tab, name,
-                    Objects.requireNonNull(NpcAPI.Instance()).getIWorld(player.level()));
+                    Objects.requireNonNull(NpcAPI.Instance()).getIWorld(player.level())).getMCEntity();
             if (entity != null) { entity.startRiding(data.mounted, true); }
          }
          else if (type == 2) {

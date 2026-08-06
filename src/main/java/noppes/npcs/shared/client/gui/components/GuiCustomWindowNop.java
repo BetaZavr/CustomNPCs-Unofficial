@@ -2,6 +2,7 @@ package noppes.npcs.shared.client.gui.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
@@ -16,6 +17,7 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.controllers.YDEController;
 import noppes.npcs.client.gui.GuiBoundarySetting;
 import noppes.npcs.client.gui.util.GuiTooltipUtils;
+import noppes.npcs.mixin.client.IMouseHandlerMixin;
 import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.listeners.*;
 import noppes.npcs.util.Util;
@@ -41,6 +43,7 @@ public class GuiCustomWindowNop extends GuiBasic
     public int id;
     protected int guiLeft;
     protected int guiTop;
+    protected double[] mouseMovedPos = new double[] { -1.0d, -1.0d };
 
     protected boolean isHovered;
     protected boolean isHeadHovered;
@@ -211,16 +214,18 @@ public class GuiCustomWindowNop extends GuiBasic
             wrapper.mouseY = mouseY;
             int x = hasSubGui() ? 0 : mouseX;
             int y = hasSubGui() ? 0 : mouseY;
-            int right = getX() + imageWidth;
-            int bottom = guiTop + imageHeight;
             if (drawDefaultBackground) { renderBackground(graphics); }
             for (IComponentGui component : new ArrayList<>(wrapper.components)) {
                 if (component instanceof Renderable renderable) { renderable.render(graphics, x, y, partialTicks); }
             }
             if (wrapper.subgui == null) {
                 if (point != null && customFont == null) {
-                    float xc = (float) right / 2.0f;
-                    float yc = (float) bottom / 2.0f;
+                    float xc, yc;
+                    int[] cr = point.getCenter();
+                    if (getX() + imageWidth / 2 < cr[0]) { xc = (float) getX() + imageWidth - 4; }
+                    else { xc = (float) getX() + 4; }
+                    if (getY() + 12 < cr[1]) { yc = (float) getY() + 12; }
+                    else { yc = (float) getY() + 4; }
                     double dist = Math.sqrt((mouseY - yc) * (mouseY - yc) + (mouseX - xc) * (mouseX - xc));
                     double base = Math.sqrt(Math.pow(imageWidth, 2.0d) + Math.pow(imageHeight, 2.0d)) / 2.0d;
                     if (dist <= base * 2.0d) {
@@ -228,7 +233,6 @@ public class GuiCustomWindowNop extends GuiBasic
                         double b = -2.0d * a  * base;
                         float alpha = (float) (a * dist + b);
                         if (alpha < 0.0f) { alpha = 0.0f; } else if (alpha > 1.0f) { alpha = 1.0f; }
-                        int[] cr = point.getCenter();
                         int color = colorLine + ((int) (alpha * 255.0f) << 24);
                         GuiBoundarySetting.drawLine(graphics, cr[0], cr[1], xc, yc, color, 2);
                     }
@@ -241,6 +245,21 @@ public class GuiCustomWindowNop extends GuiBasic
                         else { renderTooltipInternal(graphics, mouseX, ValueUtil.correctInt(mouseY, 16, height), hoverFont, hoverText, bgScale); }
                     }
                     hoverText.clear();
+                }
+            }
+            if (!isLock && mouseMovedPos[0] > 0.0d && mouseMovedPos[1] > 0.0d) {
+                if (((IMouseHandlerMixin) Minecraft.getInstance().mouseHandler).getActiveButton() == 0) {
+                    x = (int) (mouseX - mouseMovedPos[0]);
+                    y = (int) (mouseY - mouseMovedPos[1]);
+                    if (Math.abs(x) > 0 || Math.abs(y) > 0) {
+                        mouseMovedPos[0] = mouseX;
+                        mouseMovedPos[1] = mouseY;
+                        moveTo(x, y);
+                    }
+                }
+                else {
+                    mouseMovedPos[0] = -1.0d;
+                    mouseMovedPos[1] = -1.0d;
                 }
             }
         }
@@ -315,14 +334,20 @@ public class GuiCustomWindowNop extends GuiBasic
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+        if (!enabled || !visible) { return false; }
+        boolean bo = wrapper.mouseClicked(mouseX, mouseY, mouseButton);
+        if (!bo && !isLock && mouseButton == 0 && isHeadHovered) {
+            mouseMovedPos[0] = mouseX;
+            mouseMovedPos[1] = mouseY;
+        }
+        return bo;
+    }
+
+    @Override
     public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double dx, double dy) {
         if (enabled && visible && isHovered) {
-            boolean bo = wrapper.mouseDragged(mouseX, mouseY, mouseButton, dx, dy);
-            if (!bo && !isLock && mouseButton == 0 && isHeadHovered) {
-                moveTo((int) (dx), (int) (dy));
-                bo = true;
-            }
-            return bo;
+            return wrapper.mouseDragged(mouseX, mouseY, mouseButton, dx, dy);
         }
         return false;
     }
@@ -446,8 +471,8 @@ public class GuiCustomWindowNop extends GuiBasic
         VertexConsumer consumer = graphics.bufferSource().getBuffer(RenderType.gui());
         Matrix4f matrix = graphics.pose().last().pose();
         consumer.vertex(matrix, 0.0f, 0.0f, 0.0f).color(r, g, b, 1.0f).endVertex();
-        consumer.vertex(matrix, 0.0f, 19.0f, 0.0f).color(r, g, b, 1.0f).endVertex();
-        consumer.vertex(matrix, width - 6.0f, 19.0f, 0.0f).color(r, g, b, 0.5f).endVertex();
+        consumer.vertex(matrix, 0.0f, 8.0f, 0.0f).color(r, g, b, 1.0f).endVertex();
+        consumer.vertex(matrix, width - 6.0f, 8.0f, 0.0f).color(r, g, b, 0.5f).endVertex();
         consumer.vertex(matrix, width - 6.0f, 0.0f, 0.0f).color(r, g, b, 0.5f).endVertex();
         graphics.bufferSource().endBatch();
     }

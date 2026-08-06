@@ -20,7 +20,7 @@ public class GuiNpcMobSpawnerMounter extends GuiNPCInterface implements IGuiData
 
    protected GuiCustomScrollNop scroll;
    protected final List<String> list = new ArrayList<>();
-   protected static int showingClones = 1;
+   protected static int showingClones = 0;
    protected int activeTab = 1;
 
    public GuiNpcMobSpawnerMounter() {
@@ -37,14 +37,14 @@ public class GuiNpcMobSpawnerMounter extends GuiNPCInterface implements IGuiData
       else { scroll.clear(); }
       add(scroll.setPos(guiLeft + 4, guiTop + 4));
       // clones
-      GuiMenuTopButton button = addTopButton(3, guiLeft + 4, guiTop - 17, "spawner.clones")
-              .setIsFocused(showingClones == 0);
+      GuiMenuTopButton button = addTopButton(3, guiLeft + 4, guiTop - 17, "spawner.clones");
+      button.active = showingClones == 0;
       // entities
-      button = addTopButton(4, button.getX() + button.getWidth(), button.getY(), "spawner.entities")
-              .setIsFocused(showingClones == 1);
+      button = addTopButton(4, button.getX() + button.getWidth(), button.getY(), "spawner.entities");
+      button.active = showingClones == 1;
       // server
-      addTopButton(5, button.getX() + button.getWidth(), button.getY(), "gui.server")
-              .setIsFocused(showingClones == 2);
+      addTopButton(5, button.getX() + button.getWidth(), button.getY(), "gui.server");
+      button.active = showingClones == 2;
       // mount
       int x = guiLeft + 171;
       int y = guiTop + 6;
@@ -59,7 +59,7 @@ public class GuiNpcMobSpawnerMounter extends GuiNPCInterface implements IGuiData
       // tabs
       if (showingClones != 0 && showingClones != 2) { showEntities(); }
       else {
-         x = guiLeft - 69;
+         x = guiLeft;
          y = guiTop + 2;
          for (int i = 0; i < 9; i++) { addSideButton(21 + i, x, y + i * 21, Component.translatable("gui.tab").append(" " + i)); }
          getSideButton(20 + activeTab).active = true;

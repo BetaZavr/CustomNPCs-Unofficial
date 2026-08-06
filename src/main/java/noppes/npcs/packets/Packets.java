@@ -62,6 +62,10 @@ public class Packets {
       ignoredDebug.add(PacketNpcTarget.class);
       ignoredDebug.add(PacketNpcRarityTitleSet.class);
       ignoredDebug.add(PacketSync.class);
+      ignoredDebug.add(PacketCustomAnimationBaseSet.class);
+      ignoredDebug.add(PacketCustomAnimationRun.class);
+      ignoredDebug.add(PacketCustomAnimationStop.class);
+      ignoredDebug.add(PacketPlaySound.class);
    }
 
    public static void register() {

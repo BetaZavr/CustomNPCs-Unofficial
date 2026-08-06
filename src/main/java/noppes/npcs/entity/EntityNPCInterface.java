@@ -125,7 +125,6 @@ import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.ISynchedEntityData;
 import noppes.npcs.client.SkinUtil;
 import noppes.npcs.client.model.animation.AnimationConfig;
-import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.parts.ModelData;
 import noppes.npcs.client.parts.ModelPartConfig;
 import noppes.npcs.constants.EnumAnimationStages;
@@ -366,26 +365,13 @@ public abstract class EntityNPCInterface
 
    @Override
    public boolean doHurtTarget(@Nonnull Entity entity) {
-      AnimationConfig anim = animation.tryRunAnimation(AnimationKind.ATTACKING);
-      if (anim != null) {
-         boolean found = false;
-         for (AnimationFrameConfig frame : anim.frames.values()) {
-            if (frame.isNowDamage() && frame.damageDelay != 0) {
-               final int time = frame.damageDelay * 50;
-               CustomNPCsScheduler.runTack(() -> tryAttackEntityAsMob(entity, frame.id), time);
-               found = true;
-            }
-         }
-         if (!found) {
-            final int time = (anim.totalTicks - 1) * 50;
-            CustomNPCsScheduler.runTack(() -> tryAttackEntityAsMob(entity, anim.frames.size() - 1), time);
-         }
-         return false;
+      if (animateAi != null) {
+         return animateAi.playAttackEntityCustomAnimation(entity);
       }
       return tryAttackEntityAsMob(entity, 0);
    }
 
-   private boolean tryAttackEntityAsMob(Entity target, int frameID) {
+   public boolean tryAttackEntityAsMob(Entity target, int frameID) {
       if (ais.aiDisabled || target == null || !target.isAlive()) { return false; }
       Set<Entity> entityList = new HashSet<>();
       entityList.add(target);
@@ -573,6 +559,8 @@ public abstract class EntityNPCInterface
                animation.resetWalkAndStandAnimations();
             });
          }
+         // New from Unofficial (BetaZavr)
+         if (animateAi != null) { animateAi.livingUpdate(); }
          if (wasKilled != isKilled() && wasKilled) { reset(); }
          if (level().isDay() && !isClientSide() && stats.burnInSun) {
             float f = getLightLevelDependentMagicValue();
@@ -633,6 +621,7 @@ public abstract class EntityNPCInterface
          if (!ais.aiDisabled && EventHooks.onNPCInteract(this, player)) { return InteractionResult.FAIL; }
          if (!getFaction().isAggressiveToPlayer(player) && !isAttacking()) {
             addInteract(player);
+            if (animateAi != null && (lookAi == null || !lookAi.fastRotation)) { animateAi.playInteractCustomAnimation(); }
             Dialog dialog = getDialog(player);
             QuestData data = PlayerData.get(player).questData.getQuestCompletion(player, this);
             if (data != null) { Packets.send((ServerPlayer)player, new PacketQuestCompletion(data.quest.id)); }
@@ -746,10 +735,12 @@ public abstract class EntityNPCInterface
          }
       }
       if (!isKilled()) {
-         if (isHurt && damage > 0.0f) { animation.tryRunAnimation(AnimationKind.HIT); }
-         else  {
-            AnimationConfig anim = animation.tryRunAnimation(AnimationKind.BLOCKED);
-            if (anim == null && !damagesource.is(DamageTypeTags.IS_PROJECTILE) && attackingEntity != null) { blockUsingShield(attackingEntity); }
+         if (isHurt && damage > 0.0f) {
+            if (animateAi != null) { animateAi.playHitCustomAnimation(); }
+         }
+         else if (!damagesource.is(DamageTypeTags.IS_PROJECTILE) && attackingEntity != null) {
+            if (animateAi != null) { animateAi.playBlockedCustomAnimation(); }
+            blockUsingShield(attackingEntity);
          }
       }
       return isHurt;
@@ -946,6 +937,7 @@ public abstract class EntityNPCInterface
       float acc = 20.0F - (float)Mth.floor((float)accuracy / 5.0F);
       projectile.shoot(varX, varY, varZ, angle, acc);
       level().addFreshEntity(projectile);
+      if (animateAi != null) { animateAi.playShootCustomAnimation(); }
       return projectile;
    }
 
@@ -1338,6 +1330,14 @@ public abstract class EntityNPCInterface
       }
 
       // New from Unofficial (BetaZavr)
+      if (animateAi != null) {
+         animation.stopAnimation();
+         animateAi.playInitCustomAnimation();
+      }
+      updateClient = true;
+      setMaxUpStep(ais.stepheight * 1.8333F);
+      lookPos[0] = 0.0f;
+      lookPos[1] = 0.0f;
       puppet.reset();
       setPose(Pose.STANDING);
    }
@@ -1515,6 +1515,7 @@ public abstract class EntityNPCInterface
          if (event.line != null) {
             saySurrounding(Line.formatTarget((Line) event.line, attackingEntity instanceof LivingEntity ? (LivingEntity) attackingEntity : null));
          }
+         if (animateAi != null) { animateAi.playDeathCustomAnimation(); }
       }
 
       super.die(damagesource);
