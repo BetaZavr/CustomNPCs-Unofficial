@@ -1,16 +1,14 @@
 package noppes.npcs.packets.client;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.api.event.PlayerEvent;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.controllers.data.PlayerData;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.shared.common.PacketBasic;
 
 public class PacketCustomNBT extends PacketBasic {
@@ -30,9 +28,8 @@ public class PacketCustomNBT extends PacketBasic {
     @OnlyIn(Dist.CLIENT)
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
-        PlayerData pd = CustomNpcs.proxy.getPlayerData(player);
-        EventHooks.onEvent(pd.scriptData, EnumScriptType.PACKAGE_FROM,
-                new PlayerEvent.PlayerPackage(pd.scriptData.getPlayer(), data));
+        EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.PACKAGE_FROM,
+                new PlayerEvent.PlayerPackage(CustomNpcs.proxy.getPlayerData(player).scriptData.getPlayer(), data));
         CustomNpcs.debugData.end("Packets");
     }
 }

@@ -77,6 +77,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.api.IPos;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.item.IItemBoundary;
 import noppes.npcs.api.item.INPCToolItem;
@@ -98,6 +99,7 @@ import noppes.npcs.client.gui.util.GuiTooltipUtils;
 import noppes.npcs.client.gui.util.quests.QuestObjective;
 import noppes.npcs.client.gui.yellow_de.GuiYellowDialogEditor;
 import noppes.npcs.client.gui.yellow_de.data.UtilYDE;
+import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.renderer.MarkRenderer;
 import noppes.npcs.client.renderer.obj.ModelBuffer;
 import noppes.npcs.client.renderer.obj.ParameterizedModel;
@@ -826,6 +828,18 @@ public class ClientEventHandler {
                         if (entity.equals(highlightedEntity)) {
                             LevelRenderer.renderLineBox(event.getPoseStack(), bufferSource.getBuffer(RenderType.lines()), bounds.inflate(entity.getBbWidth() / 20.0),
                                     0.8f, 0.3f, 0.6f, 1.0f);
+                        }
+                        if (entity instanceof EntityNPCInterface npc) {
+                            AnimationConfig anim = npc.animation.getAnimation();
+                            if (anim != null && anim.type == AnimationKind.ATTACKING) {
+                                List<AABB> hitBoxes = anim.getDamageHitboxes(npc, npc.animation.getAnimationCurrentFrameID());
+                                if (hitBoxes != null && !hitBoxes.isEmpty()) {
+                                    for (AABB hitBox : hitBoxes) {
+                                        LevelRenderer.renderLineBox(event.getPoseStack(), bufferSource.getBuffer(RenderType.lines()), hitBox,
+                                                1.0f, 0.0f, 0.0f, 0.5f);
+                                    }
+                                }
+                            }
                         }
                         event.getPoseStack().popPose();
                     }

@@ -110,6 +110,8 @@ public class Packets {
       register(PacketNpcRotationUpdate.class);
 
       // New Unofficial (Goodbird)
+      register(PacketSyncRecipeUpdate.class);
+      register(PacketSyncRecipeRemove.class);
       register(PacketUpdatePhysics.class);
       register(PacketOverlayShow.class);
       register(PacketOverlayHide.class);
@@ -392,6 +394,9 @@ public class Packets {
                          .simpleChannel());
       }
       try {
+         LogWriter.debug(totalIndex + " - register packet["+index+"]; channel["+channelId+"] "+packetClass.getSimpleName()+"; Side: "
+                 + (PacketServerBasic.class.isAssignableFrom(packetClass) ? "Server" : "Client"));
+
          Field channel = packetClass.getDeclaredField("channelId");
          channel.trySetAccessible();
          channel.set(null, channelId);
@@ -410,8 +415,6 @@ public class Packets {
             try { return (MSG) decode.invoke(null, buf); }
             catch (Exception e) { throw new RuntimeException(e); }
          };
-         LogWriter.debug(totalIndex + " -register packet["+index+"]; channel["+channelId+"] "+packetClass.getSimpleName()+"; Side: "
-                 + (PacketServerBasic.class.isAssignableFrom(packetClass) ? "Server" : "Client"));
          CHANNELS.get(channelId).registerMessage(index++,
                  packetClass,
                  encoder,
@@ -444,6 +447,7 @@ public class Packets {
    }
 
    public static <MSG extends PacketBasic> void sendNearby(Entity entity, MSG msg) {
+      if (entity == null || entity.isRemoved()) { return; }
       logged(msg, true);
       CHANNELS.get(msg.getChannelId()).send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), msg);
    }

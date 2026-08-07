@@ -98,10 +98,11 @@ public class ModelEyeData extends MpmPartData {
    }
 
    public void update(LivingEntity npc) {
-      if (npc.isAlive() && !disableBlink && !npc.level().isClientSide) {
+      if (npc != null && npc.isAlive() && !disableBlink && !npc.level().isClientSide) {
          if (blinkStart < 0L) { ++blinkStart; }
          else if (blinkStart == 0L) {
-            if (r.nextInt(140) == 1) {
+            if (npc.isRemoved() || npc.isSleeping()) { return; }
+            if (r.nextInt(150) == 1) {
                blinkStart = System.currentTimeMillis();
                Packets.sendNearby(npc, new PacketEyeBlink(npc.getId(), npc.level().dimension()));
             }

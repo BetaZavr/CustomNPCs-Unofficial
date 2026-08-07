@@ -192,12 +192,11 @@ public class NPCWrapper<T extends EntityNPCInterface> extends EntityLivingWrappe
 
    public void setRotation(float rotation) {
       super.setRotation(rotation);
-      int r = (int)rotation;
-      if (this.entity.ais.orientation != r) {
-         this.entity.ais.orientation = r;
+      int r = (int) rotation;
+      if (entity.ais.orientation != r) {
+         entity.ais.orientation = r;
          Packets.sendNearby(this.entity, new PacketNpcRotationUpdate(this.entity.getId(), this.entity.ais.orientation));
       }
-
    }
 
    public boolean typeOf(int type) {
