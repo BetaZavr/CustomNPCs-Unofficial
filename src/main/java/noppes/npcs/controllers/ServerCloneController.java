@@ -84,6 +84,7 @@ public class ServerCloneController implements ICloneHandler {
 	public @Nullable NBTTagCompound getCloneData(@Nullable ICommandSender player, String name, int tab) {
 		File dir = getDir();
 		if (dir == null || name == null || name.isEmpty()) { return null; }
+		name = Util.instance.sanitizeFilename(name);
 		File file = new File(dir, tab + "/" + name + ".json");
 		if (!file.exists()) {
 			if (player != null) {
@@ -133,7 +134,7 @@ public class ServerCloneController implements ICloneHandler {
 	}
 
 	public boolean removeClone(String name, int tab) {
-		File file = new File(getDir(), tab + "/" + name + ".json");
+		File file = new File(getDir(), tab + "/" + Util.instance.sanitizeFilename(name) + ".json");
 		return file.exists() && file.delete();
 	}
 

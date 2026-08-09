@@ -25,7 +25,7 @@ public class SPacketCloneSet extends PacketServerBasic {
     public boolean toolAllowed(ItemStack item) { return item.getItem() == CustomItems.wand || item.getItem() == CustomItems.cloner || item.getItem() == CustomItems.mount; }
 
     @Override
-    public boolean requiresNpc() { return true; }
+    public boolean requiresNpc() { return false; }
 
     @Override
     public List<CustomNpcsPermissions.Permission>  getPermission() { return Collections.singletonList(CustomNpcsPermissions.NPC_CLONE); }
