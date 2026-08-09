@@ -22,14 +22,24 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public class TranslateUtil {
 
-    private static boolean hasInternet = true;
-    private static final Map<String, String> translateDate = new HashMap<>();
+    private static volatile boolean hasInternet = true;
+    private static final Map<String, String> translateDate = new ConcurrentHashMap<>();
+    private static final Set<String> pending = ConcurrentHashMap.newKeySet();
+    private static final ExecutorService executor = Executors.newFixedThreadPool(2, task -> {
+        Thread thread = new Thread(task, "CustomNPCs Translate");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     private static final String TranslateUrl = "https://translate.google.com/translate_a/single?client=gtx&sl=%s&tl=%s&dt=t&q=%s";
     public static final String AudioUrl = "http://translate.google.com/translate_tts?q=%s&tl=%s";
@@ -38,15 +48,39 @@ public class TranslateUtil {
     public static boolean hasInternet() { return hasInternet; }
 
     public static String translate(String textLanguageKey, String translationLanguageKey, String originalText) {
-        if (translationLanguageKey == null || translationLanguageKey.isEmpty() || originalText == null || originalText.isEmpty()) { return originalText; }
+        return translate(textLanguageKey, translationLanguageKey, originalText, null);
+    }
+
+    public static String translate(String textLanguageKey, String translationLanguageKey, String originalText, Consumer<String> callback) {
+        if (translationLanguageKey == null || translationLanguageKey.isEmpty() || originalText == null || originalText.isEmpty()) {
+            if (callback != null) { callback.accept(originalText); }
+            return originalText;
+        }
         if (textLanguageKey == null || textLanguageKey.isEmpty()) { textLanguageKey = "auto"; }
         String key = textLanguageKey+"_"+translationLanguageKey+"_"+originalText;
-        if (translateDate.containsKey(key)) { return translateDate.get(key); }
-        if (!hasInternet) { return originalText; }
-        if (originalText.length() <= 5000) {
-            translateDate.put(key, translateGoogle(textLanguageKey, translationLanguageKey, originalText));
-            return translateDate.get(key);
+        String cached = translateDate.get(key);
+        if (cached != null) {
+            if (callback != null) { callback.accept(cached); }
+            return cached;
         }
+        if (!hasInternet || !pending.add(key)) {
+            if (callback != null) { callback.accept(originalText); }
+            return originalText;
+        }
+        final String textKey = textLanguageKey;
+        executor.execute(() -> {
+            String result = originalText;
+            try { result = translateAll(textKey, translationLanguageKey, originalText); }
+            catch (Exception e) { LogWriter.error("Error trying to translate via Google", e); }
+            finally { pending.remove(key); }
+            translateDate.put(key, result);
+            if (callback != null) { callback.accept(result); }
+        });
+        return originalText;
+    }
+
+    private static String translateAll(String textLanguageKey, String translationLanguageKey, String originalText) {
+        if (originalText.length() <= 5000) { return translateGoogle(textLanguageKey, translationLanguageKey, originalText); }
         String type = " "; // simple words
         if (originalText.contains("\n")) { type = "\n"; } // some code
         else if (originalText.contains(". ")) { type = ". "; } // suggestions
@@ -67,8 +101,7 @@ public class TranslateUtil {
         }
         StringBuilder text = new StringBuilder();
         for (String translatedPart : translatedParts) { text.append(translatedPart).append(type); }
-        translateDate.put(key, translateGoogle(textLanguageKey, translationLanguageKey, text.toString()));
-        return translateDate.get(key);
+        return text.toString();
     }
 
     private static String translateGoogle(String textLanguageKey, String translationLanguageKey, String originalText) {

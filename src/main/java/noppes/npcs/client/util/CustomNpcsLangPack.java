@@ -8,11 +8,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.mixin.util.text.translation.ILanguageMapMixin;
+import noppes.npcs.client.TranslateUtil;
 import noppes.npcs.mixin.client.resources.II18nMixin;
 import noppes.npcs.mixin.client.resources.ILocaleMixin;
 import noppes.npcs.mixin.util.text.translation.II18nOldMixin;
 import noppes.npcs.shared.common.util.LogWriter;
-import noppes.npcs.util.Util;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -131,17 +131,21 @@ public class CustomNpcsLangPack {
      */
     public static void added(String key, String value) {
         if (key == null || key.isEmpty() || value == null) { return; }
-        String translateValue = value;
-        if (!currentLanguage.equals("en_us")) {
-            String language = currentLanguage;
-            if (currentLanguage.contains("_")) {
-                if (currentLanguage.equals("zh_cn")) { language = "zh_CN"; }
-                else if (currentLanguage.equals("zh_tw")) { language = "zh_TW"; }
-                else { language = currentLanguage.substring(0, currentLanguage.indexOf("_")); }
-            }
-            String temp = Util.instance.translateGoogle("en", language, value);
-            if (!temp.equals(value)) { translateValue = temp; }
+        if (currentLanguage.equals("en_us")) {
+            store(key, value, value);
+            return;
         }
+        String language = currentLanguage;
+        if (currentLanguage.contains("_")) {
+            if (currentLanguage.equals("zh_cn")) { language = "zh_CN"; }
+            else if (currentLanguage.equals("zh_tw")) { language = "zh_TW"; }
+            else { language = currentLanguage.substring(0, currentLanguage.indexOf("_")); }
+        }
+        TranslateUtil.translate("en", language, value, translated ->
+                Minecraft.getMinecraft().addScheduledTask(() -> store(key, value, translated == null ? value : translated)));
+    }
+
+    private static void store(String key, String value, String translateValue) {
         boolean needSave = !enProperties.containsKey(key) || !properties.containsKey(key);
         if (!needSave && (!enProperties.get(key).equals(value) || !properties.get(key).equals(translateValue))) { needSave = true; }
         enProperties.put(key, value);
