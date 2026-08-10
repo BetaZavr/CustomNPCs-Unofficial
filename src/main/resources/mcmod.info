@@ -1,16 +1,16 @@
 [
 {
-  "modid": "customnpcs",
-  "name": "CustomNPCs",
-  "displayName": "CustomNPCs Unofficial",
-  "version": "1.014",
-  "mcversion": "1.20.1",
+  "modid": "mod_id",
+  "name": "mod_name",
+  "displayName": "mod_name",
+  "version": "mod_version",
+  "mcversion": "minecraft_version",
   "description": "forge.mod.customnpcs.description",
-  "credits": "A lot of people, see the list at the forum",
+  "credits": "mod_credits",
   "logoFile": "/logo.png",
   "url": "http://www.kodevelopment.nl/minecraft/customnpcs/",
   "updateUrl": "",
-  "authorList": ["Noppes, Goodbird, BetaZavr"],
+  "authorList": ["mod_authors"],
   "parent":"",
   "screenshots": [],
   "dependencies": []

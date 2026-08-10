@@ -80,7 +80,6 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.api.item.ISpecBuilder;
 import noppes.npcs.api.mixin.entity.ILivingEntityMixin;
-import noppes.npcs.api.mixin.minecraftforge.eventbus.IEventBusMixin;
 import noppes.npcs.api.mixin.world.level.block.entity.ITileEntityBanner;
 import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
@@ -98,6 +97,7 @@ import noppes.npcs.items.ItemBoundary;
 import noppes.npcs.items.ItemNbtBook;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.mixin.minecraftforge.event.entity.living.ILivingAttackEventMixin;
+import noppes.npcs.mixin.minecraftforge.eventbus.IEventBusMixin;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.*;
 import noppes.npcs.packets.server.SPacketContainerOpen;
@@ -761,7 +761,9 @@ public class ScriptPlayerEventHandler {
          while(iteratorClasses.hasNext()) {
             c = iteratorClasses.next();
             try {
-               if (!GenericEvent.class.isAssignableFrom(c) && !EntityConstructing.class.isAssignableFrom(c) && !CreateSpawnPosition.class.isAssignableFrom(c) && !RenderTickEvent.class.isAssignableFrom(c) && !ClientTickEvent.class.isAssignableFrom(c) && !ClientCustomPayloadEvent.class.isAssignableFrom(c) && !ItemTooltipEvent.class.isAssignableFrom(c)) {
+               if (!GenericEvent.class.isAssignableFrom(c) && !EntityConstructing.class.isAssignableFrom(c) &&
+                       !CreateSpawnPosition.class.isAssignableFrom(c) && !RenderTickEvent.class.isAssignableFrom(c) &&
+                       !ClientTickEvent.class.isAssignableFrom(c) && !ClientCustomPayloadEvent.class.isAssignableFrom(c) && !ItemTooltipEvent.class.isAssignableFrom(c)) {
                   String eventName = ForgeEventHandler.getEventName(c);
                   String className = c.getName().toLowerCase();
                   if (side == Dist.DEDICATED_SERVER) {
@@ -769,12 +771,12 @@ public class ScriptPlayerEventHandler {
                              !className.contains("render") &&
                              !className.contains("itemtooltipevent") &&
                              !ForgeEventHandler.eventNames.containsKey(c)) {
-                        ((IEventBusMixin) MinecraftForge.EVENT_BUS).npcs$Register(c, handler, m);
+                        ((IEventBusMixin) MinecraftForge.EVENT_BUS).invokeRegister(c, handler, m);
                         ForgeEventHandler.eventNames.put(c, eventName);
                      }
                   }
                   else if (!ForgeEventHandler.clientEventNames.containsKey(c)) {
-                     ((IEventBusMixin) MinecraftForge.EVENT_BUS).npcs$Register(c, handler, m);
+                     ((IEventBusMixin) MinecraftForge.EVENT_BUS).invokeRegister(c, handler, m);
                      ForgeEventHandler.eventNames.put(c, eventName);
                      ForgeEventHandler.clientEventNames.put(c, eventName);
                   }
@@ -786,7 +788,7 @@ public class ScriptPlayerEventHandler {
                iteratorClasses = getClasses("com.pixelmonmod.pixelmon.api.events.").iterator();
                while(iteratorClasses.hasNext()) {
                   c = iteratorClasses.next();
-                  ((IEventBusMixin) PixelmonHelper.EVENT_BUS).npcs$Register(c, handler, m);
+                  ((IEventBusMixin) PixelmonHelper.EVENT_BUS).invokeRegister(c, handler, m);
                   ForgeEventHandler.eventNames.put(c, ForgeEventHandler.getEventName(c));
                }
             } catch (Throwable tPX) {

@@ -3124,6 +3124,6 @@
   "command.dump.stopped.early": "§e[§2CustomNPCs§e]§7: [%s§7]§6 Stopped too early §7(no baseline captured)",
   "command.dump.first": "§e[§2CustomNPCs§e]§7: [%s§7] First snapshot of memory at: %s",
   "command.dump.refirst": "§e[§2CustomNPCs§e]§7: [%s§7] Overwriting first snapshot at: %s",
-  "command.dump.saved":"§e[§2CustomNPCs§e]§7: [%s§7] Report saved: %s§7 (path copied to clipboard)",
-  "command.dump.copy.path":"§7(path copied to clipboard)"
+  "command.dump.saved": "§e[§2CustomNPCs§e]§7: [%s§7] Report saved: %s§7 (path copied to clipboard)",
+  "command.dump.copy.path": "§7(path copied to clipboard)"
 }

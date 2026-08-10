@@ -308,11 +308,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2
    }
 
    @Override
-   public void save() {
-      CompoundTag compound = job.save(new CompoundTag());
-      job.removeCompound(compound);
-      Packets.sendServer(new SPacketNpcJobSave(compound));
-   }
+   public void save() { }
 
    @Override
    public void unFocused(GuiTextFieldNop textField) {
@@ -333,7 +329,19 @@ public class GuiNpcSpawner extends GuiNPCInterface2
       if (!hasSubGui()) {
          PoseStack matrixStack = graphics.pose();
          matrixStack.pushPose();
-         if (select != null) { drawNpc(graphics, select, 385, 92, 1.0f, (int) (3 * player.level().getGameTime() % 360), 0, 0); }
+         if (minecraft == null) { minecraft = Minecraft.getInstance(); }
+         if (select != null && minecraft.level != null) {
+            int rot;
+            int cursor;
+            if (isMouseHover(mouseX, mouseY, guiLeft + 182, guiTop + 5, 59, 84)) {
+               rot = 0;
+               cursor = 0;
+            } else {
+               rot = (int) (3L * minecraft.level.getGameTime() % 360L);
+               cursor = 1;
+            }
+            drawNpc(graphics, select, 385, 92, 1.0f, rot, 0, cursor);
+         }
          matrixStack.translate(0.0f, 0.0f, 1.0f);
          graphics.vLine(guiLeft + 178, guiTop + 4, guiTop + imageHeight + 12, 0xFF404040);
          graphics.vLine(guiLeft + 353, guiTop + 4, guiTop + imageHeight + 12, 0xFF404040);
@@ -376,7 +384,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2
          return;
       } // Entity set
       // job data
-      if (compound.contains("SpawnerWhenAlive", 3)) { job.load(compound); }
+      if (compound.contains("SpawnerCooldownSetting", CompoundTag.TAG_LONG)) { job.load(compound); }
       // Setts
       for (int j = 0; j < 2; j++) {
          boolean type = j == 0;

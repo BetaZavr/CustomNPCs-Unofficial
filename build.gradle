@@ -60,24 +60,24 @@ minecraft {
         }
 
         client {
-            workingDirectory project.file('run/client')
+            workingDirectory = project.file('run/client')
             property 'forge.enabledGameTestNamespaces', mod_id
-            args '--username=BetaZavr' + new Random().nextInt(10)
+            args '--username=BetaZavr${new Random().nextInt(10)}'
         }
 
         server {
-            workingDirectory project.file('run/server')
+            workingDirectory = project.file('run/server')
             property 'forge.enabledGameTestNamespaces', mod_id
             //args '--nogui'
         }
 
         gameTestServer {
-            workingDirectory project.file('run/test')
+            workingDirectory = project.file('run/test')
             property 'forge.enabledGameTestNamespaces', mod_id
         }
 
         data {
-            workingDirectory project.file('run/data')
+            workingDirectory = project.file('run/data')
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
     }

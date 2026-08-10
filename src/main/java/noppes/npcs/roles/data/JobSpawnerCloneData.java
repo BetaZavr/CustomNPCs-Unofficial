@@ -1,6 +1,5 @@
 package noppes.npcs.roles.data;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -23,15 +22,26 @@ import java.util.Optional;
 public class JobSpawnerCloneData implements IJobSpawner.IJobSpawnerData {
 
     protected final @Nonnull EntityNPCInterface parent;
-    protected int count;
-    protected int tab;
-    protected String name;
-    protected Component title;
+    protected int count = 1;
+    protected int tab = 0;
+    protected String name = "";
+    protected Component title = null;
 
     public JobSpawnerCloneData(@Nonnull EntityNPCInterface npc) { parent = npc; }
 
     @Override
-    public Component getTitle() { return title; }
+    public Component getTitle() {
+        if (title == null) {
+            CompoundTag compound = ServerCloneController.Instance.getCloneData(null, name, tab);
+            if (compound != null) {
+                ServerCloneController.Instance.cleanTags(compound);
+                Optional<Entity> entityO = EntityType.create(compound, parent.level());
+                title = entityO.map(Entity::getName).orElse(Component.literal(compound.getString("id")));
+            }
+            else { title = Component.literal("NotFound"); }
+        }
+        return title;
+    }
 
     @Override
     public int getCount() { return count; }
@@ -64,20 +74,17 @@ public class JobSpawnerCloneData implements IJobSpawner.IJobSpawnerData {
     public void load(@Nonnull CompoundTag nbt) {
         tab = nbt.getInt("tab");
         name = nbt.getString("name");
-        title = Component.Serializer.fromJson(nbt.getString("title"));
-        if (title == null || title.getString().isEmpty()) { title = Component.literal(nbt.getString("title")).withStyle(ChatFormatting.RESET); }
     }
 
     public @Nonnull CompoundTag save() {
         CompoundTag nbt = new CompoundTag();
         nbt.putInt("tab", tab);
         nbt.putString("name", name);
-        nbt.putString("title", Component.Serializer.toJson(title));
         return nbt;
     }
 
     @Override
-    public String toString() { return "JobSpawnerCloneData{ Name: \"" + getTitle() + "\", tab: " + tab + ", name: " + name + "}"; }
+    public String toString() { return "JobSpawnerCloneData{ Name: \"" + getTitle().getString() + "\", tab: " + tab + ", name: " + name + "}"; }
 
     public String getName() { return name; }
 

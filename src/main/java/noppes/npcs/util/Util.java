@@ -467,7 +467,7 @@ public class Util implements IMethods {
             }
             return arr;
         }
-        LogWriter.warn("Not read tag: \""+tag+"\" to Object");
+        LogWriter.warn("Not read tag: \"" + tag + "\"; type: " + tag.getId() + " to Object");
         return null;
     }
 
@@ -625,11 +625,31 @@ public class Util implements IMethods {
     }
 
     @Override
+    @SuppressWarnings("UnnecessaryUnicodeEscape")
     public String deleteColor(String input) {
         if (input == null || input.isEmpty()) { return input; }
-        return input.replaceAll("§[0-9A-Za-z]", "")
-                .replaceAll("&[0-9A-Za-z]", "")
-                .replaceAll("\uffff[0-9A-Za-z]", "");
+        StringBuilder out = new StringBuilder(input.length());
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            // Check for Minecraft color/format prefix: §, &, or U+FFFF
+            if (c == '\u00A7' || c == '&' || c == '\uFFFF') {
+                // If next char exists and is a valid format code, skip both
+                if (i + 1 < input.length()) {
+                    char next = input.charAt(i + 1);
+                    if ((next >= '0' && next <= '9') ||
+                            (next >= 'a' && next <= 'f') ||
+                            (next >= 'A' && next <= 'F') ||
+                            (next >= 'k' && next <= 'o') ||
+                            (next >= 'K' && next <= 'O') ||
+                            next == 'r' || next == 'R') {
+                        i++; // skip the format code character
+                        continue;
+                    }
+                }
+            }
+            out.append(c);
+        }
+        return out.toString();
     }
 
     @Override

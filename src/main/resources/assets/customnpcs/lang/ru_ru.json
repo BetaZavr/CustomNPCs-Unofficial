@@ -3080,6 +3080,6 @@
   "command.dump.stopped.early": "§e[§2CustomNPCs§e]§7: [%s§7]§6 Остановка произошла слишком рано §7(базовый уровень не был зафиксирован)",
   "command.dump.first": "§e[§2CustomNPCs§e]§7: [%s§7] Первый снимок памяти при: %s",
   "command.dump.refirst": "§e[§2CustomNPCs§e]§7: [%s§7] Перезапись первого снимка памяти при: %s",
-  "command.dump.saved":"§e[§2CustomNPCs§e]§7: [%s§7] Отчёт сохранён в: %s",
-  "command.dump.copy.path":"§7(путь скопирован в буфер)"
+  "command.dump.saved": "§e[§2CustomNPCs§e]§7: [%s§7] Отчёт сохранён в: %s",
+  "command.dump.copy.path": "§7(путь скопирован в буфер)"
 }

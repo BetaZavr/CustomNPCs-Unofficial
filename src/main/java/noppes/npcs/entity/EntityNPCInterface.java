@@ -1837,9 +1837,9 @@ public abstract class EntityNPCInterface
 
    public boolean emptyOwner() {
       return (ais.aiDisabled || advanced.scenes.getOwner() == null) &&
-              (role.getEnumType() != RoleType.FOLLOWER || !((RoleFollower) role).hasOwner()) &&
-              (role.getEnumType() != RoleType.COMPANION || !((RoleCompanion) role).hasOwner()) &&
-              (job.getEnumType() != JobType.FOLLOWER || !((JobFollower) job).hasOwner());
+              (!(role instanceof RoleFollower) || !((RoleFollower) role).hasOwner()) &&
+              (!(role instanceof RoleCompanion) || !((RoleCompanion) role).hasOwner()) &&
+              (!(job instanceof JobFollower) || !((JobFollower) job).hasOwner());
    }
 
    public int followRange() {

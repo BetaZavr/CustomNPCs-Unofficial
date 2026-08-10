@@ -179,7 +179,7 @@ public class GuiScriptInterface
          addLabel(1, x, guiTop + 15, "script.language");
          Object[] codeNames = languages.keySet().toArray(new Object[0]);
          GuiButtonNop button = addButton(103, x + 60, guiTop + 10, languages.size() > 1, getScriptIndex(), codeNames)
-                 .setIsEnabled(!languages.isEmpty())
+                 .setIsEnabled(languages.size() > 1)
                  .setSize(80, 20);
          String[] data = getLanguageData(noppes.npcs.util.Util.instance.deleteColor(button.getMessage().getString()));
          button.setHoverTexts(Component.translatable("script.hover.info." + data[0]).

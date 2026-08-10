@@ -56,7 +56,14 @@ public class ServerCloneController implements ICloneHandler {
    public @Nullable File getDir() {
       File dir = CustomNpcs.getLevelSaveDirectory();
       if (dir != null) {
-         dir = new File(dir, "clones");
+         try {
+            // Normalize the path to resolve '..' and symbolic links
+            dir = new File(dir.getCanonicalFile(), "clones");
+         }
+         catch (Exception e) {
+            // Fallback to absolute path if canonicalization fails
+            dir = new File(dir.getAbsoluteFile(), "clones");
+         }
          if (dir.exists() || dir.mkdir()) { return dir; }
       }
       return dir;

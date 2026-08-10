@@ -1,12 +1,9 @@
 package noppes.npcs.roles.data;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
@@ -23,13 +20,19 @@ public class JobSpawnerNbtData implements IJobSpawner.IJobSpawnerData {
 
     protected final @Nonnull  EntityNPCInterface parent;
     protected int count;
-    protected CompoundTag compound;
-    protected Component title;
+    protected CompoundTag compound = new CompoundTag();
+    protected Component title = Component.empty();
 
     public JobSpawnerNbtData(@Nonnull EntityNPCInterface npc) { parent = npc; }
 
     @Override
-    public Component getTitle() { return title; }
+    public Component getTitle() {
+        if (title == null) {
+            Optional<Entity> entityO = EntityType.create(compound, parent.level());
+            title = entityO.map(Entity::getName).orElse(Component.literal(compound.getString("id")));
+        }
+        return title;
+    }
 
     @Override
     public int getCount() { return count; }
@@ -58,16 +61,11 @@ public class JobSpawnerNbtData implements IJobSpawner.IJobSpawnerData {
 
     public boolean isClientClone() { return compound.getBoolean("ClientClone"); }
 
-    public void load(@Nonnull CompoundTag nbt) {
-        compound = nbt;
-        Optional<Entity> entityO = EntityType.create(compound, parent.level());
-        title = entityO.map(entity -> Component.literal(entity.getName().getString()).withStyle(ChatFormatting.RESET))
-                .orElseGet(() -> Component.literal(nbt.getString("id")).withStyle(ChatFormatting.RESET));
-    }
+    public void load(@Nonnull CompoundTag nbt) { compound = nbt; }
 
     public @Nonnull CompoundTag save() { return compound; }
 
     @Override
-    public String toString() { return "JobSpawnerNbtData{ Name: \"" + getTitle() + "\", isClientClone: " + isClientClone() + "}"; }
+    public String toString() { return "JobSpawnerNbtData{ Name: \"" + getTitle().getString() + "\", isClientClone: " + isClientClone() + "}"; }
 
 }

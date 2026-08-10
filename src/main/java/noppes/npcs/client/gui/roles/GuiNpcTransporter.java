@@ -48,7 +48,7 @@ public class GuiNpcTransporter extends GuiNPCInterface2
       List<Component> list = new ArrayList<>();
       LinkedHashMap<Integer, List<Component>> hts = new LinkedHashMap<>();
       int i = 0;
-      Component select = Component.empty();
+      Component select = scroll.getNormalSelected();
       for (Component line : dataCat.keySet()) {
          list.add(line);
          if (dataCat.get(line).locations.containsKey(location.id)) { select = line; }

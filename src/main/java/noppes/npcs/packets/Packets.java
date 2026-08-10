@@ -66,6 +66,7 @@ public class Packets {
       ignoredDebug.add(PacketCustomAnimationRun.class);
       ignoredDebug.add(PacketCustomAnimationStop.class);
       ignoredDebug.add(PacketPlaySound.class);
+      ignoredDebug.add(PacketUpdatePhysics.class);
    }
 
    public static void register() {

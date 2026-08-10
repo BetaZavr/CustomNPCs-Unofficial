@@ -68,16 +68,16 @@ public class SubGuiNpcMobSpawnerSelector extends GuiBasic
       if (scroll == null) { scroll = addScroll(0).setSize(165, 188); }
       else { scroll.clear(); }
       add(scroll.setPos(guiLeft + 4, guiTop + 26));
-      GuiMenuTopButton tab = addTopButton(3, guiLeft + 4, guiTop - 17, "spawner.clones")
-              .setIsFocused(showingClones == 0);
-      tab = addTopButton(4, tab.getX() + tab.getWidth(), tab.getY(), "spawner.entities")
-              .setIsFocused(showingClones == 1);
-      addTopButton(5, tab.getX() + tab.getWidth(), tab.getY(), "gui.server")
-              .setIsFocused(showingClones == 2);
+      GuiMenuTopButton tab = addTopButton(3, guiLeft + 4, guiTop - 17, "spawner.clones");
+      tab.active = showingClones == 0;
+      tab = addTopButton(4, tab.getX() + tab.getWidth(), tab.getY(), "spawner.entities");
+      tab.active = showingClones == 1;
+      tab = addTopButton(5, tab.getX() + tab.getWidth(), tab.getY(), "gui.server");
+      tab.active = showingClones == 2;
       if (showingClones == 0 || showingClones == 2) {
          for (int id = 1; id < 10; id++) {
             addSideButton(21 + id, guiLeft, guiTop + 4 + (id - 1) * 21, Component.translatable("gui.tab").append(" " + id))
-                    .setIsEnabled(id == activeTab);
+                    .active = id == activeTab;
          }
          showClones();
       }
@@ -155,7 +155,19 @@ public class SubGuiNpcMobSpawnerSelector extends GuiBasic
    @Override
    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
       super.render(graphics, mouseX, mouseY, partialTicks);
-      if (select != null) { drawNpc(graphics, select, 210, 80, 1.0f, (int) (3 * player.level().getGameTime() % 360), 0, 0); }
+      if (minecraft == null) { minecraft = Minecraft.getInstance(); }
+      if (select != null && minecraft.level != null) {
+         int rot;
+         int cursor;
+         if (isMouseHover(mouseX, mouseY, guiLeft + 182, guiTop + 5, 59, 84)) {
+            rot = 0;
+            cursor = 0;
+         } else {
+            rot = (int) (3L * minecraft.level.getGameTime() % 360L);
+            cursor = 1;
+         }
+         drawNpc(graphics, select, 210, 80, 1.0f, rot, 0, cursor);
+      }
       PoseStack matrixStack = graphics.pose();
       matrixStack.pushPose();
       matrixStack.translate(0.0f, 0.0f, 1.0f);
