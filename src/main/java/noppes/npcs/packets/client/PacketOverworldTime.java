@@ -14,10 +14,10 @@ public class PacketOverworldTime extends PacketBasic {
     public PacketOverworldTime(long overworldTimeIn) { overworldTime = overworldTimeIn; }
 
     @Override
-    public void decode(FriendlyByteBuf buf) { buf.writeLong(overworldTime); }
+    public void decode(FriendlyByteBuf buf) { overworldTime = buf.readLong(); }
 
     @Override
-    public void encode(FriendlyByteBuf buf) { overworldTime = buf.readLong(); }
+    public void encode(FriendlyByteBuf buf) { buf.writeLong(overworldTime); }
 
     @Override
     public int getChannelId() { return channelId; }
