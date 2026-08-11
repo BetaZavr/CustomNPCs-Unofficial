@@ -14,7 +14,6 @@ import noppes.npcs.client.ClientTickHandler;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.mixin.client.audio.IPositionedSoundMixin;
 import noppes.npcs.mixin.client.audio.ISoundEventAccessorMixin;
 import noppes.npcs.mixin.client.audio.ISoundHandlerMixin;
 import noppes.npcs.mixin.client.audio.ISoundRegistryMixin;
@@ -22,8 +21,6 @@ import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.components.GuiLabel;
 import noppes.npcs.shared.client.gui.util.NoppesStringUtils;
-import noppes.npcs.shared.common.util.LogWriter;
-import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
 
 public class SubGuiSoundSelection extends ResourceSelection {
@@ -41,6 +38,17 @@ public class SubGuiSoundSelection extends ResourceSelection {
 	protected long wait;
 	protected int option = 0;
 
+	protected static List<Sound> getSounds(ISoundEventAccessor<Sound> accessor) {
+		List<Sound> sounds = new ArrayList<>();
+		if (accessor instanceof Sound) { sounds.add((Sound) accessor); }
+		else if (accessor instanceof ISoundEventAccessorMixin) {
+			for (ISoundEventAccessor<Sound> sub : ((ISoundEventAccessorMixin) accessor).getAccessorList()) {
+				if (sub != accessor) { sounds.addAll(getSounds(sub)); }
+			}
+		}
+		return sounds;
+	}
+
 	public SubGuiSoundSelection(GuiScreen parentIn, int idIn, EntityNPCInterface npcIn, String startIn) {
 		super(parentIn, idIn, npcIn, startIn, ".ogg");
 		loadFiles();
@@ -57,16 +65,8 @@ public class SubGuiSoundSelection extends ResourceSelection {
 		if (!select.getFormattedText().isEmpty() && selectDir != null) {
 			String key = selectDir.getResourceDomain() + ":" + select.getString();
 			if (eventsData.containsKey(key)) {
-				for (ISoundEventAccessor<Sound> event : ((ISoundEventAccessorMixin) eventsData.get(key)).getAccessorList()) {
-					if (event instanceof Sound) {
-						options.add(Component.literal(((Sound) event).getSoundLocation().getResourcePath().replaceAll("/", ".")));
-					}
-					else if (event instanceof ISoundEventAccessorMixin) {
-						for (int i = 0; i < event.getWeight(); i++) {
-							Sound sound = (Sound) ((ISoundEventAccessorMixin) event).getAccessorList().get(i);
-							options.add(Component.literal(sound.getSoundLocation().getResourcePath().replaceAll("/", ".")));
-						}
-					}
+				for (Sound sound : getSounds(eventsData.get(key))) {
+					options.add(Component.literal(sound.getSoundLocation().getResourcePath().replaceAll("/", ".")));
 				}
 			}
 		}
@@ -114,41 +114,46 @@ public class SubGuiSoundSelection extends ResourceSelection {
 				error = null;
 				delay = 0L;
 				wait = System.currentTimeMillis();
-				if (event == null) {
-					MusicController.Instance.playSound(SoundCategory.NEUTRAL, resource.toString(), player.posX, player.posY, player.posZ, 1.0F, 1.0F);
+				ResourceLocation played = resource;
+				ISound playing = null;
+				List<Sound> sounds = getSounds(event);
+				if (sounds.isEmpty()) {
+					MusicController.Instance.playSound(SoundCategory.MASTER, played.toString(), player.posX, player.posY, player.posZ, 1.0F, 1.0F);
 				}
-				else if (event instanceof ISoundEventAccessorMixin) {
-					int i = (int) (Math.random() * (double) event.getWeight());
+				else {
+					int i = (int) (Math.random() * (double) sounds.size());
 					GuiButtonNop b = getButton(5);
-					if (event.getWeight() > 0 && b != null && b.getValue() > 0) {
-						for (int j = 0; j < event.getWeight(); j++) {
-							Sound sound = (Sound) ((ISoundEventAccessorMixin) event).getAccessorList().get(j);
-							if (b.getMessage().getString().equals(sound.getSoundLocation().getResourcePath().replaceAll("/", "."))) { i = j; }
+					if (b != null && b.getValue() > 0) {
+						for (int j = 0; j < sounds.size(); j++) {
+							if (b.getMessage().getString().equals(sounds.get(j).getSoundLocation().getResourcePath().replaceAll("/", "."))) { i = j; }
 						}
 					}
-					Sound sound = (Sound) ((ISoundEventAccessorMixin) event).getAccessorList().get(i);
-					PositionedSoundRecord playingSong = new PositionedSoundRecord(event.getLocation(), SoundCategory.MUSIC, 1.0f, 1.0f, false, 0,
-							ISound.AttenuationType.NONE, (float) player.posX, (float) player.posY, (float) player.posZ);
-					((IPositionedSoundMixin) playingSong).setSound(sound);
-					minecraft.getSoundHandler().playSound(playingSong);
-					name.setMessage(Component.literal(resource.getResourcePath()));
-					time.setMessage(Component.empty());
-					CustomNPCsScheduler.runTack(() -> {
-						long n = System.currentTimeMillis() + 2500L;
-						while (n >= System.currentTimeMillis()) {
-							for (MusicData md : ClientTickHandler.musics) {
-								if (md.playing() && md.name.equals(resource.getResourcePath()) && md.resource.equals(sound.getSoundLocation())) {
-									musicData = md;
-									name.setMessage(Component.literal(musicData.name)
-											.append(Component.literal(" / ").withStyle(TextFormatting.GRAY))
-											.append(Component.literal(musicData.resource.getResourcePath().replaceAll("/", ".")).withStyle(TextFormatting.GRAY)));
-									LogWriter.info("Sound found and is played: "+md.name+"; option: "+md.resource);
-									return;
-								}
-							}
+					final Sound chosen = sounds.get(Math.max(0, Math.min(i, sounds.size() - 1)));
+					PositionedSoundRecord playingSong = new PositionedSoundRecord(event.getLocation(), SoundCategory.MASTER, 1.0f, 1.0f, false, 0,
+							ISound.AttenuationType.NONE, (float) player.posX, (float) player.posY, (float) player.posZ) {
+						@Override
+						public SoundEventAccessor createAccessor(SoundHandler handlerIn) {
+							SoundEventAccessor accessor = super.createAccessor(handlerIn);
+							this.sound = chosen;
+							return accessor;
 						}
-						error = Component.literal(resource.getResourcePath()).append(" -").append(Component.translatable("quest.task.location.1"));
-					}, 100);
+					};
+					minecraft.getSoundHandler().playSound(playingSong);
+					playing = playingSong;
+				}
+				name.setMessage(Component.literal(played.getResourcePath()));
+				time.setMessage(Component.empty());
+				for (MusicData md : new ArrayList<>(ClientTickHandler.musics)) {
+					if (md != null && (md.sound == playing || md.resource.equals(played))) {
+						musicData = md;
+						name.setMessage(Component.literal(musicData.name)
+								.append(Component.literal(" / ").withStyle(TextFormatting.GRAY))
+								.append(Component.literal(musicData.resource.getResourcePath().replaceAll("/", ".")).withStyle(TextFormatting.GRAY)));
+						break;
+					}
+				}
+				if (musicData == null) {
+					error = Component.literal(played.getResourcePath()).append(" -").append(Component.translatable("quest.task.location.1"));
 				}
 				break;
 			} // play
@@ -183,7 +188,7 @@ public class SubGuiSoundSelection extends ResourceSelection {
 			drawRect(left, top, right, bottom, alpha << 24);
 			if (error != null) {
 				if (delay == 0L) { delay = System.currentTimeMillis() + 4000L; }
-				drawCenteredString(font, error.getFormattedText(), (right-left)/2, top + 1, CustomNpcs.MainColor.getRGB());
+				drawCenteredString(font, error.getFormattedText(), (left+right)/2, top + 1, CustomNpcs.MainColor.getRGB());
 				if (delay < System.currentTimeMillis()) { isPlay = false; }
 				return;
 			}
@@ -262,37 +267,16 @@ public class SubGuiSoundSelection extends ResourceSelection {
 					.append(Component.translatable("gui.title").append(": ").withStyle(TextFormatting.GRAY))
 					.append(event.getSubtitle()).withStyle(TextFormatting.RESET));
 		}
-		int size = 0;
-		for (ISoundEventAccessor<Sound> accessor : ((ISoundEventAccessorMixin) event).getAccessorList()) {
-			if (accessor instanceof Sound) { size++; }
-			else { size += accessor.getWeight(); }
-		}
-		hovers.add(Component.translatable("gui.options").append(" (" + size + "):").withStyle(TextFormatting.GRAY));
-		for (ISoundEventAccessor<Sound> accessor : ((ISoundEventAccessorMixin) event).getAccessorList()) {
-			boolean bo = false;
-			if (accessor instanceof Sound) {
-				if (hovers.size() > 8) {
-					hovers.add(Component.literal("..."));
-					break;
-				}
-				hovers.add(Component.empty()
-						.append(Component.literal(((Sound) accessor).getSoundLocation().getResourceDomain() + ":").withStyle(TextFormatting.DARK_GRAY))
-						.append(Component.literal(((Sound) accessor).getSoundLocation().getResourcePath())));
+		List<Sound> sounds = getSounds(event);
+		hovers.add(Component.translatable("gui.options").append(" (" + sounds.size() + "):").withStyle(TextFormatting.GRAY));
+		for (Sound sound : sounds) {
+			if (hovers.size() > 8) {
+				hovers.add(Component.literal("..."));
+				break;
 			}
-			else if (accessor instanceof ISoundEventAccessorMixin)  {
-				for (int i = 0; i < accessor.getWeight(); i++) {
-					if (hovers.size() > 8) {
-						hovers.add(Component.literal("..."));
-						bo = true;
-						break;
-					}
-					Sound sound = (Sound) ((ISoundEventAccessorMixin) event).getAccessorList().get(i);
-					hovers.add(Component.empty()
-							.append(Component.literal(sound.getSoundLocation().getResourceDomain() + ":").withStyle(TextFormatting.DARK_GRAY))
-							.append(Component.literal(sound.getSoundLocation().getResourcePath())));
-				}
-			}
-			if (bo) { break; }
+			hovers.add(Component.empty()
+					.append(Component.literal(sound.getSoundLocation().getResourceDomain() + ":").withStyle(TextFormatting.DARK_GRAY))
+					.append(Component.literal(sound.getSoundLocation().getResourcePath())));
 		}
 		hoversData.put(location.toString(), hovers);
 		eventsData.put(location.toString(), event);

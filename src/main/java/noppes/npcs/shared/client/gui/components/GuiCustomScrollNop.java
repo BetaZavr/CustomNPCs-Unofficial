@@ -654,13 +654,16 @@ public class GuiCustomScrollNop extends Gui implements IComponentGui {
     }
 
     public void resetRoll() {
-        if (selected < 0 || scrollHeight >= height - 2) { return; }
-        int pos = (int)((float) selected / (float) list.size() * (float) listHeight);
-        if (pos < scrollY) { scrollY = pos; }
-        else {
-            while (pos >= scrollY + height - lineHeight) { scrollY += lineHeight; }
-            if (scrollY > maxScrollY) { scrollY = maxScrollY; }
+        if (selected < 0 || selected >= list.size() || scrollHeight >= height - 2) { return; }
+        if (!isSearched(list.get(selected).getString())) { return; }
+        int displayIndex = 0;
+        for (int i = 0; i < selected; ++i) {
+            if (isSearched(list.get(i).getString())) { displayIndex++; }
         }
+        int pos = lineHeight * displayIndex;
+        if (pos < scrollY) { scrollY = pos; }
+        else if (pos + lineHeight > scrollY + height - 2) { scrollY = pos + lineHeight - height + 2; }
+        scrollY = ValueUtil.correctInt(scrollY, 0, maxScrollY);
     }
 
     public boolean isMouseOver(int xPos, int yPos) {

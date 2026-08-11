@@ -109,10 +109,10 @@ public class GuiTextFieldNop extends Gui implements IComponentGui {
 
     public void setGuiResponder(GuiPageButtonList.GuiResponder guiResponderIn) { guiResponder = guiResponderIn; }
 
-    public void setValue(@Nonnull Object object) {
+    public void setValue(@Nullable Object object) {
         setValue(object instanceof Component ? ((Component) object).getFormattedText() :
                 object instanceof ITextComponent ? ((ITextComponent) object).getFormattedText() :
-                    object.toString());
+                    object == null ? "" : object.toString());
     }
 
     public void setValue(String textIn) {
