@@ -6,13 +6,13 @@ license="CC BY-NC"
 [[mods]] #mandatory
     modId="${mod_id}" #mandatory
     version="${mod_version}" #mandatory
-    displayName="§6Custom NPCs §2Unofficial" #mandatory
+    displayName="${mod_display_name}" #mandatory
     #updateJSONURL="" #optional
-    displayURL="http://www.kodevelopment.nl/minecraft/customnpcs/" #optional
-    logoFile="logo.png" #optional
+    displayURL="${mod_url}" #optional
+    logoFile="${mod_logo_file}" #optional
     credits="${mod_credits}"
-    authors="${mod_authors}" #optional
-    description="forge.mod.customnpcs.description"
+    authors="${mod_author_list}" #optional
+    description="${mod_description}"
 
 [[dependencies."${mod_id}"]] #optional
     modId="forge" #mandatory

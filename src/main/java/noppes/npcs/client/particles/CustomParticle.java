@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
+import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.IWorld;
@@ -45,7 +46,11 @@ public class CustomParticle extends TextureSheetParticle implements ICustomEleme
     public CustomParticle(ClientLevel level, double x, double y, double z, double dx, double dy, double dz, @Nonnull CompoundTag nbtParticle) {
         super(level, x, y, z, 0.0D, 0.0D, 0.0D);
         nbtData = nbtParticle;
-        texture = new ResourceLocation(CustomNpcs.MODID, "textures/particle/" + nbtParticle.getString("RegistryName") + ".png");
+
+        String name = NoppesUtilServer.validPath(nbtParticle.contains("Texture", 8) ?
+                nbtParticle.getString("Texture") :
+                nbtParticle.getString("RegistryName"));
+        texture = new ResourceLocation(CustomNpcs.MODID, "textures/particle/" + name + ".png");
 
         friction = 0.7F;
         gravity = 0.25F;

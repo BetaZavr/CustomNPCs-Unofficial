@@ -691,6 +691,10 @@ public class GuiCustomScrollNop extends Screen implements IComponentGui {
 
    public int getSelectedIndex() { return selected; }
 
+   public void setSelectedIndex(int i) {
+      selected = i < 0 ? -1 : i >= list.size() ? list.size() - 1 : i;
+   }
+
    // New fields from Unofficial (BetaZavr)
    public GuiCustomScrollNop setSelected(int index) {
       selected = index < 0 ? -1 : index >= list.size() ? list.size() - 1 : index;

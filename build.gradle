@@ -1,13 +1,30 @@
+/* In Russia, in 2026, some idiotic blocking of libraries and repositories began:
+ 1. For a new build of the project, comment out line "# org.gradle.offline=true"
+ in file "gradle.properties" to download the Gradle cache;
+ In Russia, you may need a VPN for this;
+ 2. Build this project command "./gradlew build" or by running a task;
+ 3. Then uncomment the line again and rebuild the project to run in semi-local mode;
+ */
+
 import java.time.LocalDateTime
 
+// DEV resources path
 buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        flatDir { dirs 'libs' }
+        maven {
+            name = 'MinecraftForge'
+            url = 'https://maven.minecraftforge.net/'
+        }
+        maven {
+            name = 'SpongePowered'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+        }
     }
 }
 
+// Plugins for creating JAR
 plugins {
     id 'eclipse'
     id 'idea'
@@ -15,13 +32,12 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7.38'
 }
 
-configurations.configureEach {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-    resolutionStrategy.cacheDynamicVersionsFor 0, 'seconds'
-}
-
-group = mod_group_id
+// JAR naming
 version = getCustomVersion()
+group = mod_group_id
+base {
+    archivesName = "${mod_name} ${minecraft_version} Unofficial"
+}
 
 // Snapshot version
 def getCustomVersion() {
@@ -30,55 +46,56 @@ def getCustomVersion() {
     return "v." + mod_version + "-" + date.format("dd") + month.charAt(0) + month.substring(1).toLowerCase() + date.format("yyyy") + '-Snapshot'
 }
 
-base {
-    archivesName = "${mod_name} ${minecraft_version} Unofficial"
-}
 
+// Set Java compatibility to version
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
+// launch in DEV environment
 minecraft {
-    mappings channel: mapping_channel, version: mapping_version
-    accessTransformer = file('src/main/resources/META-INF/deobfuscation.cfg')
+    mappings channel: project.mapping_channel, version: project.mapping_version
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     copyIdeResources = true
 
     runs {
         configureEach {
             property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
-
+            property 'mixin.env.refMapRemappingFile',
+                    "${buildDir}/createSrgToMcp/output.srg"
+            property "mixin.debug", 'true'
+            property "mixin.debug.verify", 'false'
             property 'forge.logging.markers', 'REGISTRIES'
-
             property 'forge.logging.console.level', 'debug'
-
             mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
+                "${mod_id}" { source sourceSets.main }
             }
         }
-
         client {
-            workingDirectory = project.file('run/client')
+            workingDirectory project.file('run/client')
             property 'forge.enabledGameTestNamespaces', mod_id
-            args '--username=BetaZavr${new Random().nextInt(10)}'
+            args "--username=BetaZavr${new Random().nextInt(10)}".toString()
         }
-
         server {
-            workingDirectory = project.file('run/server')
-            property 'forge.enabledGameTestNamespaces', mod_id
+            workingDirectory project.file('run/server')
+            property 'forge.enabledGameTestNamespaces',
+                    mod_id
             //args '--nogui'
         }
-
         gameTestServer {
-            workingDirectory = project.file('run/test')
-            property 'forge.enabledGameTestNamespaces', mod_id
+            workingDirectory project.file('run/test')
+            property 'forge.enabledGameTestNamespaces',
+                    mod_id
         }
-
         data {
-            workingDirectory = project.file('run/data')
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            workingDirectory project.file('run/data')
+            args '--mod',
+                    mod_id,
+                    '--all',
+                    '--output',
+                    file('src/generated/resources/'),
+                    '--existing',
+                    file('src/main/resources/')
         }
     }
 }
@@ -90,17 +107,24 @@ mixin {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+// Add Maven repositories
 repositories {
     mavenLocal()
     mavenCentral()
-    flatDir { dir 'libs' }
 }
 
+// Project dependencies (required libraries)
 dependencies {
+    // Minecraft Forge
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
+    // Mixin Lib
+    implementation('org.spongepowered:mixin:0.8.5') {
+        exclude module: 'guava'
+        exclude module: 'commons-io'
+        exclude module: 'gson'
+    }
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 tasks.named('processResources', ProcessResources).configure {
@@ -111,29 +135,33 @@ tasks.named('processResources', ProcessResources).configure {
                              loader_version_range       : loader_version_range,
                              mod_id                     : mod_id,
                              mod_name                   : mod_name,
+                             mod_display_name           : mod_display_name,
                              mod_license                : mod_license,
                              mod_version                : mod_version,
                              mod_credits                : mod_credits,
-                             mod_authors                : mod_authors,
-                             mod_description            : mod_description
+                             mod_author_list            : mod_authors,
+                             mod_authors                : mod_authors.replace(", ", "\", \""),
+                             mod_description            : mod_description,
+                             mod_logo_file              : mod_logo_file,
+                             mod_url                    : mod_url,
+                             mod_update_url             : mod_update_url
     ]
-
     inputs.properties replaceProperties
-
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+    filesMatching(['META-INF/mods.toml', 'mcmod.info', 'pack.mcmeta']) {
         expand replaceProperties + [project: project]
     }
 }
 
 tasks.named('jar', Jar).configure {
     manifest {
-        attributes(["Specification-Title"     : mod_id,
-                    "Specification-Vendor"    : mod_authors,
-                    "Specification-Version"   : mod_version,
-                    "Implementation-Title"    : project.name,
-                    "Implementation-Version"  : project.jar.archiveVersion,
-                    "Implementation-Vendor"   : mod_authors,
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
+        attributes(["Specification-Title"       : mod_id,
+                    "Specification-Vendor"      : mod_authors,
+                    "Specification-Version"     : mod_version,
+                    "MixinConfigs"              : "mixins.${mod_id}.json".toString(),
+                    "Implementation-Title"      : project.name,
+                    "Implementation-Version"    : project.jar.archiveVersion,
+                    "Implementation-Vendor"     : mod_authors,
+                    "Implementation-Timestamp"  : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
     finalizedBy 'reobfJar'
 }

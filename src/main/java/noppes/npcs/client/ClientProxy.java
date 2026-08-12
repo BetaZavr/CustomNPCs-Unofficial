@@ -75,6 +75,7 @@ import noppes.npcs.client.gui.*;
 import noppes.npcs.client.gui.availability.SubGuiNpcAvailabilityItemStacks;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.drop.SubGuiDropEdit;
+import noppes.npcs.client.gui.elements.GuiManageCustomElements;
 import noppes.npcs.client.gui.global.*;
 import noppes.npcs.client.gui.mainmenu.*;
 import noppes.npcs.client.gui.player.*;
@@ -385,6 +386,7 @@ public class ClientProxy extends CommonProxy {
             returnGui = new GuiBuilderSchematic(pos.getX(), pos.getY());
             break;
          }
+         case ManageCustomElements: returnGui = new GuiManageCustomElements(); break;
       }
       ClientEvent.PostGetGuiCustomNpcs postEvent = new ClientEvent.PostGetGuiCustomNpcs(preEvent.npc, preEvent.guiType, preEvent.buffer, returnGui);
       MinecraftForge.EVENT_BUS.post(postEvent);

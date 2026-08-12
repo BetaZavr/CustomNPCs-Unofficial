@@ -1403,7 +1403,7 @@ public class ModData {
                 t + "1 key 'RegistryName'; type: 'String'; format: '\"value\"'; des - 'Required' Specified name for particle registration; example: 'PARTICLE_EXAMPLE';\n" +
                 t + "2 key 'OverrideLimiter'; type: 'Boolean'; format: false='0b', true='1b'; default: '1b' (true); des - 'Can be excluded' If true, particle ignores the vanilla spawn limit;\n" +
                 t + "3 key 'CreateAllFiles'; type: 'Boolean'; format: false='0b', true='1b'; default: '0b' (false); des - 'Can be excluded' If true, auto-generates all required resource files for this particle; removed after processing;\n" +
-                t + "- Texture files: assets/customnpcs/textures/particle/{name}.png;\n" +
+                t + "4 key 'Texture'; type: 'String'; format: '\"value\"'; default: 'not used'; des - 'Can be excluded' Texture name for the particle sprite; file: assets/customnpcs/textures/particle/{name}.png;\n" +
                 t + "- Particle JSON: assets/customnpcs/particles/{name}.json (defines texture frames for animation);\n" +
                 t + "- Uses MutableSpriteSet for animated texture cycling;";
         compound.putString("-Description", sb);

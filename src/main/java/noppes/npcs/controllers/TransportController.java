@@ -124,6 +124,11 @@ public class TransportController {
       return category;
    }
 
+   public @Nullable TransportCategory getCategory(int categoryId) {
+      if (categories.containsKey(categoryId)) { return categories.get(categoryId); }
+      return null;
+   }
+
    public @Nullable TransportLocation getTransport(int transportId) { return locations.get(transportId); }
 
    @SuppressWarnings("unused")

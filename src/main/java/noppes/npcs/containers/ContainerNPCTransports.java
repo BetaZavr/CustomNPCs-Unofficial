@@ -23,14 +23,24 @@ public class ContainerNPCTransports extends AbstractContainerMenu {
     public ContainerNPCTransports(int containerId, Inventory invIn, BlockPos pos) {
         super(CustomContainer.container_managetransport, containerId);
         inv = invIn;
-        TransportLocation loc = TransportController.getInstance().getTransport(pos.getX());
-        if (loc == null || loc.id < 0) {
-            loc = new TransportLocation();
-            loc.id = pos.getX();
-            loc.category = TransportController.getInstance().getCategory(loc, pos.getY());
+        TransportController tData = TransportController.getInstance();
+        TransportLocation loc = tData.getTransport(pos.getX());
+        if (loc == null) {
+            TransportCategory cat = tData.getCategory(pos.getY());
+            if (cat == null || cat.locations.isEmpty()) {
+                for (TransportCategory tCat : tData.getCategories()) {
+                    if (!tCat.locations.isEmpty()) {
+                        loc = tCat.locations.firstEntry().getValue();
+                        break;
+                    }
+                }
+            }
+            else { loc = cat.locations.firstEntry().getValue(); }
         }
-        if (inv.player.level().isClientSide()) { loc = loc.copy(); }
-        location = loc;
+        if (loc != null) {
+            if (invIn.player.level().isClientSide()) { loc = loc.copy(); }
+            location = loc;
+        }
         resetStacks();
     }
 

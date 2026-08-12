@@ -77,7 +77,8 @@ public enum EnumGuiType {
    QuestCompleteText,
    QuestChooseReward,
    CreationParts,
-   CustomChest(true);
+   CustomChest(true),
+   ManageCustomElements;
 
    public boolean hasContainer;
    public final ResourceLocation resource;
