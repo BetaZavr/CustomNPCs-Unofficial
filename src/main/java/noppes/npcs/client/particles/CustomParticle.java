@@ -15,6 +15,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
+import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.renderer.obj.ModelBuffer;
 import noppes.npcs.client.renderer.obj.ParameterizedModel;
 import noppes.npcs.shared.common.util.LogWriter;
@@ -41,23 +42,30 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 	protected float particleAngleZ;
 	protected long rndStart;
 
-	public CustomParticle(@Nonnull NBTTagCompound data, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn) {
+	public CustomParticle(@Nonnull NBTTagCompound nbtParticle, World worldIn,
+						  double xCoordIn, double yCoordIn, double zCoordIn,
+						  double xSpeedIn, double ySpeedIn, double zSpeedIn) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
-		nbtData = data;
+		nbtData = nbtParticle;
 		rndStart = rand.nextInt(7000);
-		texture = new ResourceLocation(CustomNpcs.MODID, "textures/particle/" + data.getString("Texture") + ".png");
-		if (data.hasKey("OBJModel", 8)) { obj = new ResourceLocation(CustomNpcs.MODID, "models/particle/" + data.getString("OBJModel") + ".obj"); }
-		if (data.hasKey("MaxAge", 3)) { particleMaxAge = data.getInteger("MaxAge"); }
-		if (data.hasKey("Gravity", 5)) { particleGravity = data.getFloat("Gravity"); }
-		if (data.hasKey("Scale", 5)) { particleScale = data.getFloat("Scale"); }
+
+		String name = NoppesUtilServer.validPath(nbtParticle.hasKey("Texture", 8) ?
+				nbtParticle.getString("Texture") :
+				nbtParticle.getString("RegistryName"));
+		texture = new ResourceLocation(CustomNpcs.MODID, "textures/particle/" + name + ".png");
+
+		if (nbtParticle.hasKey("OBJModel", 8)) { obj = new ResourceLocation(CustomNpcs.MODID, "models/particle/" + nbtParticle.getString("OBJModel") + ".obj"); }
+		if (nbtParticle.hasKey("MaxAge", 3)) { particleMaxAge = nbtParticle.getInteger("MaxAge"); }
+		if (nbtParticle.hasKey("Gravity", 5)) { particleGravity = nbtParticle.getFloat("Gravity"); }
+		if (nbtParticle.hasKey("Scale", 5)) { particleScale = nbtParticle.getFloat("Scale"); }
 		if (xSpeedIn == 0.0d) { motionX = 0.0d; }
 		if (ySpeedIn == 0.0d) { motionY = 0.0d; }
 		if (zSpeedIn == 0.0d) { motionZ = 0.0d; }
-		if (data.hasKey("StartMotion", 9) && data.getTagList("StartMotion", 6).tagCount() > 2) {
-			NBTTagList list = data.getTagList("StartMotion", 6);
-			if (data.getBoolean("IsRandomMotion")) {
+		if (nbtParticle.hasKey("StartMotion", 9) && nbtParticle.getTagList("StartMotion", 6).tagCount() > 2) {
+			NBTTagList list = nbtParticle.getTagList("StartMotion", 6);
+			if (nbtParticle.getBoolean("IsRandomMotion")) {
 				motionX = (Math.random() < 0.5d ? -1.0d : 1.0d) * Math.random() * list.getDoubleAt(0);
-				motionY = (Math.random() < 0.5d && !data.getBoolean("NotMotionY") ? -1.0d : 1.0d) * Math.random() * list.getDoubleAt(1);
+				motionY = (Math.random() < 0.5d && !nbtParticle.getBoolean("NotMotionY") ? -1.0d : 1.0d) * Math.random() * list.getDoubleAt(1);
 				motionZ = (Math.random() < 0.5d ? -1.0d : 1.0d) * Math.random() * list.getDoubleAt(2);
 			}
 			else {

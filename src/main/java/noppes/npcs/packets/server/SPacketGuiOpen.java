@@ -84,7 +84,7 @@ public class SPacketGuiOpen extends PacketServerBasic {
       CustomNPCsScheduler.runTack(() -> {
          if (player.getServer() != null) {
             try {
-               if (!gui.hasContainer) {Packets.send(player, new PacketGuiOpen(gui, pos)); }
+               if (!gui.hasContainer) { Packets.send(player, new PacketGuiOpen(gui, pos)); }
                else if (NoppesUtilServer.openContainerGui(player, gui, (buffer) -> {
                   buffer.writeInt(npc != null ? npc.getEntityId() : -1);
                   buffer.writeBlockPos(pos);

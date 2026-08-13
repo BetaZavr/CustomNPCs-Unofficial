@@ -29,9 +29,8 @@ public class CmdPermissions extends CommandNoppesBase {
 
     @SubCommand(desc = "Open GUI manager", permission = 4)
     public void open(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-        if (!CustomNpcsPermissions.hasPermission(sender instanceof EntityPlayerMP ? (EntityPlayerMP) sender : null,
-                CustomNpcsPermissions.EDIT_PERMISSION)) { throw new CommandException("availability.permission"); }
         if (sender instanceof EntityPlayerMP) {
+            if (!CustomNpcsPermissions.hasPermission((EntityPlayerMP) sender, CustomNpcsPermissions.EDIT_PERMISSION)) { throw new CommandException("availability.permission"); }
             NoppesUtilServer.sendOpenGui((EntityPlayerMP) sender, EnumGuiType.PermissionsEdit, null);
         }
     }

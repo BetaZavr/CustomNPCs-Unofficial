@@ -36,19 +36,14 @@ public class TransportController {
 	protected final Map<Integer, TransportCategory> categories = new TreeMap<>();
 	protected int lastUsedID = 0;
 
-
 	public TransportController() {
-		(instance = this).load();
-        TransportCategory cat = new TransportCategory();
-        cat.id = 1;
-        cat.title = "Default";
-        categories.put(cat.id, cat);
+		instance = this;
+		load();
     }
 
 	public boolean containsLocationName(String name) {
-		name = name.toLowerCase();
-		for (TransportLocation loc : locations.values()) {
-			if (loc.name.equalsIgnoreCase(name)) { return true; }
+		for (TransportLocation location : locations.values()) {
+			if (location.name.equalsIgnoreCase(name)) { return true; }
 		}
 		return false;
 	}
@@ -67,17 +62,17 @@ public class TransportController {
 		return nbttagcompound;
 	}
 
-	public @Nullable TransportLocation getTransport(int transportId) { return locations.get(transportId); }
+	public @Nullable TransportLocation getTransport(int locationId) { return locations.get(locationId); }
 
 	@SuppressWarnings("unused")
-	public @Nullable TransportLocation getTransport(String name) {
-		for (TransportLocation loc : new ArrayList<>(locations.values())) {
-			if (loc.name.equals(name)) { return loc; }
+	public @Nullable TransportLocation getTransport(String locationName) {
+		for (TransportLocation location : new ArrayList<>(locations.values())) {
+			if (location.name.equals(locationName)) { return location; }
 		}
 		return null;
 	}
 
-	private int getUniqueIdCategory() {
+	protected int getUniqueIdCategory() {
 		int id = 0;
 		for (int catId : categories.keySet()) {
 			if (catId > id) {
@@ -87,7 +82,7 @@ public class TransportController {
 		return ++id;
 	}
 
-	private int getUniqueIdLocation() {
+	protected int getUniqueIdLocation() {
 		if (lastUsedID == 0) {
 			for (int catId : locations.keySet()) {
 				if (catId > lastUsedID) {
@@ -100,19 +95,26 @@ public class TransportController {
 
 	private void load() {
 		File saveDir = CustomNpcs.getWorldSaveDirectory();
-		if (saveDir == null) {
-			CustomNpcs.debugData.end(null);
-			return;
-		}
-		try {
-			File file = new File(saveDir, "transport.dat");
-			if (file.exists()) { load(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()))); }
-		} catch (IOException e) {
+		if (saveDir != null) {
 			try {
-				File file = new File(saveDir, "transport.dat_old");
+				File file = new File(saveDir, "transport.dat");
 				if (file.exists()) { load(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()))); }
-			} catch (IOException ex) { LogWriter.error(e); }
+			}
+			catch (IOException e) {
+				try {
+					File file = new File(saveDir, "transport.dat_old");
+					if (file.exists()) { load(CompressedStreamTools.readCompressed(Files.newInputStream(file.toPath()))); }
+				} catch (IOException ex) { LogWriter.error(e); }
+			}
 		}
+		// default
+		if (categories.isEmpty()) {
+			TransportCategory cat = new TransportCategory();
+			cat.id = 1;
+			cat.title = "Default";
+			categories.put(cat.id, cat);
+		}
+		LogWriter.info("[DEBUG] categories "+categories.size()+"; locations: "+locations.size());
 	}
 
 	public void load(NBTTagCompound compound) {
@@ -126,8 +128,16 @@ public class TransportController {
 	public void loadCategory(NBTTagCompound compound) {
 		TransportCategory category = new TransportCategory();
 		category.load(compound);
-		for (TransportLocation location : category.locations.values()) { locations.put(location.id, location); }
 		categories.put(category.id, category);
+	}
+
+	public void loadLocation(@Nonnull TransportCategory category, @Nonnull NBTTagCompound compound) {
+		TransportLocation location = new TransportLocation();
+		location.load(compound);
+		if (location.id < 0) { location.id = getUniqueIdLocation(); }
+		location.category = category;
+		category.locations.put(location.id, location);
+		locations.put(location.id, location);
 	}
 
 	public void clear() {
@@ -139,21 +149,19 @@ public class TransportController {
 		if (categories.size() > 1) {
 			TransportCategory cat = categories.get(id);
 			if (cat != null) {
-				for (int i : cat.locations.keySet()) { locations.remove(i); }
+				for (int locationId : cat.locations.keySet()) { locations.remove(locationId); }
 				categories.remove(id);
 				saveCategories();
 			}
 		}
 	}
 
-	public TransportLocation removeLocation(int location) {
-		TransportLocation loc = locations.get(location);
-		if (loc != null) {
-			loc.category.locations.remove(location);
+	public void removeLocation(int location) {
+		if (locations.containsKey(location)) {
+			locations.get(location).category.locations.remove(location);
 			locations.remove(location);
 			saveCategories();
 		}
-		return loc;
 	}
 
 	private void saveCategories() {
@@ -179,21 +187,26 @@ public class TransportController {
 		return category;
 	}
 
+	public @Nullable TransportCategory getCategory(int categoryId) {
+		if (categories.containsKey(categoryId)) { return categories.get(categoryId); }
+		return null;
+	}
+
+	@SuppressWarnings("ConstantConditions")
 	public void saveCategory(NBTTagCompound compound) {
 		int id = compound.getInteger("CategoryId");
 		if (id < 0) { id = getUniqueIdCategory(); }
 		if (categories.containsKey(id)) {
 			categories.get(id).load(compound);
 			if (CustomNpcs.Server != null) {
-				for (int locID : categories.get(id).locations.keySet()) {
-					TransportLocation loc = categories.get(id).locations.get(locID);
+				for (TransportLocation loc : categories.get(id).locations.values()) {
 					if (loc.npc != null) {
 						WorldServer world = CustomNpcs.Server.getWorld(loc.dimension);
 						if (world != null) {
 							Entity entity = world.getEntityFromUuid(loc.npc);
 							if (entity instanceof EntityNPCInterface
 									&& ((EntityNPCInterface) entity).role instanceof RoleTransporter
-									&& ((RoleTransporter) ((EntityNPCInterface) entity).role).transportId == locID
+									&& ((RoleTransporter) ((EntityNPCInterface) entity).role).transportId == loc.id
 									&& !((RoleTransporter) ((EntityNPCInterface) entity).role).name
 									.equals(loc.name)) {
 								((RoleTransporter) ((EntityNPCInterface) entity).role).name = loc.name;
@@ -229,9 +242,7 @@ public class TransportController {
                 location.name = location.name + "_";
 			}
 		}
-		if (location.id < 0) {
-			location.id = getUniqueIdLocation();
-		}
+		if (location.id < 0) { location.id = getUniqueIdLocation(); }
 		category.locations.put(location.id, location);
 		locations.put(location.id, location);
 		saveCategories();
@@ -239,13 +250,13 @@ public class TransportController {
 	}
 
 	public void setLocation(TransportLocation location) {
-		if (locations.containsKey(location.id)) {
-			for (TransportCategory cat : categories.values()) {
-				cat.locations.remove(location.id);
-			}
+		if (location.id < 0) { location.id = getUniqueIdLocation(); }
+		for (TransportCategory cat : categories.values()) {
+			if (location.category.id != cat.id) { cat.locations.remove(location.id); }
 		}
 		locations.put(location.id, location);
 		location.category.locations.put(location.id, location);
+		saveCategories();
 	}
 
 	public void sendTo(@Nonnull EntityPlayerMP player) {

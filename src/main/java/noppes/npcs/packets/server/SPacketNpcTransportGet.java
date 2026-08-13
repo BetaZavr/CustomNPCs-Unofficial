@@ -5,7 +5,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
-import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.shared.common.PacketServerBasic;
 import noppes.npcs.packets.Packets;
@@ -41,12 +40,12 @@ public class SPacketNpcTransportGet extends PacketServerBasic {
    @Override
    protected void handle() {
       CustomNpcs.debugData.start("Packets");
-      if (npc.role.getEnumType() == RoleType.TRANSPORTER && ((RoleTransporter) npc.role).hasTransport()) {
+      if (npc.role instanceof RoleTransporter && ((RoleTransporter) npc.role).hasTransport()) {
          RoleTransporter role = (RoleTransporter) npc.role;
-         TransportLocation loc = role.getLocation();
-         if (loc != null) {
-            Packets.send(player, new PacketGuiData(role.getLocation().save()));
-            Packets.send(player, new PacketGuiScrollSelected(role.getLocation().category.title));
+         TransportLocation location = role.getLocation();
+         if (location != null) {
+            Packets.send(player, new PacketGuiData(location.save()));
+            Packets.send(player, new PacketGuiScrollSelected(location.category.title));
          }
       }
       CustomNpcs.debugData.end("Packets");

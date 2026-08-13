@@ -71,6 +71,7 @@ public class CommonProxy implements IGuiHandler {
 				return new ContainerNPCInv(npc, player);
 			}
 			case ManageTransport: {
+				buffer.readInt();
 				return new ContainerNPCTransports(player, buffer.readBlockPos());
 			}
 			case PlayerAnvil: {
@@ -220,8 +221,6 @@ public class CommonProxy implements IGuiHandler {
 	}
 
 	public void loadAnimationModel(AnimationConfig animation) { }
-
-	public void updatePlayerPos() { }
 
 	public void createAllFiles(ICustomElement customElement) {
 		if (customElement instanceof Block) { NoppesUtilServer.createBlockFiles(customElement); }

@@ -183,7 +183,6 @@ public class ClientEventHandler extends Gui {
 			}
 			Vec3i vec3i = bakedquad.getFace().getDirectionVec();
 			bufferbuilder.putNormal((float) vec3i.getX(), (float) vec3i.getY(), (float) vec3i.getZ());
-
 			tessellator.draw();
 		}
 	}

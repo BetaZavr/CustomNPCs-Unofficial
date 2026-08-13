@@ -7,6 +7,8 @@ import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.controllers.TransportController;
+import noppes.npcs.packets.Packets;
+import noppes.npcs.packets.client.PacketGuiData;
 import noppes.npcs.shared.common.PacketServerBasic;
 
 import java.util.Collections;
@@ -43,6 +45,9 @@ public class SPacketTransportCategorySave extends PacketServerBasic {
    protected void handle() {
       CustomNpcs.debugData.start("Packets");
       TransportController.getInstance().saveCategory(compound);
+      // Sync the updated categories back to the client immediately
+      TransportController.getInstance().sendTo(player);
+      Packets.send(player, new PacketGuiData(new NBTTagCompound()));
       CustomNpcs.debugData.end("Packets");
    }
 

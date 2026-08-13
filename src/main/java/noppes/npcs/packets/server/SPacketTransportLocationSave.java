@@ -14,15 +14,15 @@ import noppes.npcs.roles.RoleTransporter;
 import java.util.Collections;
 import java.util.List;
 
-public class SPacketTransportSave extends PacketServerBasic {
+public class SPacketTransportLocationSave extends PacketServerBasic {
 
    protected static int channelId;
    private int category;
    private NBTTagCompound data;
 
-   public SPacketTransportSave() { }
+   public SPacketTransportLocationSave() { }
 
-   public SPacketTransportSave(int categoryIn, NBTTagCompound dataIn) {
+   public SPacketTransportLocationSave(int categoryIn, NBTTagCompound dataIn) {
       data = dataIn;
       category = categoryIn;
    }

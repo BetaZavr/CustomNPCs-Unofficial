@@ -191,4 +191,6 @@ public class CustomTileEntityPortal extends TileEntityEndPortal {
 		return compound;
 	}
 
+	public void setBlock(@Nonnull CustomBlockPortal block) { blockType = block; }
+
 }

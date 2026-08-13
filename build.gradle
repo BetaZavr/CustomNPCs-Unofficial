@@ -1,3 +1,11 @@
+/* In Russia, in 2026, some idiotic blocking of libraries and repositories began:
+ 1. For a new build of the project, comment out line "# org.gradle.offline=true"
+ in file "gradle.properties" to download the Gradle cache;
+ In Russia, you may need a VPN for this;
+ 2. Build this project command "./gradlew build" or by running a task;
+ 3. Then uncomment the line again and rebuild the project to run in semi-local mode;
+ */
+
 import java.time.LocalDateTime
 
 // DEV resources path
@@ -5,9 +13,14 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        flatDir { dirs 'libs' }
-        maven { url = 'https://maven.minecraftforge.net/' }
-        maven { url 'https://repo.spongepowered.org/maven' }
+        maven {
+            name = 'MinecraftForge'
+            url = 'https://maven.minecraftforge.net/'
+        }
+        maven {
+            name = 'SpongePowered'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+        }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.14'
@@ -18,13 +31,12 @@ buildscript {
 // Plugins for creating JAR
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-apply plugin: 'maven-publish'
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 
 // JAR naming
 version = getCustomVersion()
-group = mod_group
+group = mod_group_id
 archivesBaseName = "${mod_name} ${minecraft_version} Unofficial"
 
 // Snapshot version
@@ -42,38 +54,35 @@ java {
 
 // launch in DEV environment
 minecraft {
-    mappings channel: 'snapshot', version: '20171003-1.12'
-    accessTransformer = file('src/main/resources/META-INF/deobfuscation.cfg')
+    mappings channel: project.mapping_channel.toString(), version: project.mapping_version.toString()
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
-        client {
-            workingDirectory = project.file('run/client')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'fml.coreMods.load', "${mod_group}.mixin.NpcMixinCore".toString()
+        configureEach {
             properties 'mixin.env.remapRefMap': 'true'
-            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg".toString()
+            property 'mixin.env.refMapRemappingFile',
+                    "${project.projectDir}/build/createSrgToMcp/output.srg".toString()
             property "mixin.debug", 'true'
             property "mixin.debug.verify", 'false'
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'fml.coreMods.load',
+                    "${mod_group_id}.mixin.NpcMixinCore".toString()
+        }
+        client {
+            workingDirectory project.file('run/client')
             args "--username=BetaZavr${new Random().nextInt(10)}".toString(),
                     '--tweakClass',
                     'org.spongepowered.asm.launch.MixinTweaker',
                     '--mixin',
-                    "${mod_id}.mixins.json".toString()
+                    "mixins.${mod_id}.json".toString()
         }
         server {
-            workingDirectory = project.file('run/server')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'fml.coreMods.load', "${mod_group}.mixin.NpcMixinCore".toString()
-            properties 'mixin.env.remapRefMap': 'true'
-            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg".toString()
-            property "mixin.debug", 'true'
-            property "mixin.debug.verify", 'false'
+            workingDirectory project.file('run/server')
             args '--tweakClass',
                     'org.spongepowered.asm.launch.MixinTweaker',
                     '--mixin',
-                    "${mod_id}.mixins.json".toString()
+                    "mixins.${mod_id}.json".toString()
                     //, 'nogui'
         }
     }
@@ -82,15 +91,13 @@ minecraft {
 // Add Maven repositories
 repositories {
     mavenLocal()
-    flatDir { dirs 'libs' }
-    //maven { url = 'https://maven.minecraftforge.net/' }
     mavenCentral()
 }
 
 // Project dependencies (required libraries)
 dependencies {
     // Minecraft Forge
-    minecraft "net.minecraftforge:forge:1.12.2-14.23.5.2860"
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     // Mixin Lib
     implementation('org.spongepowered:mixin:0.8.5') {
@@ -114,20 +121,17 @@ processResources {
                 'minecraft_version' : minecraft_version,
                 'mod_description'   : mod_description,
                 'mod_credits'       : mod_credits,
-                'mod_logoFile'      : mod_logoFile,
                 'mod_authors'       : mod_authors.replace(", ", "\", \""),
+                'mod_logo_file'     : mod_logo_file,
                 'mod_url'           : mod_url,
                 'mod_update_url'    : mod_update_url
-    }
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
     }
 }
 
 // JAR file manifest settings
 mixin {
-    add sourceSets.main, "${mod_id}.refmap.json"
-    config "${mod_id}.mixins.json"
+    add sourceSets.main, "mixins.${mod_id}.refmap.json"
+    config "mixins.${mod_id}.json"
 }
 
 // Creating a JAR file
@@ -140,10 +144,10 @@ jar {
                 "Implementation-Vendor"      : mod_authors,
                 "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 "FMLCorePluginContainsFMLMod": "true",
-                "FMLCorePlugin"              : mod_group + ".mixin.NpcMixinCore",
+                "FMLCorePlugin"              : "${mod_group_id}.mixin.NpcMixinCore".toString(),
                 "FMLAT"                      : "deobfuscation.cfg",
                 "TweakClass"                 : "org.spongepowered.asm.launch.MixinTweaker",
-                "MixinConfigs"               : mod_id + ".mixins.json",
+                "MixinConfigs"               : "mixins.${mod_id}.json".toString(),
                 "ForceLoadAsMod"             : "true",
                 "CertificateFingerprint"     : project.findProperty('certificateFingerprint') ?: "",
         ])

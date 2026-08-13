@@ -1,7 +1,7 @@
 {
   "compatibilityLevel": "JAVA_8",
   "package": "noppes.npcs.mixin",
-  "refmap": "customnpcs.refmap.json",
+  "refmap": "mixins.customnpcs.refmap.json",
   "mixins": [
     "block.material.IMapColorMixin",
     "block.material.IMaterialMixin",

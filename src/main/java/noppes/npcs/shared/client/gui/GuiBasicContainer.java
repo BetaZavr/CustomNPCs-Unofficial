@@ -178,9 +178,8 @@ public class GuiBasicContainer<T extends Container> extends GuiContainer impleme
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
         if (wrapper.subgui == null && GuiTextFieldNop.getActive() == null) {
-            if (closeOnEsc && (keyCode == Keyboard.KEY_ESCAPE || GuiBasic.isInventoryKey(keyCode)))  {
-                mc.player.closeScreen();
-                return;
+            if (closeOnEsc && GuiBasic.isEscKey(keyCode)) {
+                onClose();
             }
             checkHotbarKeys(keyCode);
             if (getSlotUnderMouse() != null && getSlotUnderMouse().getHasStack()) {
@@ -199,9 +198,16 @@ public class GuiBasicContainer<T extends Container> extends GuiContainer impleme
 
     public boolean keyPressed(char typedChar, int keyCode) {
         if (wrapper.subgui == null) { GuiBasic.checkAltH(); }
-        if (wrapper.subgui == null && GuiBasic.isEscKey(keyCode) && GuiTextFieldNop.getActive() != null) {
-            GuiTextFieldNop.unfocus();
-            return true;
+        if (GuiBasic.isEscKey(keyCode)) {
+            if (wrapper.subgui != null) { return wrapper.keyPressed(typedChar, keyCode); }
+            if (GuiTextFieldNop.getActive() != null) {
+                GuiTextFieldNop.unfocus();
+                return true;
+            }
+            if (closeOnEsc) {
+                onClose();
+                return true;
+            }
         }
         boolean bo = wrapper.keyPressed(typedChar, keyCode);
         if (!bo) {

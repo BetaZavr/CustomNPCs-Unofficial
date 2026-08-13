@@ -265,9 +265,8 @@ public class Packets {
         register(SPacketTransportCategoriesGet.class);
         register(SPacketTransportCategoryRemove.class);
         register(SPacketTransportCategorySave.class);
-        register(SPacketTransportGet.class);
-        register(SPacketTransportRemove.class);
-        register(SPacketTransportSave.class);
+        register(SPacketTransportLocationRemove.class);
+        register(SPacketTransportLocationSave.class);
         register(SPacketCustomGuiButton.class);
         register(SPacketCustomGuiButtonList.class);
         register(SPacketCustomGuiTextUpdate.class);

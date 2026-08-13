@@ -4,10 +4,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.global.GuiNpcManageMarkets;
-import noppes.npcs.client.gui.global.GuiNpcDialogGuiSettings;
-import noppes.npcs.client.gui.global.GuiNpcManagePlayerData;
-import noppes.npcs.client.gui.global.GuiNpcNaturalSpawns;
+import noppes.npcs.client.gui.global.*;
 import noppes.npcs.client.gui.util.GuiNPCInterface2;
 import noppes.npcs.client.gui.yellow_de.data.UtilYDE;
 import noppes.npcs.constants.EnumGuiType;
@@ -96,7 +93,11 @@ public class GuiNpcGlobalMainMenu extends GuiNPCInterface2 {
 			case 4: NoppesUtil.requestOpenGUI(EnumGuiType.ManageDialogs); break;
 			case 5: NoppesUtil.openGUI(player, new GuiNpcDialogGuiSettings(npc)); break;
 			case 11: NoppesUtil.requestOpenGUI(EnumGuiType.ManageQuests); break;
-			case 12: NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, new BlockPos(-1, -1, 0)); break;
+			case 12: {
+				GuiNpcManageTransporters.backToGui = EnumGuiType.MainMenuGlobal;
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, new BlockPos(-1, -1, 0));
+				break;
+			}
 			case 13: NoppesUtil.openGUI(player, new GuiNpcManagePlayerData(npc)); break;
 			case 14: NoppesUtil.requestOpenGUI(EnumGuiType.ManageRecipes, new BlockPos(3, 0, 0)); break;
 			case 15: NoppesUtil.openGUI(player, new GuiNpcNaturalSpawns(npc)); break;

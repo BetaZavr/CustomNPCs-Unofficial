@@ -556,7 +556,10 @@ public class NoppesUtil {
 				}
 			}
 			else {
-				File texture = new File(texturesDir, name.toLowerCase() + ".png");
+				name = NoppesUtilServer.validPath(customparticle.nbtData.hasKey("Texture", 8) ?
+						customparticle.nbtData.getString("Texture") :
+						customparticle.nbtData.getString("RegistryName"));
+				File texture = new File(texturesDir, name + ".png");
 				if (!texture.exists()) {
 					try {
 						if (ImageIO.write(getBufferImageOffset(getBufferedImage("pl.png", 64, 64), rnd.nextFloat()), "png", texture)) {

@@ -19,6 +19,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
+import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketConfigFont;
 import noppes.npcs.shared.common.util.LogWriter;
@@ -179,6 +181,14 @@ public class CmdConfig extends CommandNoppesBase {
 			CustomNpcs.EnableInvisibleNpcs = Boolean.parseBoolean(args[0]);
 			CustomNpcs.Config.updateConfig();
 			this.sendMessage(sender, "Invisible NPCs is now " + CustomNpcs.EnableInvisibleNpcs);
+		}
+	}
+
+	@SubCommand(desc = "Open custom elements manager GUI", permission = 4)
+	public void customelements(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		if (sender instanceof EntityPlayerMP) {
+			if (!CustomNpcsPermissions.hasPermission((EntityPlayerMP) sender, CustomNpcsPermissions.EDIT_ELEMENTS)) { throw new CommandException("availability.permission"); }
+			NoppesUtilServer.sendOpenGui((EntityPlayerMP) sender, EnumGuiType.ManageCustomElements, null);
 		}
 	}
 

@@ -1,13 +1,10 @@
 package noppes.npcs.controllers.data;
 
-import java.util.Collections;
 import java.util.UUID;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.DimensionManager;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.entity.data.role.ITransportLocation;
 import noppes.npcs.containers.NpcMiscInventory;

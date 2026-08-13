@@ -11,10 +11,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.client.gui.SubGuiNpcTransportCategoryEdit;
 import noppes.npcs.packets.Packets;
-import noppes.npcs.packets.server.SPacketTeleportTo;
-import noppes.npcs.packets.server.SPacketTransportCategoriesGet;
-import noppes.npcs.packets.server.SPacketTransportCategoryRemove;
-import noppes.npcs.packets.server.SPacketTransportCategorySave;
+import noppes.npcs.packets.server.*;
 import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
@@ -36,6 +33,7 @@ import noppes.npcs.util.Util;
 public class GuiNpcManageTransporters extends GuiContainerNPCInterface2<ContainerNPCTransports>
 		implements IGuiData, ICustomScrollListener, ITextfieldListener {
 
+	public static EnumGuiType backToGui = EnumGuiType.MainMenuGlobal;
 	protected final ContainerNPCTransports container;
 	protected final Map<Component, TransportCategory> dataCat = new LinkedHashMap<>();
 	protected final Map<Component, TransportLocation> dataLoc = new LinkedHashMap<>();
@@ -47,7 +45,7 @@ public class GuiNpcManageTransporters extends GuiContainerNPCInterface2<Containe
 		setBackground("tradersetup.png");
 		ySize = 200;
 
-		backGui = EnumGuiType.MainMenuGlobal;
+		backGui = npc == null ? EnumGuiType.MainMenuGlobal : backToGui;
 		container = containerIn;
 		Packets.sendServer(new SPacketTransportCategoriesGet());
 	}
@@ -55,7 +53,7 @@ public class GuiNpcManageTransporters extends GuiContainerNPCInterface2<Containe
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (categories == null) { categories = addScroll(0).setSize(100, 78); }
+		if (categories == null) { categories = addScroll(0).setSize(100, 102); }
 		int x = guiLeft + 5;
 		int y = guiTop + 14;
 		add(categories.setPos(x, y)
@@ -75,7 +73,7 @@ public class GuiNpcManageTransporters extends GuiContainerNPCInterface2<Containe
 				.setIsEnabled(categories.hasSelected())
 				.setHoverTexts(Component.translatable("manager.hover.transport.del", "\"" + categories.getSelected() + "\""));
 
-		if (locations == null) { locations = addScroll(1).setSize(100, 78); }
+		if (locations == null) { locations = addScroll(1).setSize(100, 102); }
 		x += 102;
 		y = guiTop + 14;
 		add(locations.setPos(x, y)
@@ -86,9 +84,13 @@ public class GuiNpcManageTransporters extends GuiContainerNPCInterface2<Containe
 		addLabel(1, guiLeft + 113, y - 10, "gui.location");
 		y += locations.height + 24;
 		addButton(2, x, y, "transporter.travel")
-				.setSize(100, 16)
+				.setSize(49, 16)
 				.setIsEnabled(locations.hasSelected())
 				.setHoverTexts("hover.teleport");
+		addButton(4, x + 51, y, "gui.remove")
+				.setSize(49, 16)
+				.setIsEnabled(locations.hasSelected())
+				.setHoverTexts(Component.translatable("manager.hover.location.del", "\"" + locations.getSelected() + "\""));
 
 		if (categories.hasSelected()) {
 			y = guiTop + 192;
@@ -150,11 +152,11 @@ public class GuiNpcManageTransporters extends GuiContainerNPCInterface2<Containe
 			case 0: {
 				setSubGui(new SubGuiEditText(0, Util.instance.deleteColor(Component.translatable("gui.new").getString())));
 				break;
-			} // add cat
+			} // add category
 			case 1: {
 				if (container.location.category != null) { Packets.sendServer(new SPacketTransportCategoryRemove(container.location.category.id)); }
 				break;
-			} // del cat
+			} // del category
 			case 2: {
 				transfer(container.location);
 				break;
@@ -163,6 +165,10 @@ public class GuiNpcManageTransporters extends GuiContainerNPCInterface2<Containe
 				if (container.location != null) { container.location.type = button.getValue(); }
 				break;
 			} // location type
+			case 4: {
+				if (container.location != null) { Packets.sendServer(new SPacketTransportLocationRemove(container.location.id)); }
+				break;
+			} // del location
 		}
 	}
 
@@ -172,7 +178,7 @@ public class GuiNpcManageTransporters extends GuiContainerNPCInterface2<Containe
 		if (locations != null && locations.hasSelected()) {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			mc.getTextureManager().bindTexture(GuiBasic.RESOURCE_SLOT);
-			for (int slotId = 0; slotId < 10; ++slotId) {
+			for (int slotId = 0; slotId < 9; ++slotId) {
 				drawTexturedModalRect(guiLeft + container.getSlot(slotId).xPos - 1, guiTop + container.getSlot(slotId).yPos - 1,
 						0, 0, 18, 18);
 			}

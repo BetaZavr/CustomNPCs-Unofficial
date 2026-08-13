@@ -23,7 +23,7 @@ public class GuiButtonBiDirectional extends GuiButtonNop {
    }
 
    @Override
-   public void render(int mouseX, int mouseY, float partialTicks) {
+   public void renderWidget(int mouseX, int mouseY, float partialTicks) {
       if (offsetHoverX != 0 || offsetHoverY != 0) {
          mouseX -= offsetHoverX;
          mouseY -= offsetHoverY;
@@ -39,7 +39,13 @@ public class GuiButtonBiDirectional extends GuiButtonNop {
       GlStateManager.pushMatrix();
       GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
       GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-      GlStateManager.color(1.0F, 1.0F, 1.0F, alpha);
+      if (layerColor != 0) {
+         GlStateManager.color((float) (layerColor >> 16 & 255) / 255.0f,
+                 (float) (layerColor >> 8 & 255) / 255.0f,
+                 (float) (layerColor & 255) / 255.0f,
+                 (float) (layerColor >> 24 & 255) / 255.0f);
+      }
+      else { GlStateManager.color(1.0F, 1.0F, 1.0F, alpha); }
       mc.getTextureManager().bindTexture(resource);
       GlStateManager.translate(getX(), getY(), 0.0f);
       float scale = (float) height / 20.0f;
@@ -76,7 +82,14 @@ public class GuiButtonBiDirectional extends GuiButtonNop {
 
    @Override
    protected void onClick(double x, double y) {
-      if (display != null && display.length != 0) { setDisplay(hoverL ? displayValue - 1 : displayValue + 1); }
+      if (display != null && display.length != 0) {
+         if (hoverR) { displayValue = (displayValue + 1) % display.length; }
+         if (hoverL) {
+            if (displayValue <= 0) { displayValue = display.length; }
+            --displayValue;
+         }
+         setDisplay(displayValue);
+      }
       if (hasSound) { Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F)); }
       if (onPress != null) { onPress(); }
       else if (listener != null) { listener.buttonEvent(this); }

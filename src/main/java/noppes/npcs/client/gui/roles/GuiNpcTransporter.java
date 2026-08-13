@@ -4,11 +4,14 @@ import java.util.*;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
+import noppes.npcs.client.NoppesUtil;
+import noppes.npcs.client.gui.global.GuiNpcManageTransporters;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketNpcTransportGet;
 import noppes.npcs.packets.server.SPacketTransportCategoriesGet;
-import noppes.npcs.packets.server.SPacketTransportSave;
+import noppes.npcs.packets.server.SPacketTransportLocationSave;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.components.GuiTextFieldNop;
@@ -29,14 +32,14 @@ public class GuiNpcTransporter extends GuiNPCInterface2
 
 	protected final Map<Component, TransportCategory> dataCat = new HashMap<>();
 	protected @Nonnull TransportLocation location = new TransportLocation();
+	protected TransportCategory selectedCategory = null;
 	protected GuiCustomScrollNop scroll;
 
 	public GuiNpcTransporter(EntityNPCInterface npc) {
 		super(npc);
-
 		backGui = EnumGuiType.MainMenuAdvanced;
+
 		Packets.sendServer(new SPacketTransportCategoriesGet());
-		Packets.sendServer(new SPacketNpcTransportGet());
 	}
 
 	@Override
@@ -48,26 +51,33 @@ public class GuiNpcTransporter extends GuiNPCInterface2
 		List<Component> list = new ArrayList<>();
 		LinkedHashMap<Integer, List<Component>> hts = new LinkedHashMap<>();
 		int i = 0;
-		Component select = scroll.getNormalSelected();
+		// Determine which category should be selected
+		Component select = Component.empty();
 		for (Component line : dataCat.keySet()) {
 			list.add(line);
-			if (dataCat.get(line).locations.containsKey(location.id)) { select = line; }
-			List<Component> hover = new ArrayList<>();
 			TransportCategory cat = dataCat.get(line);
+			// Prefer the user's explicit selection
+			if (selectedCategory != null && cat.id == selectedCategory.id) {
+				select = line;
+			}
+			// Fallback to the location's assigned category
+			else if (select.getString().isEmpty() && location.category != null && cat.id == location.category.id) {
+				select = line;
+			}
+			List<Component> hover = new ArrayList<>();
 			if (cat != null && !cat.locations.isEmpty()) {
 				hover.add(Component.translatable("gui.location", ":").withStyle(TextFormatting.GRAY));
 				Component p = Component.translatable("gui.position").append(": ").withStyle(TextFormatting.GRAY);
 				int j = 0;
-				for (int id : cat.locations.keySet()) {
+				for (TransportLocation loc : cat.locations.values()) {
 					if (j >= 5) {
 						hover.add(Component.literal("...").withStyle(TextFormatting.GRAY));
 						break;
 					}
 					else {
-						TransportLocation loc = cat.locations.get(id);
 						hover.add(Component.empty()
 								.append(Component.literal(" ID: ").withStyle(TextFormatting.GRAY))
-								.append(Component.literal("" + id).withStyle(TextFormatting.YELLOW))
+								.append(Component.literal("" + loc.id).withStyle(TextFormatting.YELLOW))
 								.append(Component.literal(" \"").withStyle(TextFormatting.GRAY))
 								.append(Component.translatable(loc.name).withStyle(TextFormatting.RESET))
 								.append(Component.literal("\"; ").withStyle(TextFormatting.GRAY))
@@ -107,19 +117,34 @@ public class GuiNpcTransporter extends GuiNPCInterface2
 				.setIsVisible(scroll.hasSelected())
 				.setHoverTexts(Component.translatable("manager.hover.transport.type")
 						.append(Component.translatable("manager.hover.transport.addinfo")));
+		// Settings button to open GuiNpcManageTransporters
+		addButton(1, x, y + 48, "gui.settings")
+				.setSize(200, 20)
+				.setIsVisible(scroll.hasSelected())
+				.setHoverTexts("manager.hover.transport.settings");
 	}
 
 	@Override
 	public void buttonEvent(GuiButtonNop button) {
 		if (button.id == 0) { location.type = button.getValue(); }
+		else if (button.id == 1) {
+			// Save current location first, then open the management GUI
+			save();
+			TransportCategory cat = selectedCategory != null ? selectedCategory : location.category;
+			if (cat != null) {
+				GuiNpcManageTransporters.backToGui = EnumGuiType.MainMenuAdvanced;
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, new BlockPos(-1, cat.id, location.id));
+			}
+		}
 	}
 
 	@Override
 	public void save() {
-		if (dataCat.containsKey(scroll.getNormalSelected())) {
+		TransportCategory cat = selectedCategory != null ? selectedCategory : location.category;
+		if (cat != null) {
 			location.pos = player.getPosition();
 			location.dimension = player.world.provider.getDimension();
-			Packets.sendServer(new SPacketTransportSave(dataCat.get(scroll.getNormalSelected()).id, location.save()));
+			Packets.sendServer(new SPacketTransportLocationSave(cat.id, location.save()));
 		}
 	}
 
@@ -134,16 +159,31 @@ public class GuiNpcTransporter extends GuiNPCInterface2
 						.append(Component.literal("\"").withStyle(TextFormatting.GRAY));
 				dataCat.put(catKey, category);
 			}
-		}
+			Packets.sendServer(new SPacketNpcTransportGet());
+		} // from SPacketTransportCategoriesGet
 		else {
 			location = new TransportLocation();
 			location.load(compound);
-		}
+			// Restore the category reference from the controller
+			for (TransportCategory cat : TransportController.getInstance().getCategories()) {
+				if (cat.locations.containsKey(location.id)) {
+					location.category = cat;
+					selectedCategory = cat;
+					break;
+				}
+			}
+		} // from SPacketNpcTransportGet
 		initGui();
 	}
 
 	@Override
-	public void scrollClicked(GuiCustomScrollNop scroll) { initGui(); }
+	public void scrollClicked(GuiCustomScrollNop scroll) {
+		if (dataCat.containsKey(scroll.getNormalSelected())) {
+			selectedCategory = dataCat.get(scroll.getNormalSelected());
+			location.category = selectedCategory;
+			initGui();
+		}
+	}
 
 	@Override
 	public void scrollDoubleClicked(GuiCustomScrollNop scroll) { }

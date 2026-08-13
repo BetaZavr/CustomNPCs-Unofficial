@@ -132,7 +132,7 @@ public class LayerCustomHeldItem<T extends EntityCustomNpc> extends LayerInterfa
 		GlStateManager.popMatrix();
 	}
 
-	@SuppressWarnings("all")
+	@SuppressWarnings({"rawtypes", "ConstantConditions"})
 	private void renderHeldItem(EntityLivingBase entity, ItemStack stack, ItemCameraTransforms.TransformType transform, EnumHandSide handSide, float scale, double distance, boolean isAWShow, boolean isAnimated) {
 		if (stack == null || stack.isEmpty()) { return; }
 		GlStateManager.pushMatrix();
@@ -151,10 +151,10 @@ public class LayerCustomHeldItem<T extends EntityCustomNpc> extends LayerInterfa
 			ItemArmor itemarmor = (ItemArmor) stack.getItem();
 			EntityEquipmentSlot slot = itemarmor.getEquipmentSlot();
 			LayerRenderer<?> layer = null;
-			List<LayerRenderer<T>> layers = ((IRenderLivingBaseMixin) render).getLayerRenderers();
-			for (LayerRenderer<T> lr : layers) {
+			List layers = ((IRenderLivingBaseMixin) render).getLayerRenderers();
+			for (Object lr : layers) {
 				if (LayerArmorBase.class.isAssignableFrom(lr.getClass())) {
-					layer = lr;
+					layer = (LayerRenderer<?>) lr;
 					break;
 				}
 			}

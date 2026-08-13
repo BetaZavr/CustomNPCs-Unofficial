@@ -1,25 +1,27 @@
 package noppes.npcs.packets.server;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.FriendlyByteBuf;
 import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.controllers.TransportController;
-import noppes.npcs.controllers.data.TransportLocation;
+import noppes.npcs.packets.Packets;
+import noppes.npcs.packets.client.PacketGuiData;
 import noppes.npcs.shared.common.PacketServerBasic;
 
 import java.util.Collections;
 import java.util.List;
 
-public class SPacketTransportRemove extends PacketServerBasic {
+public class SPacketTransportLocationRemove extends PacketServerBasic {
 
    protected static int channelId;
    private int id;
 
-   public SPacketTransportRemove() { }
+   public SPacketTransportLocationRemove() { }
 
-   public SPacketTransportRemove(int idIn) { id = idIn; }
+   public SPacketTransportLocationRemove(int idIn) { id = idIn; }
 
    @Override
    public boolean requiresNpc() { return false; }
@@ -42,8 +44,9 @@ public class SPacketTransportRemove extends PacketServerBasic {
    @Override
    protected void handle() {
       CustomNpcs.debugData.start("Packets");
-      TransportLocation loc = TransportController.getInstance().removeLocation(id);
-      if (loc != null) { SPacketTransportGet.sendTransportData(player, loc.category.id); }
+      TransportController.getInstance().removeLocation(id);
+      TransportController.getInstance().sendTo(player);
+      Packets.send(player, new PacketGuiData(new NBTTagCompound()));
       CustomNpcs.debugData.end("Packets");
    }
 

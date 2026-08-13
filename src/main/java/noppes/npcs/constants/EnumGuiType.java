@@ -79,7 +79,8 @@ public enum EnumGuiType
 	QuestLog,
 	QuestCompleteText,
 	QuestChooseReward,
-	CreationParts;
+	CreationParts,
+	ManageCustomElements;
 
 	public boolean hasContainer;
 	public final ResourceLocation resource;

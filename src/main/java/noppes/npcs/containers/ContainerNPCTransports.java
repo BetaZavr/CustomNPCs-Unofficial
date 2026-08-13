@@ -1,8 +1,8 @@
 package noppes.npcs.containers;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,19 +15,35 @@ import javax.annotation.Nonnull;
 
 public class ContainerNPCTransports extends Container {
 
-	protected final IInventory inv;
+	protected final InventoryPlayer inventory;
 	public TransportLocation location;
 
 	public ContainerNPCTransports(EntityPlayer player, BlockPos pos) {
-		inv = player.inventory;
-		TransportLocation loc = TransportController.getInstance().getTransport(pos.getX());
-		if (loc.id < 0) {
-			loc = new TransportLocation();
-			loc.id = pos.getX();
-			loc.category = TransportController.getInstance().getCategory(loc, pos.getY());
+		inventory = player.inventory;
+		TransportController tData = TransportController.getInstance();
+		location = tData.getTransport(pos.getX());
+		if (pos.getX() < 0 || location == null) {
+			int catId = pos.getY();
+			TransportCategory cat = tData.getCategory(catId);
+			if (catId < 0 || cat == null || cat.locations.isEmpty()) {
+				for (TransportCategory tCat : tData.getCategories()) {
+					if (!tCat.locations.isEmpty()) {
+						location = tCat.locations.firstEntry().getValue();
+						if (location != null) {
+							catId = tCat.id;
+							break;
+						}
+					}
+				}
+			}
+			else { location = cat.locations.firstEntry().getValue(); }
+			if (location == null) {
+				location = new TransportLocation();
+				location.id = pos.getX();
+				location.category = TransportController.getInstance().getCategory(location, catId);
+			}
 		}
-		if (player.world.isRemote) { loc = loc.copy(); }
-		location = loc;
+		if (player.world.isRemote) { location = location.copy(); }
 		resetStacks();
 	}
 
@@ -39,14 +55,14 @@ public class ContainerNPCTransports extends Container {
 
 	public NBTTagCompound saveTransport(TransportCategory category) {
 		NBTTagCompound compound = new NBTTagCompound();
-		if (category == null) {
-			return compound;
+		if (category != null) {
+			for (int i = 0; i < 9; i++) {
+				location.inventory.setInventorySlotContents(i, getSlot(i).getStack());
+			}
+			TransportController tData = TransportController.getInstance();
+			if (location.id < 0 || tData.getTransport(location.id) == null) { tData.loadLocation(category, location.save()); }
+			category.save(compound);
 		}
-		for (int i = 0; i < 9; i++) {
-			location.inventory.setInventorySlotContents(i, getSlot(i).getStack());
-		}
-		category.locations.put(location.id, location);
-		category.save(compound);
 		return compound;
 	}
 
@@ -60,11 +76,11 @@ public class ContainerNPCTransports extends Container {
 			}
 		}
 		// player inventory
-		for(int x = 0; x < 3; ++x) {
-			for(int y = 0; y < 9; ++y) { addSlotToContainer(new Slot(inv, y + x * 9 + 9, y * 18 + 8, 113 + x * 18)); }
+		for(int y = 0; y < 3; ++y) {
+			for(int x = 0; x < 9; ++x) { addSlotToContainer(new Slot(inventory, x + y * 9 + 9, x * 18 + 48, 137 + y * 18)); }
 		}
 		// player hotbar
-		for(int x = 0; x < 9; ++x) { addSlotToContainer(new Slot(inv, x, x * 18 + 8, 171)); }
+		for(int x = 0; x < 9; ++x) { addSlotToContainer(new Slot(inventory, x, x * 18 + 48, 195)); }
 	}
 
 }
