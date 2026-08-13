@@ -89,7 +89,7 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
    public void transport(ServerPlayer player, int location) {
       TransportLocation loc = TransportController.getInstance().getTransport(location);
       PlayerData playerdata = PlayerData.get(player);
-      if (loc.id > -1 && (loc.isDefault() || playerdata.transportData.transports.contains(loc.id))) {
+      if (loc != null && loc.id > -1 && (loc.isDefault() || playerdata.transportData.transports.contains(loc.id))) {
          RoleEvent.TransporterUseEvent event = new RoleEvent.TransporterUseEvent(player, npc.wrappedNPC, loc);
          if (!EventHooks.onNPCRole(npc, event) && event.location != null) {
             loc = (TransportLocation) event.location;
@@ -146,7 +146,8 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
          RoleEvent.TransporterUnlockedEvent event = new RoleEvent.TransporterUnlockedEvent(sPlayer, npc.wrappedNPC);
          if (!EventHooks.onNPCRole(npc, event)) {
             data.transports.add(transportId);
-            Packets.send(sPlayer, new PacketChatBubble(npc.getId(), Component.translatable("transporter.unlock",
+            Packets.send(sPlayer, new PacketChatBubble(npc.getId(),
+                    Component.translatable("transporter.unlock",
                     Component.translatable(loc.name).getString(),
                     Component.translatable(loc.category.title).getString()), true));
          }

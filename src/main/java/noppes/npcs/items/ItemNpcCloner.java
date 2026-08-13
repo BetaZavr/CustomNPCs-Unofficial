@@ -12,7 +12,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.GuiNpcMobSpawnerAdd;
@@ -41,10 +40,10 @@ public class ItemNpcCloner extends Item implements INPCToolItem {
    public @Nonnull InteractionResult useOn(UseOnContext context) {
       if (context.getLevel().isClientSide() && context.getPlayer() != null) {
          Player player = context.getPlayer();
-         PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+         PlayerData data = PlayerData.get(player);
          boolean summon = false;
          ItemStack stackCloner = player.getMainHandItem();
-         if (data != null && data.overlay.isPressedShift()) {
+         if (data.overlay.isPressedShift()) {
             CompoundTag nbt = stackCloner.getTag();
             if (nbt != null && nbt.contains("Settings", 10)) {
                CompoundTag nbtData = nbt.getCompound("Settings");

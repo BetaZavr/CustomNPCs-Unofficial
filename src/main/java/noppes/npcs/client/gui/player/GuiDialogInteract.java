@@ -284,7 +284,7 @@ public class GuiDialogInteract
 
    @Override
    public void save() {
-      PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+      PlayerData data = PlayerData.get(player);
       data.dialogData.addLogs(lines, npcSkin.toString());
       CompoundTag compound = new CompoundTag();
       data.dialogData.save(compound);

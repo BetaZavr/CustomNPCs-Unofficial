@@ -12,6 +12,7 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketFollowerExtend;
@@ -162,7 +163,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface<ContainerNPCFollowe
          }
       }
       if (getButton(3) != null) {
-         getButton(3).setIsEnabled(player.isCreative() || CustomNpcs.proxy.getPlayerData(player).game.getMoney() >= role.rentalMoney);
+         getButton(3).setIsEnabled(player.isCreative() || PlayerData.get(player).game.getMoney() >= role.rentalMoney);
       }
       super.render(graphics, mouseX, mouseY, partialTicks);
    }

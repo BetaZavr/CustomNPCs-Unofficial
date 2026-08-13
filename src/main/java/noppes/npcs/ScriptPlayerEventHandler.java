@@ -812,7 +812,9 @@ public class ScriptPlayerEventHandler {
               Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(event.getCrafting()),
               Objects.requireNonNull(NpcAPI.Instance()).getIContainer(event.getInventory()));
       EventHooks.onEvent(PlayerData.get(player).scriptData, EnumScriptType.ITEM_CRAFTED, craftEvent);
-      if (!craftEvent.crafting.isEmpty()) { CustomNPCsScheduler.runTack(() -> doCraftQuest(player, craftEvent.crafting.getMCItemStack())); }
+      if (!craftEvent.crafting.isEmpty() && player.getServer() != null) {
+         CustomNPCsScheduler.runTack(() -> doCraftQuest(player, craftEvent.crafting.getMCItemStack()));
+      }
       CustomNpcs.debugData.end(player);
    }
 

@@ -21,7 +21,6 @@ import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.controllers.RecipeController;
-import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.RecipeCarpentry;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.mixin.stats.IRecipeBookMixin;
@@ -45,11 +44,6 @@ public class CommonProxy {
    public @Nullable Player getPlayer() { return null; }
 
    public void spawnParticle(ParticleOptions type, double x, double y, double z, double motionX, double motionY, double motionZ, float scale) { }
-
-   public PlayerData getPlayerData(Player player) {
-      if (player == null) { return null; }
-      return PlayerData.get(player);
-   }
 
    // New from Unofficial (BetaZavr)
    public String getTranslateLanguage(Player player) {

@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -44,6 +43,7 @@ import noppes.npcs.mixin.server.level.IChunkMapMixin;
 import noppes.npcs.mixin.server.level.IServerLevelMixin;
 import noppes.npcs.mixin.world.level.entity.IPersistentEntitySectionManagerMixin;
 import noppes.npcs.shared.common.util.LogWriter;
+import noppes.npcs.util.CustomNPCsScheduler;
 
 public class NPCSpawning {
 
@@ -153,9 +153,7 @@ public class NPCSpawning {
                }
                entity.moveTo((double)pos.getX() + 0.5D, pos.getY(), (double)pos.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
                if (!ForgeEventFactory.checkSpawnPosition(entityLiving, level, MobSpawnType.NATURAL)) { return false; }
-               Objects.requireNonNull(level.getServer()).submit(() -> {
-                  level.addFreshEntity(entityLiving);
-               });
+               CustomNPCsScheduler.runTack(() -> level.addFreshEntity(entityLiving));
                return true;
             }
             else { return false; }

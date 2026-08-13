@@ -277,8 +277,7 @@ public class WrapperNpcAPI extends NpcAPI {
          catch (Exception e) { throw new CustomNPCsException("Invalid UUID string: \"" + uuid + "\""); }
          ServerPlayer player = CustomNpcs.Server.getPlayerList().getPlayer(uuidMC);
          if (player != null && player.getName().toString().equals(name)) {
-            PlayerData data = CustomNpcs.proxy.getPlayerData(player);
-            if (data != null) { return getINbt(data.getNBT()); }
+            return getINbt(PlayerData.get(player).getNBT());
          }
       }
       return getINbt(PlayerData.loadPlayerData(uuid, name));

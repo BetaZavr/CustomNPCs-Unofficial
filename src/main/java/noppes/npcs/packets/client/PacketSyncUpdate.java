@@ -58,7 +58,7 @@ public class PacketSyncUpdate extends PacketBasic {
                QuestController.instance.quests.put(quest.id, quest);
                category.quests.put(quest.id, quest);
             }
-            PlayerQuestData questData = CustomNpcs.proxy.getPlayerData(player).questData;
+            PlayerQuestData questData = PlayerData.get(player).questData;
             for (QuestData qd : new ArrayList<>(questData.activeQuests.values())) {
                if (qd.quest.id == quest.id) {
                   qd.quest = quest;
@@ -121,7 +121,7 @@ public class PacketSyncUpdate extends PacketBasic {
             break;
          } // dialog gui settings
          case 12: {
-            if (data.contains("MailData", 9)) { CustomNpcs.proxy.getPlayerData(player).mailData.load(data); }
+            if (data.contains("MailData", 9)) { PlayerData.get(player).mailData.load(data); }
             if (data.contains("LettersBeDeleted", 3)) { CustomNpcs.MailTimeWhenLettersWillBeDeleted = data.getInt("LettersBeDeleted"); }
             if (data.contains("LettersBeReceived", 11)) {
                int[] vs = data.getIntArray("LettersBeReceived");
@@ -135,7 +135,7 @@ public class PacketSyncUpdate extends PacketBasic {
             break;
          } // new mail info on screen
          case 13: {
-            CustomNpcs.proxy.getPlayerData(player).factionData.load(data);
+            PlayerData.get(player).factionData.load(data);
             break;
          } // faction data update
          case 14: {
@@ -156,7 +156,7 @@ public class PacketSyncUpdate extends PacketBasic {
    }
 
    private void updateMinimap() {
-      PlayerMiniMapData mm = CustomNpcs.proxy.getPlayerData(player).minimap;
+      PlayerMiniMapData mm = PlayerData.get(player).minimap;
       //String modName = mm.modName;
       mm.load(data);
       /*int isChanged = 0;

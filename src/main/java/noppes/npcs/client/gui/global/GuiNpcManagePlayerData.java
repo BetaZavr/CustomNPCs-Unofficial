@@ -11,7 +11,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.select.SubGuiDialogSelection;
@@ -23,10 +22,7 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPlayerData;
 import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.controllers.*;
-import noppes.npcs.controllers.data.Bank;
-import noppes.npcs.controllers.data.Faction;
-import noppes.npcs.controllers.data.Marcet;
-import noppes.npcs.controllers.data.TransportLocation;
+import noppes.npcs.controllers.data.*;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.*;
@@ -564,7 +560,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
                         long v = Long.parseLong(l);
                         name = name.substring(0, name.lastIndexOf("("));
                         long time = v;
-                        if (v < 1321603200000L) { time = System.currentTimeMillis() - (CustomNpcs.proxy.getPlayerData(player).questData.overworldTime - v) * 50L; }
+                        if (v < 1321603200000L) { time = System.currentTimeMillis() - (PlayerData.get(player).questData.overworldTime - v) * 50L; }
                         long ago = (System.currentTimeMillis() - time) / 50L;
                         hover.append("<br>")
                                 .append(Component.translatable("availability.completed").append(": ").withStyle(ChatFormatting.GRAY))

@@ -260,7 +260,7 @@ public class CustomBlockPortal extends EndPortalBlock implements ICustomElement 
     }
 
     private boolean notRegisterDimension(MinecraftServer server, @Nonnull ResourceKey<Level> dimensionId) {
-        return (server == null || server.getLevel(dimensionId) == null) && !DimensionController.has(dimensionId.location());
+        return (server == null || server.getLevel(dimensionId) == null) && !DimensionController.has(dimensionId);
     }
 
     private @Nullable CustomTileEntityPortal getAdjacentTile(Level level, BlockPos pos) {

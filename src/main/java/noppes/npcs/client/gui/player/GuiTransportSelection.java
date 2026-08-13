@@ -14,6 +14,7 @@ import net.minecraft.world.item.TooltipFlag;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.controllers.TransportController;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
@@ -60,13 +61,16 @@ public class GuiTransportSelection extends GuiNPCInterface
             title = Component.translatable(loc.category.title).append(": ").append(Component.translatable(loc.name));
          }
       }
-      addLabel(0, guiLeft + (imageWidth - font.width(title)) / 2, guiTop + 10, title);
+      addLabel(0, guiLeft + (imageWidth - font.width(title)) / 2, guiTop + 8, title)
+              .setSize(imageWidth - 10, 10);
       addButton(0, guiLeft + 10, guiTop + 192, "transporter.travel")
               .setSize(156, 20);
       if (scroll == null) { scroll = addScroll(0).setSize(156, 165); }
       List<Component> list = new ArrayList<>(data.keySet());
       add(scroll.setPos(guiLeft + 10, guiTop + 20)
               .setNormalList(list));
+      if (list.size() * (font.lineHeight + 3) < 165) { scroll.setSize(156, 170).disabledSearch(); }
+      else { scroll.enabledSearch().setSize(156, 165); }
       if (!data.isEmpty()) {
          List<Component> suffixes = new ArrayList<>();
          for (Component name : list) {
@@ -76,7 +80,7 @@ public class GuiTransportSelection extends GuiNPCInterface
                ChatFormatting color = ChatFormatting.GREEN;
                if (loc.money > 0 || !loc.inventory.isEmpty()) {
                   if (loc.money > 0) {
-                     if (loc.money > CustomNpcs.proxy.getPlayerData(player).game.getMoney()) { color = ChatFormatting.RED; }
+                     if (loc.money > PlayerData.get(player).game.getMoney()) { color = ChatFormatting.RED; }
                      sfx = Component.empty()
                              .append(Component.literal(Util.instance.getTextReducedNumber(loc.money, true, true, false)
                                              + CustomNpcs.displayCurrencies)
@@ -191,7 +195,7 @@ public class GuiTransportSelection extends GuiNPCInterface
             button.setIsEnabled(canTransport && select != null);
             if (!button.isEnabled() && button.isHoveredOrFocused()) {
                if (select == null) { setHoverText(Component.translatable("transporter.hover.not.select")); }
-               else if (select.money > CustomNpcs.proxy.getPlayerData(player).game.getMoney()) { setHoverText(Component.translatable("transporter.hover.not.money")); }
+               else if (select.money > PlayerData.get(player).game.getMoney()) { setHoverText(Component.translatable("transporter.hover.not.money")); }
                else { setHoverText(Component.translatable("transporter.hover.not.item")); }
             }
          }

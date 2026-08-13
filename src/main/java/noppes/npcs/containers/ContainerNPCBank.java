@@ -8,7 +8,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import noppes.npcs.CustomContainer;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.containers.inventories.NpcMiscInventory;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.PlayerDataController;
@@ -54,7 +53,7 @@ public class ContainerNPCBank extends AbstractContainerMenu {
             bd.addListener(sPlayer);
          }
       }
-      else { bd = CustomNpcs.proxy.getPlayerData(playerInventory.player).bankData.get(bank.id); }
+      else { bd = PlayerData.get(playerInventory.player).bankData.get(bank.id); }
       bd.load(nbtBD);
       data = bd;
       items = Objects.requireNonNull(data.get(ceil));

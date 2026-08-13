@@ -24,6 +24,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.handler.ICustomPlayerData;
 import noppes.npcs.api.mixin.world.entity.IEntityIMixin;
+import noppes.npcs.client.ClientProxy;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataAnimation;
@@ -265,7 +266,9 @@ implements ICapabilityProvider, ICustomPlayerData {
    }
 
    public static @Nonnull PlayerData get(@Nullable Player player) {
-      if (player == null || player.level().isClientSide) { return CustomNpcs.proxy.getPlayerData(player); }
+      if (player == null || player.level().isClientSide()) {
+         return ClientProxy.getPlayerData();
+      }
       LazyOptional<PlayerData> liz = player.getCapability(PLAYERDATA_CAPABILITY, null);
       if (!liz.isPresent()) { LogWriter.warn("Hmmm. Why is a new \"PlayerData\" being created?"); }
       PlayerData data = liz.orElse(new PlayerData());

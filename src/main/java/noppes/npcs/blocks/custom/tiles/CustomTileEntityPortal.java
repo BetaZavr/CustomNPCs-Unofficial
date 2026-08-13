@@ -127,7 +127,7 @@ public class CustomTileEntityPortal extends TheEndPortalBlockEntity {
     }
 
     private boolean hasDimension(MinecraftServer server, ResourceKey<Level> dimensionId) {
-        return dimensionId != null && ((server != null && server.getLevel(dimensionId) != null) || DimensionController.has(dimensionId.location()));
+        return dimensionId != null && ((server != null && server.getLevel(dimensionId) != null) || DimensionController.has(dimensionId));
     }
 
     @Override

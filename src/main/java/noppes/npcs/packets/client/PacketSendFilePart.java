@@ -9,6 +9,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.ClientTickHandler;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketRemoveLoadFile;
 import noppes.npcs.shared.common.PacketBasic;
@@ -63,7 +64,7 @@ public class PacketSendFilePart extends PacketBasic {
             if (file.saveType == 1) {
                 LogWriter.info("Script Client file was received from the Server: \"" + name + "\"");
                 File normalFile = new File(CustomNpcs.Dir, ScriptController.Instance.clientScripts.getLanguage().toLowerCase() + "/" + name);
-                if (player.isCreative() || CustomNpcs.proxy.getPlayerData(player).game.op) {
+                if (player.isCreative() || PlayerData.get(player).game.op) {
                     String s = "" + file.size;
                     if (file.size > 999) {
                         s = Util.instance.getTextReducedNumber(file.size, false, false, false);

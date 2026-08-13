@@ -5,7 +5,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.controllers.BankController;
 import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.PlayerData;
@@ -33,7 +32,7 @@ public class PacketBankSave extends PacketBasic {
             Bank bank = BankController.getInstance().getBank(id);
             if (bank == null) { bank = BankController.getInstance().addNewBank(); }
             bank.load(data);
-            CustomNpcs.proxy.getPlayerData(player).bankData.lastBank = null;
+            PlayerData.get(player).bankData.lastBank = null;
         }
         CustomNpcs.debugData.end("Packets");
     }

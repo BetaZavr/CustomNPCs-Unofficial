@@ -37,6 +37,7 @@ import noppes.npcs.mixin.client.gui.screens.IConfirmScreenMixin;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.*;
 import noppes.npcs.shared.common.util.LogWriter;
+import noppes.npcs.util.CustomDelayedTask;
 import noppes.npcs.util.TempFile;
 
 import java.util.*;
@@ -47,10 +48,13 @@ public class ClientTickHandler {
    private boolean otherContainer = false;
 
    // New from Unofficial (BetaZavr)
+   protected static List<CustomDelayedTask> delayedTasks = new ArrayList<>();
    public static List<MusicData> musics = new ArrayList<>();
    public static boolean checkMails = false;
    public static boolean inGame = false;
    public static long ticks = 0L;
+
+   public static void addTask(Runnable task, long delay) { delayedTasks.add(new CustomDelayedTask(task, delay)); }
 
    public static void loadFiles() {
       if (!ClientProxy.loadFiles.isEmpty()) {
@@ -86,7 +90,7 @@ public class ClientTickHandler {
       if (event.phase == Phase.END) { return; }
       CustomNpcs.debugData.start("Mod");
       Minecraft mc = Minecraft.getInstance();
-      PlayerData data = CustomNpcs.proxy.getPlayerData(mc.player);
+      PlayerData data = PlayerData.get(mc.player);
       if (mc.player != null && mc.player.containerMenu instanceof InventoryMenu) {
          if (otherContainer) {
             Packets.sendServer(new SPacketQuestCompletionCheckAll());
@@ -200,7 +204,16 @@ public class ClientTickHandler {
             data.overlay.keyPress.clear();
          }
       }
-
+      // Process delayed tasks
+      Iterator<CustomDelayedTask> it = delayedTasks.iterator();
+      while (it.hasNext()) {
+         CustomDelayedTask delayedTask = it.next();
+         delayedTask.ticksRemaining--;
+         if (delayedTask.ticksRemaining <= 0) {
+            it.remove();
+            delayedTask.task.run();
+         }
+      }
       CustomNpcs.debugData.end("Mod");
    }
 
@@ -239,7 +252,7 @@ public class ClientTickHandler {
             String openGui = mc.screen == null ? "" : mc.screen.getClass().getName();
             Packets.sendServer(new SPacketPlayerKeyPressed(key, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed, event.getAction() == 1, openGui));
             if (mc.screen == null) {
-               PlayerData data = CustomNpcs.proxy.getPlayerData(mc.player);
+               PlayerData data = PlayerData.get(mc.player);
                if (event.getAction() == 1) { data.overlay.keyPress.add(key); }
                else { data.overlay.keyPress.remove(key); }
             }
@@ -307,7 +320,7 @@ public class ClientTickHandler {
          Event event = new PlayerEvent.KeyPressedEvent(iPlayer, key, isCtrlPressed, isAltPressed, isShiftPressed, isMetaPressed, "");
          EventHooks.onEvent(ScriptController.Instance.clientScripts, isDown ? EnumScriptType.MOUSE_PRESSED : EnumScriptType.MOUSE_RELEASED, event);
          Packets.sendServer(new SPacketPlayerMousePressed(key, isDown, scrolled, isCtrlPressed, isShiftPressed, isAltPressed, isMetaPressed, openGui));
-         PlayerData data = CustomNpcs.proxy.getPlayerData(mc.player);
+         PlayerData data = PlayerData.get(mc.player);
          if (isDown) { data.overlay.mousePress.add(key); }
          else { data.overlay.mousePress.remove(key); }
       }

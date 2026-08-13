@@ -6,8 +6,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import noppes.npcs.CustomContainer;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.containers.slots.SlotValid;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.controllers.data.PlayerMailData;
 import org.jetbrains.annotations.NotNull;
@@ -62,7 +62,7 @@ public class ContainerMail extends ContainerNpcInterface {
       super.removed(player);
       if (playerIn instanceof ServerPlayer) {
          if (!canEdit) {
-            PlayerMailData data = CustomNpcs.proxy.getPlayerData(player).mailData;
+            PlayerMailData data = PlayerData.get(player).mailData;
             for (PlayerMail m : data.playerMails) {
                if (m.timeWhenReceived == mail.timeWhenReceived && m.sender.equals(mail.sender)) {
                   m.load(mail.save());

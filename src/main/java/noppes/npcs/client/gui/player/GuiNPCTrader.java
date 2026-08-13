@@ -270,7 +270,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
          }
       }
       // Market level
-      PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+      PlayerData data = PlayerData.get(player);
       if (marcet.showXP) {
          graphics.blit(INV, imageWidth - 100, invPosY - 24, 0, 118, 100, 24);
          MarkupData md = data.game.getMarkupData(marcet.getId());
@@ -512,7 +512,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
          }
       }
       // section deals
-      int level = CustomNpcs.proxy.getPlayerData(player).game.getMarcetLevel(marcet.getId());
+      int level = PlayerData.get(player).game.getMarcetLevel(marcet.getId());
       List<Deal> dealInTrade = new ArrayList<>();
       List<Deal> caseInTrade = new ArrayList<>();
       List<Deal> dealNotTrade = new ArrayList<>();
@@ -622,7 +622,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
          if (wait || selectDealData.deal.getType() == 1) { canBuy.add(1); }
          if (selectDealData.deal.getAmount() <= 0 && selectDealData.deal.getMaxCount() <= 0) { canBuy.add(6); }
          if (!selectDealData.deal.availability.isAvailable(player)) { canBuy.add(2); }
-         PlayerData pd = CustomNpcs.proxy.getPlayerData(player);
+         PlayerData pd = PlayerData.get(player);
          if (selectDealData.buyMoney > 0 && pd.game.getMoney() < selectDealData.buyMoney) { canBuy.add(3); }
          if (selectDealData.buyDonat > 0 && pd.game.getDonat() < selectDealData.buyDonat) { canBuy.add(7); }
          if (!Util.instance.canRemoveItems(player.getInventory().items, selectDealData.buyItems, selectDealData.ignoreDamage, selectDealData.ignoreNBT)) { canBuy.add(4); }

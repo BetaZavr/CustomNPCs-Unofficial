@@ -2736,7 +2736,6 @@ public class SubGuiEditAnimation extends GuiNPCInterface
         }
 
         // model mesh rotation axes:
-
         ModelNpcAlt.editAnimDataSelect.displayNpc = showNPC;
         float r = showNPC.getYRot() < 0.0f ? showNPC.getYRot() + 360.0f : showNPC.getYRot();
         float oy = 0.0f;

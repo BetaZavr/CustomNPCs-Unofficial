@@ -51,7 +51,7 @@ public class PacketSync extends PacketBasic {
    protected void handle() {
       CustomNpcs.debugData.start("Packets");
       Minecraft mc = Minecraft.getInstance();
-      PlayerData pd = CustomNpcs.proxy.getPlayerData(player);
+      PlayerData pd = PlayerData.get(player);
       switch (type) {
          case 1: {
             ListTag list = data.getList("Data", 10);

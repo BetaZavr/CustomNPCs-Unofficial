@@ -5,12 +5,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.eventbus.api.Event;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.shared.common.util.LogWriter;
+import noppes.npcs.util.CustomNPCsScheduler;
 
 public class ForgeScriptData
 extends BaseScriptData {
@@ -24,15 +24,15 @@ extends BaseScriptData {
    @Override
    public void runScript(String type, Event event) {
       if (!isEnabled()) { return; }
-      try {
-         CustomNpcs.Server.submit(() -> {
+      CustomNPCsScheduler.runTack(() -> {
+         try {
             if (ScriptController.Instance.lastLoaded > lastInited) {
                lastInited = ScriptController.Instance.lastLoaded;
                if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onForgeInit(this); }
             }
             for (ScriptContainer script : scripts) { script.run(type, event); }
-         });
-      } catch (Exception e) { LogWriter.error("Error:", e); }
+         } catch (Exception e) { LogWriter.error("Error:", e); }
+      });
    }
 
    public void load(CompoundTag compound) {

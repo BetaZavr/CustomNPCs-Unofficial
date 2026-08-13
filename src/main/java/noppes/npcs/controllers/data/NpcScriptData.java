@@ -3,16 +3,14 @@ package noppes.npcs.controllers.data;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.*;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.Event;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.api.event.NpcEvent;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.shared.common.util.LogWriter;
-import noppes.npcs.util.Util;
+import noppes.npcs.util.CustomNPCsScheduler;
 
 public class NpcScriptData extends BaseScriptData {
 
@@ -50,8 +48,8 @@ public class NpcScriptData extends BaseScriptData {
     @Override
     public void runScript(String type, Event event) {
         if (isEnabled()) {
-            try {
-                CustomNpcs.Server.submit(() -> {
+            CustomNPCsScheduler.runTack(() -> {
+                try {
                     if (ScriptController.Instance.lastLoaded > lastInited) {
                         lastInited = ScriptController.Instance.lastLoaded;
                         if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) {
@@ -59,9 +57,9 @@ public class NpcScriptData extends BaseScriptData {
                         }
                     }
                     for (ScriptContainer script : scripts) { script.run(type, event); }
-                });
-            }
-            catch (Exception e) { LogWriter.error("Error:", e); }
+                }
+                catch (Exception e) { LogWriter.error("Error:", e); }
+            });
         }
     }
 

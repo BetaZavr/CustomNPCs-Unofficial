@@ -1,6 +1,5 @@
 package noppes.npcs.packets.client;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -8,6 +7,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.shared.common.PacketBasic;
+import noppes.npcs.util.CustomNPCsScheduler;
 
 public class PacketConfigFont extends PacketBasic {
 
@@ -33,7 +33,7 @@ public class PacketConfigFont extends PacketBasic {
    @OnlyIn(Dist.CLIENT)
    protected void handle() {
       CustomNpcs.debugData.start("Packets");
-      Runnable run = () -> {
+      CustomNPCsScheduler.runTack(() -> {
          if (!font.isEmpty()) {
             CustomNpcs.FontType = font;
             CustomNpcs.FontSize = size;
@@ -44,8 +44,7 @@ public class PacketConfigFont extends PacketBasic {
          } else {
             player.sendSystemMessage(Component.translatable("Current font is " + ClientProxy.Font.getName()));
          }
-      };
-      Minecraft.getInstance().submit(run);
+      });
       CustomNpcs.debugData.end("Packets");
    }
 

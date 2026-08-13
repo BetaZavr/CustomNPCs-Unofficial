@@ -9,6 +9,7 @@ import noppes.npcs.EventHooks;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.shared.common.PacketBasic;
 
 public class PacketCustomNBT extends PacketBasic {
@@ -29,7 +30,7 @@ public class PacketCustomNBT extends PacketBasic {
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
         EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.PACKAGE_FROM,
-                new PlayerEvent.PlayerPackage(CustomNpcs.proxy.getPlayerData(player).scriptData.getPlayer(), data));
+                new PlayerEvent.PlayerPackage(PlayerData.get(player).scriptData.getPlayer(), data));
         CustomNpcs.debugData.end("Packets");
     }
 }

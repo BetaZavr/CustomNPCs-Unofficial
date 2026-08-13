@@ -497,7 +497,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface<ContainerNPCBank> 
                        .append(Component.literal(" x" + stack.getCount() * ceilsUpdate).withStyle(ChatFormatting.DARK_RED)));
             }
          }
-         PlayerData data = CustomNpcs.proxy.getPlayerData(player);
+         PlayerData data = PlayerData.get(player);
          if (money > 0 && data.game.getMoney() < money * (long) ceilsUpdate) {
             if (bo && !player.isCreative()) { hover.add(Component.translatable("gui.allowed")); bo = false; }
             hover.add(Component.translatable("hover.operation.not.money"));

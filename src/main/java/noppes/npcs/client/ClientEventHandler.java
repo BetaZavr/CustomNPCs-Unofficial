@@ -214,7 +214,7 @@ public class ClientEventHandler {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.5F);
         try {
             for(int i = 0, j = 0;
-                i < schem.size && (CustomNpcs.proxy.getPlayerData(mc.player).overlay.isPressedCtrl() || j < 25000);
+                i < schem.size && (PlayerData.get(mc.player).overlay.isPressedCtrl() || j < 25000);
                 ++i) {
                 BlockState state = schem.schema.getBlockState(i);
                 if (state.getRenderShape() != RenderShape.INVISIBLE) {
@@ -715,7 +715,7 @@ public class ClientEventHandler {
     public void cnpcRenderGameOverlayPre(RenderGuiOverlayEvent.Pre event) {
         mc = Minecraft.getInstance();
         event.setCanceled(mc.screen instanceof GuiOpenCase || mc.screen instanceof GuiYellowDialogEditor ||
-                !CustomNpcs.proxy.getPlayerData(null).overlay.isShowElementType(event.getOverlay().id()));
+                !PlayerData.get(mc.player).overlay.isShowElementType(event.getOverlay().id()));
     }
 
     /** Any Regions + Camera Shake */
@@ -730,7 +730,7 @@ public class ClientEventHandler {
             CustomNpcs.debugData.started = System.currentTimeMillis();
             CustomNpcs.debugData.startedTicks = ClientTickHandler.ticks;
             ClientTickHandler.inGame = true;
-            PlayerData data = CustomNpcs.proxy.getPlayerData(mc.player);
+            PlayerData data = PlayerData.get(mc.player);
             data.player = mc.player;
             data.name = mc.player.getName().getString();
             data.uuid = mc.player.getUUID().toString();
@@ -861,7 +861,7 @@ public class ClientEventHandler {
                 if (mainStack.getTag() != null && mainStack.getTag().contains("RegionID", 3)) { id = mainStack.getTag().getInt("RegionID"); }
                 Zone3D reg = BorderController.getInstance().getRegion(id);
                 // choosing a central position to create a new region
-                if ((CustomNpcs.proxy.getPlayerData(mc.player).overlay.isPressedShift() || reg == null) &&
+                if ((PlayerData.get(mc.player).overlay.isPressedShift() || reg == null) &&
                         mc.hitResult instanceof BlockHitResult result && result.getType() != HitResult.Type.MISS) {
                     final BlockPos pos = getPos(result);
                     event.getPoseStack().pushPose();
@@ -895,13 +895,13 @@ public class ClientEventHandler {
         }
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
             long winID = mc.getWindow().getWindow();
-            PlayerData playerData = CustomNpcs.proxy.getPlayerData(mc.player);
+            PlayerData playerData = PlayerData.get(mc.player);
             boolean isMoved = InputConstants.isKeyDown(winID, mc.options.keyUp.getKey().getValue()) ||
                     InputConstants.isKeyDown(winID, mc.options.keyDown.getKey().getValue()) ||
                     InputConstants.isKeyDown(winID, mc.options.keyRight.getKey().getValue()) ||
                     InputConstants.isKeyDown(winID, mc.options.keyLeft.getKey().getValue());
             if (playerData.overlay.isMoved != isMoved) {
-                CustomNpcs.proxy.getPlayerData(mc.player).overlay.isMoved = isMoved;
+                PlayerData.get(mc.player).overlay.isMoved = isMoved;
                 Packets.sendServer(new SPacketPlayerIsMoved(isMoved));
             }
             Camera camera = mc.gameRenderer.getMainCamera();
@@ -1991,7 +1991,8 @@ public class ClientEventHandler {
 
     @SuppressWarnings("unchecked")
     private void updateMiniMaps(boolean update) {
-        PlayerMiniMapData mm = CustomNpcs.proxy.getPlayerData(Minecraft.getInstance().player).minimap;
+        if (mc == null) { mc = Minecraft.getInstance(); }
+        PlayerMiniMapData mm = PlayerData.get(mc.player).minimap;
         // Check save client Points:
         List<MiniMapData> points = new ArrayList<>();
         /**/
@@ -2150,7 +2151,8 @@ public class ClientEventHandler {
 
     private void renderBalance(GuiGraphics graphics, Font font, int mouseX, int mouseY, int x, int y) {
         if ((CustomNpcs.ShowMoney || CustomNpcs.ShowDonat) && graphics != null && font != null && x !=0 && y != 0) {
-            PlayerData data = CustomNpcs.proxy.getPlayerData(null);
+            if (mc == null) { mc = Minecraft.getInstance(); }
+            PlayerData data = PlayerData.get(mc.player);
             long money = data.game.getMoney();
             long donat = data.game.getDonat();
             int yM = y - (CustomNpcs.ShowMoney && CustomNpcs.ShowDonat ? 5 : 0);
@@ -2209,7 +2211,7 @@ public class ClientEventHandler {
             CustomNpcs.MailWindow = 1;
             int[] offsets = new int[2];
             float sr = -45.0f, su = 12.0f, sv = -32.0f; // sr = 45.0f, su = 12.0f, sv = 32.0f;
-            offsets[1] = (int) CustomNpcs.proxy.getPlayerData(mc.player).overlay.getWindowSize().getHeight() - 32;
+            offsets[1] = (int) PlayerData.get(mc.player).overlay.getWindowSize().getHeight() - 32;
             matrixStack.pushPose();
             matrixStack.translate(offsets[0] + 16, offsets[1] + 16, 0);
             if (startMail == 0L) { startMail = System.currentTimeMillis(); }
@@ -2266,7 +2268,7 @@ public class ClientEventHandler {
     public static void renderCompassOverlay(ForgeGui ignoredGui, GuiGraphics graphics, float ignoredPartialTick, int ignoredScreenWidth, int ignoredScreenHeight) {
         mc = Minecraft.getInstance();
         if (mc.level != null && mc.player != null && (mc.screen == null || mc.screen instanceof ChatScreen || mc.screen instanceof GuiLog)) {
-            PlayerData playerData = CustomNpcs.proxy.getPlayerData(mc.player);
+            PlayerData playerData = PlayerData.get(mc.player);
             PlayerCompassData compassData = playerData.compass;
             if (CustomNpcs.TypeShowQuestCompass != 4 && compassData.getShowOfPlayer()) {
                 PoseStack matrixStack = graphics.pose();
@@ -2768,7 +2770,7 @@ public class ClientEventHandler {
         if (mc.level != null && mc.player != null &&
                 (mc.screen == null || mc.screen instanceof ChatScreen || mc.screen instanceof GuiLog) &&
                 (mc.player.getMainHandItem().getItem() instanceof ItemNbtBook || mc.player.getOffhandItem().getItem() instanceof ItemNbtBook)) {
-            PlayerData playerData = CustomNpcs.proxy.getPlayerData(mc.player);
+            PlayerData playerData = PlayerData.get(mc.player);
             PoseStack matrixStack = graphics.pose();
             double distance = playerData.game.renderDistance;
             Vec3 vec3d = mc.player.getEyePosition(1.0f);

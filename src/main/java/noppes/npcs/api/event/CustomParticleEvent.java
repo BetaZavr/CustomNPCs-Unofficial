@@ -2,13 +2,13 @@ package noppes.npcs.api.event;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.eventbus.api.Cancelable;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.ICustomParticle;
 import noppes.npcs.api.interfaces.EventFunction;
-import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.particles.CustomParticle;
+import noppes.npcs.controllers.data.PlayerData;
 
 import javax.annotation.Nonnull;
 
@@ -25,7 +25,7 @@ public class CustomParticleEvent extends CustomNPCsEvent {
     public CustomParticleEvent(@Nonnull CustomParticle particleIn, @Nonnull String nameIn) {
         particle = particleIn;
         name = nameIn;
-        player = CustomNpcs.proxy.getPlayerData(null).scriptData.getPlayer();
+        player = PlayerData.get(Minecraft.getInstance().player).scriptData.getPlayer();
     }
 
     @EventFunction(CREATE)

@@ -98,7 +98,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
       imageWidth = 306;
       imageHeight = 248;
 
-      playerData = CustomNpcs.proxy.getPlayerData(player);
+      playerData = PlayerData.get(player);
 
       bookTotalPages = 1;
       hasSend = false;
@@ -563,7 +563,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
             getButton(6).layerColor = 0;
             if (!menu.canEdit && !menu.canSend) {
                if (mail.ransom > 0) {
-                  getButton(6).setIsEnabled(player.isCreative() || CustomNpcs.proxy.getPlayerData(player).game.getMoney() >= mail.ransom);
+                  getButton(6).setIsEnabled(player.isCreative() || PlayerData.get(player).game.getMoney() >= mail.ransom);
                }
                else { getButton(6).setIsEnabled(mail.money > 0); }
             }
@@ -893,7 +893,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
          type = !player.isCreative() && username.equals(player.getName().getString()) && !CustomNpcs.MailSendToYourself ? 3 : 0;
          if (type == 0) { type = getTextField(0) != null && getTextField(0).getValue().isEmpty() ? 1 : 0; } // player
          if (type == 0) { type = mail.title.isEmpty() ? 4 : 0; } // title
-         if (type == 0 && !player.isCreative()) { type = CustomNpcs.proxy.getPlayerData(player).game.getMoney() < totalCost ? 2 : 0; } // money
+         if (type == 0 && !player.isCreative()) { type = PlayerData.get(player).game.getMoney() < totalCost ? 2 : 0; } // money
          if (type == 0 && !hasMail) { type = 5; } // empty
          getButton(0).setIsEnabled(type == 0);
       }
@@ -1509,7 +1509,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
          graphics.blit(GuiBasic.MONEY, 0, 0, 0, 0, 256, 256);
          matrixStack.popPose();
          matrixStack.pushPose();
-         graphics.drawString(font, Util.instance.getTextReducedNumber(CustomNpcs.proxy.getPlayerData(player).game.getMoney(), true, true, false)
+         graphics.drawString(font, Util.instance.getTextReducedNumber(PlayerData.get(player).game.getMoney(), true, true, false)
                  + CustomNpcs.displayCurrencies, x + 15, y + 8.0f / 2.0f, new Color(0x404040).getRGB(), false);
          matrixStack.popPose();
       }

@@ -11,6 +11,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.ClientEventHandler;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.controllers.SyncController;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketSetBuildData;
 import noppes.npcs.schematics.*;
@@ -47,7 +48,7 @@ public class GuiBuilderSchematic extends GuiBasic implements ICustomScrollListen
         // base in mod:
         for (String name : SchematicController.included) {
             SchematicWrapper schema = SchematicController.Instance.load(name);
-            if (CustomNpcs.proxy.getPlayerData(null).game.op || schema.size <= CustomNpcs.MaxBuilderBlocks) {
+            if (PlayerData.get(Minecraft.getInstance().player).game.op || schema.size <= CustomNpcs.MaxBuilderBlocks) {
                 baseFiles.put(name, schema);
             }
         }
@@ -70,7 +71,7 @@ public class GuiBuilderSchematic extends GuiBasic implements ICustomScrollListen
                             sch.load(compound);
                             schema = new SchematicWrapper(sch);
                         }
-                        if (CustomNpcs.proxy.getPlayerData(null).game.op || schema.size <= CustomNpcs.MaxBuilderBlocks) {
+                        if (PlayerData.get(Minecraft.getInstance().player).game.op || schema.size <= CustomNpcs.MaxBuilderBlocks) {
                             files.put(f.getName(), schema);
                         }
                     } catch (Exception e) { LogWriter.error(e); }
@@ -153,7 +154,7 @@ public class GuiBuilderSchematic extends GuiBasic implements ICustomScrollListen
         if (builder == null) { return; }
         int type = builder.getType();
         if (builder.getID() > -1) { addLabel(1, guiLeft + 120, guiTop + 4, "ID:" + builder.getID()); }
-        maxRange = CustomNpcs.proxy.getPlayerData(null).game.op ? 100 : 10;
+        maxRange = PlayerData.get(player).game.op ? 100 : 10;
         if (schematics == null) { schematics = addScroll(0).setSize(110, 197); }
         schematics.setList(new ArrayList<>(GuiBuilderSchematic.files.keySet()));
         if (!builder.schematicName.isEmpty()) {

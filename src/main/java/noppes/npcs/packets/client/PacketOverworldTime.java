@@ -4,6 +4,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.shared.common.PacketBasic;
 
 public class PacketOverworldTime extends PacketBasic {
@@ -23,7 +24,7 @@ public class PacketOverworldTime extends PacketBasic {
     @OnlyIn(Dist.CLIENT)
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
-        CustomNpcs.proxy.getPlayerData(player).questData.overworldTime = overworldTime;
+        PlayerData.get(player).questData.overworldTime = overworldTime;
         CustomNpcs.debugData.end("Packets");
     }
 

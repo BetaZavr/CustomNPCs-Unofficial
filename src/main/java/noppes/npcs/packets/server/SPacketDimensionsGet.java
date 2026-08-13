@@ -8,6 +8,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.server.permission.nodes.PermissionNode;
 import noppes.npcs.CustomItems;
@@ -45,6 +46,11 @@ public class SPacketDimensionsGet extends PacketServerBasic {
    @Override
    protected void handle() {
       CustomNpcs.debugData.start("Packets");
+      sendDimensionIDs(player);
+      CustomNpcs.debugData.end("Packets");
+   }
+
+   public static void sendDimensionIDs(ServerPlayer player) {
       DimensionController.load();
       CompoundTag compound = new CompoundTag();
       ListTag list = new ListTag();
@@ -70,7 +76,6 @@ public class SPacketDimensionsGet extends PacketServerBasic {
       }
       compound.put("Data", list);
       Packets.send(player, new PacketSync(9, compound, false));
-      CustomNpcs.debugData.end("Packets");
    }
 
 }

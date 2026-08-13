@@ -235,7 +235,7 @@ public class GuiLog
       drawDefaultBackground = false;
       hoverIsGame = true;
 
-      data = CustomNpcs.proxy.getPlayerData(player);
+      data = PlayerData.get(player);
       factionData = data.factionData;
       compassData = data.compass;
 

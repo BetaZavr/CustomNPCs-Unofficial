@@ -244,10 +244,9 @@ public class ClientProxy extends CommonProxy {
       });
    }
 
-   @Override
-   public PlayerData getPlayerData(Player player) {
+   public static PlayerData getPlayerData() {
       if (playerData.player == null) {
-         if (player == null) { player = Minecraft.getInstance().player; }
+         LocalPlayer player = Minecraft.getInstance().player;
          if (player != null) {
             playerData.player = player;
             playerData.playerLevel = player.experienceLevel;
@@ -364,6 +363,7 @@ public class ClientProxy extends CommonProxy {
          case Waypoint: returnGui = new GuiNpcWaypoint(preEvent.buffer.readBlockPos()); break;
          case NbtBook: returnGui = new GuiNbtBook(preEvent.buffer.readBlockPos()); break;
          // New from Unofficial (BetaZavr)
+         //case DimensionSetting: returnGui = new GuiCreateDimension(preEvent.buffer.readResourceKey(Registries.DIMENSION)); break;
          case QuestCompleteText: returnGui = new GuiQuestCompletion(preEvent.buffer.readInt()); break;
          case QuestChooseReward: {
             Quest quest = QuestController.instance.get(preEvent.buffer.readInt());

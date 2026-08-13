@@ -12,8 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.phys.AABB;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.containers.ContainerBuilderSettings;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketSetBuildData;
 import noppes.npcs.shared.client.gui.GuiBasic;
@@ -153,7 +153,7 @@ public class GuiBuilderTools extends GuiBasicContainer<ContainerBuilderSettings>
     public void init() {
         super.init();
         if (builder == null) { return; }
-        maxRange = CustomNpcs.proxy.getPlayerData(player).game.op ? 100 : 10;
+        maxRange = PlayerData.get(player).game.op ? 100 : 10;
         int type = builder.getType();
         int y = guiTop + 4;
         if (builder.getID() > -1) {

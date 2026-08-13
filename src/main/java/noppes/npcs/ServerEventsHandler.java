@@ -204,7 +204,7 @@ public class ServerEventsHandler {
          else if (source instanceof EntityNPCInterface && ((EntityNPCInterface) source).getOwner() instanceof Player) { player = (Player) ((EntityNPCInterface) source).getOwner(); }
          else if (source instanceof TamableAnimal && ((TamableAnimal)source).getOwner() instanceof Player) { player = (Player)((TamableAnimal) source).getOwner(); }
          else { player = null;}
-         if (player != null) {
+         if (player != null && player.getServer() != null) {
             CustomNPCsScheduler.runTack(() -> doKillQuest(player, event.getEntity(), true));
             if (event.getEntity() instanceof EntityNPCInterface) {
                CustomNPCsScheduler.runTack(() -> doFactionPoints(player, (EntityNPCInterface)event.getEntity()));
@@ -313,12 +313,13 @@ public class ServerEventsHandler {
          } catch (Throwable ignored) { }
       }
       else if (command.startsWith("time ")) {
-         try {
-            CustomNpcs.Server.submit(() -> {
+         CustomNPCsScheduler.runTack(() -> {
+            try {
                List<ServerPlayer> players = CustomNpcs.Server.getPlayerList().getPlayers();
                for (ServerPlayer pl : players) { VisibilityController.instance.onUpdate(pl); }
-            });
-         } catch (Throwable ignored) { }
+            }
+            catch (Throwable ignored) { }
+         });
       }
       CustomNpcs.debugData.end(event.getParseResults().getContext().getSource());
    }

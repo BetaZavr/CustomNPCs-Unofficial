@@ -5,7 +5,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,9 +23,9 @@ import java.util.List;
 public class SPacketDimensionTeleport extends PacketServerBasic {
 
    protected static int channelId;
-   private final ResourceLocation id;
+   private final ResourceKey<Level> id;
 
-   public SPacketDimensionTeleport(ResourceLocation idIn) { id = idIn; }
+   public SPacketDimensionTeleport(ResourceKey<Level> idIn) { id = idIn; }
 
    @Override
    public boolean requiresNpc() { return false; }
@@ -37,9 +36,9 @@ public class SPacketDimensionTeleport extends PacketServerBasic {
    @Override
    public boolean toolAllowed(ItemStack item) { return item.getItem() == CustomItems.teleporter; }
 
-   public static void encode(SPacketDimensionTeleport msg, FriendlyByteBuf buf) { buf.writeResourceLocation(msg.id); }
+   public static void encode(SPacketDimensionTeleport msg, FriendlyByteBuf buf) { buf.writeResourceKey(msg.id); }
 
-   public static SPacketDimensionTeleport decode(FriendlyByteBuf buf) { return new SPacketDimensionTeleport(buf.readResourceLocation()); }
+   public static SPacketDimensionTeleport decode(FriendlyByteBuf buf) { return new SPacketDimensionTeleport(buf.readResourceKey(Registries.DIMENSION)); }
 
    @Override
    public int getChannelId() { return channelId; }
@@ -48,8 +47,7 @@ public class SPacketDimensionTeleport extends PacketServerBasic {
    protected void handle() {
       CustomNpcs.debugData.start("Packets");
       if (player.getServer() != null) {
-         ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, id);
-         ServerLevel level = player.getServer().getLevel(dimension);
+         ServerLevel level = player.getServer().getLevel(id);
          if (level != null) {
             BlockPos coords = level.getSharedSpawnPos();
             if (!level.isEmptyBlock(coords)) { coords = level.getHeightmapPos(Types.MOTION_BLOCKING_NO_LEAVES, coords);}
@@ -57,7 +55,7 @@ public class SPacketDimensionTeleport extends PacketServerBasic {
                while(level.isEmptyBlock(coords) && coords.getY() > 0) { coords = coords.below(); }
                if (coords.getY() == 0) { coords = level.getHeightmapPos(Types.MOTION_BLOCKING_NO_LEAVES, coords); }
             }
-            teleportPlayer(player, dimension, coords.getX() + 0.5d, coords.getY(), coords.getZ() + 0.5d, player.getYRot(), player.getXRot());
+            teleportPlayer(player, id, coords.getX() + 0.5d, coords.getY(), coords.getZ() + 0.5d, player.getYRot(), player.getXRot());
          }
       }
       CustomNpcs.debugData.end("Packets");

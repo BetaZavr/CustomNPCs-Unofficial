@@ -1323,7 +1323,7 @@
   "gui.deprecated": "(Tidak digunakan lagi)",
   "gui.description": "Keterangan:",
   "gui.detailed": "Secara terperinci",
-  "gui.dimensions": "Dimensi keseluruhan",
+  "gui.dimensions": "Dimensi/dunia:",
   "gui.disabled": "Tidak ada",
   "gui.do": "Melakukan",
   "gui.dodgedistance": "Jarak pantulan",

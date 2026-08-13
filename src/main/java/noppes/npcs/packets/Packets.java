@@ -380,6 +380,8 @@ public class Packets {
       register(SPacketDeadLootsOpen.class);
       register(SPacketNpcRarityTitleGet.class);
       register(SPacketRemoveLoadFile.class);
+      register(SPacketDimensionDelete.class);
+      register(SPacketDimensionRestore.class);
 
    }
 
@@ -437,8 +439,7 @@ public class Packets {
 
    public static <MSG extends PacketBasic> void sendDelayed(ServerPlayer player, MSG msg, int delay) {
       logged(msg, true);
-      CustomNPCsScheduler.runTack(() -> CHANNELS.get(msg.getChannelId())
-              .send(PacketDistributor.PLAYER.with(() -> player), msg), delay);
+      CustomNPCsScheduler.runTack(() -> send(player, msg), delay);
    }
 
    public static <MSG extends PacketBasic> void sendNearby(Level level, BlockPos pos, int range, MSG msg) {

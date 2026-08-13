@@ -11,6 +11,7 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketFollowerHire;
 import noppes.npcs.roles.RoleFollower;
@@ -106,7 +107,7 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface<ContainerNPCFol
          }
       }
       if (getButton(3) != null) {
-         getButton(3).setIsEnabled(player.isCreative() || CustomNpcs.proxy.getPlayerData(player).game.getMoney() >= role.rentalMoney);
+         getButton(3).setIsEnabled(player.isCreative() || PlayerData.get(player).game.getMoney() >= role.rentalMoney);
       }
       for (int i = 0; i < 4; ++i) {
          if (getButton(i) != null && getButton(i).isHoveredOrFocused()) {
