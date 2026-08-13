@@ -64,6 +64,7 @@ public class EntityCustomNpc extends EntityNPCFlying {
 						(Math.max(modelData.getPartConfig(EnumParts.HEAD).scaleX,
 								modelData.getPartConfig(EnumParts.HEAD).scaleZ) - 1.0f) / 2.0f;
 				baseHeight = 1.9f - modelData.getBodyY() + (modelData.getPartConfig(EnumParts.HEAD).scaleY - 1.0f) / 2.0f;
+				baseEyeHeight = baseHeight * (1.615f / 1.9f);
 			}
 			super.updateHitbox();
 		} else {

@@ -2099,6 +2099,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (display.width != 0.0f || display.height != 0.0f) {
 			w = display.width;
 			h = display.height;
+			if (baseHeight > 0.0f) { eh = baseEyeHeight / baseHeight * h; }
 		}
 		if (((currentAnimation == AnimationType.SLEEP.get() || currentAnimation == AnimationType.CRAWL.get()) && !isAttacking()) || deathTime > 0) {
 			width = w / 0.75f;
