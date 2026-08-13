@@ -122,7 +122,7 @@ public class EntityAIReturn extends EntityAIBase {
 			npc.setPositionAndUpdate(npc.getStartXPos(), npc.posY, npc.getStartZPos());
 			return true;
 		}
-		npc.getMoveHelper().setMoveTo(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos(), 1.0d);
+		npc.getMoveHelper().setMoveTo(npc.getStartXPos(), npc.posY, npc.getStartZPos(), 1.0d);
 		return true;
 	}
 

@@ -292,6 +292,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	@Override
+	public void setJumping(boolean jumping) {
+		if (jumping && !isWalking() && !isInWater() && !isInLava()) { return; }
+		super.setJumping(jumping);
+	}
+
+	@Override
 	protected float applyArmorCalculations(@Nonnull DamageSource source, float damage) {
 		if (role instanceof RoleCompanion) {
 			damage = ((RoleCompanion) role).getDamageAfterArmorAbsorb(source, damage);
@@ -627,15 +633,21 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	private double calculateStartYPos(BlockPos pos) {
 		BlockPos startPos = ais.startPos();
+		double w = Math.max(width, 0.2f) / 2.0d - 0.01d;
+		double cx = pos.getX() + ais.bodyOffsetX / 10.0f;
+		double cz = pos.getZ() + ais.bodyOffsetZ / 10.0f;
 		while (pos.getY() > 0) {
 			IBlockState state = world.getBlockState(pos);
 			if (ais.movementType == 2 && startPos.getY() <= pos.getY() && state.getMaterial() == Material.WATER) {
 				pos = pos.down();
 				continue;
 			}
-			if (state.getCollisionBoundingBox(world, pos) != null) {
-				return state.getBoundingBox(world, pos).offset(pos).maxY;
+			double top = -1.0d;
+			AxisAlignedBB layer = new AxisAlignedBB(cx - w, pos.getY(), cz - w, cx + w, pos.getY() + 1.0d, cz + w);
+			for (AxisAlignedBB box : world.getCollisionBoxes(null, layer)) {
+				if (box.maxY > top) { top = box.maxY; }
 			}
+			if (top >= 0.0d) { return top; }
 			pos = pos.down();
 		}
 		return 0.0;

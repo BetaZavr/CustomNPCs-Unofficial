@@ -121,7 +121,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	protected void renderLivingAt(@Nonnull T npc, double d, double d1, double d2) {
 		shadowSize = npc.display.getSize() / 10.0f;
 		float xOffset = 0.0f;
-		float yOffset = (npc.currentAnimation == 0) ? (npc.ais.bodyOffsetY / 10.0f - 0.5f) : 0.0f;
+		float yOffset = npc.ais.bodyOffsetY / 10.0f - 0.5f;
 		float zOffset = 0.0f;
 		if (npc.isEntityAlive()) {
 			if (npc.isPlayerSleeping()) {
