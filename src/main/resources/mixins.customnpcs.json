@@ -64,7 +64,6 @@
     "client.audio.ISoundEventAccessorMixin",
     "client.audio.ISoundHandlerMixin",
     "client.audio.ISoundManagerMixin",
-    "client.audio.ISoundRegistryMixin",
     "client.audio.MusicTickerMixin",
     "client.config.IGuiEditArrayMixin",
     "client.gui.GuiContainerMixin",

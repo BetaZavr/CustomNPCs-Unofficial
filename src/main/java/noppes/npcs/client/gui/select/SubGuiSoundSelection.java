@@ -16,7 +16,6 @@ import noppes.npcs.client.util.MusicData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.mixin.client.audio.ISoundEventAccessorMixin;
 import noppes.npcs.mixin.client.audio.ISoundHandlerMixin;
-import noppes.npcs.mixin.client.audio.ISoundRegistryMixin;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.components.GuiLabel;
@@ -28,7 +27,7 @@ public class SubGuiSoundSelection extends ResourceSelection {
 	protected static final Map<String, List<Component>> hoversData = new HashMap<>();
 	protected static final Map<String, SoundEventAccessor> eventsData = new HashMap<>();
 
-	protected ISoundRegistryMixin handler;
+	protected SoundRegistry handler;
 	protected GuiLabel name;
 	protected GuiLabel time;
 	protected MusicData musicData;
@@ -242,13 +241,13 @@ public class SubGuiSoundSelection extends ResourceSelection {
 	@Override
 	protected void resetFiles() {
 		data.clear();
-		handler = (ISoundRegistryMixin) ((ISoundHandlerMixin) minecraft.getSoundHandler()).getSoundRegistry();
-		for (ResourceLocation location : handler.getSoundRegistry().keySet()) { addFile(location); }
+		handler = ((ISoundHandlerMixin) minecraft.getSoundHandler()).getSoundRegistry();
+		for (ResourceLocation location : handler.getKeys()) { addFile(location); }
 	}
 
 	@Override
 	protected void addFile(ResourceLocation location) {
-		SoundEventAccessor event = handler.getSoundRegistry().get(location);
+		SoundEventAccessor event = handler.getObject(location);
 		if (event == null) { return; }
 		String path = location.getResourcePath();
 		String domain = location.getResourceDomain();
