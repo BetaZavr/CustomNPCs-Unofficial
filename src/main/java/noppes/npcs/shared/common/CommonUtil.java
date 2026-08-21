@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketScriptError;
 import noppes.npcs.shared.common.util.LogWriter;
@@ -32,7 +33,8 @@ public class CommonUtil {
       boolean isSend = false;
       if (CustomNpcs.Server != null) {
           for (ServerPlayer player : CustomNpcs.Server.getPlayerList().getPlayers()) {
-              if (player.shouldInformAdmins() && isOp(player)) {
+              if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.ADMIN) ||
+                      (player.shouldInformAdmins() && isOp(player))) {
                  if (isScriptError) { Packets.send(player, new PacketScriptError(component)); }
                  else if (CustomNpcs.DisplayErrorInChat) { player.sendSystemMessage(component); }
                  isSend = true;

@@ -279,7 +279,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface<ContainerNPCBank> 
             if (menu.items.getContainerSize() == menu.data.bank.ceilSettings.get(menu.ceil).maxCells) {
                ceilsUpdate = 1;
             }
-            Packets.sendServer(new SPacketBankUpgrade(menu.data.bank.id, menu.ceil, ceilsUpdate, scrollY, ceilPos));
+            Packets.sendServer(new SPacketBankBuy(menu.data.bank.id, menu.ceil, ceilsUpdate, scrollY, ceilPos));
             isWait = true;
             break;
          } // open or upgrade

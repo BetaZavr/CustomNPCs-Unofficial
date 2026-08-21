@@ -1,4 +1,4 @@
-package noppes.npcs.controllers;
+package noppes.npcs.controllers.scripts;
 
 import noppes.npcs.api.block.IBlock;
 

@@ -16,8 +16,8 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.NBTTags;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.controllers.IScriptHandler;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.IScriptHandler;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.packets.Packets;
@@ -133,7 +133,7 @@ public class GuiScriptInterface
                     .setSize(120, h).setList(methods);
             addScroll(2).setPos(x, guiTop + 29 + h)
                     .setSize(120, h)
-                    .setList(new ArrayList<>(ScriptContainer.Data.keySet()));
+                    .setList(new ArrayList<>(ScriptContainer.DATA.keySet()));
          } // functions
       } // scripts
       else {

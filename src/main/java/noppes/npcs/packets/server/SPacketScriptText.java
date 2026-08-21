@@ -5,8 +5,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.server.permission.nodes.PermissionNode;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
-import noppes.npcs.controllers.IScriptHandler;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.IScriptHandler;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.shared.common.PacketServerBasic;
 
 import java.util.Collections;

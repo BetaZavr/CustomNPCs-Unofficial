@@ -23,19 +23,15 @@ import noppes.npcs.packets.client.PacketSyncUpdate;
 import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.shared.common.CommonUtil;
 import noppes.npcs.util.BuilderData;
-import noppes.npcs.util.CustomDelayedTask;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ServerTickHandler {
 
    public int ticks = 0;
-   protected static List<CustomDelayedTask> delayedTasks = new ArrayList<>();
-   public static void addTask(Runnable task, long delay) { delayedTasks.add(new CustomDelayedTask(task, delay)); }
 
    @SubscribeEvent
    public void cnpcPlayerTick(PlayerTickEvent event) {
@@ -191,16 +187,6 @@ public class ServerTickHandler {
       if (ticks % 1200 == 0) {
          BankController.getInstance().update();
          Packets.clearDelaySendMap();
-      }
-      // Process delayed tasks
-      Iterator<CustomDelayedTask> it = delayedTasks.iterator();
-      while (it.hasNext()) {
-         CustomDelayedTask delayedTask = it.next();
-         delayedTask.ticksRemaining--;
-         if (delayedTask.ticksRemaining <= 0) {
-            it.remove();
-            delayedTask.task.run();
-         }
       }
       CustomNpcs.debugData.end("Mod");
    }

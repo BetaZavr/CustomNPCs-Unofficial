@@ -7,10 +7,9 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.eventbus.api.Event;
 import noppes.npcs.EventHooks;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.shared.common.util.LogWriter;
-import noppes.npcs.util.CustomNPCsScheduler;
 
 public class PotionScriptData extends BaseScriptData {
 
@@ -22,16 +21,15 @@ public class PotionScriptData extends BaseScriptData {
 
     @Override
     public void runScript(String type, Event event) {
-        if (!isEnabled()) { return; }
-        CustomNPCsScheduler.runTack(() -> {
+        if (isEnabled()) {
             try {
-                if (ScriptController.Instance.lastLoaded > this.lastInited) {
-                    this.lastInited = ScriptController.Instance.lastLoaded;
+                if (ScriptController.Instance.lastLoaded > lastInited) {
+                    lastInited = ScriptController.Instance.lastLoaded;
                     if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onPotionInit(this); }
                 }
                 for (ScriptContainer script : scripts) { script.run(type, event); }
             } catch (Exception e) { LogWriter.error("Error run script: ", e); }
-        });
+        }
     }
 
     @Override

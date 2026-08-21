@@ -47,12 +47,12 @@ public class GuiQuestModern
     protected final EntityNPCInterface dialogNpc;
 
     // ITEM, DIALOG, KILL, LOCATION, AREAKILL, MANUAL, CRAFT
-    Component[] questType = new Component[] {
-            Component.translatable("questgui.bringitems"),
-            Component.translatable("questgui.readdialog"),
-            Component.translatable("questgui.killmobs"),
-            Component.translatable("questgui.findlocation"),
-            Component.translatable("questgui.defeat") };
+    String[] questType = new String[] {
+            Component.translatable("questgui.bringitems").getString(),
+            Component.translatable("questgui.readdialog").getString(),
+            Component.translatable("questgui.killmobs").getString(),
+            Component.translatable("questgui.findlocation").getString(),
+            Component.translatable("questgui.defeat").getString() };
 
     public GuiQuestModern(EntityNPCInterface npc, Quest questIn, Dialog prevDialogIn, int optionIdIn) {
         super(npc);
@@ -74,9 +74,11 @@ public class GuiQuestModern
         grabMouse(false);
         guiTop = height - imageHeight;
         addButton(0, 720, 326, "")
+                .setSize(78, 20)
                 .setTexture(GuiDialogModern.DECOMPOSED)
                 .setUV(36, 26, 78, 20);
         addButton(1, 812, 326, "")
+                .setSize(78, 20)
                 .setTexture(GuiDialogModern.DECOMPOSED)
                 .setUV(36, 26, 78, 20);
 
@@ -111,6 +113,7 @@ public class GuiQuestModern
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(graphics);
         int textBlockWidth = 700;
         String takeQuestString = Component.translatable("questgui.doyouaccept").getString();
         int lineCount = getLineCount(takeQuestString, textBlockWidth);
@@ -156,7 +159,7 @@ public class GuiQuestModern
         int questBlockHeight = topToFactionBottom + 28;
         graphics.fillGradient(675, 40, 935, questBlockHeight, 0xBB000000, -0xBB000000);
         matrixStack.scale(1.5f, 1.5f, 1.0f);
-        graphics.drawString(font, quest.getName(), 461, 33, -1);
+        graphics.drawString(font, Component.translatable(quest.getName()), 461, 33, -1);
         matrixStack.scale(0.6666667f, 0.6666667f, 1.0f);
         drawLine(graphics, 686, 66, 924);
 
@@ -186,7 +189,7 @@ public class GuiQuestModern
 
         int facIDIndex = 0;
         for (int factionId : facIDs) {
-            String fac1Name = FactionController.instance.getFaction(factionId).getName();
+            String fac1Name = Component.translatable(FactionController.instance.getFaction(factionId).getName()).getString();
             String fac1Color = quest.factionOptions.get(factionId).decreaseFactionPoints ? ChatFormatting.RED + "-" : ChatFormatting.AQUA + "a+";
             int fac1Point = quest.factionOptions.get(factionId).factionPoints;
             graphics.drawString(font, fac1Name + "  " + fac1Color + fac1Point, 690, topToExpBottom + facIDIndex * 12, 0xFFB8B8B8);

@@ -37,7 +37,6 @@ import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.*;
 import noppes.npcs.shared.client.util.ResourceDownloader;
 import noppes.npcs.shared.common.util.LogWriter;
-import noppes.npcs.util.CustomDelayedTask;
 import noppes.npcs.util.TempFile;
 
 import java.util.*;
@@ -48,13 +47,10 @@ public class ClientTickHandler {
    private boolean otherContainer = false;
 
    // New from Unofficial (BetaZavr)
-   protected static List<CustomDelayedTask> delayedTasks = new ArrayList<>();
    public static List<MusicData> musics = new ArrayList<>();
    public static boolean checkMails = false;
    public static boolean inGame = false;
    public static long ticks = 0L;
-
-   public static void addTask(Runnable task, long delay) { delayedTasks.add(new CustomDelayedTask(task, delay)); }
 
    public static void loadFiles() {
       if (!ClientProxy.loadFiles.isEmpty()) {
@@ -202,16 +198,6 @@ public class ClientTickHandler {
          if (!data.overlay.keyPress.isEmpty()) {
             Packets.sendServer(new SPacketPlayerKeyPressed(-1, false, false, false, false, false, mc.screen.getClass().getSimpleName()));
             data.overlay.keyPress.clear();
-         }
-      }
-      // Process delayed tasks
-      Iterator<CustomDelayedTask> it = delayedTasks.iterator();
-      while (it.hasNext()) {
-         CustomDelayedTask delayedTask = it.next();
-         delayedTask.ticksRemaining--;
-         if (delayedTask.ticksRemaining <= 0) {
-            it.remove();
-            delayedTask.task.run();
          }
       }
       CustomNpcs.debugData.end("Mod");

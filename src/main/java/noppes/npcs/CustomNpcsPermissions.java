@@ -43,8 +43,6 @@ public class CustomNpcsPermissions {
            (player, id, context) -> inData(CustomNpcs.MODID + ".npc.freeze", player));
    public static final PermissionNode<Boolean> NPC_RESET = new PermissionNode<>(CustomNpcs.MODID, "npc.reset", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".npc.reset", player));
-   public static final PermissionNode<Boolean> NPC_AI = new PermissionNode<>(CustomNpcs.MODID, "npc.ai", PermissionTypes.BOOLEAN,
-           (player, id, context) -> inData(CustomNpcs.MODID + ".npc.ai", player));
    public static final PermissionNode<Boolean> NPC_ADVANCED = new PermissionNode<>(CustomNpcs.MODID, "npc.advanced", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".npc.advanced", player));
    public static final PermissionNode<Boolean> NPC_DISPLAY = new PermissionNode<>(CustomNpcs.MODID, "npc.display", PermissionTypes.BOOLEAN,
@@ -95,6 +93,8 @@ public class CustomNpcsPermissions {
            (player, id, context) -> inData(CustomNpcs.MODID + ".scenes", player));
 
    // New from Unofficial (GoodBird)
+   public static final PermissionNode<Boolean> NPC_AI = new PermissionNode<>(CustomNpcs.MODID, "npc.ai", PermissionTypes.BOOLEAN,
+           (player, id, context) -> inData(CustomNpcs.MODID + ".npc.ai", player));
    public static final PermissionNode<Boolean> ADMIN = new PermissionNode<>(CustomNpcs.MODID, "admin", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".admin", player));
 

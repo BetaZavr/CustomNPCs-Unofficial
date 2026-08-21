@@ -6,7 +6,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.script.GuiScriptInterface;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.shared.common.PacketBasic;
 

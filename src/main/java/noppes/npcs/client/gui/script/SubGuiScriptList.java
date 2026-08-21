@@ -8,7 +8,7 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;

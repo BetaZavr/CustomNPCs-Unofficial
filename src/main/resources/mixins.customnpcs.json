@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "mixins.customnpcs.refmap.json",
   "mixins": [
+    "UtilMixin",
     "client.gui.overlay.GuiOverlayManagerMixin",
     "client.model.obj.ObjModelMixin",
     "core.INonNullListMixin",

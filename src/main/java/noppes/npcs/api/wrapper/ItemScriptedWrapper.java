@@ -19,8 +19,8 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.item.IItemScripted;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.controllers.IScriptHandler;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.IScriptHandler;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 
 public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScripted, IScriptHandler {

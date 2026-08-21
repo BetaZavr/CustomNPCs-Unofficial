@@ -10,6 +10,7 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.constants.EnumScriptType;
+import noppes.npcs.controllers.data.Bank;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -25,23 +26,29 @@ public class RoleEvent extends CustomNPCsEvent {
       player = (IPlayer<?>) API.getIEntity(playerIn);
    }
 
+   @Cancelable
    @EventName(EnumScriptType.ROLE)
    public static class BankUpgradedEvent extends RoleEvent {
       public final int slot;
+      public final Bank bank;
 
-      public BankUpgradedEvent(Player player, ICustomNpc<?> npc, int slotIn) {
+      public BankUpgradedEvent(Player player, ICustomNpc<?> npc, Bank bankIn, int slotIn) {
          super(player, npc);
          slot = slotIn;
+         bank = bankIn;
       }
    }
 
+   @Cancelable
    @EventName(EnumScriptType.ROLE)
    public static class BankUnlockedEvent extends RoleEvent {
       public final int slot;
+      public final Bank bank;
 
-      public BankUnlockedEvent(Player player, ICustomNpc<?> npc, int slotIn) {
+      public BankUnlockedEvent(Player player, ICustomNpc<?> npc, Bank bankIn, int slotIn) {
          super(player, npc);
          slot = slotIn;
+         bank = bankIn;
       }
    }
 

@@ -3,23 +3,32 @@ package noppes.npcs.util;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.ServerTickHandler;
-import noppes.npcs.client.ClientTickHandler;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class CustomNPCsScheduler {
+
+   private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
    public static void runTack(Runnable task) { runTack(task, 0L); }
 
    public static void runTack(Runnable task, long delayMilliSeconds) {
-      if (Util.instance.getSide() == Dist.DEDICATED_SERVER && CustomNpcs.Server != null) {
-         if (delayMilliSeconds == 0L) {
-            if (CustomNpcs.Server.isRunning()) { CustomNpcs.Server.submit(task); }
+      boolean isServer = Util.instance.getSide() == Dist.DEDICATED_SERVER;
+      executor.schedule(() -> {
+         if (isServer && CustomNpcs.Server != null) { CustomNpcs.Server.submit(task); }
+         else if (!isServer) { Minecraft.getInstance().submit(task); }
+      }, delayMilliSeconds, TimeUnit.MILLISECONDS);
+   }
+
+   public static void shutDown() {
+      if (!executor.isShutdown()) {
+         executor.shutdown();
+         try {
+            if (!executor.awaitTermination(5L, TimeUnit.SECONDS)) { executor.shutdownNow(); }
          }
-         else { ServerTickHandler.addTask(task, Math.max(1, delayMilliSeconds / 50L)); }
-      }
-      else if (Util.instance.getSide() == Dist.CLIENT) {
-         if (delayMilliSeconds == 0L) { Minecraft.getInstance().submit(task); }
-         else { ClientTickHandler.addTask(task, Math.max(1, delayMilliSeconds / 50L)); }
+         catch (InterruptedException e) { executor.shutdownNow(); }
       }
    }
 

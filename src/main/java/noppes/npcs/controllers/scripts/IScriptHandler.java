@@ -1,4 +1,4 @@
-package noppes.npcs.controllers;
+package noppes.npcs.controllers.scripts;
 
 import java.util.List;
 import java.util.Map;

@@ -5,7 +5,7 @@ import net.minecraft.network.chat.*;
 import net.minecraftforge.eventbus.api.Event;
 import noppes.npcs.EventHooks;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.BaseScriptData;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -17,12 +17,14 @@ public class DataScript extends BaseScriptData {
    public DataScript(EntityNPCInterface npcIn) { npc = npcIn; }
 
    @Override
+   @SuppressWarnings("ConstantConditions")
    public boolean isClient() {
       if (npc == null || npc.level() == null) { return super.isClient(); }
       return npc.level().isClientSide();
    }
 
    @Override
+   @SuppressWarnings("ConstantConditions")
    public MutableComponent noticeString(String type, Object event) {
       MutableComponent message = Component.literal("NPC Script").withStyle(ChatFormatting.DARK_GRAY);
       if (type != null) {

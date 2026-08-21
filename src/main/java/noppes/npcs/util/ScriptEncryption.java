@@ -16,8 +16,8 @@ import noppes.npcs.shared.common.util.LogWriter;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.controllers.IScriptHandler;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.IScriptHandler;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.ClientScriptData;
 

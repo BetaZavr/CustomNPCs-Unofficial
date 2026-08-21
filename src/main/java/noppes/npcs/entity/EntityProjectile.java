@@ -54,7 +54,7 @@ import noppes.npcs.api.constants.ParticleType;
 import noppes.npcs.api.constants.PotionEffectType;
 import noppes.npcs.api.event.ProjectileEvent;
 import noppes.npcs.api.wrapper.BlockWrapper;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.entity.data.DataRanged;
 import org.jetbrains.annotations.NotNull;
 

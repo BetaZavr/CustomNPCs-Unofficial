@@ -13,7 +13,7 @@ import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.gui.ITexturedRect;
 import noppes.npcs.containers.ContainerCustomGui;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketGuiComponentUpdate;

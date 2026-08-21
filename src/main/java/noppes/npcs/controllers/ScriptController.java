@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
@@ -28,6 +29,9 @@ import noppes.npcs.api.wrapper.WrapperNpcAPI;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
 import noppes.npcs.controllers.data.*;
+import noppes.npcs.controllers.scripts.IScriptExecutor;
+import noppes.npcs.controllers.scripts.Jsr223Executor;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.*;
@@ -53,6 +57,9 @@ public class ScriptController {
    public File localDir;
    public CompoundTag compound = new CompoundTag();
    public boolean shouldSave = false;
+
+   // New fields from Unofficial (GoodBird)
+   public Map<String, Supplier<IScriptExecutor>> executorProviders = new HashMap<>();
 
    // New fields from Unofficial (BetaZavr)
    private static final boolean isClient = Util.instance.getSide().isClient();
@@ -98,6 +105,7 @@ public class ScriptController {
          language = factory.getLanguageName();
          languages.put(language, ".js");
          factories.put(language.toLowerCase(), factory);
+         executorProviders.put(language.toLowerCase(), Jsr223Executor::new);
          LogWriter.info("Added script Library: \"" + language + "\"; type: \"RhinoScriptEngineFactory\"; files index: \".js\"");
       } catch (Exception e) { LogWriter.debug("Rhino JS is missed"); }
       // Groovy
@@ -112,6 +120,7 @@ public class ScriptController {
          language = factory.getLanguageName();
          languages.put(language, ".groovy");
          factories.put(language.toLowerCase(), factory);
+         executorProviders.put(language.toLowerCase(), Jsr223Executor::new);
          LogWriter.info("Added script Library: \"" + language + "\"; type: \"GroovyScriptEngineFactory\"; files index: \".groovy\"");
       } catch (Exception e) { LogWriter.debug("Groovy JS is missed"); }
       // Kotlin
@@ -126,6 +135,7 @@ public class ScriptController {
          language = factory.getLanguageName();
          languages.put(language, ".kt");
          factories.put(language.toLowerCase(), factory);
+         executorProviders.put(language.toLowerCase(), Jsr223Executor::new);
          LogWriter.info("Added script Library: \"" + language + "\"; type: \"KotlinJsr223JvmLocalScriptEngineFactory\"; files index: \".kt\"");
       } catch (Exception e) { LogWriter.debug("Kotlin JS is missed"); }
       // In Noppes Mod
@@ -148,8 +158,9 @@ public class ScriptController {
             extensions = factory.getExtensions();
             String ext = "." + extensions.get(0).toLowerCase();
             language = factory.getLanguageName();
-            languages.put(factory.getLanguageName(), ext);
-            factories.put(factory.getLanguageName().toLowerCase(), factory);
+            languages.put(language, ext);
+            factories.put(language.toLowerCase(), factory);
+            executorProviders.put(language.toLowerCase(), Jsr223Executor::new);
             LogWriter.info("Added script Library: \"" + language + "\"; type: \"" + factory.getClass().getSimpleName() + "\"; files index: \"" + ext + "\"");
          }
       } catch (Exception e) { LogWriter.debug("\"" + language + "\" is missed"); }
@@ -163,6 +174,7 @@ public class ScriptController {
                String ext = "." + extensions.get(0).toLowerCase();
                languages.put(language, ext);
                factories.put(language.toLowerCase(), factory);
+               executorProviders.put(language.toLowerCase(), Jsr223Executor::new);
                LogWriter.info("Added script Library: \"" + language + "\"; type: \"" + factory.getClass().getSimpleName() + "\"; files index: \"" + ext + "\"");
             }
          } catch (Exception e) {
@@ -185,6 +197,7 @@ public class ScriptController {
                String newName = fac.getClass().getSimpleName().replace("EngineFactory", "");
                languages.put(newName, ext);
                factories.put(newName.toLowerCase(), fac);
+               executorProviders.put(newName.toLowerCase(), Jsr223Executor::new);
                manager.registerEngineName(newName.toLowerCase(), fac);
                manager.registerEngineMimeType("application/" + newName.toLowerCase(), factory);
                isNotRegister = !ext.equals(".js");
@@ -195,6 +208,7 @@ public class ScriptController {
          if (isNotRegister) { manager.registerEngineExtension("js", factory); }
          languages.put(language, ".js");
          factories.put(language.toLowerCase(), factory);
+         executorProviders.put(language.toLowerCase(), Jsr223Executor::new);
          LogWriter.info("Added script Library: \"" + language + "\"; type: \"" + factory.getClass().getSimpleName() + "\"; files index: \".js\"");
       } catch (Exception e) { LogWriter.debug("Nashorn JS is missed"); }
       if (isClient) { loadAgreements(); }
@@ -382,7 +396,7 @@ public class ScriptController {
    }
 
    // New from Unofficial (BetaZavr)
-   public static void reloadConstants() { ScriptContainer.Data.remove("dump"); }
+   public static void reloadConstants() { ScriptContainer.DATA.remove("dump"); }
 
    public void load() {
       CustomNpcs.debugData.start(null);

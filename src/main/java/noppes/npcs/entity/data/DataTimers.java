@@ -8,7 +8,7 @@ import net.minecraft.nbt.ListTag;
 import noppes.npcs.EventHooks;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.ITimers;
-import noppes.npcs.controllers.IScriptBlockHandler;
+import noppes.npcs.controllers.scripts.IScriptBlockHandler;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 

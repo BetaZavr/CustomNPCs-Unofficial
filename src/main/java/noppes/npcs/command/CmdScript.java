@@ -20,8 +20,8 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.event.WorldEvent;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketEventNames;
 

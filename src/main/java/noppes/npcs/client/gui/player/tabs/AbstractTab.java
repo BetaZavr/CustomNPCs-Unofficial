@@ -10,64 +10,106 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import noppes.npcs.CustomNpcs;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
+import java.awt.*;
 
 public abstract class AbstractTab extends AbstractButton {
 
-   protected ResourceLocation texture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/tabs.png");
-   protected ItemStack renderStack;
-   protected int id;
+   protected static final ResourceLocation texture = new ResourceLocation(CustomNpcs.MODID, "textures/gui/tabs.png");
+   protected final ItemStack renderStack;
+   protected final int id;
 
    protected Screen screen;
    protected int guiLeft = 0;
    protected int guiTop = 0;
 
-   public AbstractTab(int idIn, int posX, int posY, ItemStack renderStackIn) {
-      super(posX, posY, 28, 32, Component.empty());
+   // New from Unofficial (GoodBird)
+   protected @Nonnull Minecraft minecraft;
+
+   public AbstractTab(int idIn, int posX, int posY, @Nonnull ItemStack renderStackIn, @Nonnull Component hoverText) {
+      super(posX, posY, 28, 32, hoverText);
       renderStack = renderStackIn;
       id = idIn;
+
+      minecraft = Minecraft.getInstance();
    }
 
    public AbstractTab init(Screen screenIn) {
+      int guiLeft = screenIn.width / 2;
+      int guiTop = screenIn.height / 2;
+      if (screenIn instanceof InventoryScreen) {
+         guiLeft -= 88;
+         guiTop -= 82;
+      }
+      setX(guiLeft + id * 28);
+      setY(guiTop - 29);
       screen = screenIn;
-      guiLeft = (screenIn.width - 176) / 2 + id * 28;
-      guiTop = (screenIn.height - 166) / 2 - 28;
       return this;
    }
 
-   public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+   public void render(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+      isHovered = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
+      active = false;
       if (visible) {
-         int x = guiLeft;
-         int y = guiTop;
-         if (screen instanceof InventoryScreen inv && inv.getRecipeBookComponent().isVisible()) {
-            x += 77;
+         int x = getX();
+         if (screen instanceof InventoryScreen inv) {
+            if (inv.getRecipeBookComponent().isVisible()) { x += 77; }
+            active = id == 0;
          }
-         if (getX() != x) { setX(x); }
-         if (getY() != y) { setY(y); }
-         isHovered = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
-         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-         Minecraft mc = Minecraft.getInstance();
-         int yTexPos = isFocused() || isHovered ? 32 : 3;
-         int ySize = isFocused() || isHovered ? 32 : 29;
-         int xOffset = id == 0 ? 0 : 1;
+         else { active = id != 0; }
+         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+         int yTexPos = isFocused() ? 32 : 2;
+         int ySize = isFocused() ? 32 : 29;
+         int xOffset = active ? 0 : 28;
          RenderSystem.setShaderTexture(0, texture);
-         graphics.blit(texture, getX(), getY(), xOffset * 28, yTexPos, 28, ySize);
-         if (!isFocused() && isHovered) {
-            graphics.fill(getX() + 3, getY() + 3, getX() + width - 3, getY() + height - 1, 0xF07E88BF);
-         }
+         graphics.blit(texture, x, getY(), xOffset, yTexPos, 28, ySize);
          graphics.pose().pushPose();
          graphics.pose().translate(0.0F, 0.0F, 30.0F);
-         graphics.renderItem(renderStack, getX() + 6, getY() + 8);
-         graphics.renderItemDecorations(mc.font, renderStack, getX() + 6, getY() + 8, null);
+         graphics.renderItem(renderStack, x + 6, getY() + 8);
+         graphics.renderItemDecorations(minecraft.font, renderStack, x + 6, getY() + 8, null);
          graphics.pose().popPose();
+         Component message = getMessage();
+         if (isHovered && !message.getString().isEmpty()) {
+            drawHoveringText(graphics, message, mouseX, mouseY);
+         }
       }
    }
+
+   @Override
+   public boolean isFocused() { return active || super.isFocused() || isHovered; }
 
    @Override
    public void onClick(double mouseX, double mouseY) { onTabClicked(); }
 
    @Override
    public void onPress() { }
+
+   protected void drawHoveringText(@Nonnull GuiGraphics graphics, @Nonnull Component message, int x, int y) {
+      y -= 12;
+      RenderSystem.disableDepthTest();
+      int k = minecraft.font.width(message);
+      int i1 = 8;
+
+      graphics.pose().pushPose();
+      graphics.pose().translate(0.0F, 0.0F, 300.0F);
+      int color = new Color(0xF0100010).getRGB();
+      graphics.fillGradient(x - 3, y - 4, x + k + 3, y - 3, color, color);
+      graphics.fillGradient(x - 3, y + i1 + 3, x + k + 3, y + i1 + 4, color, color);
+      graphics.fillGradient(x - 3, y - 3, x + k + 3, y + i1 + 3, color, color);
+      graphics.fillGradient(x - 4, y - 3, x - 3, y + i1 + 3, color, color);
+      graphics.fillGradient(x + k + 3, y - 3, x + k + 4, y + i1 + 3, color, color);
+      color = new Color(0x505000FF).getRGB();
+      int nextColor = (color & new Color(0xFEFEFE).getRGB()) >> 1 | (color & new Color(0xFF000000).getRGB());
+      graphics.fillGradient(x - 3, y - 3 + 1, x - 3 + 1, y + i1 + 3 - 1, color, nextColor);
+      graphics.fillGradient(x + k + 2, y - 3 + 1, x + k + 3, y + i1 + 3 - 1, color, nextColor);
+      graphics.fillGradient(x - 3, y - 3, x + k + 3, y - 3 + 1, color, color);
+      graphics.fillGradient(x - 3, y + i1 + 2, x + k + 3, y + i1 + 3, nextColor, nextColor);
+
+      graphics.drawString(minecraft.font, message, x, y, -1);
+      graphics.pose().popPose();
+      RenderSystem.enableDepthTest();
+   }
 
    public abstract void onTabClicked();
 

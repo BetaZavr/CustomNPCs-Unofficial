@@ -6,7 +6,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.entity.EntityProjectile;
 
 import java.util.Objects;

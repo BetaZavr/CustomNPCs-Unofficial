@@ -10,7 +10,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
-import noppes.npcs.controllers.IScriptHandler;
+import noppes.npcs.controllers.scripts.IScriptHandler;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.shared.common.PacketServerBasic;

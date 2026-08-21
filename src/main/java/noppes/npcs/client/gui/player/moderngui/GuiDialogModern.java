@@ -88,6 +88,7 @@ public class GuiDialogModern
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(graphics);
         int textBlockWidth = (int)(700.0 * wScale);
         int lineCount = getLineCount(dialog.text, textBlockWidth);
         int gap = Math.max(16, Math.min((int)(2.6f * (float)lineCount), 32));
@@ -127,7 +128,7 @@ public class GuiDialogModern
             int lineOffset = 0;
             for (String line : titleLines) {
                 if (line.isEmpty()) continue;
-                graphics.drawString(font, line, 735, optionHeight + 3 + lineOffset, option.optionColor);
+                graphics.drawString(font, Component.translatable(line), 735, optionHeight + 3 + lineOffset, option.optionColor);
                 lineOffset += 12;
             }
             accumulatedHeight += 19 + lineOffset;

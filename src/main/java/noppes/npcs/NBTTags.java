@@ -12,8 +12,8 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.containers.inventories.NpcMiscInventory;
-import noppes.npcs.controllers.IScriptHandler;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.IScriptHandler;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.util.Util;
 
 public class NBTTags {
@@ -249,6 +249,7 @@ public class NBTTags {
       return nbtList;
    }
 
+   @SuppressWarnings("unused")
    public static IntArrayTag nbtIntegerList(List<Integer> list) {
       int[] data = new int[0];
       if (list != null) {

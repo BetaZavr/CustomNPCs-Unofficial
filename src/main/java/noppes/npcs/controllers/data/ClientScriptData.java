@@ -14,7 +14,7 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.wrapper.data.Data;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.controllers.ScriptContainer;
+import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.NBTJsonUtil;

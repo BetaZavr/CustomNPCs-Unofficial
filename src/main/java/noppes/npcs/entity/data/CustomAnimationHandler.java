@@ -28,7 +28,7 @@ import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.AnimationFrameConfig;
 import noppes.npcs.client.model.animation.PartConfig;
 import noppes.npcs.controllers.AnimationController;
-import noppes.npcs.controllers.IScriptHandler;
+import noppes.npcs.controllers.scripts.IScriptHandler;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
