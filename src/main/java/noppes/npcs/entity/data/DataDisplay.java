@@ -9,6 +9,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.StringUtil;
@@ -47,17 +48,20 @@ public class DataDisplay implements INPCDisplay {
    protected String texture = CustomNpcs.MODID + ":textures/entity/humanmale/steve.png";
    protected String cloakTexture = "";
    protected String glowTexture = "";
-   protected boolean overlayGlowing = true;
    protected boolean disableLivingAnimation = false;
    protected int markovGeneratorId = 8;
    protected int markovGender = 0;
    protected int visible = 0;
-   protected int modelSize = 5;
    protected int showName = 0;
    protected int skinColor = new Color(0xFFFFFF).getRGB();
    protected byte hitboxState = 0;
    protected byte showBossBar = 0;
    protected BossBarColor bossColor;
+
+   // New from Unofficial (GoodBird)
+   protected boolean overlayGlowing = true;
+   protected float modelSize = 5.0F;
+   private int[] lineColors = new int[]{ 0xFF8D3800, 0xFFFEA53B, 0xFFAE5301 };
 
    // New from Unofficial (BetaZavr)
    protected float shadowSize = 1.0f;
@@ -83,9 +87,7 @@ public class DataDisplay implements INPCDisplay {
 
    public Availability getAvailability() { return availability; }
 
-   public String getRandomName() {
-      return MarkovGenerator.fetch(markovGeneratorId, markovGender);
-   }
+   public String getRandomName() { return MarkovGenerator.fetch(markovGeneratorId, markovGender); }
 
    public CompoundTag save(CompoundTag compound) {
       compound.putString("Name", name);
@@ -103,7 +105,6 @@ public class DataDisplay implements INPCDisplay {
          NbtUtils.writeGameProfile(nbt, playerProfile);
          compound.put("SkinUsername", nbt);
       }
-      compound.putInt("Size", modelSize);
       compound.putInt("ShowName", showName);
       compound.putInt("SkinColor", skinColor);
       compound.putInt("NpcVisible", visible);
@@ -112,6 +113,10 @@ public class DataDisplay implements INPCDisplay {
       compound.putByte("IsStatue", hitboxState);
       compound.putByte("BossBar", showBossBar);
       compound.putInt("BossColor", bossColor.ordinal());
+
+      // New from Unofficial (GoodBird)
+      compound.putFloat("Size", modelSize);
+      compound.putIntArray("LineColors", lineColors);
 
       // New from Unofficial (BetaZavr)
       compound.putFloat("ShadowSize", shadowSize);
@@ -145,7 +150,6 @@ public class DataDisplay implements INPCDisplay {
          }
          loadProfile();
       }
-      modelSize = ValueUtil.correctInt(compound.getInt("Size"), 1, 30);
       showName = compound.getInt("ShowName");
       if (compound.contains("SkinColor")) {
          skinColor = compound.getInt("SkinColor");
@@ -161,6 +165,12 @@ public class DataDisplay implements INPCDisplay {
       npc.textureGlowLocation = null;
       npc.textureCloakLocation = null;
       npc.refreshDimensions();
+
+      // New from Unofficial (GoodBird)
+      if (compound.contains("Size", Tag.TAG_ANY_NUMERIC)) {
+         modelSize = ValueUtil.onlyPositiveFloat(compound.getFloat("Size"), Float.MAX_VALUE);
+      }
+      if (compound.contains("Size", Tag.TAG_INT_ARRAY)) { lineColors = compound.getIntArray("LineColors"); }
 
       // New from Unofficial (BetaZavr)
       if (compound.contains("ShadowSize", 5)) { shadowSize = ValueUtil.correctFloat(compound.getFloat("ShadowSize"), 0, 1.5f); } else { shadowSize = 1.0f; }
@@ -309,10 +319,6 @@ public class DataDisplay implements INPCDisplay {
    @Override
    public String getOverlayTexture() { return NoppesStringUtils.cleanResource(glowTexture); }
 
-   public boolean isOverlayGlowing() { return overlayGlowing; }
-
-   public void setOverlayGlowing(boolean glowing) { overlayGlowing = glowing; }
-
    @Override
    public void setOverlayTexture(String textureIn) {
       if (!glowTexture.equals(textureIn)) {
@@ -381,12 +387,12 @@ public class DataDisplay implements INPCDisplay {
    }
 
    @Override
-   public int getSize() { return modelSize; }
+   public float getSize() { return modelSize; }
 
    @Override
-   public void setSize(int size) {
+   public void setSize(float size) {
       if (modelSize != size) {
-         modelSize = ValueUtil.correctInt(size, 1, 30);
+         modelSize = ValueUtil.onlyPositiveFloat(size, Float.MAX_VALUE);
          npc.updateClient = true;
       }
    }
@@ -471,7 +477,7 @@ public class DataDisplay implements INPCDisplay {
          }
          modeldata.setEntity(resource);
       }
-       npc.updateClient = true;
+      npc.updateClient = true;
 
    }
 
@@ -501,6 +507,19 @@ public class DataDisplay implements INPCDisplay {
       return availability.isAvailable(player);
    }
 
+   // New from Unofficial (GoodBird)
+   @Override
+   public boolean isOverlayGlowing() { return overlayGlowing; }
+
+   @Override
+   public void setOverlayGlowing(boolean glowing) { overlayGlowing = glowing; }
+
+   @Override
+   public int[] getLineColors() { return lineColors; }
+
+   @Override
+   public void setLineColors(int color1, int color2, int color3) { lineColors = new int[]{color1, color2, color3}; }
+
    // New from Unofficial (BetaZavr)
    @Override
    public float[] getDimensions() { return new float[] { width, height }; }
@@ -529,13 +548,13 @@ public class DataDisplay implements INPCDisplay {
 
    @Override
    public void setShadowType(int type) {
-       if (type < 0) { type *= -1; }
-       shadowSize = switch (type % 4) {
-          case 0 -> 0.0f;
-          case 1 -> 0.5f;
-          case 2 -> 1.0f;
-          default -> 1.5f;
-       };
-    }
+      if (type < 0) { type *= -1; }
+      shadowSize = switch (type % 4) {
+         case 0 -> 0.0f;
+         case 1 -> 0.5f;
+         case 2 -> 1.0f;
+         default -> 1.5f;
+      };
+   }
 
 }

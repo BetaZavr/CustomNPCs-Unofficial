@@ -9,8 +9,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.Level;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.SubGuiNpcTransportCategoryEdit;
@@ -306,9 +306,9 @@ public class GuiNpcManageTransporters extends GuiContainerNPCInterface2<Containe
             } // npc uuid
             case 4: {
                 if (!textField.getValue().isEmpty()) {
-                    ResourceLocation dimId = textField.getResourceLocation(null);
+                    ResourceKey<Level> dimId = ResourceKey.create(Registries.DIMENSION, textField.getResourceLocation(null));
                     if (!DimensionController.has(dimId)) { textField.setValue(container.location.dimension); }
-                    else { container.location.dimension = ResourceKey.create(Registries.DIMENSION, dimId); }
+                    else { container.location.dimension = dimId; }
                 }
                 break;
             } // dim ID

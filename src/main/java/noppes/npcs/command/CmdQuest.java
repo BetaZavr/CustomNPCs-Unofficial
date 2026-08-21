@@ -14,6 +14,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.*;
@@ -30,7 +31,7 @@ public class CmdQuest {
         LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal("quest");
         command.then(Commands.literal("start")
                 .then(Commands.argument("players", EntityArgument.players())
-                        .requires((source) -> source.hasPermission(2))
+                        .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
                         .then(Commands.argument("quest", IntegerArgumentType.integer(0))
                                 .suggests(getQuestSuggests())
                                 .executes((context) -> {
@@ -50,7 +51,7 @@ public class CmdQuest {
                                     return 1;
                                 }))));
         command.then(Commands.literal("finish")
-                .then(Commands.argument("players", EntityArgument.players()).requires((source) -> source.hasPermission(2))
+                .then(Commands.argument("players", EntityArgument.players()).requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
                         .then(Commands.argument("quest", IntegerArgumentType.integer(0))
                                 .suggests(getQuestSuggests())
                                 .executes((context) -> {
@@ -66,7 +67,7 @@ public class CmdQuest {
                                     return 1;
                                 }))));
         command.then(Commands.literal("stop")
-                .then(Commands.argument("players", EntityArgument.players()).requires((source) -> source.hasPermission(2))
+                .then(Commands.argument("players", EntityArgument.players()).requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
                         .then(Commands.argument("quest", IntegerArgumentType.integer(0))
                                 .suggests(getQuestSuggests())
                                 .executes((context) -> {
@@ -83,7 +84,7 @@ public class CmdQuest {
                                     return 1;
                                 }))));
         command.then(Commands.literal("remove")
-                .then(Commands.argument("players", EntityArgument.players()).requires((source) -> source.hasPermission(2))
+                .then(Commands.argument("players", EntityArgument.players()).requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
                         .then(Commands.argument("quest", IntegerArgumentType.integer(0))
                                 .suggests(getQuestSuggests())
                                 .executes((context) -> {
@@ -100,7 +101,7 @@ public class CmdQuest {
                                     return 1;
                                 }))));
         command.then(Commands.literal("objective")
-                .then(Commands.argument("players", EntityArgument.players()).requires((source) -> source.hasPermission(2))
+                .then(Commands.argument("players", EntityArgument.players()).requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
                         .then(Commands.argument("quest", IntegerArgumentType.integer(0))
                                 .suggests(getQuestSuggests())
                                 .executes((context) -> {
@@ -155,7 +156,7 @@ public class CmdQuest {
                                                     }
                                                     return 1;
                                                 }))))));
-        command.requires((source) -> source.hasPermission(4)).then(Commands.literal("reload").executes((context) -> {
+        command.requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)).then(Commands.literal("reload").executes((context) -> {
             (new QuestController()).load();
             for (QuestCategory category : QuestController.instance.categories.values()) {
                 Packets.sendAll(new PacketSync(3, category.save(new CompoundTag()), false));

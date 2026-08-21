@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = Scoreboard.class, priority = 502)
 public interface IScoreboardMixin {
 
-   @Accessor
-   Map<String, Map<Objective, Score>> getPlayerScores();
+   @Accessor Map<String, Map<Objective, Score>> getPlayerScores();
 
 }

@@ -124,7 +124,8 @@ public class CmdHeapAnalyzer {
 
     /* ===================== PUBLIC API ===================== */
     public static LiteralArgumentBuilder<CommandSourceStack> register() {
-        LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal("dump").requires((source) -> source.hasPermission(4));
+        LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal("dump")
+                .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2));
         // start
         command.then(Commands.literal("start").executes((context) -> {
             startTracking(context.getSource(), 30);

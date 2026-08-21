@@ -8,6 +8,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -18,14 +19,13 @@ import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.data.IMark;
 import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.mixin.world.entity.ai.attributes.IAttributeMap;
 import noppes.npcs.api.wrapper.data.AttributeWrapper;
 import noppes.npcs.controllers.data.MarkData;
+import noppes.npcs.mixin.world.entity.ai.attributes.IAttributeMapMixin;
+import noppes.npcs.mixin.world.entity.ai.attributes.IAttributeSupplierMixin;
 import noppes.npcs.util.ValueUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class EntityLivingBaseWrapper<T extends LivingEntity>
         extends EntityWrapper<T>
@@ -216,7 +216,30 @@ public class EntityLivingBaseWrapper<T extends LivingEntity>
       if (attribute == null || hasAttribute(attribute)) { return null; }
       Attribute baseAttribute = attribute.getMCBaseAttribute();
       if (baseAttribute == null) { return null; }
-      ((IAttributeMap) entity.getAttributes()).npcs$register(attribute.getMCAttribute());
+      AttributeInstance attr = attribute.getMCAttribute();
+      // register
+      Map<Attribute, AttributeInstance> attributes = ((IAttributeMapMixin) entity.getAttributes()).getAttributes();
+      Set<AttributeInstance> dirtyAttributes = ((IAttributeMapMixin) entity.getAttributes()).getDirtyAttributes();
+      AttributeSupplier supplier = ((IAttributeMapMixin) entity.getAttributes()).getSupplier();
+      if (attr.getAttribute().isClientSyncable()) {
+         for (AttributeInstance a : dirtyAttributes) {
+            if (a.getAttribute().getDescriptionId().equals(attr.getAttribute().getDescriptionId())) {
+               dirtyAttributes.remove(attr);
+               break;
+            }
+         }
+         dirtyAttributes.add(attr);
+      }
+      Attribute key = attr.getAttribute();
+      for (Map.Entry<Attribute, AttributeInstance> entry : attributes.entrySet()) {
+         if (entry.getKey().getDescriptionId().equals(attr.getAttribute().getDescriptionId())) {
+            key = entry.getKey();
+            break;
+         }
+      }
+      attributes.put(key, attr);
+      Map<Attribute, AttributeInstance> instances = ((IAttributeSupplierMixin) supplier).getInstances();
+      instances.put(key, attr);
       return attribute;
    }
 
@@ -270,7 +293,29 @@ public class EntityLivingBaseWrapper<T extends LivingEntity>
    @Override
    public boolean removeAttribute(INpcAttribute attribute) {
       if (attribute == null || !attribute.isCustom() || !this.hasAttribute(attribute)) { return false; }
-      ((IAttributeMap) entity.getAttributes()).npcs$remove(attribute.getMCAttribute());
+      AttributeInstance attr = attribute.getMCAttribute();
+      // remove
+      Map<Attribute, AttributeInstance> attributes = ((IAttributeMapMixin) entity.getAttributes()).getAttributes();
+      Set<AttributeInstance> dirtyAttributes = ((IAttributeMapMixin) entity.getAttributes()).getDirtyAttributes();
+      AttributeSupplier supplier = ((IAttributeMapMixin) entity.getAttributes()).getSupplier();
+      if (attr.getAttribute().isClientSyncable()) {
+         for (AttributeInstance a : dirtyAttributes) {
+            if (a.getAttribute().getDescriptionId().equals(attr.getAttribute().getDescriptionId())) {
+               dirtyAttributes.remove(attr);
+               break;
+            }
+         }
+      }
+      Attribute key = attr.getAttribute();
+      for (Map.Entry<Attribute, AttributeInstance> entry : attributes.entrySet()) {
+         if (entry.getKey().getDescriptionId().equals(attr.getAttribute().getDescriptionId())) {
+            key = entry.getKey();
+            break;
+         }
+      }
+      attributes.remove(key);
+      Map<Attribute, AttributeInstance> instances = ((IAttributeSupplierMixin) supplier).getInstances();
+      instances.remove(key);
       return true;
    }
 

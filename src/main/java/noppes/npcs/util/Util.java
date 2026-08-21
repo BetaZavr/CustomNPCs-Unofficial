@@ -2,6 +2,7 @@ package noppes.npcs.util;
 
 import com.google.gson.*;
 import com.google.gson.internal.LinkedTreeMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
@@ -51,7 +52,6 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IQuestObjective;
-import noppes.npcs.api.mixin.world.level.entity.ILevelEntityGetterAdapterMixin;
 import noppes.npcs.api.util.IRayTraceResults;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
@@ -61,6 +61,8 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.*;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.mixin.world.level.entity.IEntitySectionStorageMixin;
+import noppes.npcs.mixin.world.level.entity.ILevelEntityGetterAdapterMixin;
 import noppes.npcs.packets.server.SPacketDimensionTeleport;
 import noppes.npcs.shared.common.util.LogWriter;
 import org.apache.commons.io.IOUtils;
@@ -75,7 +77,11 @@ import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -1259,6 +1265,38 @@ public class Util implements IMethods {
         return count <= 0;
     }
 
+    @SuppressWarnings("unused")
+    public boolean copyDirectory(File sourceDir, File targetDir) {
+        if (sourceDir == null || targetDir == null) return false;
+        java.nio.file.Path sourcePath = sourceDir.toPath();
+        java.nio.file.Path targetPath = targetDir.toPath();
+        LogWriter.debug("Trying copy directory \"" + sourceDir + "\" to \"" + targetDir + "\"");
+        try {
+            Files.createDirectories(targetPath);
+            Files.walkFileTree(sourcePath, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
+                    java.nio.file.Path relativePath = sourcePath.relativize(dir);
+                    java.nio.file.Path destinationDir = targetPath.resolve(relativePath);
+                    Files.createDirectories(destinationDir);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+                    java.nio.file.Path relativePath = sourcePath.relativize(file);
+                    java.nio.file.Path destinationFile = targetPath.resolve(relativePath);
+                    Files.copy(file, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            return true;
+        } catch (IOException e) {
+            LogWriter.error("Failed to copy directory from " + sourceDir + " to " + targetDir, e);
+            return false;
+        }
+    }
+
     public void updatePlayerInventory(ServerPlayer player) {
         PlayerQuestData playerdata = PlayerData.get(player).questData;
         for (QuestData data : playerdata.activeQuests.values()) {
@@ -1496,7 +1534,19 @@ public class Util implements IMethods {
         if (uuid != null && getter != null) {
             EntityAccess entityAccess = getter.get(uuid);
             if (entityAccess == null && getter instanceof LevelEntityGetterAdapter<T> getterAdapter) {
-                entityAccess = ((ILevelEntityGetterAdapterMixin<T>) getterAdapter).npcs$getStorage(uuid);
+                EntitySectionStorage<T> ess = ((ILevelEntityGetterAdapterMixin<T>) getterAdapter).getSectionStorage();
+                Long2ObjectMap<EntitySection<T>> sections = ((IEntitySectionStorageMixin<T>) ess).getSections();
+                for (EntitySection<T> section : sections.values()) {
+                    if (section == null || section.isEmpty()) { continue; }
+                    T found = section.getEntities()
+                            .filter(e -> e instanceof Entity && e.getUUID().equals(uuid))
+                            .findFirst()
+                            .orElse(null);
+                    if (found != null) {
+                        entityAccess = found;
+                        break;
+                    }
+                }
             } // unloaded
             if (entityAccess instanceof Entity entity) { return entity; }
         }

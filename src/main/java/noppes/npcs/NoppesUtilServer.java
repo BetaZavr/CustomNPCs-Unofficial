@@ -3,7 +3,6 @@ package noppes.npcs;
 import io.netty.buffer.Unpooled;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -47,10 +46,8 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
-import net.minecraftforge.network.NetworkConstants;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.PlayMessages;
-import net.minecraftforge.network.simple.SimpleChannel;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.handler.data.IQuestObjective;
@@ -65,6 +62,7 @@ import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.items.custom.*;
+import noppes.npcs.mixin.minecraftforge.network.MixinNetworkConstants;
 import noppes.npcs.mixin.network.IMixinOpenContainer;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.*;
@@ -259,12 +257,7 @@ public class NoppesUtilServer {
          if (c != null) {
             MenuType<?> type = c.getType();
             PlayMessages.OpenContainer msg = IMixinOpenContainer.OpenContainer(type, openContainerId, containerSupplier.getDisplayName(), output);
-            try {
-               Field field = NetworkConstants.class.getDeclaredField("playChannel");
-               field.setAccessible(true);
-               ((SimpleChannel) field.get(null)).sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-            }
-            catch (Exception e) { LogWriter.error(e); }
+            MixinNetworkConstants.getPlayChannel().sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             player.containerMenu = c;
             player.initMenu(player.containerMenu);
             MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(player, c));

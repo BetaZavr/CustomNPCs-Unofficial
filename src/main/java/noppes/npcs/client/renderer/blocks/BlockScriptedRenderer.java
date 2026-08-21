@@ -106,7 +106,6 @@ public class BlockScriptedRenderer<T extends TileScripted> extends BlockRenderer
 			textPlane.textBlock = new TextBlockClient(textPlane.text, 336, true, Minecraft.getInstance().player);
 			textPlane.textHasChanged = false;
 		}
-
 		matrixStack.pushPose();
 		matrixStack.translate(0.5f, 0.5f, 0.5f);
 		matrixStack.mulPose(Axis.YP.rotationDegrees(textPlane.rotationY));

@@ -26,9 +26,9 @@ public class CustomPotionEvent extends CustomNPCsEvent {
         public AffectEntity(ICustomElement potion, Entity sourceIn, Entity indirectSourceIn,
                             LivingEntity entityIn, int amplifierIn, double healthIn) {
             super(potion);
-            source = API != null && sourceIn != null ? API.getIEntity(sourceIn) : null;
-            indirectSource = API != null && indirectSource != null ? API.getIEntity(indirectSourceIn) : null;
-            entity = API != null && entityIn != null ? API.getIEntity(entityIn) : null;
+            source = sourceIn != null ? API.getIEntity(sourceIn) : null;
+            indirectSource = indirectSource != null ? API.getIEntity(indirectSourceIn) : null;
+            entity = entityIn != null ? API.getIEntity(entityIn) : null;
             amplifier = amplifierIn;
             health = healthIn;
         }
@@ -43,7 +43,7 @@ public class CustomPotionEvent extends CustomNPCsEvent {
 
         public EndEffect(ICustomElement potion, LivingEntity entityIn, int amplifierIn) {
             super(potion);
-            entity = API != null && entityIn != null ? API.getIEntity(entityIn) : null;
+            entity = entityIn != null ? API.getIEntity(entityIn) : null;
             amplifier = amplifierIn;
         }
 
@@ -73,7 +73,7 @@ public class CustomPotionEvent extends CustomNPCsEvent {
 
         public PerformEffect(ICustomElement potion, LivingEntity entityIn, int amplifierIn) {
             super(potion);
-            entity = API != null && entityIn != null ? API.getIEntity(entityIn) : null;
+            entity = entityIn != null ? API.getIEntity(entityIn) : null;
             amplifier = amplifierIn;
         }
 

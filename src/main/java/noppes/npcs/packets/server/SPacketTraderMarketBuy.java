@@ -85,8 +85,8 @@ public class SPacketTraderMarketBuy extends PacketServerBasic {
         PlayerData data = PlayerData.get(player);
         DealMarkup dm = MarcetController.getInstance().getBuyData(marcet, deal, data.game.getMarcetLevel(marcet.getId()), count);
         boolean notGiveItem = !deal.availability.isAvailable(player) ||
-                dm.buyMoney < data.game.getMoney() || // has money
-                dm.buyDonat < data.game.getDonat() || // has donal
+                dm.buyMoney > data.game.getMoney() || // has money
+                dm.buyDonat > data.game.getDonat() || // has donal
                 !Util.instance.canRemoveItems(player.getInventory().items, dm.buyItems, dm.ignoreDamage, dm.ignoreNBT); // has items
         if (marcet.isLimited) {
             boolean notBuy = false;

@@ -33,6 +33,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -74,6 +75,7 @@ import noppes.npcs.client.controllers.PresetController;
 import noppes.npcs.client.gui.*;
 import noppes.npcs.client.gui.availability.SubGuiNpcAvailabilityItemStacks;
 import noppes.npcs.client.gui.custom.GuiCustom;
+import noppes.npcs.client.gui.dimensions.GuiCreateDimension;
 import noppes.npcs.client.gui.drop.SubGuiDropEdit;
 import noppes.npcs.client.gui.elements.GuiManageCustomElements;
 import noppes.npcs.client.gui.global.*;
@@ -142,19 +144,19 @@ public class ClientProxy extends CommonProxy {
 
    public static void removeKeyFromMAP(Object parent) {
       if (parent instanceof KeyMapping keyMapping) {
-         ((IKeyMappingMixin) parent).getMap().remove(keyMapping);
+         IKeyMappingMixin.getMap().remove(keyMapping);
       }
    }
 
    public static void addKeyToAll(String name, Object parent) {
       if (parent instanceof KeyMapping keyMapping) {
-         ((IKeyMappingMixin) parent).getAll().put(name, keyMapping);
+         IKeyMappingMixin.getAll().put(name, keyMapping);
       }
    }
 
    public static void tryAddKeyToMap(Object parent) {
       if (parent instanceof KeyMapping keyMapping) {
-         KeyMappingLookup map = ((IKeyMappingMixin) keyMapping).getMap();
+         KeyMappingLookup map = IKeyMappingMixin.getMap();
          if (!map.getAll(keyMapping.getKey()).contains(keyMapping)) { map.put(keyMapping.getKey(), keyMapping); }
       }
    }
@@ -363,7 +365,14 @@ public class ClientProxy extends CommonProxy {
          case Waypoint: returnGui = new GuiNpcWaypoint(preEvent.buffer.readBlockPos()); break;
          case NbtBook: returnGui = new GuiNbtBook(preEvent.buffer.readBlockPos()); break;
          // New from Unofficial (BetaZavr)
-         //case DimensionSetting: returnGui = new GuiCreateDimension(preEvent.buffer.readResourceKey(Registries.DIMENSION)); break;
+         case DimensionSetting: {
+            if (preEvent.buffer.readBoolean()) {
+               returnGui = new GuiCreateDimension(preEvent.buffer.readResourceKey(Registries.DIMENSION));
+            } else {
+               returnGui = new GuiCreateDimension(null);
+            }
+            break;
+         }
          case QuestCompleteText: returnGui = new GuiQuestCompletion(preEvent.buffer.readInt()); break;
          case QuestChooseReward: {
             Quest quest = QuestController.instance.get(preEvent.buffer.readInt());

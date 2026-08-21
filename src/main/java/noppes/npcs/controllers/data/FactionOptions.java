@@ -102,4 +102,10 @@ public class FactionOptions {
       return false;
    }
 
+   public List<Integer> getIDs() {
+      List<Integer> list = new ArrayList<>();
+      for (FactionOption fo : factionOptions) { if (!list.contains(fo.factionId)) { list.add(fo.factionId); } }
+      return list;
+   }
+
 }

@@ -1,5 +1,6 @@
 package noppes.npcs.blocks;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,45 +24,42 @@ import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.blocks.tiles.TileWaypoint;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.packets.server.SPacketGuiOpen;
-import org.jetbrains.annotations.NotNull;
 
 public class BlockWaypoint extends BlockInterface {
 
-   public BlockWaypoint() {
-      super(Properties.copy(Blocks.BARRIER).sound(SoundType.METAL));
-   }
+   public BlockWaypoint() { super(Properties.copy(Blocks.BARRIER).sound(SoundType.METAL)); }
 
-   /** @deprecated */
-   @Deprecated
-   public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult ray) {
-      if (level.isClientSide) {
-         return InteractionResult.PASS;
-      } else {
-         ItemStack currentItem = player.getInventory().getSelected();
-         if (currentItem.getItem() == CustomItems.wand && CustomNpcsPermissions.hasPermission((ServerPlayer) player, CustomNpcsPermissions.EDIT_BLOCKS)) {
-            SPacketGuiOpen.sendOpenGui((ServerPlayer) player, EnumGuiType.Waypoint, null, pos);
+   @Override
+   @SuppressWarnings("deprecation")
+   public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player playerIn,
+                                         @Nonnull InteractionHand hand, @Nonnull BlockHitResult ray) {
+      if (!level.isClientSide && playerIn instanceof ServerPlayer player) {
+         if (player.getInventory().getSelected().getItem() == CustomItems.wand &&
+                 CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_BLOCKS)) {
+            SPacketGuiOpen.sendOpenGui(player, EnumGuiType.Waypoint, null, pos);
             return InteractionResult.SUCCESS;
-         } else {
-            return InteractionResult.PASS;
          }
       }
+      return InteractionResult.PASS;
    }
 
-   public void setPlacedBy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity entity, @NotNull ItemStack item) {
+   @Override
+   public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity entity, @Nonnull ItemStack item) {
       if (!level.isClientSide && entity instanceof ServerPlayer sPlayer) {
          SPacketGuiOpen.sendOpenGui(sPlayer, EnumGuiType.Waypoint, null, pos);
       }
    }
 
-   public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+   @Override
+   public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
       return new TileWaypoint(pos, state);
    }
 
-   public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
-      return RenderShape.MODEL;
-   }
+   @Override
+   public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) { return RenderShape.MODEL; }
 
-   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+   @Override
+   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> type) {
       return createTickerHelper(type, CustomBlocks.tile_waypoint, TileWaypoint::tick);
    }
 

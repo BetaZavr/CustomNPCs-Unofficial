@@ -8,6 +8,7 @@ import java.util.Map;
 
 public interface IObjModelMixin {
 
+    @SuppressWarnings("unused")
     int cnpcs$getColorMask();
 
     void cnpcs$setColorMask(int newColorMask);

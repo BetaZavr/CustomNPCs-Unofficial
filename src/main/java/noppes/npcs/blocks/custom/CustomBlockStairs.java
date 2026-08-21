@@ -7,15 +7,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.wrapper.NBTWrapper;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 public class CustomBlockStairs extends StairBlock implements ICustomElement {
 
@@ -40,7 +38,7 @@ public class CustomBlockStairs extends StairBlock implements ICustomElement {
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

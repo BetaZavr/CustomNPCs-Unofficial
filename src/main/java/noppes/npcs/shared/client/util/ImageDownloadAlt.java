@@ -78,11 +78,11 @@ public class ImageDownloadAlt extends SimpleTexture {
       }
    }
 
-   public void loadTextureFromServer() {
-      load(imageUrl, false);
+   public void httpDownloadTextureFromServerAndUpload() {
+      httpDownloadAndUpload(imageUrl, false);
    }
 
-   private void load(String url, boolean wasRedirect) {
+   private void httpDownloadAndUpload(String url, boolean wasRedirect) {
       HttpURLConnection connection = null;
       logger.debug("Downloading http texture from {} to {}", new Object[]{url, cacheFile});
 
@@ -107,7 +107,7 @@ public class ImageDownloadAlt extends SimpleTexture {
          }
          String newUrl = connection.getHeaderField("Location");
          if (newUrl != null && !newUrl.trim().isEmpty()) {
-            load(newUrl, true);
+            httpDownloadAndUpload(newUrl, true);
          }
          logger.debug("Downloading http texture done");
       } catch (Exception e) {

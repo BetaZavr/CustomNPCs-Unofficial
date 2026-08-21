@@ -9,10 +9,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = AbstractContainerMenu.class, priority = 499)
 public interface IAbstractContainerMenuMixin {
 
-   @Accessor
-   NonNullList<ItemStack> getLastSlots();
+   @Accessor NonNullList<ItemStack> getLastSlots();
 
-   @Accessor
-   NonNullList<ItemStack> getRemoteSlots();
+   @Accessor NonNullList<ItemStack> getRemoteSlots();
 
 }

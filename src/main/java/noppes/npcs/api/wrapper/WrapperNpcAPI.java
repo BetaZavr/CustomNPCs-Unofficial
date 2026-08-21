@@ -241,7 +241,7 @@ public class WrapperNpcAPI extends NpcAPI {
    public INbt stringToNbt(String str) {
       if (str != null && !str.isEmpty()) {
          try {
-            return getINbt(NBTJsonUtil.Convert(str));
+            return new NBTWrapper(NBTJsonUtil.Convert(str));
          } catch (NBTJsonUtil.JsonException var3) {
             throw new CustomNPCsException(var3, "Failed converting " + str);
          }
@@ -277,10 +277,10 @@ public class WrapperNpcAPI extends NpcAPI {
          catch (Exception e) { throw new CustomNPCsException("Invalid UUID string: \"" + uuid + "\""); }
          ServerPlayer player = CustomNpcs.Server.getPlayerList().getPlayer(uuidMC);
          if (player != null && player.getName().toString().equals(name)) {
-            return getINbt(PlayerData.get(player).getNBT());
+            return new NBTWrapper(PlayerData.get(player).getNBT());
          }
       }
-      return getINbt(PlayerData.loadPlayerData(uuid, name));
+      return new NBTWrapper(PlayerData.loadPlayerData(uuid, name));
    }
 
    @Override

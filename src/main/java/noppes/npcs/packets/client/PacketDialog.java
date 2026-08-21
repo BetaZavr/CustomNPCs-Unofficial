@@ -10,11 +10,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.player.GuiDialogInteract;
+import noppes.npcs.client.gui.player.moderngui.GuiDialogModern;
+import noppes.npcs.client.gui.player.moderngui.GuiQuestModern;
 import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
 import noppes.npcs.shared.common.PacketBasic;
+import noppes.npcs.shared.common.util.LogWriter;
 
 public class PacketDialog extends PacketBasic {
 
@@ -41,8 +43,10 @@ public class PacketDialog extends PacketBasic {
    protected void handle() {
       CustomNpcs.debugData.start("Packets");
       ClientLevel level = Minecraft.getInstance().level;
+      LogWriter.info("[DEBUG] "+level);
       if (level == null) { return; }
       Entity entity = level.getEntity(entityId);
+      LogWriter.info("[DEBUG] "+entity);
       if (entity instanceof EntityNPCInterface npc) {
          Dialog dialog = DialogController.instance.dialogs.get(dialogId);
          openDialog(dialog, npc, player);
@@ -53,6 +57,8 @@ public class PacketDialog extends PacketBasic {
    public static void openDialog(Dialog dialog, EntityNPCInterface npc, Player player) {
       Screen gui = Minecraft.getInstance().screen;
       if (gui instanceof GuiDialogInteract dia) { dia.appendDialog(dialog); }
+      else if (CustomNpcs.EnableNewDialogSystem && gui instanceof GuiQuestModern) { CustomNpcs.proxy.openGui(player, new GuiDialogModern(npc, dialog)); }
+      else if (CustomNpcs.EnableNewDialogSystem && dialog.hasQuest()) { CustomNpcs.proxy.openGui(player, new GuiQuestModern(npc, dialog.getQuest(), dialog, -2)); }
       else { CustomNpcs.proxy.openGui(player, new GuiDialogInteract(npc, dialog)); }
    }
 

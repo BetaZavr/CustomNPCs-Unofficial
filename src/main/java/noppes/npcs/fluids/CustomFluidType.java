@@ -11,11 +11,10 @@ import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidType;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class CustomFluidType extends FluidType implements ICustomElement {
@@ -43,8 +42,10 @@ public class CustomFluidType extends FluidType implements ICustomElement {
         tintColor = tintColorIn;
     }
 
+    @SuppressWarnings("unused")
     public @Nonnull ResourceLocation getStillTexture() { return stillTexture; }
 
+    @SuppressWarnings("unused")
     public @Nonnull ResourceLocation getFlowingTexture() { return flowingTexture; }
 
     public int getTintColor() { return tintColor; }
@@ -57,7 +58,7 @@ public class CustomFluidType extends FluidType implements ICustomElement {
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

@@ -38,14 +38,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import noppes.npcs.CustomBlocks;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.blocks.BlockInterface;
 import noppes.npcs.blocks.custom.tiles.CustomTileEntityChest;
 import noppes.npcs.containers.ContainerChestCustom;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Objects;
 
 public class CustomChest extends BlockInterface implements SimpleWaterloggedBlock, ICustomElement, EntityBlock {
 
@@ -60,8 +59,8 @@ public class CustomChest extends BlockInterface implements SimpleWaterloggedBloc
 
     public CustomChest(@Nonnull Properties properties, @Nonnull CompoundTag nbtBlock) {
         super(properties);
-        this.nbtData = nbtBlock;
-        this.isChest = nbtBlock.contains("IsChest", 1) && nbtBlock.getBoolean("IsChest");
+        nbtData = nbtBlock;
+        isChest = nbtBlock.contains("IsChest", 1) && nbtBlock.getBoolean("IsChest");
 
         if (nbtBlock.get("AABB") instanceof ListTag tagList && tagList.getElementType() == (byte) 6 && tagList.size() > 5) {
             SHAPE = Shapes.create(new AABB(tagList.getDouble(0), tagList.getDouble(1), tagList.getDouble(2),
@@ -222,26 +221,20 @@ public class CustomChest extends BlockInterface implements SimpleWaterloggedBloc
     }
 
     @Override
-    public String getCustomName() {
-        return this.nbtData.getString("RegistryName");
-    }
+    public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() {
-        return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.nbtData);
-    }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {
-        if (this.nbtData.contains("BlockType", 1)) {
-            return this.nbtData.getByte("BlockType");
-        }
+        if (nbtData.contains("BlockType", 1)) { return nbtData.getByte("BlockType"); }
         return 2;
     }
 
     @Override
     public boolean showInCreative() {
-        return !this.nbtData.contains("ShowInCreative", 1) || this.nbtData.getBoolean("ShowInCreative");
+        return !nbtData.contains("ShowInCreative", 1) || nbtData.getBoolean("ShowInCreative");
     }
 
 }

@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootParams.Builder;
 import net.minecraft.world.phys.AABB;
@@ -48,7 +49,7 @@ import noppes.npcs.packets.server.SPacketGuiOpen;
 public class BlockScripted
         extends BlockInterface {
 
-   public static final VoxelShape AABB = Shapes.create(new AABB(0.001D, 0.001D, 0.001D, 0.998D, 0.9980000257492065D, 0.9980000257492065D));
+   public static final VoxelShape AABB = Shapes.create(new AABB(0.001D, 0.001D, 0.001D, 0.998D, 0.998D, 0.998D));
 
    // New Unofficial (Goodbird)
    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -290,5 +291,8 @@ public class BlockScripted
       }
       return state_0;
    }
+
+   @Override
+   public PushReaction getPistonPushReaction(BlockState state) { return PushReaction.BLOCK; }
 
 }

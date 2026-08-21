@@ -19,12 +19,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.wrapper.NBTWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class CustomItem extends Item implements ICustomElement {
 
@@ -105,6 +104,7 @@ public class CustomItem extends Item implements ICustomElement {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public int getEnchantmentValue() { return enchantability; }
 
     @Override
@@ -116,6 +116,7 @@ public class CustomItem extends Item implements ICustomElement {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public @Nonnull Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(@Nonnull EquipmentSlot slot) {
         return slot == EquipmentSlot.MAINHAND ? defaultModifiers : ImmutableMultimap.of();
     }
@@ -124,7 +125,7 @@ public class CustomItem extends Item implements ICustomElement {
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

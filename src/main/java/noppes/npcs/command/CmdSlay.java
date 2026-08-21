@@ -29,6 +29,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.registries.ForgeRegistries;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.entity.EntityNPCInterface;
 
 public class CmdSlay {
@@ -68,7 +69,7 @@ public class CmdSlay {
 
    public static LiteralArgumentBuilder<CommandSourceStack> register() {
        return Commands.literal("slay")
-               .requires((source) -> source.hasPermission(4))
+               .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
                .then(Commands.argument("type", StringArgumentType.word())
                        .then(Commands.argument("range", IntegerArgumentType.integer(1))
                                .executes((context) -> {

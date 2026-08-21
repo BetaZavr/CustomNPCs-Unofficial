@@ -11,7 +11,6 @@ import java.util.Map;
 @Mixin(value = TextureAtlas.class, priority = 502)
 public interface ITextureAtlasMixin {
 
-    @Accessor
-    Map<ResourceLocation, TextureAtlasSprite> getTexturesByName();
+    @Accessor Map<ResourceLocation, TextureAtlasSprite> getTexturesByName();
 
 }

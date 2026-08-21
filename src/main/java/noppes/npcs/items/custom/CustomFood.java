@@ -6,12 +6,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.util.ValueUtil;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 public class CustomFood extends Item implements ICustomElement {
 
@@ -37,7 +36,7 @@ public class CustomFood extends Item implements ICustomElement {
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

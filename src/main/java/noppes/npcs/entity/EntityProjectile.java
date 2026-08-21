@@ -50,11 +50,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import noppes.npcs.CustomEntities;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.ParticleType;
 import noppes.npcs.api.constants.PotionEffectType;
-import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.event.ProjectileEvent;
+import noppes.npcs.api.wrapper.BlockWrapper;
 import noppes.npcs.controllers.ScriptContainer;
 import noppes.npcs.entity.data.DataRanged;
 import org.jetbrains.annotations.NotNull;
@@ -316,10 +315,10 @@ public class EntityProjectile extends ThrowableProjectile {
          if (movingObjectPosition.getType() == Type.ENTITY) {
             e = ((EntityHitResult)movingObjectPosition).getEntity();
             pos = e.blockPosition();
-            event = new ProjectileEvent.ImpactEvent((IProjectile<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this), 0, e);
+            event = new ProjectileEvent.ImpactEvent(this, 0, e);
          } else {
             pos = ((BlockHitResult)movingObjectPosition).getBlockPos();
-            event = new ProjectileEvent.ImpactEvent((IProjectile<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this), 1, Objects.requireNonNull(NpcAPI.Instance()).getIBlock(level(), pos));
+            event = new ProjectileEvent.ImpactEvent(this, 1, BlockWrapper.createNew(level(), pos, level().getBlockState(pos)));
          }
          if (pos == BlockPos.ZERO) {
             pos = new BlockPos((int)movingObjectPosition.getLocation().x, (int)movingObjectPosition.getLocation().y, (int)movingObjectPosition.getLocation().z);

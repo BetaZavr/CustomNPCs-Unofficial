@@ -297,6 +297,7 @@ public abstract class EntityNPCInterface
    }
 
    @Override
+   @SuppressWarnings("ConstantConditions")
    public boolean isAlive() {
       boolean bo = super.isAlive();
       if (!bo || ais != null && ais.aiDisabled) { return bo; }
@@ -506,7 +507,7 @@ public abstract class EntityNPCInterface
          }
          else {
             // New from Unofficial (BetaZavr)
-            EntityDataAccessor<Byte> hand_states = ((ILivingEntityMixin) this).getHandStates();
+            EntityDataAccessor<Byte> hand_states = ILivingEntityMixin.getHandStates();
             ItemStack stack = getMainHandItem();
             // imitation of using items
             if (hand_states != null &&
@@ -1243,7 +1244,7 @@ public abstract class EntityNPCInterface
          h = h / 5.0f * display.getSize();
       }
       EntityDimensions size = new EntityDimensions(w, h, false);
-      size = size.scale((float) display.getSize() * 0.2F);
+      size = size.scale(display.getSize() * 0.2F);
       if (getHealth() <= 0.0f) {
          size = new EntityDimensions(size.height / 2.0f, size.width / 3.0f, false);
       }

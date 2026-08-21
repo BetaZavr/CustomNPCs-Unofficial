@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = Item.class, priority = 502)
 public interface IItemMixin {
 
-    @Accessor
-    void setMaxDamage(int newMaxDamage);
+    @Accessor void setMaxDamage(int newMaxDamage);
 
 }

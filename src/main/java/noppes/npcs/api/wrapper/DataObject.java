@@ -38,6 +38,8 @@ public class DataObject implements IDataObject {
         return "";
     }
 
+    public static @Nonnull List<String> getObfuscatedKeys() { return new ArrayList<>(obfuscated.keySet()); }
+
     public static String getAgrName(Class<?> classType, Type genericType, Object obj) {
         StringBuilder key = new StringBuilder(classType.getName());
         if (List.class.isAssignableFrom(classType) || Map.class.isAssignableFrom(classType)) {

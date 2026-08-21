@@ -3,13 +3,10 @@ package noppes.npcs.api.wrapper.gui;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.gui.IEntityDisplay;
 import noppes.npcs.api.wrapper.NBTWrapper;
-
-import java.util.Objects;
 
 public class CustomGuiEntityDisplayWrapper
         extends CustomGuiComponentWrapper
@@ -20,6 +17,7 @@ public class CustomGuiEntityDisplayWrapper
    protected int rotation;
    protected float scale = 1.0F;
    protected boolean showBackground = true;
+   private boolean showRiders = false;
 
    public boolean isFollowingCursor = true;
    public int entityId = -1;
@@ -94,18 +92,20 @@ public class CustomGuiEntityDisplayWrapper
       compound.putFloat("scale", scale);
       compound.putBoolean("followCursor", isFollowingCursor);
       compound.putBoolean("background", showBackground);
+      compound.putBoolean("showRiders", showRiders);
       return compound;
    }
 
    @Override
    public CustomGuiEntityDisplayWrapper fromNBT(CompoundTag compound) {
       super.fromNBT(compound);
-      entityData = Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound.getCompound("entity"));
+      entityData = new NBTWrapper(compound.getCompound("entity"));
       entityId = compound.getInt("entityId");
       setRotation(compound.getInt("rotation"));
       setScale(compound.getFloat("scale"));
       setFollowingCursor(compound.getBoolean("followCursor"));
       setBackground(compound.getBoolean("background"));
+      showRiders(compound.getBoolean("showRiders"));
       return this;
    }
 
@@ -120,5 +120,9 @@ public class CustomGuiEntityDisplayWrapper
       else { entityId = entityIn.getMCEntity().getId(); }
       return this;
    }
+
+   public void showRiders(boolean isShow) { showRiders = isShow; }
+
+   public boolean isShowingRiders() { return showRiders; }
 
 }

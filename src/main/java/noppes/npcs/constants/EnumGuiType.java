@@ -78,7 +78,8 @@ public enum EnumGuiType {
    QuestChooseReward,
    CreationParts,
    CustomChest(true),
-   ManageCustomElements;
+   ManageCustomElements,
+   ManageDungeons;
 
    public boolean hasContainer;
    public final ResourceLocation resource;

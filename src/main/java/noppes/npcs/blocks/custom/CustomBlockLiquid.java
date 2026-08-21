@@ -7,12 +7,11 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.fluids.CustomFluid;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 // WaterFluid or LavaFluid
@@ -32,7 +31,7 @@ public class CustomBlockLiquid extends LiquidBlock implements ICustomElement {
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

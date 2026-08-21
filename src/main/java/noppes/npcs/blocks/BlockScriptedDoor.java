@@ -1,5 +1,6 @@
 package noppes.npcs.blocks;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,7 +37,6 @@ import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.packets.server.SPacketGuiOpen;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -46,25 +46,22 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
       super(Properties.copy(Blocks.IRON_DOOR).strength(5.0F, 10.0F));
    }
 
-   /** @deprecated */
-   @Deprecated
-   public @NotNull ItemStack getCloneItemStack(@NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull BlockState state) {
+   @Override
+   @SuppressWarnings("deprecation")
+   public @Nonnull ItemStack getCloneItemStack(@Nonnull BlockGetter worldIn, @Nonnull BlockPos pos, @Nonnull BlockState state) {
       return new ItemStack(CustomBlocks.scripted_door_item);
    }
 
-   public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-      return new TileScriptedDoor(pos, state);
-   }
+   @Override
+   public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new TileScriptedDoor(pos, state); }
 
-   /** @deprecated */
-   @Deprecated
-   public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
-      return RenderShape.INVISIBLE;
-   }
+   @Override
+   @SuppressWarnings("deprecation")
+   public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) { return RenderShape.INVISIBLE; }
 
-   /** @deprecated */
-   @Deprecated
-   public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult ray) {
+   @Override
+   public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player,
+                                         @Nonnull InteractionHand hand, @Nonnull BlockHitResult ray) {
       if (level.isClientSide) {
          BlockEvent.DoorToggleEvent event = new BlockEvent.DoorToggleEvent(Objects.requireNonNull(NpcAPI.Instance()).getIBlock(level, pos));
          EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.DOOR_TOGGLE, event);
@@ -74,33 +71,31 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
       BlockState iblockstate1 = pos.equals(blockpos1) ? state : level.getBlockState(blockpos1);
       if (iblockstate1.getBlock() == this) {
          ItemStack currentItem = player.getInventory().getSelected();
-         if (currentItem.getItem() == CustomItems.wand || currentItem.getItem() == CustomItems.scripter || currentItem.getItem() == CustomBlocks.scripted_door_item) {
+         if (currentItem.getItem() == CustomItems.wand ||
+                 currentItem.getItem() == CustomItems.scripter ||
+                 currentItem.getItem() == CustomBlocks.scripted_door_item) {
             PlayerData data = PlayerData.get(player);
             data.scriptBlockPos = blockpos1;
             SPacketGuiOpen.sendOpenGui((ServerPlayer) player, EnumGuiType.ScriptDoor, null, blockpos1);
             return InteractionResult.SUCCESS;
-         } else {
-            TileScriptedDoor tile = (TileScriptedDoor)level.getBlockEntity(blockpos1);
-            if (tile != null) {
-               Vec3 vec = ray.getLocation();
-               float x = (float)(vec.x - (double)pos.getX());
-               float y = (float)(vec.y - (double)pos.getY());
-               float z = (float)(vec.z - (double)pos.getZ());
-               if (EventHooks.onScriptBlockInteract(tile, player, ray.getDirection().get3DDataValue(), x, y, z)) {
-                  return InteractionResult.FAIL;
-               } else {
-                  this.setOpen(player, level, iblockstate1, blockpos1, iblockstate1.getValue(DoorBlock.OPEN).equals(false));
-                  return InteractionResult.SUCCESS;
-               }
-            }
+         }
+         TileScriptedDoor tile = (TileScriptedDoor)level.getBlockEntity(blockpos1);
+         if (tile != null) {
+            Vec3 vec = ray.getLocation();
+            float x = (float)(vec.x - (double)pos.getX());
+            float y = (float)(vec.y - (double)pos.getY());
+            float z = (float)(vec.z - (double)pos.getZ());
+            if (EventHooks.onScriptBlockInteract(tile, player, ray.getDirection().get3DDataValue(), x, y, z)) { return InteractionResult.FAIL; }
+            this.setOpen(player, level, iblockstate1, blockpos1, iblockstate1.getValue(DoorBlock.OPEN).equals(false));
+            return InteractionResult.SUCCESS;
          }
       }
       return InteractionResult.FAIL;
    }
 
-   /** @deprecated */
-   @Deprecated
-   public void neighborChanged(BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, @NotNull Block neighborBlock, @NotNull BlockPos pos2, boolean isMoving) {
+   @Override
+   public void neighborChanged(BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull Block neighborBlock,
+                               @Nonnull BlockPos pos2, boolean isMoving) {
       BlockPos blockpos2;
       BlockState iblockstate2;
       if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
@@ -143,16 +138,17 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
 
    }
 
-   public void setOpen(Entity entity, Level worldIn, @NotNull BlockState state, @NotNull BlockPos pos, boolean open) {
+   @Override
+   public void setOpen(Entity entity, Level worldIn, @Nonnull BlockState state, @Nonnull BlockPos pos, boolean open) {
       TileScriptedDoor tile = (TileScriptedDoor)worldIn.getBlockEntity(pos);
       if (tile == null || !EventHooks.onScriptBlockDoorToggle(tile)) {
          super.setOpen(entity, worldIn, state, pos, open);
       }
    }
 
-   /** @deprecated */
-   @Deprecated
-   public void attack(@NotNull BlockState state, Level level, @NotNull  BlockPos pos, @NotNull Player playerIn) {
+   @Override
+   @SuppressWarnings("deprecation")
+   public void attack(@Nonnull BlockState state, Level level, @Nonnull  BlockPos pos, @Nonnull Player playerIn) {
       if (!level.isClientSide) {
          BlockPos blockpos1 = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
          BlockState iblockstate1 = pos.equals(blockpos1) ? state : level.getBlockState(blockpos1);
@@ -163,7 +159,8 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
       }
    }
 
-   public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
+   @Override
+   public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
       if (state.getBlock() != newState.getBlock()) {
          BlockPos blockpos1 = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
          BlockState iblockstate1 = pos.equals(blockpos1) ? state : level.getBlockState(blockpos1);
@@ -175,6 +172,7 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
       }
    }
 
+   @Override
    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
       if (!level.isClientSide) {
          TileScriptedDoor tile = (TileScriptedDoor)level.getBlockEntity(pos);
@@ -185,16 +183,17 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
       return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
    }
 
-   /** @deprecated */
-   @Deprecated
-   public void entityInside(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Entity entityIn) {
+   @Override
+   @SuppressWarnings("deprecation")
+   public void entityInside(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Entity entityIn) {
       if (!level.isClientSide) {
          TileScriptedDoor tile = (TileScriptedDoor)level.getBlockEntity(pos);
          if (tile != null) { EventHooks.onScriptBlockCollide(tile, entityIn); }
       }
    }
 
-   public void playerWillDestroy(@NotNull Level level, BlockPos pos, BlockState state, Player player) {
+   @Override
+   public void playerWillDestroy(@Nonnull Level level, BlockPos pos, BlockState state, Player player) {
       BlockPos blockpos1 = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
       BlockState iblockstate1 = pos.equals(blockpos1) ? state : level.getBlockState(blockpos1);
       if (player.getAbilities().instabuild && iblockstate1.getValue(HALF) == DoubleBlockHalf.LOWER && iblockstate1.getBlock() == this) {
@@ -203,9 +202,9 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
 
    }
 
-   /** @deprecated */
-   @Deprecated
-   public float getDestroyProgress(@NotNull BlockState state, @NotNull Player player, BlockGetter level, @NotNull BlockPos pos) {
+   @Override
+   @SuppressWarnings("deprecation")
+   public float getDestroyProgress(@Nonnull BlockState state, @Nonnull Player player, BlockGetter level, @Nonnull BlockPos pos) {
       TileScriptedDoor tile = (TileScriptedDoor) level.getBlockEntity(pos);
       float f;
       if (tile == null) { f = state.getDestroySpeed(level, pos); }
@@ -218,18 +217,21 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
       }
    }
 
+   @Override
    public float getExplosionResistance(BlockState state, BlockGetter level, BlockPos pos, Explosion explosion) {
       TileScriptedDoor tile = (TileScriptedDoor) level.getBlockEntity(pos);
       return tile != null ? tile.blockResistance : super.getExplosionResistance(state, level, pos, explosion);
    }
 
-   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+   @Override
+   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> type) {
       return createTickerHelper(type, CustomBlocks.tile_scripteddoor, TileScriptedDoor::tick);
    }
 
-   @Nullable
    @SuppressWarnings("unchecked")
-   protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> p_152133_, BlockEntityType<E> p_152134_, BlockEntityTicker<? super E> p_152135_) {
+   protected static @Nullable <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> p_152133_,
+                                                                                                                     BlockEntityType<E> p_152134_,
+                                                                                                                     BlockEntityTicker<? super E> p_152135_) {
       return p_152134_ == p_152133_ ? (BlockEntityTicker<A>) p_152135_ : null;
    }
 

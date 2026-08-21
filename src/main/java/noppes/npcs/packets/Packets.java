@@ -382,6 +382,9 @@ public class Packets {
       register(SPacketRemoveLoadFile.class);
       register(SPacketDimensionDelete.class);
       register(SPacketDimensionRestore.class);
+      register(SPacketDimensionSettings.class);
+      register(SPacketDimensionRecreate.class);
+      register(SPacketCustomGuiKeyPressed.class);
 
    }
 
@@ -480,7 +483,7 @@ public class Packets {
 
    private static <MSG> void logged(MSG msg, boolean onClients) {
       if (onClients == msg instanceof PacketServerBasic) {
-         LogWriter.warn("Packet \"" + msg.getClass().getSimpleName() + "\" is sent from the wrong side!");
+         LogWriter.warn("Packet \"" + msg.getClass().getSimpleName() + "\" is sent from the wrong side! Can be client: "+onClients);
       }
       if (CustomNpcs.VerboseDebug && !ignoredDebug.contains(msg.getClass())) {
          StringBuilder message = new StringBuilder(("" + Util.instance.getSide()).replace("DEDICATED_", ""));

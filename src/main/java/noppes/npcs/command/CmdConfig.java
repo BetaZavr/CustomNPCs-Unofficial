@@ -17,7 +17,7 @@ public class CmdConfig {
 
    public static LiteralArgumentBuilder<CommandSourceStack> register() {
       LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal("config");
-      command.then(Commands.literal("leavesdecay").requires((source) -> source.hasPermission(4)).executes((context) -> {
+      command.then(Commands.literal("leavesdecay").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)).executes((context) -> {
                  context.getSource().sendSuccess(() -> Component.literal("LeavesDecay: " + CustomNpcs.LeavesDecayEnabled), false);
                  return 1;
               })
@@ -27,7 +27,7 @@ public class CmdConfig {
                  context.getSource().sendSuccess(() -> Component.literal("LeavesDecay: " + CustomNpcs.LeavesDecayEnabled), false);
                  return 1;
               })));
-      command.then(Commands.literal("vineinflateth").requires((source) -> source.hasPermission(4)).executes((context) -> {
+      command.then(Commands.literal("vineinflateth").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)).executes((context) -> {
          context.getSource().sendSuccess(() -> Component.literal("VineGrowth: " + CustomNpcs.VineGrowthEnabled), false);
          return 1;
       }).then(Commands.argument("boolean", BoolArgumentType.bool()).executes((context) -> {
@@ -36,7 +36,7 @@ public class CmdConfig {
          context.getSource().sendSuccess(() -> Component.literal("VineGrowth: " + CustomNpcs.VineGrowthEnabled), false);
          return 1;
       })));
-      command.then(Commands.literal("icemelts").requires((source) -> source.hasPermission(4)).executes((context) -> {
+      command.then(Commands.literal("icemelts").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)).executes((context) -> {
          context.getSource().sendSuccess(() -> Component.literal("IceMelts: " + CustomNpcs.IceMeltsEnabled), false);
          return 1;
       }).then(Commands.argument("boolean", BoolArgumentType.bool()).executes((context) -> {
@@ -45,7 +45,7 @@ public class CmdConfig {
          context.getSource().sendSuccess(() -> Component.literal("IceMelts: " + CustomNpcs.IceMeltsEnabled), false);
          return 1;
       })));
-      command.then(Commands.literal("freezenpcs").requires((source) -> source.hasPermission(4)).executes((context) -> {
+      command.then(Commands.literal("freezenpcs").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)).executes((context) -> {
          context.getSource().sendSuccess(() -> Component.literal("Frozen NPCs: " + CustomNpcs.FreezeNPCs), false);
          return 1;
       }).then(Commands.argument("boolean", BoolArgumentType.bool()).executes((context) -> {
@@ -53,7 +53,7 @@ public class CmdConfig {
          context.getSource().sendSuccess(() -> Component.literal("Frozen NPCs: " + CustomNpcs.FreezeNPCs), false);
          return 1;
       })));
-      command.then(Commands.literal("scripting").requires((source) -> source.hasPermission(4)).executes((context) -> {
+      command.then(Commands.literal("scripting").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)).executes((context) -> {
          context.getSource().sendSuccess(() -> Component.literal("Scripting is " + CustomNpcs.EnableScripting), false);
          return 1;
       }).then(Commands.argument("boolean", BoolArgumentType.bool()).executes((context) -> {
@@ -62,7 +62,7 @@ public class CmdConfig {
          context.getSource().sendSuccess(() -> Component.literal("Scripting is now" + CustomNpcs.EnableScripting), false);
          return 1;
       })));
-      command.then(Commands.literal("chunkloaders").requires((source) -> source.hasPermission(4)).executes((context) -> {
+      command.then(Commands.literal("chunkloaders").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)).executes((context) -> {
          context.getSource().sendSuccess(() -> Component.literal("ChunkLoaders: " + ChunkController.instance.size() + "/" + CustomNpcs.ChuckLoaders), false);
          return 1;
       }).then(Commands.argument("number", IntegerArgumentType.integer(0)).executes((context) -> {
@@ -71,7 +71,7 @@ public class CmdConfig {
          context.getSource().sendSuccess(() -> Component.literal("Max ChunkLoaders: " + CustomNpcs.ChuckLoaders), false);
          return 1;
       })));
-      command.then(Commands.literal("font").requires((source) -> source.hasPermission(2)).executes((context) -> {
+      command.then(Commands.literal("font").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)).executes((context) -> {
          Packets.send(context.getSource().getPlayerOrException(), new PacketConfigFont("", 0));
          return 1;
       }).then(Commands.argument("font", StringArgumentType.string()).executes((context) -> {
@@ -82,7 +82,7 @@ public class CmdConfig {
          return 1;
       }))));
       // new
-      command.then(Commands.literal("debug").requires((source) -> source.hasPermission(4)).executes((context) -> {
+      command.then(Commands.literal("debug").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)).executes((context) -> {
          CustomNpcs.VerboseDebug = !CustomNpcs.VerboseDebug;
          context.getSource().sendSuccess(() -> Component.translatable("command.debug." + CustomNpcs.VerboseDebug), false);
          return 1;
@@ -95,6 +95,12 @@ public class CmdConfig {
          }
          else {
             try {
+               /*
+               if (context.getSource().getPlayer() != null) {
+                  noppes.npcs.CreaterAPITypeJS.searchForCodeChange(context.getSource().getPlayer(),
+                          "20250809_obf", "20260711_obf");
+               }
+               /**/
                CustomNpcs.VerboseDebug = Boolean.parseBoolean(arg);
                context.getSource().sendSuccess(() -> Component.translatable("command.debug." + CustomNpcs.VerboseDebug), false);
             } catch (Exception e) {
@@ -105,7 +111,8 @@ public class CmdConfig {
          return 1;
       })));
       command.then(Commands.literal("invisiblenpcs")
-              .requires((source) -> source.hasPermission(4) && CustomNpcsPermissions.hasPermission(source.getPlayer(), CustomNpcsPermissions.NPC_DISPLAY))
+              .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2) &&
+                      CustomNpcsPermissions.hasPermission(source.getPlayer(), CustomNpcsPermissions.NPC_DISPLAY))
               .executes((context) -> {
          context.getSource().sendSuccess(() -> Component.literal("Invisible NPCs is " + CustomNpcs.EnableInvisibleNpcs), false);
          return 1;

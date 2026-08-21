@@ -9,7 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.*;
 import noppes.npcs.api.entity.data.IAttributeModifier;
 import noppes.npcs.api.entity.data.INpcAttribute;
-import noppes.npcs.api.mixin.world.entity.ai.attributes.IRangedAttribute;
+import noppes.npcs.mixin.world.entity.ai.attributes.IRangedAttributeMixin;
 import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.ValueUtil;
 
@@ -194,8 +194,8 @@ public class AttributeWrapper implements INpcAttribute {
             double minValue = attr.getMinValue();
             minValue = ValueUtil.min(minValue, maxValue);
             maxValue = ValueUtil.max(minValue, maxValue);
-            ((IRangedAttribute) attr).npcs$setMinValue(minValue);
-            ((IRangedAttribute) attr).npcs$setMaxValue(maxValue);
+            ((IRangedAttributeMixin) attr).setMinValue(minValue);
+            ((IRangedAttributeMixin) attr).setMaxValue(maxValue);
         }
     }
 
@@ -205,8 +205,8 @@ public class AttributeWrapper implements INpcAttribute {
             double maxValue = attr.getMaxValue();
             minValue = ValueUtil.min(minValue, maxValue);
             maxValue = ValueUtil.max(minValue, maxValue);
-            ((IRangedAttribute) attr).npcs$setMinValue(minValue);
-            ((IRangedAttribute) attr).npcs$setMaxValue(maxValue);
+            ((IRangedAttributeMixin) attr).setMinValue(minValue);
+            ((IRangedAttributeMixin) attr).setMaxValue(maxValue);
         }
     }
 

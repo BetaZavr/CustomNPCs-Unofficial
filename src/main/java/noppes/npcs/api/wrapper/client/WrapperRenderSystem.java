@@ -127,12 +127,12 @@ public class WrapperRenderSystem implements IRenderSystem {
     @Override
     public void renderEntity(GuiGraphics graphics, Entity entity, int x, int y, float scale, int yaw, int pitch, int followCursor) {
         Entity e = null;
-        if (entity instanceof Entity) { e = (Entity) entity; }
+        if (entity instanceof Entity) { e = entity; }
         if (entity instanceof IEntity<?> iEntity) { e = iEntity.getMCEntity(); }
         if (e == null) { return; }
         CustomGuiEntityDisplay.drawEntity(graphics, e, 0, 0, scale, yaw, pitch,
                 (int) minecraft.mouseHandler.xpos(), (int) minecraft.mouseHandler.ypos(),
-                x, y, followCursor);
+                x, y, followCursor, true);
     }
 
     @Override

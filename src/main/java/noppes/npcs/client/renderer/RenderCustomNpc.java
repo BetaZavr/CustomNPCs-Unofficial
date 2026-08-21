@@ -268,7 +268,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc, M extends HumanoidModel<
 	protected void scale(@Nonnull T npcIn, @Nonnull PoseStack matrixScale, float f) {
 		if (renderEntity != null) {
 			renderColor(npcIn);
-			int size = npcIn.display.getSize();
+			float size = npcIn.display.getSize();
 			if (entity instanceof EntityNPCInterface) { ((EntityNPCInterface)entity).display.setSize(5); }
 			EntityRenderer<? super LivingEntity> render = entityRenderDispatcher.getRenderer(entity);
 			if (!npcIn.modelData.simpleRender && render instanceof LivingEntityRenderer standardRender) {
@@ -285,7 +285,8 @@ public class RenderCustomNpc<T extends EntityCustomNpc, M extends HumanoidModel<
 				((ILivingRendererMixin) standardRender).callScale(entity, matrixScale, partialTicks);
 			}
 			npcIn.display.setSize(size);
-			matrixScale.scale(0.2F * (float) npcIn.display.getSize(), 0.2F * (float) npcIn.display.getSize(), 0.2F * (float) npcIn.display.getSize());
+			size *= 0.2F;
+			matrixScale.scale(size, size, size);
 		} else {
 			super.scale(npcIn, matrixScale, f);
 		}

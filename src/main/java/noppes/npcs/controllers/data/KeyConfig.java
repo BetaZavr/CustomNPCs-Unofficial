@@ -1,7 +1,6 @@
 package noppes.npcs.controllers.data;
 
 import java.util.List;
-import java.util.Objects;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.nbt.CompoundTag;
@@ -9,8 +8,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.IKeySetting;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.controllers.KeyController;
 import noppes.npcs.mixin.client.IKeyMappingMixin;
@@ -76,11 +75,11 @@ public class KeyConfig implements IKeySetting {
             ((IKeyMappingMixin) parent).setName(name);
             ((IKeyMappingMixin) parent).setCategory(category);
             if (!oldName.equals(name)) {
-                ((IKeyMappingMixin) parent).getAll().remove(oldName);
+                IKeyMappingMixin.getAll().remove(oldName);
                 ClientProxy.addKeyToAll(name, parent);
             }
             ClientProxy.tryAddKeyToMap(parent);
-            ((IKeyMappingMixin) parent).getCategories().add(category);
+            IKeyMappingMixin.getCategories().add(category);
         }
         return parent;
     }
@@ -109,7 +108,7 @@ public class KeyConfig implements IKeySetting {
     public String getName() { return name; }
 
     @Override
-    public INbt getNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(save()); }
+    public INbt getNbt() { return new NBTWrapper(save()); }
 
     public boolean isActive(int key, List<Integer> keyPress) {
         if (keyId != key) { return false; }

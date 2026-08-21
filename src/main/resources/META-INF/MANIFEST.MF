@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Implementation-Title: customnpcs
-MixinConfigs: customnpcs.mixins.json
+MixinConfigs: mixins.customnpcs.json
 Implementation-Version: v.1.016-12Aug2026-Snapshot
 Specification-Vendor: Noppes, Goodbird, BetaZavr
 Specification-Title: customnpcs

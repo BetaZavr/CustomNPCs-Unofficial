@@ -67,11 +67,12 @@ public class CustomGuiColoredLine extends GuiLabel implements IComponentCustomGu
       double length = Math.sqrt(dx * dx + dy * dy);
       double nx = -dy / length * component.getThickness() / 2.0D;
       double ny = dx / length * component.getThickness() / 2.0D;
+      double z = id * 0.01D;
       VertexConsumer builder = graphics.bufferSource().getBuffer(RenderType.gui());
-      builder.vertex(component.getXEnd() + nx, component.getYEnd() + ny, id).color(r, g, b, a).endVertex();
-      builder.vertex(component.getXEnd() - nx, component.getYEnd() - ny, id).color(r, g, b, a).endVertex();
-      builder.vertex((double) getX() - nx, (double) getY() - ny, id).color(r, g, b, a).endVertex();
-      builder.vertex((double) getX() + nx, (double) getY() + ny, id).color(r, g, b, a).endVertex();
+      builder.vertex(component.getXEnd() + nx, component.getYEnd() + ny, z).color(r, g, b, a).endVertex();
+      builder.vertex(component.getXEnd() - nx, component.getYEnd() - ny, z).color(r, g, b, a).endVertex();
+      builder.vertex((double) getX() - nx, (double) getY() - ny, z).color(r, g, b, a).endVertex();
+      builder.vertex((double) getX() + nx, (double) getY() + ny, z).color(r, g, b, a).endVertex();
       graphics.flush();
    }
 

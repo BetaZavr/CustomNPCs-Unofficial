@@ -13,12 +13,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.wrapper.NBTWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class CustomHoe extends HoeItem implements ICustomElement {
 
@@ -71,7 +70,7 @@ public class CustomHoe extends HoeItem implements ICustomElement {
     }
 
     @Override
-    @Deprecated
+    @SuppressWarnings("deprecation")
     public boolean isCorrectToolForDrops(@Nonnull BlockState state) {
         for (Map.Entry<Block, Float> entry : collectionBlocks.entrySet()) {
             if (state.is(entry.getKey())) {
@@ -86,7 +85,7 @@ public class CustomHoe extends HoeItem implements ICustomElement {
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

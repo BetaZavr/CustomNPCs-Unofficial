@@ -77,6 +77,7 @@ public abstract class NpcAPI {
    @SuppressWarnings("unused")
    public abstract IWorld[] getIWorlds();
 
+   @SuppressWarnings("unused")
    public abstract INbt getINbt(@ParamName("nbtMC") CompoundTag nbtMC);
 
    public abstract IPos getIPos(@ParamName("x") double x, @ParamName("y") double y, @ParamName("z") double z);
@@ -149,6 +150,7 @@ public abstract class NpcAPI {
    @SuppressWarnings("unused")
    public abstract INbt getRawPlayerData(@ParamName("uuid") String uuid, @ParamName("name") String name);
 
+   @SuppressWarnings("unused")
    public abstract ICustomPlayerData getPlayerData(@ParamName("player") IPlayer<?> player);
 
    @SuppressWarnings("unused")

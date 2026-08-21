@@ -7,7 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = ArmorMaterials.class, priority = 502)
 public interface IArmorMaterialsMixin {
 
-    @Accessor
-    int getDurabilityMultiplier();
+    @Accessor int getDurabilityMultiplier();
 
 }

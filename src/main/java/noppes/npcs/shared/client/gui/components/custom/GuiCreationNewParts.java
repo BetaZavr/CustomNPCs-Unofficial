@@ -342,6 +342,7 @@ public class GuiCreationNewParts
          }
       }
 
+      @SuppressWarnings("deprecation")
       public void renderModel(GuiGraphics graphics) {
          int x1 = getX();
          int x2 = getX() + SIZE;
@@ -736,6 +737,7 @@ public class GuiCreationNewParts
       }
 
       @Override
+      @SuppressWarnings("deprecation")
       public void render(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
          if (minecraft == null) { minecraft = Minecraft.getInstance(); }
          super.render(graphics, mouseX, mouseY, partialTicks);

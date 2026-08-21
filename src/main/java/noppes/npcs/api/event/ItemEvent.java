@@ -1,5 +1,6 @@
 package noppes.npcs.api.event;
 
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.eventbus.api.Cancelable;
 import noppes.npcs.api.interfaces.EventName;
 import noppes.npcs.api.IDamageSource;
@@ -7,14 +8,16 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityItem;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.item.IItemScripted;
+import noppes.npcs.api.wrapper.DamageSourceWrapper;
 import noppes.npcs.constants.EnumScriptType;
 
 public class ItemEvent extends CustomNPCsEvent {
 
    public IItemScripted item;
 
-   public ItemEvent(IItemScripted item) {
-      this.item = item;
+   public ItemEvent(IItemScripted itemIn) {
+      super();
+      item = itemIn;
    }
 
    @Cancelable
@@ -22,23 +25,23 @@ public class ItemEvent extends CustomNPCsEvent {
    public static class AttackEvent extends ItemEvent {
       public final int type;
       public final Object target;
-      public IPlayer<?> player;
+      public final IPlayer<?> player;
       public final IDamageSource damageSource;
 
-      public AttackEvent(IItemScripted item, IPlayer<?> player, int type, Object target) {
+      public AttackEvent(IItemScripted item, IPlayer<?> playerIn, int typeIn, Object targetIn) {
          super(item);
-         this.type = type;
-         this.target = target;
-         this.player = player;
-         this.damageSource = null;
+         type = typeIn;
+         target = targetIn;
+         player = playerIn;
+         damageSource = null;
       }
 
-      public AttackEvent(IItemScripted item, IPlayer<?> player, IEntity<?> target, IDamageSource damageSource) {
+      public AttackEvent(IItemScripted item, IPlayer<?> playerIn, IEntity<?> targetIn, DamageSource damageSourceIn) {
          super(item);
-         this.type = 1;
-         this.target = target;
-         this.player = player;
-         this.damageSource = damageSource;
+         type = 1;
+         target = targetIn;
+         player = playerIn;
+         damageSource = new DamageSourceWrapper(damageSourceIn);
       }
    }
 
@@ -49,11 +52,11 @@ public class ItemEvent extends CustomNPCsEvent {
       public final Object target;
       public IPlayer<?> player;
 
-      public InteractEvent(IItemScripted item, IPlayer<?> player, int type, Object target) {
+      public InteractEvent(IItemScripted item, IPlayer<?> playerIn, int typeIn, Object targetIn) {
          super(item);
-         this.type = type;
-         this.target = target;
-         this.player = player;
+         type = typeIn;
+         target = targetIn;
+         player = playerIn;
       }
    }
 
@@ -62,10 +65,10 @@ public class ItemEvent extends CustomNPCsEvent {
       public IEntityItem<?> entity;
       public IPlayer<?> player;
 
-      public PickedUpEvent(IItemScripted item, IPlayer<?> player, IEntityItem<?> entity) {
+      public PickedUpEvent(IItemScripted item, IPlayer<?> playerIn, IEntityItem<?> entityIn) {
          super(item);
-         this.entity = entity;
-         this.player = player;
+         player = playerIn;
+         entity = entityIn;
       }
    }
 
@@ -75,10 +78,10 @@ public class ItemEvent extends CustomNPCsEvent {
       public IEntityItem<?> entity;
       public IPlayer<?> player;
 
-      public TossedEvent(IItemScripted item, IPlayer<?> player, IEntityItem<?> entity) {
+      public TossedEvent(IItemScripted item, IPlayer<?> playerIn, IEntityItem<?> entityIn) {
          super(item);
-         this.entity = entity;
-         this.player = player;
+         player = playerIn;
+         entity = entityIn;
       }
    }
 
@@ -87,9 +90,9 @@ public class ItemEvent extends CustomNPCsEvent {
    public static class SpawnEvent extends ItemEvent {
       public IEntityItem<?> entity;
 
-      public SpawnEvent(IItemScripted item, IEntityItem<?> entity) {
+      public SpawnEvent(IItemScripted item, IEntityItem<?> entityIn) {
          super(item);
-         this.entity = entity;
+         entity = entityIn;
       }
    }
 
@@ -97,17 +100,15 @@ public class ItemEvent extends CustomNPCsEvent {
    public static class UpdateEvent extends ItemEvent {
       public IPlayer<?> player;
 
-      public UpdateEvent(IItemScripted item, IPlayer<?> player) {
+      public UpdateEvent(IItemScripted item, IPlayer<?> playerIn) {
          super(item);
-         this.player = player;
+         player = playerIn;
       }
    }
 
    @EventName(EnumScriptType.INIT)
    public static class InitEvent extends ItemEvent {
-      public InitEvent(IItemScripted item) {
-         super(item);
-      }
+      public InitEvent(IItemScripted item) { super(item); }
    }
 
 }

@@ -12,12 +12,14 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.data.MarkData;
 
 public class CmdMark {
 
    public static LiteralArgumentBuilder<CommandSourceStack> register() {
-      LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal("mark").requires((source) -> source.hasPermission(2));
+      LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal("mark")
+              .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2));
       command.then(Commands.argument("clear", EntityArgument.entities()).executes((context) -> {
          Collection<? extends Entity> entities = EntityArgument.getEntities(context, "entities");
          for (Entity entity : entities) {

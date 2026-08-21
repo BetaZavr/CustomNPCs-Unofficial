@@ -1,5 +1,6 @@
 package noppes.npcs.shared.client.gui.components.custom;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 import noppes.npcs.api.wrapper.gui.CustomGuiButtonWrapper;
@@ -23,7 +24,11 @@ public class GuiColorButton extends CustomGuiButton {
       isHovered = false;
       if (!visible) { return; }
       isHovered = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
-      graphics.fill(getX(), getY(), getX() + width, getY() + height, color | Mth.ceil(alpha * 255.0F) << 24);
+      PoseStack matrixStack = graphics.pose();
+      matrixStack.pushPose();
+      matrixStack.translate((float)getX(), (float)getY(), (float) id * 0.01F);
+      graphics.fill(0, 0, width, height, color | Mth.ceil(alpha * 255.0F) << 24);
+      matrixStack.popPose();
    }
 
 }

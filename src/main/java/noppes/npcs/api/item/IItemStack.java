@@ -7,7 +7,7 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IMob;
 import noppes.npcs.api.entity.data.IData;
 
-@SuppressWarnings("all")
+@SuppressWarnings("unused")
 public interface IItemStack {
 
    int getStackSize();

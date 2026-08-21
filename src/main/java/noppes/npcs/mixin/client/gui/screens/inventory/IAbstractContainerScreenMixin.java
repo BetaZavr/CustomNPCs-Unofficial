@@ -9,28 +9,20 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = AbstractContainerScreen.class, priority = 502)
 public interface IAbstractContainerScreenMixin {
 
-    @Accessor
-    Slot getClickedSlot();
+    @Accessor Slot getClickedSlot();
 
-    @Accessor
-    ItemStack getDraggingItem();
+    @Accessor ItemStack getDraggingItem();
 
-    @Accessor
-    boolean getIsSplittingStack();
+    @Accessor boolean getIsSplittingStack();
 
-    @Accessor
-    int getQuickCraftingType();
+    @Accessor int getQuickCraftingType();
 
-    @Accessor
-    int getLeftPos();
+    @Accessor int getLeftPos();
 
-    @Accessor
-    int getTopPos();
+    @Accessor int getTopPos();
 
-    @Accessor
-    int getQuickCraftingRemainder();
+    @Accessor int getQuickCraftingRemainder();
 
-    @Accessor
-    void setQuickCraftingRemainder(int newValue);
+    @Accessor void setQuickCraftingRemainder(int newValue);
 
 }

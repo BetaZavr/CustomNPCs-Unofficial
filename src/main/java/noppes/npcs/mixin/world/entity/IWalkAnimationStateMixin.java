@@ -7,10 +7,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = WalkAnimationState.class, priority = 499)
 public interface IWalkAnimationStateMixin {
 
-   @Accessor
-   float getSpeedOld();
+   @Accessor float getSpeedOld();
 
-   @Accessor
-   void setSpeedOld(float speed);
+   @Accessor void setSpeedOld(float speed);
 
 }

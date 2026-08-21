@@ -59,7 +59,7 @@ public class DataAI implements INPCAi {
    public float bodyOffsetZ = 5.0F;
 
    // in 1.12.2
-   protected int tacticalRadius = 8;
+   protected int tacticalRadius = 4;
    public EnumNpcTactics tacticalVariant = EnumNpcTactics.RUSH;
 
    // New from Unofficial (GoodBird)

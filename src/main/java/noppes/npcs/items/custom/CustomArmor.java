@@ -16,7 +16,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.mixin.world.item.IArmorItemMixin;
 import noppes.npcs.mixin.world.item.IItemMixin;
@@ -132,7 +132,7 @@ public class CustomArmor extends ArmorItem implements ICustomElement {
 
         // vanilla
         ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-        UUID uuid = ((IArmorItemMixin) this).getArmorModifiers().get(itemType);
+        UUID uuid = IArmorItemMixin.getArmorModifiers().get(itemType);
         builder.put(Attributes.ARMOR, new AttributeModifier(uuid, "Armor modifier", ((IArmorItemMixin) this).defense(), AttributeModifier.Operation.ADDITION));
         builder.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(uuid, "Armor toughness", ((IArmorItemMixin) this).toughness(), AttributeModifier.Operation.ADDITION));
         if (knockbackResistance > 0) {
@@ -739,7 +739,7 @@ public class CustomArmor extends ArmorItem implements ICustomElement {
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

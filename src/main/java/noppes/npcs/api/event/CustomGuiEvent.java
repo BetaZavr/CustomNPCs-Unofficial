@@ -16,6 +16,7 @@ public class CustomGuiEvent extends CustomNPCsEvent {
    public final ICustomGui gui;
 
    public CustomGuiEvent(IPlayer<?> playerIn, ICustomGui guiIn) {
+      super();
       player = playerIn;
       gui = guiIn;
    }

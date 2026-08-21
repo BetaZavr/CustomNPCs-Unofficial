@@ -67,10 +67,12 @@ public class MarcetController implements IMarcetHandler {
     public DealMarkup getBuyData(Marcet marcet, Deal deal, int marcetLevel, int countIn) {
         DealMarkup dm = new DealMarkup();
         if (deal != null) { dm.set(deal); }
-        if (marcet != null) {
-            dm.set(marcet.markup.containsKey(marcetLevel) ? marcet.markup.get(marcetLevel)
-                    : marcetLevel >= marcet.markup.size() ? marcet.markup.get(marcet.markup.size() - 1)
-                    : marcet.markup.get(0), countIn);
+        if (marcet != null && !marcet.markup.isEmpty()) {
+            MarkupData md;
+            if (marcet.markup.containsKey(marcetLevel)) { md = marcet.markup.get(marcetLevel); }
+            else if (marcetLevel >= marcet.markup.size()) { md = marcet.markup.get(marcet.markup.size() - 1); }
+            else { md = marcet.markup.get(0); }
+            if (md != null) { dm.set(md, countIn); }
         }
         return dm;
     }

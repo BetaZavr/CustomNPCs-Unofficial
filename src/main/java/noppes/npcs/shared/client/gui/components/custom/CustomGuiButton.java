@@ -80,7 +80,7 @@ public class CustomGuiButton extends GuiButtonNop implements IComponentCustomGui
       isHovered = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + width && mouseY < getY() + height;
       PoseStack matrixStack = graphics.pose();
       matrixStack.pushPose();
-      matrixStack.translate((float)getX(), (float)getY(), 0.0F);
+      matrixStack.translate((float)getX(), (float)getY(), (float) id * 0.01F);
       Minecraft mc = Minecraft.getInstance();
       int i;
       if (component.getTexture().equals("textures/gui/widgets.png")) { i = !active ? 0 : (isHovered ? 2 : 1); }

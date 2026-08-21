@@ -71,7 +71,6 @@ import net.minecraftforge.eventbus.api.GenericEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent.ClientCustomPayloadEvent;
-import noppes.npcs.api.IDamageSource;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.event.ItemEvent;
@@ -561,13 +560,12 @@ public class ScriptPlayerEventHandler {
          PlayerScriptData handler = data.scriptData;
          ItemStack item = player.getMainHandItem();
          IEntity<?> target = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(event.getEntity());
-         IDamageSource damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(event.getSource());
-         PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), target, damageSource);
+         PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getPlayer(), target, event.getSource());
          event.setCanceled(EventHooks.onPlayerAttack(handler, ev));
          if (event.isCanceled() || ev.isCanceled()) { ((ILivingAttackEventMixin) event).setAmount(0.0f); }
          if (item.getItem() == CustomItems.scripted_item && !event.isCanceled()) {
             ItemScriptedWrapper isw = ItemScripted.GetWrapper(item);
-            ItemEvent.AttackEvent eve = new ItemEvent.AttackEvent(isw, handler.getPlayer(), 1, target);
+            ItemEvent.AttackEvent eve = new ItemEvent.AttackEvent(isw, handler.getPlayer(), target, event.getSource());
             eve.setCanceled(event.isCanceled());
             event.setCanceled(EventHooks.onScriptItemAttack(isw, eve));
          }

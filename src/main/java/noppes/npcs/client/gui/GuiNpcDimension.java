@@ -23,6 +23,7 @@ import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.controllers.DimensionController;
+import noppes.npcs.dimensions.DimensionHandler;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketDimensionDelete;
 import noppes.npcs.packets.server.SPacketDimensionRestore;
@@ -62,6 +63,7 @@ public class GuiNpcDimension extends GuiNPCInterface
                     minecraft.player.level().dimension() : Level.OVERWORLD)) { scroll.setSelected(key); }
          }
       }
+      DimensionHandler handler = DimensionHandler.getInstance();
       // title
       addLabel(0, x0, y, "gui.dimensions")
               .setSize(imageWidth - 10, 10)
@@ -73,14 +75,14 @@ public class GuiNpcDimension extends GuiNPCInterface
       addButton(4, x1, y, "TP")
               .setSize(60, 20)
               .setIsEnabled(scroll.hasSelected() &&
-                      !DimensionController.isDelete(id))
+                      !handler.isDelete(id))
               .setHoverTexts("dimensions.hover.tp");
       // settings
       addButton(1, x1, y += 22, "gui.settings")
               .setSize(60, 20)
               .setIsEnabled(scroll.hasSelected() &&
-                      DimensionController.has(id) &&
-                      !DimensionController.isDelete(id))
+                      handler.getMCWorldInfo(id) != null &&
+                      !handler.isDelete(id))
               .setHoverTexts("dimensions.hover.settings");
       // add
       addButton(2, x1, y += 44, "gui.add")
@@ -88,7 +90,7 @@ public class GuiNpcDimension extends GuiNPCInterface
               .setHoverTexts("dimensions.hover.add");
       // del
       addButton(3, x1, y + 22,
-              DimensionController.isDelete(id) ? "gui.restore" : "gui.remove")
+              handler.isDelete(id) ? "gui.restore" : "gui.remove")
               .setSize(60, 20)
               .setIsEnabled(scroll.hasSelected() &&
                       !id.location().getPath().equals("custom_dimension") &&
@@ -106,6 +108,7 @@ public class GuiNpcDimension extends GuiNPCInterface
                ResourceKey<Level> id = data.get(scroll.getNormalSelected());
                if (DimensionController.has(id)) {
                   FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+                  buffer.writeBoolean(true);
                   buffer.writeResourceKey(id);
                   CustomNpcs.proxy.openGui(null, EnumGuiType.DimensionSetting, buffer);
                }
@@ -114,6 +117,7 @@ public class GuiNpcDimension extends GuiNPCInterface
          } // settings
          case 2: {
             FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+            buffer.writeBoolean(false);
             buffer.writeInt(0);
             CustomNpcs.proxy.openGui(null, EnumGuiType.DimensionSetting, buffer);
             break;
@@ -122,7 +126,8 @@ public class GuiNpcDimension extends GuiNPCInterface
             if (data.containsKey(scroll.getNormalSelected())) {
                player.sendSystemMessage(Component.translatable("gui.wip"));
                ResourceKey<Level> id = data.get(scroll.getNormalSelected());
-               if (DimensionController.has(id) && !DimensionController.isDelete(id)) {
+               DimensionHandler handler = DimensionHandler.getInstance();
+               if (handler.getMCWorldInfo(id) != null && !handler.isDelete(id)) {
                   ConfirmScreen guiYesNo = new ConfirmScreen((agree) -> {
                      if (agree) {
                         Packets.sendServer(new SPacketDimensionDelete(id));

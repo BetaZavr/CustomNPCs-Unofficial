@@ -91,7 +91,7 @@ public class GuiNpcDisplay
       addLabel(lID++, x3, y + 5, "display.size")
               .setSize(tw + 1, 10);
       addTextField(2, x2 + 1, y, 40, 20, display.getSize())
-              .setMinMaxDefault(1, 30, 5)
+              .setMinMaxDefault(1.0F, 30.0F, 5.0F)
               .setHoverTexts("display.hover.size");
       addLabel(lID++, x2 + 43, y + 5, "(1-30)")
               .setSize(w, 10);

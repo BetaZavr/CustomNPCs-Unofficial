@@ -6,59 +6,44 @@ import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
+import org.spongepowered.asm.mixin.throwables.MixinException;
 
 import javax.annotation.Nonnull;
 
 @Mixin(value = LivingEntity.class, priority = 502)
 public interface ILivingEntityMixin {
 
-   @Accessor
-   boolean getJumping();
+   @Accessor("DATA_LIVING_ENTITY_FLAGS") static EntityDataAccessor<Byte> getHandStates() { throw new MixinException("Mixin did not initialize properly."); }
 
-   @Accessor
-   void setUseItemRemaining(int newItemRemaining);
+   @Accessor boolean getJumping();
 
-   @Accessor
-   float getAnimStep();
+   @Accessor void setUseItemRemaining(int newItemRemaining);
 
-   @Accessor
-   void setAnimStep(float newAnimStep);
+   @Accessor float getAnimStep();
 
-   @Accessor
-   float getAnimStepO();
+   @Accessor void setAnimStep(float newAnimStep);
 
-   @Accessor
-   void setAnimStepO(float newAnimStep0);
+   @Accessor float getAnimStepO();
 
-   @Accessor
-   float getSwimAmount();
+   @Accessor void setAnimStepO(float newAnimStep0);
 
-   @Accessor
-   void setSwimAmount(float newSwimAmount);
+   @Accessor float getSwimAmount();
 
-   @Accessor
-   float getSwimAmountO();
+   @Accessor void setSwimAmount(float newSwimAmount);
 
-   @Accessor
-   void setSwimAmountO(float newSwimAmount0);
+   @Accessor float getSwimAmountO();
 
-   @Accessor
-   int getLastHurtByPlayerTime();
+   @Accessor void setSwimAmountO(float newSwimAmount0);
 
-   @Accessor
-   void setLastHurtByPlayerTime(int newLastHurtByPlayerTime);
+   @Accessor int getLastHurtByPlayerTime();
 
-   @Accessor
-   float getLastHurt();
+   @Accessor void setLastHurtByPlayerTime(int newLastHurtByPlayerTime);
 
-   @Accessor
-   void setLastDamageSource(@Nonnull DamageSource newLastDamageSource);
+   @Accessor float getLastHurt();
 
-   @Accessor
-   void setLastDamageStamp(long newLastDamageStamp);
+   @Accessor void setLastDamageSource(@Nonnull DamageSource newLastDamageSource);
 
-   @Accessor("DATA_LIVING_ENTITY_FLAGS")
-   EntityDataAccessor<Byte> getHandStates();
+   @Accessor void setLastDamageStamp(long newLastDamageStamp);
 
    @Invoker
    boolean invokeCheckTotemDeathProtection(@Nonnull DamageSource source);

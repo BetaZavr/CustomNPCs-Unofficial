@@ -17,7 +17,7 @@ public class AniWaving implements AnimationBase {
       f += (f2 - f) * Minecraft.getInstance().getDeltaFrameTime();
       model.rightArm.xRot = -0.1F;
       model.rightArm.yRot = 0.0F;
-      model.rightArm.zRot = (float)(2.141592653589793D - (double)(f * 0.5F));
+      model.rightArm.zRot = 2.1415926F - (f * 0.5F);
    }
 
 }

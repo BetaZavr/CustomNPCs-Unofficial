@@ -7,6 +7,7 @@ import java.util.Set;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -352,9 +353,9 @@ public class QuestObjective implements IQuestObjective {
 
     @Override
     public void setCompassDimension(String dimensionId) {
-        ResourceLocation location = new ResourceLocation(dimensionId);
+        ResourceLocation location = new ResourceLocation(NoppesUtilServer.validLocation(dimensionId));
         if (CustomNpcs.Server == null) {
-            if (DimensionController.has(location)) { dimension = location; }
+            if (DimensionController.has(ResourceKey.create(Registries.DIMENSION, location))) { dimension = location; }
             return;
         }
         else {

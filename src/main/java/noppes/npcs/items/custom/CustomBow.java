@@ -15,10 +15,9 @@ import net.minecraftforge.event.ForgeEventFactory;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.wrapper.NBTWrapper;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 public class CustomBow extends BowItem implements ICustomElement, Vanishable {
 
@@ -111,7 +110,7 @@ public class CustomBow extends BowItem implements ICustomElement, Vanishable {
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

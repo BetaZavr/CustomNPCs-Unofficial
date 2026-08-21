@@ -10,6 +10,7 @@ public interface ITileEntityBanner {
 
     ResourceLocation npcs$getResourceFlag();
 
+    @SuppressWarnings("unused")
     void npcs$setResourceFlag(ResourceLocation newFactionId);
 
 }

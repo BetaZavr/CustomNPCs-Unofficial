@@ -200,7 +200,7 @@ public class GuiWrapper {
    }
 
    public void drawNpc(GuiGraphics graphics, Entity entity, int x, int y, float zoomed, int rotation, int vertical, int followCursor, int guiLeft, int guiTop) {
-      CustomGuiEntityDisplay.drawEntity(graphics, entity, x, y, zoomed, rotation, vertical, mouseX, mouseY, (float) guiLeft, (float) guiTop, followCursor);
+      CustomGuiEntityDisplay.drawEntity(graphics, entity, x, y, zoomed, rotation, vertical, mouseX, mouseY, (float) guiLeft, (float) guiTop, followCursor, true);
    }
 
    public void changeFocus(GuiEventListener old, GuiEventListener gui) {

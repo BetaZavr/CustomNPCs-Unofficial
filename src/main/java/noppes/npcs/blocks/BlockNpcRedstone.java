@@ -1,5 +1,6 @@
 package noppes.npcs.blocks;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,7 +28,6 @@ import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.blocks.tiles.TileRedstoneBlock;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.packets.server.SPacketGuiOpen;
-import org.jetbrains.annotations.NotNull;
 
 public class BlockNpcRedstone extends BlockInterface {
    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
@@ -36,25 +36,23 @@ public class BlockNpcRedstone extends BlockInterface {
       super(Properties.copy(Blocks.STONE).lightLevel((state) -> 12).strength(50.0F, 2000.0F));
    }
 
-   /** @deprecated */
-   @Deprecated
-   public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult ray) {
-      if (level.isClientSide) {
-         return InteractionResult.SUCCESS;
-      } else {
-         ItemStack currentItem = player.getInventory().getSelected();
-         if (currentItem.getItem() == CustomItems.wand && CustomNpcsPermissions.hasPermission((ServerPlayer) player, CustomNpcsPermissions.EDIT_BLOCKS)) {
-            SPacketGuiOpen.sendOpenGui((ServerPlayer) player, EnumGuiType.RedstoneBlock, null, pos);
+   @Override
+   @SuppressWarnings("deprecation")
+   public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player playerIn,
+                                         @Nonnull InteractionHand hand, @Nonnull BlockHitResult ray) {
+      if (!level.isClientSide && playerIn instanceof ServerPlayer player) {
+         if (player.getInventory().getSelected().getItem() == CustomItems.wand &&
+                 CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_BLOCKS)) {
+            SPacketGuiOpen.sendOpenGui(player, EnumGuiType.RedstoneBlock, null, pos);
             return InteractionResult.SUCCESS;
-         } else {
-            return InteractionResult.FAIL;
          }
       }
+      return InteractionResult.PASS;
    }
 
-   /** @deprecated */
-   @Deprecated
-   public void onPlace(@NotNull BlockState state, Level levelIn, @NotNull BlockPos pos, @NotNull BlockState stateNew, boolean bo) {
+   @Override
+   @SuppressWarnings("deprecation")
+   public void onPlace(@Nonnull BlockState state, Level levelIn, @Nonnull BlockPos pos, @Nonnull BlockState stateNew, boolean bo) {
       levelIn.updateNeighborsAt(pos, this);
       levelIn.updateNeighborsAt(pos.below(), this);
       levelIn.updateNeighborsAt(pos.above(), this);
@@ -64,54 +62,53 @@ public class BlockNpcRedstone extends BlockInterface {
       levelIn.updateNeighborsAt(pos.north(), this);
    }
 
-   public void setPlacedBy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity entity, @NotNull ItemStack item) {
-      if (!level.isClientSide && entity instanceof ServerPlayer) {
-         SPacketGuiOpen.sendOpenGui((ServerPlayer) entity, EnumGuiType.RedstoneBlock, null, pos);
+   @Override
+   public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity entity, @Nonnull ItemStack item) {
+      if (!level.isClientSide && entity instanceof ServerPlayer player) {
+         SPacketGuiOpen.sendOpenGui(player, EnumGuiType.RedstoneBlock, null, pos);
       }
-
    }
 
-   /** @deprecated */
-   @Deprecated
-   public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
-      this.onPlace(state, level, pos, state, isMoving);
+   @Override
+   @SuppressWarnings("deprecation")
+   public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
+      onPlace(state, level, pos, state, isMoving);
    }
 
-   /** @deprecated */
-   @Deprecated
-   public int getSignal(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos, @NotNull Direction side) {
-      return this.isActivated(state);
+   @Override
+   @SuppressWarnings("deprecation")
+   public int getSignal(@Nonnull BlockState state, @Nonnull BlockGetter worldIn, @Nonnull BlockPos pos, @Nonnull Direction side) {
+      return isActivated(state);
    }
 
-   /** @deprecated */
-   @Deprecated
-   public int getDirectSignal(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull Direction side) {
-      return this.isActivated(state);
+   @Override
+   @SuppressWarnings("deprecation")
+   public int getDirectSignal(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Direction side) {
+      return isActivated(state);
    }
 
-   /** @deprecated */
-   @Deprecated
-   public boolean isSignalSource(@NotNull BlockState state) {
-      return true;
-   }
+   @Override
+   @SuppressWarnings("deprecation")
+   public boolean isSignalSource(@Nonnull BlockState state) { return true; }
 
+   @Override
    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
       builder.add(ACTIVE);
    }
 
-   public int isActivated(BlockState state) {
-      return state.getValue(ACTIVE) ? 15 : 0;
-   }
-
-   public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+   @Override
+   public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
       return new TileRedstoneBlock(pos, state);
    }
 
-   public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
-      return RenderShape.MODEL;
-   }
+   @Override
+   public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) { return RenderShape.MODEL; }
 
-   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+   @Override
+   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> type) {
       return createTickerHelper(type, CustomBlocks.tile_redstoneblock, TileRedstoneBlock::tick);
    }
+
+   public int isActivated(BlockState state) { return state.getValue(ACTIVE) ? 15 : 0; }
+
 }

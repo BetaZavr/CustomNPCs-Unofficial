@@ -69,6 +69,7 @@ public class SPacketPlayerDataRemove extends PacketServerBasic {
                   File playerDir = new File(CustomNpcs.getLevelSaveDirectory("playerdata"), playerdata.uuid);
                   if (playerDir.exists()) { Util.instance.removeFile(playerDir); }
                   playerdata.clear();
+                  player.sendSystemMessage(Component.translatable("command.player.data.remove", playerdata.name, (pl != null ? "online" : "offline")));
                }
                break;
             }

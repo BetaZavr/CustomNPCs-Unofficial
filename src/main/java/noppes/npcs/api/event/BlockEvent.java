@@ -5,28 +5,26 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.Cancelable;
 import noppes.npcs.api.interfaces.EventName;
 import noppes.npcs.api.IPos;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.constants.EnumScriptType;
 
-import java.util.Objects;
-
 public class BlockEvent extends CustomNPCsEvent {
    public IBlock block;
 
-   public BlockEvent(IBlock block) {
-      this.block = block;
+   public BlockEvent(IBlock blockIn) {
+      super();
+      block = blockIn;
    }
 
    @EventName(EnumScriptType.TIMER)
    public static class TimerEvent extends BlockEvent {
       public final int id;
 
-      public TimerEvent(IBlock block, int id) {
+      public TimerEvent(IBlock block, int idIn) {
          super(block);
-         this.id = id;
+         id = idIn;
       }
    }
 
@@ -34,9 +32,9 @@ public class BlockEvent extends CustomNPCsEvent {
    public static class CollidedEvent extends BlockEvent {
       public final IEntity<?> entity;
 
-      public CollidedEvent(IBlock block, Entity entity) {
+      public CollidedEvent(IBlock block, Entity entityIn) {
          super(block);
-         this.entity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
+         entity = API.getIEntity(entityIn);
       }
    }
 
@@ -45,9 +43,9 @@ public class BlockEvent extends CustomNPCsEvent {
    public static class HarvestedEvent extends BlockEvent {
       public final IPlayer<?> player;
 
-      public HarvestedEvent(IBlock block, Player player) {
+      public HarvestedEvent(IBlock block, Player playerIn) {
          super(block);
-         this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
+         player = (IPlayer<?>) API.getIEntity(playerIn);
       }
    }
 
@@ -55,33 +53,29 @@ public class BlockEvent extends CustomNPCsEvent {
    public static class ClickedEvent extends BlockEvent {
       public final IPlayer<?> player;
 
-      public ClickedEvent(IBlock block, Player player) {
+      public ClickedEvent(IBlock block, Player playerIn) {
          super(block);
-         this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
+         player = (IPlayer<?>) API.getIEntity(playerIn);
       }
    }
 
    @EventName(EnumScriptType.TICK)
    public static class UpdateEvent extends BlockEvent {
-      public UpdateEvent(IBlock block) {
-         super(block);
-      }
+      public UpdateEvent(IBlock block) { super(block); }
    }
 
    @EventName(EnumScriptType.INIT)
    public static class InitEvent extends BlockEvent {
-      public InitEvent(IBlock block) {
-         super(block);
-      }
+      public InitEvent(IBlock block) { super(block); }
    }
 
    @EventName(EnumScriptType.NEIGHBOR_CHANGED)
    public static class NeighborChangedEvent extends BlockEvent {
       public final IPos changedPos;
 
-      public NeighborChangedEvent(IBlock block, IPos changedPos) {
+      public NeighborChangedEvent(IBlock block, IPos changedPosIn) {
          super(block);
-         this.changedPos = changedPos;
+         changedPos = changedPosIn;
       }
    }
 
@@ -120,10 +114,10 @@ public class BlockEvent extends CustomNPCsEvent {
       public final int prevPower;
       public final int power;
 
-      public RedstoneEvent(IBlock block, int prevPower, int power) {
+      public RedstoneEvent(IBlock block, int prevPowerIn, int powerIn) {
          super(block);
-         this.power = power;
-         this.prevPower = prevPower;
+         power = powerIn;
+         prevPower = prevPowerIn;
       }
    }
 
@@ -136,13 +130,13 @@ public class BlockEvent extends CustomNPCsEvent {
       public final float hitZ;
       public final int side;
 
-      public InteractEvent(IBlock block, Player player, int side, float hitX, float hitY, float hitZ) {
+      public InteractEvent(IBlock block, Player playerIn, int sideIn, float hitXIn, float hitYIn, float hitZIn) {
          super(block);
-         this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
-         this.hitX = hitX;
-         this.hitY = hitY;
-         this.hitZ = hitZ;
-         this.side = side;
+         player = (IPlayer<?>) API.getIEntity(playerIn);
+         hitX = hitXIn;
+         hitY = hitYIn;
+         hitZ = hitZIn;
+         side = sideIn;
       }
    }
 
@@ -152,10 +146,10 @@ public class BlockEvent extends CustomNPCsEvent {
       public final IEntity<?> entity;
       public float distanceFallen;
 
-      public EntityFallenUponEvent(IBlock block, Entity entity, float distance) {
+      public EntityFallenUponEvent(IBlock block, Entity entityIn, float distanceIn) {
          super(block);
-         this.distanceFallen = distance;
-         this.entity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
+         distanceFallen = distanceIn;
+         entity = API.getIEntity(entityIn);
       }
    }
 

@@ -11,6 +11,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.controllers.DialogController;
@@ -25,7 +26,7 @@ public class CmdDialog {
 
    public static LiteralArgumentBuilder<CommandSourceStack> register() {
       LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal("dialog");
-      command.then(Commands.literal("reload").requires((source) -> source.hasPermission(4))).executes((context) -> {
+      command.then(Commands.literal("reload").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))).executes((context) -> {
          (new DialogController()).load();
           for (DialogCategory category : DialogController.instance.categories.values()) {
               Packets.sendAll(new PacketSync(5, category.save(new CompoundTag()), false));
@@ -33,7 +34,7 @@ public class CmdDialog {
           Packets.sendAll(new PacketSync(5, new CompoundTag(), true));
          return 1;
       });
-      command.then(Commands.literal("read").requires((source) -> source.hasPermission(2)))
+      command.then(Commands.literal("read").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)))
               .then(Commands.argument("players", EntityArgument.players()).then(Commands.argument("dialog", IntegerArgumentType.integer(0)).executes((context) -> {
                  Collection<ServerPlayer> players = EntityArgument.getPlayers(context, "players");
                  if (!players.isEmpty()) {
@@ -51,7 +52,7 @@ public class CmdDialog {
                  }
                  return 1;
               })));
-      command.then(Commands.literal("unread").requires((source) -> source.hasPermission(2))
+      command.then(Commands.literal("unread").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
               .then(Commands.argument("players", EntityArgument.players())
                       .then(Commands.argument("dialog", IntegerArgumentType.integer(0)).executes((context) -> {
                          Collection<ServerPlayer> players = EntityArgument.getPlayers(context, "players");
@@ -70,7 +71,7 @@ public class CmdDialog {
                          }
                          return 1;
                       }))));
-      command.then(Commands.literal("show").requires((source) -> source.hasPermission(2))
+      command.then(Commands.literal("show").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
               .then(Commands.argument("players", EntityArgument.players())
                       .then(Commands.argument("dialog", IntegerArgumentType.integer(0))
                               .then(Commands.argument("name", StringArgumentType.string()).executes((context) -> {

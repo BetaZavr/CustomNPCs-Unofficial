@@ -41,7 +41,7 @@ public class CustomGuiTextArea extends GuiTextArea implements IComponentCustomGu
       if (height <= 0) { height = 10; }
       PoseStack matrixStack = graphics.pose();
       matrixStack.pushPose();
-      matrixStack.translate(0.0F, 0.0F, (float)id);
+      matrixStack.translate(0.0F, 0.0F, (float)id * 0.01F);
       super.render(graphics, mouseX, mouseY, partialTicks);
       matrixStack.popPose();
       if (isHovered && component.hasHoverText() && !hoverText.isEmpty() && listener != null) {

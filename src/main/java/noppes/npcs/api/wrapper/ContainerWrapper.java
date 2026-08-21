@@ -8,7 +8,6 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.ISlot;
 import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.api.item.IItemStack;
 
 import java.util.Objects;

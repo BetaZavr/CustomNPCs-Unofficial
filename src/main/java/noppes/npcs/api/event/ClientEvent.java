@@ -5,7 +5,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.Cancelable;
-import noppes.npcs.api.interfaces.EventFunction;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -14,6 +13,12 @@ public class ClientEvent extends CustomNPCsEvent {
 
     public EntityNPCInterface npc;
     public Screen returnGui;
+
+    public ClientEvent(EntityNPCInterface npcIn, Screen returnGuiIn) {
+        super();
+        npc = npcIn;
+        returnGui = returnGuiIn;
+    }
 
     @Cancelable
     public static class PreGetGuiCustomNpcs extends ClientEvent {
@@ -65,12 +70,6 @@ public class ClientEvent extends CustomNPCsEvent {
             oldSubGui = oldSubGuiIn;
         }
 
-    }
-
-    public ClientEvent(EntityNPCInterface npcIn, Screen returnGuiIn) {
-        super();
-        npc = npcIn;
-        returnGui = returnGuiIn;
     }
 
 }

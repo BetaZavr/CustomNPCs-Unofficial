@@ -1,6 +1,7 @@
 package nikedemos.markovnames.generators;
 
 import nikedemos.markovnames.MarkovDictionary;
+import noppes.npcs.shared.common.util.LogWriter;
 
 public class MarkovGenerator {
 
@@ -18,7 +19,10 @@ public class MarkovGenerator {
 
    public String fetch() { return this.fetch(0); }
 
-   public static String fetch(int dictionary, int gender) { return GENERATOR[dictionary].fetch(gender); }
+   public static String fetch(int dictionary, int gender) {
+      try { return GENERATOR[dictionary].fetch(gender); } catch (Exception e) { LogWriter.error(e); }
+      return "Noppes";
+   }
 
    public String stylize(String str) { return str; }
 

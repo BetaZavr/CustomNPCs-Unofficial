@@ -12,7 +12,10 @@ public class WorldEvent extends CustomNPCsEvent {
 
    public final IWorld world;
 
-   public WorldEvent(IWorld world) { this.world = world; }
+   public WorldEvent(IWorld worldIn) {
+      super();
+      world = worldIn;
+   }
 
    @EventName(EnumScriptType.SCRIPT_TRIGGER)
    public static class ScriptTriggerEvent extends WorldEvent {
@@ -21,12 +24,12 @@ public class WorldEvent extends CustomNPCsEvent {
       public final IEntity<?> entity;
       public final int id;
 
-      public ScriptTriggerEvent(int id, IWorld level, IPos pos, IEntity<?> entity, Object[] arguments) {
+      public ScriptTriggerEvent(int idIn, IWorld level, IPos posIn, IEntity<?> entityIn, Object[] argumentsIn) {
          super(level);
-         this.id = id;
-         this.arguments = arguments;
-         this.pos = pos;
-         this.entity = entity;
+         id = idIn;
+         arguments = argumentsIn;
+         pos = posIn;
+         entity = entityIn;
       }
    }
 
@@ -36,10 +39,10 @@ public class WorldEvent extends CustomNPCsEvent {
       public String[] arguments;
       public IPos pos;
 
-      public ScriptCommandEvent(IWorld world, IPos pos, String[] arguments) {
+      public ScriptCommandEvent(IWorld world, IPos posIn, String[] argumentsIn) {
          super(world);
-         this.arguments = arguments;
-         this.pos = pos;
+         arguments = argumentsIn;
+         pos = posIn;
       }
    }
 
@@ -48,9 +51,9 @@ public class WorldEvent extends CustomNPCsEvent {
 
       public TickEvent.ServerTickEvent event;
 
-      public ServerTickEvent(TickEvent.ServerTickEvent event) {
+      public ServerTickEvent(TickEvent.ServerTickEvent eventIn) {
          super(null);
-         this.event = event;
+         event = eventIn;
       }
 
    }

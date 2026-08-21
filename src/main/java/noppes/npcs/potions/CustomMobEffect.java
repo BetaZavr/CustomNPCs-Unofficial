@@ -14,8 +14,8 @@ import net.minecraftforge.client.extensions.common.IClientMobEffectExtensions;
 import noppes.npcs.EventHooks;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.event.CustomPotionEvent;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.client.renderer.effects.CustomMobEffectRenderer;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.shared.common.util.LogWriter;
@@ -23,7 +23,6 @@ import noppes.npcs.util.ValueUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -103,7 +102,7 @@ public class CustomMobEffect extends MobEffect implements ICustomElement {
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

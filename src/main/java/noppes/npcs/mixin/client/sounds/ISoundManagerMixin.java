@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = SoundManager.class, priority = 498)
 public interface ISoundManagerMixin {
 
-    @Accessor
-    SoundEngine getSoundEngine();
+    @Accessor SoundEngine getSoundEngine();
 
 }

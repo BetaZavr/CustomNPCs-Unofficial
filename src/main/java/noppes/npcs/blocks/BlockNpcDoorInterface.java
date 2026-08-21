@@ -2,6 +2,7 @@ package noppes.npcs.blocks;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.stats.Stats;
@@ -14,28 +15,27 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.storage.loot.LootParams.Builder;
-import org.jetbrains.annotations.NotNull;
 
 public abstract class BlockNpcDoorInterface extends DoorBlock implements EntityBlock {
 
-   public BlockNpcDoorInterface(Properties properties) {
-      super(properties, BlockSetType.STONE);
-   }
+   public BlockNpcDoorInterface(Properties properties) { super(properties, BlockSetType.STONE); }
 
-   /** @deprecated */
-   @Deprecated
-   public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
+   @Override
+   @SuppressWarnings("deprecation")
+   public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
       super.onRemove(state, level, pos, newState, isMoving);
       level.removeBlockEntity(pos);
    }
 
-   /** @deprecated */
-   @Deprecated
-   public @NotNull List<ItemStack> getDrops(@NotNull BlockState state, @NotNull Builder builder) {
+   @Override
+   @SuppressWarnings("deprecation")
+   public @Nonnull List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull Builder builder) {
       return Collections.emptyList();
    }
 
-   public void playerDestroy(@NotNull Level level, Player playerIn, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable BlockEntity blockEntity, @NotNull ItemStack stack) {
+   @Override
+   public void playerDestroy(@Nonnull Level level, Player playerIn, @Nonnull BlockPos pos, @Nonnull BlockState state,
+                             @Nullable BlockEntity blockEntity, @Nonnull ItemStack stack) {
       playerIn.awardStat(Stats.BLOCK_MINED.get(this));
       playerIn.causeFoodExhaustion(0.005F);
       dropResources(state, level, pos, blockEntity, playerIn, stack);

@@ -14,6 +14,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import noppes.npcs.api.ICustomElement;
+import noppes.npcs.api.INbt;
 import noppes.npcs.fluids.CustomFluid;
 
 import javax.annotation.Nonnull;
@@ -61,7 +62,7 @@ public class CustomBottleItem extends Item implements ICustomElement {
     public String getCustomName() { return fluid.getCustomName() + "_bottle"; }
 
     @Override
-    public noppes.npcs.api.INbt getCustomNbt() { return fluid.getCustomNbt(); }
+    public INbt getCustomNbt() { return fluid.getCustomNbt(); }
 
     @Override
     public int getElementType() { return fluid.getElementType(); }

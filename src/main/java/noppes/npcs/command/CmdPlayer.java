@@ -11,6 +11,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.command.arguments.PlayerDataArgument;
@@ -21,6 +22,7 @@ import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.SkinData;
+import noppes.npcs.util.Util;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,17 +33,23 @@ import java.util.UUID;
 public class CmdPlayer {
 
    public static final SimpleCommandExceptionType NO_TYPE = new SimpleCommandExceptionType(Component.translatable("argument.texture.not.type"));
+    public static final SimpleCommandExceptionType NO_REMOVE_DATA = new SimpleCommandExceptionType(Component.translatable("argument.entity.notfound.player"));
 
    public static LiteralArgumentBuilder<CommandSourceStack> register() {
       return Commands.literal("player")
-              .then(CmdPlayer.registerOpenMarcet())
+              .then(registerOpenMarcet())
               .then(Commands.literal("all")
-                      .then(CmdPlayer.registerClears())
+                      .then(registerClears())
               )
-              .then(Commands.argument("playername", PlayerDataArgument.dataArg()).suggests(PlayerDataArgument.getSuggests())
-                      .then(CmdPlayer.registerSkins())
-                      .then(CmdPlayer.registerCapes())
-                      .then(CmdPlayer.registerElytras())
+              .then(Commands.argument("playername", PlayerDataArgument.dataArg())
+                      .suggests(PlayerDataArgument.getSuggests())
+                      .then(registerSkins())
+                      .then(registerCapes())
+                      .then(registerElytras())
+              )
+              // New from Unofficial (GoodBird)
+              .then(Commands.literal("data")
+                      .then(registerData())
               );
     }
 
@@ -58,7 +66,7 @@ public class CmdPlayer {
                                     int marcetId = IntegerArgumentType.getInteger(context, "marcetID");
                                     Marcet marcet = MarcetController.getInstance().getMarcet(marcetId);
                                     if (marcet == null || !marcet.isValid()) {
-                                        context.getSource().sendSuccess(() -> Component.translatable("command.player.openmarcet.error", marcetId), false);
+                                        context.getSource().sendSuccess(() -> Component.translatable("command.player.openmarcet.error", marcetId), true);
                                     } else {
                                         NoppesUtilServer.openContainerGui(EntityArgument.getPlayer(context, "player"), EnumGuiType.PlayerTrader, buf -> buf.writeInt(marcetId));
                                     }
@@ -68,7 +76,7 @@ public class CmdPlayer {
 
     private static ArgumentBuilder<CommandSourceStack,?> registerClears() {
         return Commands.literal("clear")
-                .requires((source) -> source.hasPermission(4))
+                .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
                 .then(Commands.literal("skins").executes((context) -> {
                     skinsClear(null, context.getSource(), 0);
                     return 1;
@@ -85,7 +93,7 @@ public class CmdPlayer {
 
     private static ArgumentBuilder<CommandSourceStack,?> registerSkins() {
         return Commands.literal("skin")
-                .requires((source) -> source.hasPermission(4))
+                .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
                 .then(Commands.literal("get").executes((context) -> {
                     skinsGet(PlayerDataArgument.getData(context, "playername"), context.getSource(), 0);
                     return 1;
@@ -178,7 +186,7 @@ public class CmdPlayer {
 
     private static ArgumentBuilder<CommandSourceStack,?> registerCapes() {
         return Commands.literal("cape")
-                .requires((source) -> source.hasPermission(4))
+                .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
                 .then(Commands.literal("get").executes((context) -> {
                     skinsGet(PlayerDataArgument.getData(context, "playername"), context.getSource(), 1);
                     return 1;
@@ -204,7 +212,7 @@ public class CmdPlayer {
 
     private static ArgumentBuilder<CommandSourceStack,?> registerElytras() {
         return Commands.literal("elytra")
-                .requires((source) -> source.hasPermission(4))
+                .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
                 .then(Commands.literal("get").executes((context) -> {
                     skinsGet(PlayerDataArgument.getData(context, "playername"), context.getSource(), 2);
                     return 1;
@@ -226,6 +234,28 @@ public class CmdPlayer {
                                     return 1;
                                 })))
                 );
+    }
+
+    private static ArgumentBuilder<CommandSourceStack,?> registerData() {
+        return Commands.literal("remove")
+                .then(Commands.argument("playername", PlayerDataArgument.dataArg())
+                        .suggests(PlayerDataArgument.getSuggests())
+                        .executes(context -> {
+                            PlayerData data = PlayerDataArgument.getData(context, "playername");
+                            if (data == null) { throw EntityArgument.NO_PLAYERS_FOUND.create(); }
+                            // remove dir
+                            File playerDir = new File(CustomNpcs.getLevelSaveDirectory("playerdata"), data.uuid);
+                            if (playerDir.exists() &&
+                                    !Util.instance.removeFile(new File(CustomNpcs.getLevelSaveDirectory("playerdata"), data.uuid))) {
+                                throw NO_REMOVE_DATA.create();
+                            }
+                            data.clear();
+                            data.save(true);
+                            // player
+                            ServerPlayer player = context.getSource().getServer().getPlayerList().getPlayerByName(data.name);
+                            context.getSource().sendSuccess(() -> Component.translatable("command.player.data.remove", data.name, (player != null ? "online" : "offline")), true);
+                            return 1;
+                        }));
     }
 
     private static List<Integer> getPNGFileNames(int genderID, String dirName) {
@@ -257,7 +287,7 @@ public class CmdPlayer {
                 case 1 -> "(Location) ";
                 default -> "(Composite) ";
             };
-            source.sendSuccess(() -> Component.translatable("command.player.set."+slot, data.name, t + location), false);
+            source.sendSuccess(() -> Component.translatable("command.player.set."+slot, data.name, t + location), true);
         } catch (Exception e) {
             throw EntityArgument.NO_PLAYERS_FOUND.create();
         }
@@ -268,12 +298,12 @@ public class CmdPlayer {
         PlayerSkinController sData = PlayerSkinController.getInstance();
         if (data == null) { // all
             sData.clear(null, type);
-            source.sendSuccess(() -> Component.translatable("command.player.clear.skin.all."+type), false);
+            source.sendSuccess(() -> Component.translatable("command.player.clear.skin.all."+type), true);
             return;
         }
         if (data.uuid.isEmpty()) { throw EntityArgument.NO_PLAYERS_FOUND.create(); }
         sData.clear(data.uuid, type);
-        source.sendSuccess(() -> Component.translatable("command.player.clear."+type, data.name), false);
+        source.sendSuccess(() -> Component.translatable("command.player.clear."+type, data.name), true);
     }
 
     private static void skinsGet(PlayerData data, CommandSourceStack source, int type) throws CommandSyntaxException {
@@ -289,7 +319,7 @@ public class CmdPlayer {
                if (location == null) { skin = "(Not set or create texture)"; }
                else { skin = "(Composite) " + skinData.getLocation(); }
            }
-           source.sendSuccess(() -> Component.translatable("command.player.get."+type, data.name, skin), false);
+           source.sendSuccess(() -> Component.translatable("command.player.get."+type, data.name, skin), true);
        } catch (Exception e) { throw EntityArgument.NO_PLAYERS_FOUND.create(); }
     }
 

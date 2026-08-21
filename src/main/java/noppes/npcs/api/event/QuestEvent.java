@@ -18,9 +18,10 @@ public class QuestEvent extends CustomNPCsEvent {
    public final IQuest quest;
    public final IPlayer<?> player;
 
-   public QuestEvent(IPlayer<?> player, IQuest quest) {
-      this.quest = quest;
-      this.player = player;
+   public QuestEvent(IPlayer<?> playerIn, IQuest questIn) {
+      super();
+      player = playerIn;
+      quest = questIn;
    }
 
    @EventName(EnumScriptType.QUEST_TURNING)
@@ -46,33 +47,25 @@ public class QuestEvent extends CustomNPCsEvent {
 
    @EventName(EnumScriptType.QUEST_COMPLETED)
    public static class QuestCompletedEvent extends QuestEvent {
-      public QuestCompletedEvent(IPlayer<?> player, IQuest quest) {
-         super(player, quest);
-      }
+      public QuestCompletedEvent(IPlayer<?> player, IQuest quest) { super(player, quest); }
    }
 
    @Cancelable
    @EventName(EnumScriptType.QUEST_START)
    public static class QuestStartEvent extends QuestEvent {
-      public QuestStartEvent(IPlayer<?> player, IQuest quest) {
-         super(player, quest);
-      }
+      public QuestStartEvent(IPlayer<?> player, IQuest quest) { super(player, quest); }
    }
 
    // New from Unofficial (BetaZavr)
    @Cancelable
    @EventName(EnumScriptType.QUEST_CANCELED)
    public static class QuestCanceledEvent extends QuestEvent {
-      public QuestCanceledEvent(IPlayer<?> player, IQuest quest) {
-         super(player, quest);
-      }
+      public QuestCanceledEvent(IPlayer<?> player, IQuest quest) { super(player, quest); }
    }
 
    @EventName(EnumScriptType.QUEST_LOG_BUTTON)
    public static class QuestExtraButtonEvent extends QuestEvent {
-      public QuestExtraButtonEvent(IPlayer<?> player, IQuest quest) {
-         super(player, quest);
-      }
+      public QuestExtraButtonEvent(IPlayer<?> player, IQuest quest) { super(player, quest); }
    }
 
 }

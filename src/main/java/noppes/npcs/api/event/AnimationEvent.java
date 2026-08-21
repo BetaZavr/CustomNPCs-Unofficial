@@ -9,6 +9,23 @@ import noppes.npcs.constants.EnumScriptType;
 
 public class AnimationEvent extends CustomNPCsEvent {
 
+    public IEntity<?> entity;
+    public AnimationConfig animation;
+    public EnumAnimationStages stage;
+    public int frameId;
+    public long ticks;
+    public final String nameEvent;
+
+    public AnimationEvent(LivingEntity entityIn, AnimationConfig anim, EnumScriptType name, int fID, long tTicks, EnumAnimationStages aStage) {
+        super();
+        entity = entityIn != null ? API.getIEntity(entityIn) : null;
+        nameEvent = name.function;
+        animation = anim;
+        frameId = fID;
+        ticks = tTicks;
+        stage = aStage;
+    }
+
     @EventName(EnumScriptType.ANIMATION_NEXT_FRAME)
     public static class NextFrameEvent extends AnimationEvent {
         public NextFrameEvent(LivingEntity entity, AnimationConfig anim, int fID, long tTicks, EnumAnimationStages stage) {
@@ -35,23 +52,6 @@ public class AnimationEvent extends CustomNPCsEvent {
         public UpdateEvent(LivingEntity entity, AnimationConfig anim, int fID, long tTicks, EnumAnimationStages stage) {
             super(entity, anim, EnumScriptType.ANIMATION_TICK, fID, tTicks, stage);
         }
-    }
-
-    public IEntity<?> entity;
-    public AnimationConfig animation;
-    public EnumAnimationStages stage;
-    public int frameId;
-    public long ticks;
-    public final String nameEvent;
-
-    public AnimationEvent(LivingEntity entityIn, AnimationConfig anim, EnumScriptType name, int fID, long tTicks, EnumAnimationStages aStage) {
-        super();
-        entity = API != null && entityIn != null ? API.getIEntity(entityIn) : null;
-        nameEvent = name.function;
-        animation = anim;
-        frameId = fID;
-        ticks = tTicks;
-        stage = aStage;
     }
 
 }

@@ -116,10 +116,7 @@ public class SPacketTraderMarketSell extends PacketServerBasic {
                 }
             }
             // Add Money
-            if (dm.sellMoney > 0) {
-                data.game.addMoney(dm.sellMoney);
-                marcet.money -= dm.sellMoney;
-            }
+            if (dm.sellMoney > 0) { data.game.addMoney(dm.sellMoney); }
             if (deal.getMaxCount() != 0) { deal.setAmount(deal.getAmount() + dm.count); }
             if (CustomNpcs.SendMarcetInfo) { player.sendSystemMessage(Component.translatable("mes.market.sell", dm.main.getDisplayName() + " x" + dm.count)); }
             data.game.addMarkupXP(marcet.getId(), count);

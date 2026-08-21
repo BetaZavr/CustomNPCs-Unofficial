@@ -24,7 +24,6 @@ import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.player.GuiLog;
-import noppes.npcs.client.renderer.RenderNPCInterface;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.KeyController;
@@ -36,6 +35,7 @@ import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.mixin.client.gui.screens.IConfirmScreenMixin;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.*;
+import noppes.npcs.shared.client.util.ResourceDownloader;
 import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.CustomDelayedTask;
 import noppes.npcs.util.TempFile;
@@ -99,7 +99,7 @@ public class ClientTickHandler {
       }
       else { otherContainer = true; }
       ++ticks;
-      ++RenderNPCInterface.LastTextureTick;
+      ResourceDownloader.resetTickTaskBalance();
       if (prevLevel != mc.level) {
          prevLevel = mc.level;
          MusicController.Instance.stopSounds();

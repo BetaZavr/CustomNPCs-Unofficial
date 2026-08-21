@@ -67,7 +67,7 @@ public class CustomGuiItemRenderer
          PoseStack matrixStack = graphics.pose();
          matrixStack.pushPose();
          matrixStack.scale(component.getScale(), component.getScale(), 1.0F);
-         matrixStack.translate(x, y, (float)id);
+         matrixStack.translate(x, y, (float) id * 0.01F);
          graphics.renderItem(stack, 0, 0);
          graphics.renderItemDecorations(minecraft.font, stack, 0, 0);
          matrixStack.popPose();

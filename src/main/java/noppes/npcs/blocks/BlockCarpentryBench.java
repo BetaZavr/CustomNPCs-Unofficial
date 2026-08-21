@@ -25,8 +25,6 @@ import noppes.npcs.blocks.tiles.TileBlockAnvil;
 import noppes.npcs.constants.EnumGuiType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 public class BlockCarpentryBench extends BlockInterface {
 
    public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 3);
@@ -35,9 +33,10 @@ public class BlockCarpentryBench extends BlockInterface {
       super(Properties.copy(Blocks.CRAFTING_TABLE).sound(SoundType.WOOD).strength(5.0F, 10.0F));
    }
 
-   /** @deprecated */
-   @Deprecated
-   public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult ray) {
+   @Override
+   @SuppressWarnings("deprecation")
+   public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player,
+                                         @NotNull InteractionHand hand, @NotNull BlockHitResult ray) {
       if (!level.isClientSide) {
          NoppesUtilServer.openContainerGui((ServerPlayer)player, EnumGuiType.PlayerAnvil, (buffer) -> buffer.writeBlockPos(pos));
       }
@@ -45,27 +44,29 @@ public class BlockCarpentryBench extends BlockInterface {
       return InteractionResult.SUCCESS;
    }
 
-   /** @deprecated */
-   @Deprecated
+   @Override
+   @SuppressWarnings("deprecation")
    public @NotNull VoxelShape getOcclusionShape(@NotNull BlockState state, @NotNull BlockGetter getter, @NotNull BlockPos pos) {
       return Shapes.empty();
    }
 
-   /** @deprecated */
-   @Deprecated
+   @Override
+   @SuppressWarnings("deprecation")
    public boolean isPathfindable(@NotNull BlockState state, @NotNull BlockGetter getter, @NotNull BlockPos pos, @NotNull PathComputationType pathType) {
       return false;
    }
 
+   @Override
    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
       builder.add(ROTATION);
    }
 
+   @Override
    public BlockState getStateForPlacement(BlockPlaceContext context) {
-      int var6 = Mth.floor((double)(Objects.requireNonNull(context.getPlayer()).getYRot() / 90.0F) + 0.5D) & 3;
-      return this.defaultBlockState().setValue(ROTATION, var6);
+      return this.defaultBlockState().setValue(ROTATION, Mth.floor((context.getRotation() / 90.0F) + 0.5D) & 3);
    }
 
+   @Override
    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
       return new TileBlockAnvil(pos, state);
    }

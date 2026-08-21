@@ -8,17 +8,13 @@ public class HandlerEvent {
    public static class FactionsLoadedEvent extends CustomNPCsEvent {
       public final IFactionHandler handler;
 
-      public FactionsLoadedEvent(IFactionHandler handler) {
-         this.handler = handler;
-      }
+      public FactionsLoadedEvent(IFactionHandler handlerIn) { handler = handlerIn; }
    }
 
    public static class RecipesLoadedEvent extends CustomNPCsEvent {
       public final IRecipeHandler handler;
 
-      public RecipesLoadedEvent(IRecipeHandler handler) {
-         this.handler = handler;
-      }
+      public RecipesLoadedEvent(IRecipeHandler handlerIn) { handler = handlerIn; }
    }
 
 }

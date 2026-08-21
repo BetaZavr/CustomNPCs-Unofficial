@@ -42,10 +42,10 @@ import noppes.npcs.EventHooks;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.event.NpcEvent;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.item.INPCToolItem;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.blocks.custom.tiles.CustomTileEntityPortal;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.controllers.DimensionController;
@@ -276,7 +276,7 @@ public class CustomBlockPortal extends EndPortalBlock implements ICustomElement 
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

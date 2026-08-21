@@ -19,6 +19,7 @@ import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.wrapper.gui.CustomGuiTexturedRectWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
+import noppes.npcs.packets.server.SPacketCustomGuiKeyPressed;
 import noppes.npcs.shared.client.gui.GuiBasicContainer;
 import noppes.npcs.shared.client.gui.components.custom.CustomGuiTexturedRect;
 import noppes.npcs.client.gui.util.GuiTooltipUtils;
@@ -115,6 +116,7 @@ public class GuiCustom extends GuiBasicContainer<ContainerCustomGui> implements 
    @Override
    public boolean keyPressed(int key, int key_1, int key_2) {
       if (subgui != null) { return subgui.keyPressed(key, key_1, key_2); }
+      Packets.sendServer(new SPacketCustomGuiKeyPressed(key));
       if (components.keyPressed(key, key_1, key_2)) { return true; }
       if (scrollingPanel.keyPressed(key, key_1, key_2)) { return true; }
       if (minecraft == null) { minecraft = Minecraft.getInstance(); }
@@ -209,8 +211,10 @@ public class GuiCustom extends GuiBasicContainer<ContainerCustomGui> implements 
       }
    }
 
+   @SuppressWarnings("unused")
    public int getTotalGuiLeft() { return parent != null ? parent.getTotalGuiLeft() + getGuiLeft() : getGuiLeft(); }
 
+   @SuppressWarnings("unused")
    public int getTotalGuiTop() { return parent != null ? parent.getTotalGuiTop() + getGuiTop() : getGuiTop(); }
 
    public void addPanel(IComponentGui component) { scrollingPanel.components.put(component.getId(), component); }

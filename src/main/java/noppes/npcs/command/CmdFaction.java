@@ -3,7 +3,6 @@ package noppes.npcs.command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import java.util.Collection;
-import java.util.Map;
 
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.commands.CommandRuntimeException;
@@ -12,9 +11,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import noppes.npcs.command.arguments.PlayerDataArgument;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.FactionController;
-import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerFactionData;
@@ -23,7 +21,7 @@ public class CmdFaction {
 
     public static LiteralArgumentBuilder<CommandSourceStack> register() {
         return Commands.literal("faction")
-                .requires((source) -> source.hasPermission(2))
+                .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
                 .then(Commands.argument("players", EntityArgument.players())
                         .then(Commands.argument("faction", IntegerArgumentType.integer(0))
                                 .suggests(getFactionSuggests())

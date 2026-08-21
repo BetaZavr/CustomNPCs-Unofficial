@@ -143,6 +143,7 @@ public class PlayerSkinController {
         return nbtPlayer;
     }
 
+    @SuppressWarnings("unused")
     public void sendToAll() {
         if (CustomNpcs.Server != null) {
             for (ServerPlayer player : CustomNpcs.Server.getPlayerList().getPlayers()) { sendToAll(player.getUUID()); }

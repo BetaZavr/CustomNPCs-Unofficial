@@ -5,7 +5,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import noppes.npcs.api.interfaces.ParamName;
 import noppes.npcs.api.item.IItemStack;
 
-@SuppressWarnings("all")
+@SuppressWarnings("unused")
 public interface IContainer {
 
    int getSize();

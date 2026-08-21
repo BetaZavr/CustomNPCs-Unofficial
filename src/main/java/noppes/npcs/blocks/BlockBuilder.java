@@ -25,29 +25,25 @@ import noppes.npcs.CustomItems;
 import noppes.npcs.blocks.tiles.TileBuilder;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.packets.server.SPacketGuiOpen;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
+import javax.annotation.Nonnull;
 
 public class BlockBuilder extends BlockInterface {
 
-   public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 3);
+    public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 3);
 
-   public BlockBuilder() {
-      super(Properties.copy(Blocks.BARRIER).sound(SoundType.STONE));
-   }
+    public BlockBuilder() { super(Properties.copy(Blocks.BARRIER).sound(SoundType.STONE)); }
 
-   protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-      builder.add(ROTATION);
-   }
+    @Override
+    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) { builder.add(ROTATION); }
 
-   public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
-      return RenderShape.MODEL;
-   }
+    @Override
+    public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) { return RenderShape.MODEL; }
 
-    @SuppressWarnings("all")
-    @Deprecated
-    public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult ray) {
+    @Override
+    @SuppressWarnings("deprecation")
+    public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player,
+                                          @Nonnull InteractionHand hand, @Nonnull BlockHitResult ray) {
         if (!level.isClientSide) {
             ItemStack currentItem = player.getInventory().getSelected();
             if (currentItem.getItem() == CustomItems.wand || currentItem.getItem() == CustomBlocks.builder_item) {
@@ -58,19 +54,23 @@ public class BlockBuilder extends BlockInterface {
         return InteractionResult.SUCCESS;
     }
 
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        int var6 = Mth.floor((double)(Objects.requireNonNull(context.getPlayer()).getYRot() / 90.0F) + 0.5D) & 3;
+        int rotation = Mth.floor((context.getRotation() / 90.0F) + 0.5D) & 3;
         if (!context.getLevel().isClientSide) {
             SPacketGuiOpen.sendOpenGui((ServerPlayer) context.getPlayer(), EnumGuiType.BuilderBlock, null, context.getClickedPos());
         }
-        return this.defaultBlockState().setValue(ROTATION, var6);
+        return this.defaultBlockState().setValue(ROTATION, rotation);
     }
 
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+    @Override
+    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
         return new TileBuilder(pos, state);
     }
 
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> type) {
         return createTickerHelper(type, CustomBlocks.tile_builder, TileBuilder::tick);
     }
+
 }

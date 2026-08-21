@@ -375,9 +375,7 @@ public class EntityWrapper<T extends Entity> implements IEntity<T> {
       return id.toString();
    }
 
-   public INbt getNbt() {
-      return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.entity.getPersistentData());
-   }
+   public INbt getNbt() { return new NBTWrapper(entity.getPersistentData()); }
 
    public void storeAsClone(int tab, String name) {
       CompoundTag compound = new CompoundTag();
@@ -396,7 +394,7 @@ public class EntityWrapper<T extends Entity> implements IEntity<T> {
          resourcelocation = new ResourceLocation("minecraft", "player");
       }
       compound.putString("id", resourcelocation.toString());
-      return Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound);
+      return new NBTWrapper(compound);
    }
 
    public void setEntityNbt(INbt nbt) {

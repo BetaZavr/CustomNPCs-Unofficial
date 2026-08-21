@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.item.trading.MerchantOffer;
-import noppes.npcs.api.mixin.world.item.trading.IMerchantOfferMixin;
+import noppes.npcs.mixin.world.item.trading.IMerchantOfferMixin;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -63,7 +63,9 @@ public class MerchantAddContainer implements Container {
 
     public void updateItems() {
         if (activeOffer != null) {
-            ((IMerchantOfferMixin) activeOffer).npcs$setItems(itemStacks.get(0), itemStacks.get(1), itemStacks.get(2));
+            ((IMerchantOfferMixin) activeOffer).setBaseCostA(itemStacks.get(0));
+            ((IMerchantOfferMixin) activeOffer).setCostB(itemStacks.get(1));
+            ((IMerchantOfferMixin) activeOffer).setResult(itemStacks.get(2));
         }
     }
 

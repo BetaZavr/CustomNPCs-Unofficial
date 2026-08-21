@@ -37,7 +37,6 @@ import javax.annotation.Nonnull;
 
 public class RenderNPCInterface<T extends EntityNPCInterface, M extends EntityModel<T>> extends LivingEntityRenderer<T, M> {
 
-	public static int LastTextureTick;
 	public static EntityNPCInterface currentNpc;
 
 	public RenderNPCInterface(Context manager, M model, float shadowRadius) {
@@ -53,7 +52,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface, M extends EntityMo
 				Vec3 renderOffset = getRenderOffset(npc, 0.0F);
 				matrixStack.translate(-renderOffset.x(), -renderOffset.y(), -renderOffset.z());
 				if (npc.messages != null) {
-					float height = npc.baseSize.height / 5.0F * (float)npc.display.getSize();
+					float height = npc.baseSize.height / 5.0F * npc.display.getSize();
 					float offset = npc.getBbHeight() * (1.2F + (!npc.display.showName() ? 0.0F : (npc.display.getTitle().isEmpty() ? 0.15F : 0.25F)));
 					matrixStack.translate(0.0F, offset, 0.0F);
 					npc.messages.renderMessages(matrixStack, buffer, 0.666667F * height, npc.isInRange(entityRenderDispatcher.camera.getEntity(), 4.0D), light, false);
@@ -68,7 +67,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface, M extends EntityMo
 	}
 
 	protected void renderLivingLabel(T npc, PoseStack matrixStack, MultiBufferSource buffer, int light) {
-		float scale = npc.baseSize.height / 5.0F * (float)npc.display.getSize();
+		float scale = npc.baseSize.height / 5.0F * npc.display.getSize();
 		float height = npc.getBbHeight() - 0.06F * scale;
 		matrixStack.pushPose();
 		Font font = getFont();
@@ -135,7 +134,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface, M extends EntityMo
 			}
 			else if (npc.currentAnimation == 7) {
 				matrixScale.mulPose(Axis.YP.rotationDegrees(270.0F - f1));
-				float scale = (float) npc.display.getSize() / 5.0F;
+				float scale = npc.display.getSize() / 5.0F;
 				matrixScale.translate(-scale + ((EntityCustomNpc)npc).modelData.getLegsY() * scale, 0.14F, 0.0F);
 				matrixScale.mulPose(Axis.ZP.rotationDegrees(270.0F));
 				matrixScale.mulPose(Axis.YP.rotationDegrees(270.0F));
@@ -148,8 +147,8 @@ public class RenderNPCInterface<T extends EntityNPCInterface, M extends EntityMo
 	@Override
 	protected void scale(@Nonnull T npc, PoseStack matrixScale, float f) {
 		renderColor(npc);
-		int size = npc.display.getSize();
-		matrixScale.scale(npc.scaleX / 5.0F * (float)size, npc.scaleY / 5.0F * (float)size, npc.scaleZ / 5.0F * (float)size);
+		float size = npc.display.getSize();
+		matrixScale.scale(npc.scaleX / 5.0F * size, npc.scaleY / 5.0F * size, npc.scaleZ / 5.0F * size);
 	}
 
 	@Override
@@ -198,9 +197,9 @@ public class RenderNPCInterface<T extends EntityNPCInterface, M extends EntityMo
 				yOffset -= 0.3F - cNpc.modelData.getLegsY() * 0.8F;
 			}
 		}
-		return new Vec3(xOffset * ((float)npc.display.getSize() / 5.0F),
-				yOffset * ((float)npc.display.getSize() / 5.0F),
-				zOffset * ((float)npc.display.getSize() / 5.0F));
+		return new Vec3(xOffset * (npc.display.getSize() / 5.0F),
+				yOffset * (npc.display.getSize() / 5.0F),
+				zOffset * (npc.display.getSize() / 5.0F));
 	}
 
 	@Override
@@ -214,10 +213,6 @@ public class RenderNPCInterface<T extends EntityNPCInterface, M extends EntityMo
 			if (npc.display.skinType == 0) {
 				npc.textureLocation = ResourceLocation.tryParse(npc.display.getSkinTexture());
 			} else {
-				if (LastTextureTick < 5) {
-					return DefaultPlayerSkin.getDefaultSkin();
-				}
-
 				if (npc.display.skinType == 1 && npc.display.playerProfile != null) {
 					Minecraft minecraft = Minecraft.getInstance();
 					Map<Type, MinecraftProfileTexture> map = minecraft.getSkinManager().getInsecureSkinInformation(npc.display.playerProfile);

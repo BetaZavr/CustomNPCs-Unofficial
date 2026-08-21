@@ -13,4 +13,6 @@ public interface IMouseHandlerMixin {
 
     @Accessor("ypos") void setY(double newY);
 
+    @Accessor("mouseGrabbed") void setGrabbed(boolean newGrabbed);
+
 }

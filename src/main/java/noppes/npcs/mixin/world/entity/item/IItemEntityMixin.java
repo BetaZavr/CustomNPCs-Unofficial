@@ -7,10 +7,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = ItemEntity.class, priority = 502)
 public interface IItemEntityMixin {
 
-    @Accessor
-    int getPickupDelay();
+    @Accessor int getPickupDelay();
 
-    @Accessor
-    void setAge(int newAge);
+    @Accessor void setAge(int newAge);
 
 }

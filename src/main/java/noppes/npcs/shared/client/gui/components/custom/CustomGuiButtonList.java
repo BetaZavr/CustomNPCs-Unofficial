@@ -35,6 +35,7 @@ public class CustomGuiButtonList extends CustomGuiButton {
       Packets.sendServer(new SPacketCustomGuiButtonList(component.getUniqueID(), isRight));
    }
 
+   @SuppressWarnings("unused")
    public CustomGuiButtonList(GuiCustom parent, CustomGuiButtonListWrapper componentIn, OnPress onPressIn) {
       super(parent, componentIn);
       component = componentIn;
@@ -64,7 +65,7 @@ public class CustomGuiButtonList extends CustomGuiButton {
       PoseStack matrixStack = graphics.pose();
       super.renderWidget(graphics, mouseX, mouseY, partialTicks);
       matrixStack.pushPose();
-      matrixStack.translate((float)getX(), (float)getY(), 10.0F);
+      matrixStack.translate((float)getX(), (float)getY(), (float) id * 0.01F);
       isRight = mouseX >= getX() + width / 2;
       left.textureY = leftWrapper.getTextureY() + getYImage(isHovered && !isRight) * leftWrapper.getHeight();
       left.render(graphics, mouseX - getX(), mouseY - getY(), partialTicks);

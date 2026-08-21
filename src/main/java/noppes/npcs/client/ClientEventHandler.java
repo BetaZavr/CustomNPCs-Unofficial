@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -47,13 +48,19 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.EmptyBlockGetter;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.chunk.LightChunk;
+import net.minecraft.world.level.chunk.LightChunkGetter;
+import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.*;
@@ -131,12 +138,12 @@ import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -323,32 +330,75 @@ public class ClientEventHandler {
         }
     }
 
-    public static void renderBlock(Level level, BlockState state, BlockPos pos, PoseStack matrixStack, MultiBufferSource buffer, int light, int overlay, float partialTick) {
-        if (level != null) {
-            BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
-            BlockEntityRenderDispatcher entityDispatcher = Minecraft.getInstance().getBlockEntityRenderDispatcher();
-            BakedModel bakedModel = dispatcher.getBlockModel(state);
-            for (RenderType rType : bakedModel.getRenderTypes(state, RandomSource.create(), ModelData.EMPTY)) {
-                @NotNull RenderType renderType = RenderTypeHelper.getEntityRenderType(rType, false);
-                Holder<Biome> biome = level.getBiome(pos);
-                int grassColor = biome.get().getGrassColor(pos.getX(), pos.getZ());
-                float red   = ((grassColor >> 16) & 0xFF) / 255.0F;
-                float green = ((grassColor >> 8) & 0xFF) / 255.0F;
-                float blue  = (grassColor & 0xFF) / 255.0F;
-                VertexConsumer consumer = buffer.getBuffer(RenderType.translucent());
-                dispatcher.getModelRenderer().renderModel(matrixStack.last(), consumer, state, bakedModel,
-                        red, green, blue, light, overlay,
-                        ModelData.EMPTY, renderType);
+    public static void renderBlock(Level level, BlockState state, BlockPos pos, PoseStack matrixStack,
+                                   MultiBufferSource buffer, int light, int overlay, float partialTick) {
+        if (level == null) { return; }
+        renderBlockPart(level, state, pos, matrixStack, buffer, light, overlay, partialTick);
+        if (state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)) {
+            DoubleBlockHalf half = state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF);
+            BlockPos otherPos = (half == DoubleBlockHalf.LOWER) ? pos.above() : pos.below();
+            BlockState otherState = level.getBlockState(otherPos);
+            if (!otherState.is(state.getBlock()) || !otherState.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)) {
+                otherState = state.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF,
+                        half == DoubleBlockHalf.LOWER ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER);
             }
-            if (state.getBlock() instanceof EntityBlock) {
-                BlockEntity tileState = ((EntityBlock) state.getBlock()).newBlockEntity(pos, state);
-                if (tileState != null) {
-                    BlockEntityRenderer<BlockEntity> renderer = entityDispatcher.getRenderer(tileState);
-                    if (renderer != null) {
-                        tileState.setLevel(level);
-                        renderer.render(tileState, partialTick, matrixStack, buffer, light, overlay);
-                        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.5F);
-                    }
+            Vec3 offset = Vec3.atLowerCornerOf(otherPos.subtract(pos));
+            matrixStack.pushPose();
+            matrixStack.translate(offset.x, offset.y, offset.z);
+            renderBlockPart(level, otherState, otherPos, matrixStack, buffer, light, overlay, partialTick);
+            matrixStack.popPose();
+        }
+        else if (state.getBlock() instanceof BedBlock && state.hasProperty(BedBlock.PART)) {
+            BedPart part = state.getValue(BedBlock.PART);
+            Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+            BlockPos otherPos = (part == BedPart.FOOT) ? pos.relative(facing) : pos.relative(facing.getOpposite());
+            BlockState otherState = level.getBlockState(otherPos);
+            if (!otherState.is(state.getBlock()) || !otherState.hasProperty(BedBlock.PART)) {
+                otherState = state.setValue(BedBlock.PART,
+                        part == BedPart.FOOT ? BedPart.HEAD : BedPart.FOOT);
+            }
+            Vec3 offset = Vec3.atLowerCornerOf(otherPos.subtract(pos));
+            matrixStack.pushPose();
+            matrixStack.translate(offset.x, offset.y, offset.z);
+            renderBlockPart(level, otherState, otherPos, matrixStack, buffer, light, overlay, partialTick);
+            matrixStack.popPose();
+        }
+    }
+
+    private static void renderBlockPart(@Nonnull Level level, BlockState state, BlockPos pos, PoseStack matrixStack,
+                                        MultiBufferSource buffer, int light, int overlay, float partialTick) {
+        BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
+        BlockEntityRenderDispatcher entityDispatcher = Minecraft.getInstance().getBlockEntityRenderDispatcher();
+        BakedModel bakedModel = dispatcher.getBlockModel(state);
+        // liquid
+        if (!state.getFluidState().isEmpty()) {
+            dispatcher.renderLiquid(BlockPos.ZERO,
+                    new FakeBlockAndTintGetter(state, pos, level),
+                    buffer.getBuffer(RenderType.translucent()),
+                    state, state.getFluidState());
+            return;
+        }
+        // any
+        for (RenderType rType : bakedModel.getRenderTypes(state, RandomSource.create(), ModelData.EMPTY)) {
+            @Nonnull RenderType renderType = RenderTypeHelper.getEntityRenderType(rType, false);
+            Holder<Biome> biome = level.getBiome(pos);
+            int grassColor = biome.get().getGrassColor(pos.getX(), pos.getZ());
+            float red   = ((grassColor >> 16) & 0xFF) / 255.0F;
+            float green = ((grassColor >> 8)  & 0xFF) / 255.0F;
+            float blue  = (grassColor         & 0xFF) / 255.0F;
+            VertexConsumer consumer = buffer.getBuffer(RenderType.translucent());
+            dispatcher.getModelRenderer().renderModel(matrixStack.last(), consumer, state, bakedModel,
+                    red, green, blue, light, overlay, ModelData.EMPTY, renderType);
+        }
+        // has spec. render
+        if (state.getBlock() instanceof EntityBlock) {
+            BlockEntity tile = ((EntityBlock) state.getBlock()).newBlockEntity(pos, state);
+            if (tile != null) {
+                BlockEntityRenderer<BlockEntity> renderer = entityDispatcher.getRenderer(tile);
+                if (renderer != null) {
+                    tile.setLevel(level);
+                    renderer.render(tile, partialTick, matrixStack, buffer, light, overlay);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.5F);
                 }
             }
         }
@@ -2609,8 +2659,6 @@ public class ClientEventHandler {
                                             graphics.blit(GuiBasic.INFO, 0, 0, 15, 48, 10, 10);
                                         }
                                     }
-                                    RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-                                    matrixStack.popPose();
                                 } // direction
                                 else {
                                     long speed = 1500L;
@@ -2654,9 +2702,9 @@ public class ClientEventHandler {
                                         graphics.blit(GuiBasic.INFO, 48 - w, 0, 129 - w, 0, w, 8);
                                         matrixStack.popPose();
                                     } // up
-                                    RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-                                    matrixStack.popPose();
                                 } // found
+                                RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+                                matrixStack.popPose();
                             }
                             matrixStack.popPose();
                             graphics.disableScissor();
@@ -2928,6 +2976,68 @@ public class ClientEventHandler {
                 matrixStack.popPose();
             }
         }
+    }
+
+    private static final class FakeBlockAndTintGetter implements BlockAndTintGetter {
+
+        private final BlockState centerState;
+        private final FluidState centerFluid;
+        private final BlockPos centerPos;
+        private final Holder<Biome> biome;
+        private final LevelLightEngine lightEngine;
+
+        FakeBlockAndTintGetter(BlockState centerStateIn, BlockPos centerPosIn, @Nonnull Level realLevel) {
+            centerState = centerStateIn;
+            centerFluid = centerState.getFluidState();
+            centerPos = centerPosIn.immutable();
+            biome = realLevel.getBiome(centerPos);
+            lightEngine = new LevelLightEngine(new LightChunkGetter() {
+                @Override
+                public @Nullable LightChunk getChunkForLighting(int i, int i1) { return null; }
+                @Override
+                public @Nonnull BlockGetter getLevel() { return realLevel; }
+            }, false, false);
+        }
+
+        @Override
+        public @Nullable BlockEntity getBlockEntity(@Nonnull BlockPos pos) { return null; }
+
+        @Override
+        public @Nonnull BlockState getBlockState(@Nonnull BlockPos pos) { return pos.equals(centerPos) ? centerState : Blocks.AIR.defaultBlockState(); }
+
+        @Override
+        public @Nonnull FluidState getFluidState(@Nonnull BlockPos pos) { return pos.equals(centerPos) ? centerFluid : Fluids.EMPTY.defaultFluidState(); }
+
+        @Override
+        public float getShade(@Nonnull Direction direction, boolean shade) { return 1.0F; }
+
+        @Override
+        public @Nonnull LevelLightEngine getLightEngine() { return lightEngine; }
+
+        @Override
+        public int getBlockTint(@Nonnull BlockPos pos, @Nonnull ColorResolver colorResolver) {
+            if (biome != null) { return colorResolver.getColor(biome.value(), pos.getX(), pos.getZ()); }
+            if (colorResolver == BiomeColors.WATER_COLOR_RESOLVER) return 0x3F76E4;
+            if (colorResolver == BiomeColors.GRASS_COLOR_RESOLVER) return 0x8CBD57;
+            if (colorResolver == BiomeColors.FOLIAGE_COLOR_RESOLVER) return 0x59A315;
+            return 0xFFFFFF;
+        }
+
+        @Override
+        public int getHeight() { return mc.level != null ? mc.level.getHeight() : 384; }
+
+        @Override
+        public int getMinBuildHeight() { return mc.level != null ? mc.level.getMinBuildHeight() : -64; }
+
+        @Override
+        public int getMaxBuildHeight() { return getMinBuildHeight() + getHeight(); }
+
+        @Override
+        public int getLightEmission(@Nonnull BlockPos pos) { return centerState.getLightEmission(this, pos); }
+
+        @Override
+        public int getMaxLightLevel() { return mc.level != null ? mc.level.getMaxLightLevel() : 15; }
+
     }
 
 }

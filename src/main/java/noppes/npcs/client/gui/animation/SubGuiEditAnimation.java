@@ -2740,7 +2740,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
         float r = showNPC.getYRot() < 0.0f ? showNPC.getYRot() + 360.0f : showNPC.getYRot();
         float oy = 0.0f;
         showNPC.currentAnimation = npc.currentAnimation;
-        CustomGuiEntityDisplay.renderEntity(graphics, showNPC, 0.0, oy, 0.0, 0.0f, r / -45.0f + 8.0f, false);
+        CustomGuiEntityDisplay.renderEntity(graphics, showNPC, 0.0, oy, 0.0, 0.0f, r / -45.0f + 8.0f);
 
         if (blockType == 0) {
             for (Entity e : environmentEntitys) {
@@ -2752,7 +2752,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                 if (d < z) { d = z; }
                 if (d > blockSize) { continue; }
                 matrixStack.pushPose();
-                CustomGuiEntityDisplay.renderEntity(graphics, e, e.getX(), e.getY(), e.getZ(), 0.0f, 0.0f, false);
+                CustomGuiEntityDisplay.renderEntity(graphics, e, e.getX(), e.getY(), e.getZ(), 0.0f, 0.0f);
                 matrixStack.popPose();
             }
         }

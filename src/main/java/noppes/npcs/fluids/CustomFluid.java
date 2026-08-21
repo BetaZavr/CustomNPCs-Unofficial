@@ -23,14 +23,13 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.common.SoundActions;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.blocks.custom.CustomBlockLiquid;
 import noppes.npcs.items.custom.CustomBottleItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 import java.util.Optional;
 
 // ForgeFlowingFluid
@@ -138,7 +137,7 @@ public abstract class CustomFluid extends FlowingFluid implements ICustomElement
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

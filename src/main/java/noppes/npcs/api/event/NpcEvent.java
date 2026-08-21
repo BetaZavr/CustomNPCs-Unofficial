@@ -13,23 +13,24 @@ import noppes.npcs.ai.CombatHandler;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.interfaces.EventName;
 import noppes.npcs.api.IDamageSource;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.entity.data.ILine;
+import noppes.npcs.api.interfaces.ParamName;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.wrapper.NPCWrapper;
 import noppes.npcs.constants.EnumScriptType;
-import noppes.npcs.entity.EntityNPCInterface;
 
 public class NpcEvent extends CustomNPCsEvent {
 
    public final ICustomNpc<?> npc;
 
-   public NpcEvent(ICustomNpc<?> npcIn) { npc = npcIn; }
+   public NpcEvent(ICustomNpc<?> npcIn) {
+      super();
+      npc = npcIn;
+   }
 
    @EventName(EnumScriptType.TIMER)
    public static class TimerEvent extends NpcEvent {
@@ -47,7 +48,7 @@ public class NpcEvent extends CustomNPCsEvent {
 
       public CollideEvent(ICustomNpc<?> npc, Entity entityIn) {
          super(npc);
-         entity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entityIn);
+         entity = API.getIEntity(entityIn);
       }
    }
 
@@ -61,7 +62,7 @@ public class NpcEvent extends CustomNPCsEvent {
 
       public NeedBlockDamage(ICustomNpc<?> npc, DamageSource damagesource, boolean isBlockedIn, int typeIn) {
          super(npc);
-         damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damagesource);
+         damageSource = API.getIDamageSource(damagesource);
          isBlocked = isBlockedIn;
          type = typeIn;
       }
@@ -77,9 +78,9 @@ public class NpcEvent extends CustomNPCsEvent {
 
       public DamagedEvent(ICustomNpc<?> npc, Entity sourceIn, float damageIn, DamageSource damageSourceIn) {
          super(npc);
-         source = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(sourceIn);
+         source = API.getIEntity(sourceIn);
          damage = damageIn;
-         damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damageSourceIn);
+         damageSource = API.getIDamageSource(damageSourceIn);
       }
    }
 
@@ -92,7 +93,7 @@ public class NpcEvent extends CustomNPCsEvent {
 
       public RangedLaunchedEvent(ICustomNpc<?> npc, LivingEntity targetIn, float damageIn) {
          super(npc);
-         target = (IEntityLiving<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(targetIn);
+         target = (IEntityLiving<?>) API.getIEntity(targetIn);
          damage = damageIn;
       }
    }
@@ -105,7 +106,7 @@ public class NpcEvent extends CustomNPCsEvent {
 
       public MeleeAttackEvent(ICustomNpc<?> npc, LivingEntity targetIn, float damageIn) {
          super(npc);
-         target = (IEntityLiving<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(targetIn);
+         target = (IEntityLiving<?>) API.getIEntity(targetIn);
          damage = damageIn;
       }
    }
@@ -116,7 +117,7 @@ public class NpcEvent extends CustomNPCsEvent {
 
       public KilledEntityEvent(ICustomNpc<?> npc, LivingEntity entityIn) {
          super(npc);
-         entity = (IEntityLiving<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entityIn);
+         entity = (IEntityLiving<?>) API.getIEntity(entityIn);
       }
    }
 
@@ -138,15 +139,31 @@ public class NpcEvent extends CustomNPCsEvent {
       public DiedEvent(ICustomNpc<?> npc, DamageSource damageSourceIn, Entity entity, CombatHandler combatHandler) {
          super(npc);
          type = damageSourceIn.getMsgId();
-         source = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
-         damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damageSourceIn);
+         source = API.getIEntity(entity);
+         damageSource = API.getIDamageSource(damageSourceIn);
          for (LivingEntity e : combatHandler.aggressors.keySet()) {
             double damage = combatHandler.aggressors.get(e);
-            damageMap.put(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e), damage);
+            damageMap.put(API.getIEntity(e), damage);
             totalDamage += damage;
             if (e instanceof Player) { totalDamageOnlyPlayers = damage; }
          }
       }
+
+      public IEntity<?>[] getEntitys() { return damageMap.keySet().toArray(new IEntity<?>[0]); }
+
+      @SuppressWarnings("unused")
+      public double getDamageFromEntity(@ParamName("entity") IEntity<?> entity) {
+         if (damageMap.containsKey(entity)) { return damageMap.get(entity); }
+         else if (entity != null) {
+            for (IEntity<?> ie : damageMap.keySet()) {
+               if (entity.getMCEntity().equals(ie.getMCEntity())) {
+                  return damageMap.get(ie);
+               }
+            }
+         }
+         return 0.0d;
+      }
+
    }
 
    @Cancelable
@@ -156,7 +173,7 @@ public class NpcEvent extends CustomNPCsEvent {
 
       public InteractEvent(ICustomNpc<?> npc, Player playerIn) {
          super(npc);
-         player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(playerIn);
+         player = (IPlayer<?>) API.getIEntity(playerIn);
       }
    }
 
@@ -167,7 +184,7 @@ public class NpcEvent extends CustomNPCsEvent {
 
       public TargetLostEvent(ICustomNpc<?> npc, LivingEntity entityIn) {
          super(npc);
-         entity = (IEntityLiving<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entityIn);
+         entity = (IEntityLiving<?>) API.getIEntity(entityIn);
       }
    }
 
@@ -178,7 +195,7 @@ public class NpcEvent extends CustomNPCsEvent {
 
       public TargetEvent(ICustomNpc<?> npc, LivingEntity entityIn) {
          super(npc);
-         entity = (IEntityLiving<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entityIn);
+         entity = (IEntityLiving<?>) API.getIEntity(entityIn);
       }
    }
 
@@ -209,4 +226,5 @@ public class NpcEvent extends CustomNPCsEvent {
       }
 
    }
+
 }

@@ -5,7 +5,6 @@ import java.util.Objects;
 import net.minecraft.nbt.*;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.util.NBTJsonUtil;
 
 public class NBTWrapper implements INbt {
@@ -16,98 +15,122 @@ public class NBTWrapper implements INbt {
       compound = compoundIn;
    }
 
+   @Override
    public void remove(String key) {
       compound.remove(key);
    }
 
+   @Override
    public boolean has(String key) {
       return compound.contains(key);
    }
 
+   @Override
    public boolean has(String key, int type) {
       return compound.contains(key, type);
    }
 
+   @Override
    public boolean getBoolean(String key) {
       return compound.getBoolean(key);
    }
 
+   @Override
    public void setBoolean(String key, boolean value) {
       compound.putBoolean(key, value);
    }
 
+   @Override
    public short getShort(String key) {
       return compound.getShort(key);
    }
 
+   @Override
    public void setShort(String key, short value) {
       compound.putShort(key, value);
    }
 
+   @Override
    public int getInteger(String key) {
       return compound.getInt(key);
    }
 
+   @Override
    public void setInteger(String key, int value) {
       compound.putInt(key, value);
    }
 
+   @Override
    public byte getByte(String key) {
       return compound.getByte(key);
    }
 
+   @Override
    public void setByte(String key, byte value) {
       compound.putByte(key, value);
    }
 
+   @Override
    public long getLong(String key) {
       return compound.getLong(key);
    }
 
+   @Override
    public void setLong(String key, long value) {
       compound.putLong(key, value);
    }
 
+   @Override
    public double getDouble(String key) {
       return compound.getDouble(key);
    }
 
+   @Override
    public void setDouble(String key, double value) {
       compound.putDouble(key, value);
    }
 
+   @Override
    public float getFloat(String key) {
       return compound.getFloat(key);
    }
 
+   @Override
    public void setFloat(String key, float value) {
       compound.putFloat(key, value);
    }
 
+   @Override
    public String getString(String key) {
       return compound.getString(key);
    }
 
+   @Override
    public void setString(String key, String value) {
       compound.putString(key, value);
    }
 
+   @Override
    public byte[] getByteArray(String key) {
       return compound.getByteArray(key);
    }
 
+   @Override
    public void setByteArray(String key, byte[] value) {
       compound.putByteArray(key, value);
    }
 
+   @Override
    public int[] getIntegerArray(String key) {
       return compound.getIntArray(key);
    }
 
+   @Override
    public void setIntegerArray(String key, int[] value) {
       compound.putIntArray(key, value);
    }
 
+   @Override
    public Object[] getList(String key, int type) {
       ListTag list = compound.getList(key, type);
       Object[] nbts = new Object[list.size()];
@@ -150,7 +173,7 @@ public class NBTWrapper implements INbt {
                break;
             }
             case 10: {
-               nbts[i] = Objects.requireNonNull(NpcAPI.Instance()).getINbt(list.getCompound(i));
+               nbts[i] = new NBTWrapper(list.getCompound(i));
                break;
             }
             case 11: {
@@ -171,6 +194,7 @@ public class NBTWrapper implements INbt {
       return nbts;
    }
 
+   @Override
    public int getListType(String key) {
       Tag b = compound.get(key);
       if (b == null) {
@@ -182,6 +206,7 @@ public class NBTWrapper implements INbt {
       }
    }
 
+   @Override
    public void setList(String key, Object[] values) {
       ListTag list = new ListTag();
       int type = -1;
@@ -267,10 +292,12 @@ public class NBTWrapper implements INbt {
       ((ListTag) list).add(tag);
    }
 
+   @Override
    public INbt getCompound(String key) {
-      return Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound.getCompound(key));
+      return new NBTWrapper(compound.getCompound(key));
    }
 
+   @Override
    public void setCompound(String key, INbt value) {
       if (value == null) {
          throw new CustomNPCsException("Value cant be null");
@@ -279,44 +306,55 @@ public class NBTWrapper implements INbt {
       }
    }
 
+   @Override
    public String[] getKeys() {
       return compound.getAllKeys().toArray(new String[0]);
    }
 
+   @Override
    public int getType(String key) {
       if (!compound.contains(key)) { return -1; }
       return Objects.requireNonNull(compound.get(key)).getId();
    }
 
+   @Override
    public CompoundTag getMCNBT() {
       return compound;
    }
 
+   @Override
    public String toJsonString() {
       return NBTJsonUtil.Convert(compound);
    }
 
+   @Override
    public boolean isEqual(INbt nbt) {
       return nbt != null && compound.equals(nbt.getMCNBT());
    }
 
+   @Override
    public void clear() {
       for (String name : compound.getAllKeys()) { compound.remove(name); }
    }
 
+   @Override
    public boolean isEmpty() {
       return compound.isEmpty();
    }
 
+   @Override
    public void merge(INbt nbt) {
       compound.merge(nbt.getMCNBT());
    }
 
+   @Override
    public void mcSetTag(String key, Tag tag) {
       compound.put(key, tag);
    }
 
+   @Override
    public Tag mcGetTag(String key) {
       return compound.get(key);
    }
+
 }

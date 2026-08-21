@@ -3,6 +3,7 @@ package noppes.npcs.api.event;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,16 +19,20 @@ import noppes.npcs.api.handler.data.IFaction;
 import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.interfaces.EventName;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.ContainerWrapper;
 import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.constants.EnumScriptType;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 public class PlayerEvent extends CustomNPCsEvent {
 
    public final IPlayer<?> player;
-   public PlayerEvent(IPlayer<?> playerIn) { player = playerIn; }
+
+   public PlayerEvent(IPlayer<?> playerIn) {
+      super();
+      player = playerIn;
+   }
 
    @EventName(EnumScriptType.PLAY_SOUND)
    public static class PlayerSound extends PlayerEvent {
@@ -47,7 +52,7 @@ public class PlayerEvent extends CustomNPCsEvent {
          resource = resourceIn;
          category = categoryIn;
          looping = loopingIn;
-         pos = Objects.requireNonNull(API).getIPos(x, y, z);
+         pos = API.getIPos(x, y, z);
          volume = volumeIn;
          pitch = pitchIn;
       }
@@ -78,7 +83,6 @@ public class PlayerEvent extends CustomNPCsEvent {
          message = messageIn;
       }
    }
-
 
    @EventName(EnumScriptType.KEY_PRESSED)
    public static class KeyPressedEvent extends PlayerEvent {
@@ -114,16 +118,12 @@ public class PlayerEvent extends CustomNPCsEvent {
 
    @EventName(EnumScriptType.LOGOUT)
    public static class LogoutEvent extends PlayerEvent {
-      public LogoutEvent(IPlayer<?> player) {
-         super(player);
-      }
+      public LogoutEvent(IPlayer<?> player) { super(player); }
    }
 
    @EventName(EnumScriptType.LOGIN)
    public static class LoginEvent extends PlayerEvent {
-      public LoginEvent(IPlayer<?> player) {
-         super(player);
-      }
+      public LoginEvent(IPlayer<?> player) { super(player); }
    }
 
    @EventName(EnumScriptType.TIMER)
@@ -147,10 +147,11 @@ public class PlayerEvent extends CustomNPCsEvent {
 
       public DamagedEvent(IPlayer<?> player, Entity sourceIn, float damageIn, DamageSource damagesourceIn) {
          super(player);
-        source = Objects.requireNonNull(API).getIEntity(sourceIn);
+        source = API.getIEntity(sourceIn);
         damage = damageIn;
-        damageSource = Objects.requireNonNull(API).getIDamageSource(damagesourceIn);
+        damageSource = API.getIDamageSource(damagesourceIn);
       }
+
    }
 
    @EventName(EnumScriptType.KILL)
@@ -159,7 +160,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 
       public KilledEntityEvent(IPlayer<?> player, LivingEntity entityIn) {
          super(player);
-         entity = (IEntityLiving<?>) Objects.requireNonNull(API).getIEntity(entityIn);
+         entity = (IEntityLiving<?>) API.getIEntity(entityIn);
       }
    }
 
@@ -172,18 +173,16 @@ public class PlayerEvent extends CustomNPCsEvent {
 
       public DiedEvent(IPlayer<?> player, DamageSource damagesourceIn, Entity entityIn) {
          super(player);
-         damageSource = Objects.requireNonNull(API).getIDamageSource(damagesourceIn);
+         damageSource = API.getIDamageSource(damagesourceIn);
          type = damagesourceIn.getMsgId();
-         source = Objects.requireNonNull(API).getIEntity(entityIn);
+         source = API.getIEntity(entityIn);
       }
    }
 
    @Cancelable
    @EventName(EnumScriptType.RANGED_LAUNCHED)
    public static class RangedLaunchedEvent extends PlayerEvent {
-      public RangedLaunchedEvent(IPlayer<?> player) {
-         super(player);
-      }
+      public RangedLaunchedEvent(IPlayer<?> player) { super(player); }
    }
 
    @Cancelable
@@ -195,9 +194,9 @@ public class PlayerEvent extends CustomNPCsEvent {
 
       public DamagedEntityEvent(IPlayer<?> player, Entity targetIn, float damageIn, DamageSource damagesourceIn) {
          super(player);
-         target = Objects.requireNonNull(API).getIEntity(targetIn);
+         target = API.getIEntity(targetIn);
          damage = damageIn;
-         damageSource = Objects.requireNonNull(API).getIDamageSource(damagesourceIn);
+         damageSource = API.getIDamageSource(damagesourceIn);
       }
    }
 
@@ -264,16 +263,16 @@ public class PlayerEvent extends CustomNPCsEvent {
 
       public AttackEvent(IPlayer<?> player, int typeIn, Object targetIn) {
          super(player);
-        type = typeIn;
-        target = targetIn;
-        damageSource = null;
+         type = typeIn;
+         target = targetIn;
+         damageSource = null;
       }
 
-      public AttackEvent(IPlayer<?> player, IEntity<?> targetIn, IDamageSource damageSourceIn) {
+      public AttackEvent(IPlayer<?> player, IEntity<?> targetIn, DamageSource damageSourceIn) {
          super(player);
-        type = 1;
-        target = targetIn;
-        damageSource = damageSourceIn;
+         type = 1;
+         target = targetIn;
+         damageSource = API.getIDamageSource(damageSourceIn);
       }
    }
 
@@ -338,7 +337,7 @@ public class PlayerEvent extends CustomNPCsEvent {
       public ItemFished(IPlayer<?> player, NonNullList<ItemStack> dropsIn, int rodDamageIn) {
          super(player);
          stacks = new IItemStack[dropsIn.size()];
-         for (int i = 0; i < dropsIn.size(); i++) { stacks[i] = Objects.requireNonNull(API).getIItemStack(dropsIn.get(i)); }
+         for (int i = 0; i < dropsIn.size(); i++) { stacks[i] = API.getIItemStack(dropsIn.get(i)); }
          rodDamage = rodDamageIn;
       }
    }
@@ -433,6 +432,27 @@ public class PlayerEvent extends CustomNPCsEvent {
          command = commandIn;
          parameters = parametersIn;
       }
+   }
+
+   @EventName(EnumScriptType.GUI_SLOT_CHANGED)
+   public static class SlotChangedItemStackEvent extends PlayerEvent {
+
+      public final int slotIndex;
+      public final IItemStack handStack;
+      public final IContainer container;
+      public IItemStack slotStack;
+
+      public SlotChangedItemStackEvent(IPlayer<?> player, int slotIndexIn, ItemStack slotStackIn, ItemStack handStackIn, Container containerIn) {
+         super(player);
+         slotIndex = slotIndexIn;
+         slotStack = API.getIItemStack(slotStackIn);
+         handStack = API.getIItemStack(handStackIn);
+         container = new ContainerWrapper(containerIn);
+      }
+
+      @SuppressWarnings("unused")
+      public void setSlotStack(IItemStack slotStackIn) { slotStack = slotStackIn; }
+
    }
 
 }

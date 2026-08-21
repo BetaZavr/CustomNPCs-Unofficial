@@ -26,7 +26,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.registries.ForgeRegistries;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.fluids.CustomFluid;
 import noppes.npcs.shared.common.util.LogWriter;
 
@@ -89,7 +89,7 @@ public class CustomCauldronBlock extends AbstractCauldronBlock implements ICusto
         };
         interactions.put(fluid.getBucket(), fillingBucket);
         CauldronInteraction.EMPTY.put(fluid.getBucket(), fillingBucket);
-        // 3. Taking liquid from the boiler (empty bottle) → получаем КАСТОМНЫЙ бутылёк
+        // 3. Taking liquid from the boiler (empty bottle) → custom bottle
         interactions.put(Items.GLASS_BOTTLE, (state, level, pos, player, hand, stack) -> {
             if (!level.isClientSide) {
                 LogWriter.info("[DEBUG] "+fluid.getBottle());
@@ -185,7 +185,7 @@ public class CustomCauldronBlock extends AbstractCauldronBlock implements ICusto
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

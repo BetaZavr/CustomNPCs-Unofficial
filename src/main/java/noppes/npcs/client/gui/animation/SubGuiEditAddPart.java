@@ -383,7 +383,7 @@ public class SubGuiEditAddPart<T extends EntityCustomNpc> extends GuiNPCInterfac
             ModelNpcAlt.editAnimDataSelect.isNPC = true;
             ModelNpcAlt.editAnimDataSelect.part = part.id;
             matrixStack.scale(40.0f, -40.0f, 40.0f);
-            CustomGuiEntityDisplay.renderEntity(graphics, npcPart, 0.0, 0.0, 0.0, 0.0f, npcPart.getYRot() != 0.0f ? 1.0f : 0.0f, false);
+            CustomGuiEntityDisplay.renderEntity(graphics, npcPart, 0.0, 0.0, 0.0, 0.0f, npcPart.getYRot() != 0.0f ? 1.0f : 0.0f);
         }
         matrixStack.popPose();
     }

@@ -15,7 +15,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -28,13 +27,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import noppes.npcs.CustomBlocks;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
-import noppes.npcs.blocks.BlockInterface;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.mixin.world.level.block.state.properties.IIntegerPropertyMixin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 public class CustomBlock extends Block implements ICustomElement {
 
@@ -85,9 +82,8 @@ public class CustomBlock extends Block implements ICustomElement {
         return defaultBlockState();
     }
 
-    /** @deprecated */
-    @Deprecated
     @Override
+    @SuppressWarnings("deprecation")
     public @Nonnull BlockState rotate(@Nonnull BlockState state, @Nonnull Rotation rotation) {
         if (FACING != null) {
             return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
@@ -95,9 +91,8 @@ public class CustomBlock extends Block implements ICustomElement {
         return state;
     }
 
-    /** @deprecated */
-    @Deprecated
     @Override
+    @SuppressWarnings("deprecation")
     public @Nonnull BlockState mirror(@Nonnull BlockState state, @Nonnull Mirror mirror) {
         if (FACING != null) {
             return state.rotate(mirror.getRotation(state.getValue(FACING)));
@@ -105,9 +100,8 @@ public class CustomBlock extends Block implements ICustomElement {
         return state;
     }
 
-    /** @deprecated */
-    @Deprecated
     @Override
+    @SuppressWarnings("deprecation")
     public @Nonnull VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
         if (FACING != null) {
             return switch (state.getValue(FACING)) {
@@ -120,9 +114,8 @@ public class CustomBlock extends Block implements ICustomElement {
         return FULL_BLOCK_AABB;
     }
 
-    /** @deprecated */
-    @Deprecated
     @Override
+    @SuppressWarnings("deprecation")
     public @Nonnull VoxelShape getCollisionShape(@Nonnull BlockState blockState, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
         if (nbtData.getBoolean("IsPassable")) { return Shapes.empty(); }
         if (FACING != null) {
@@ -176,7 +169,7 @@ public class CustomBlock extends Block implements ICustomElement {
     public String getCustomName() { return nbtData.getString("RegistryName"); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() {

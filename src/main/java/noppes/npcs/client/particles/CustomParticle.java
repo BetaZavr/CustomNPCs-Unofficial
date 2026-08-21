@@ -19,6 +19,7 @@ import noppes.npcs.api.IWorld;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.event.CustomParticleEvent;
 import noppes.npcs.api.handler.data.ICustomParticle;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.client.renderer.obj.ParameterizedModel;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.mixin.client.particles.IParticleMixin;
@@ -251,7 +252,7 @@ public class CustomParticle extends TextureSheetParticle implements ICustomEleme
     public String getCustomName() { return nbtData.getString("RegistryName").toLowerCase(); }
 
     @Override
-    public INbt getCustomNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(nbtData); }
+    public INbt getCustomNbt() { return new NBTWrapper(nbtData); }
 
     @Override
     public int getElementType() { return nbtData.contains("OBJModel", 8) && !nbtData.getString("OBJModel").isEmpty() ? 1 : 0; }

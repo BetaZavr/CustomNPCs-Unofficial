@@ -40,7 +40,6 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.INbt;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IMob;
 import noppes.npcs.api.entity.data.IData;
@@ -260,7 +259,7 @@ public class ItemStackWrapper implements IItemStack, ICapabilitySerializable<Com
       if (compound == null) {
          this.item.setTag(compound = new CompoundTag());
       }
-      return Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound);
+      return new NBTWrapper(compound);
    }
 
    public boolean hasNbt() {

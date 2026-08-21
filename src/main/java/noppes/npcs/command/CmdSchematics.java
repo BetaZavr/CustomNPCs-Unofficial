@@ -25,7 +25,8 @@ public class CmdSchematics {
    public static final SuggestionProvider<CommandSourceStack> ROTATION = SuggestionProviders.register(new ResourceLocation(CustomNpcs.MODID, "rotation"), (context, builder) -> SharedSuggestionProvider.suggest(new String[]{"0", "90", "180", "270"}, builder));
 
    public static LiteralArgumentBuilder<CommandSourceStack> register() {
-       return ((((Commands.literal("schema").requires((source) -> source.hasPermission(4)))
+       return ((((Commands.literal("schema")
+               .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)))
                .then(Commands.literal("build")
                        .then(Commands.argument("name", StringArgumentType.word()).suggests(SCHEMAS)
                                .then(Commands.argument("pos", BlockPosArgument.blockPos())
@@ -47,7 +48,7 @@ public class CmdSchematics {
        }))).then(Commands.literal("list").executes((context) -> {
           List<String> list = SchematicController.Instance.list();
           if (list.isEmpty()) {
-             context.getSource().sendSuccess(() -> Component.translatable("No schemas available"), false);
+             context.getSource().sendSuccess(() -> Component.translatable("schemas.no.available"), false);
           } else {
              String files = "";
              int i = 0;

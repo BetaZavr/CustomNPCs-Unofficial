@@ -94,6 +94,10 @@ public class CustomNpcsPermissions {
    public static final PermissionNode<Boolean> SCENES = new PermissionNode<>(CustomNpcs.MODID, "scenes", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".scenes", player));
 
+   // New from Unofficial (GoodBird)
+   public static final PermissionNode<Boolean> ADMIN = new PermissionNode<>(CustomNpcs.MODID, "admin", PermissionTypes.BOOLEAN,
+           (player, id, context) -> inData(CustomNpcs.MODID + ".admin", player));
+
    // New from Unofficial (BetaZavr)
    public static final PermissionNode<Boolean> TOOL_BUILDERS = new PermissionNode<>(CustomNpcs.MODID, "tool.builders", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".tool.builders", player));
@@ -109,6 +113,10 @@ public class CustomNpcsPermissions {
            (player, id, context) -> inData(CustomNpcs.MODID + ".global.auctions", player));
    public static final PermissionNode<Boolean> GLOBAL_MAIL = new PermissionNode<>(CustomNpcs.MODID, "global.mail", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".global.mail", player));
+   public static final PermissionNode<Boolean> GLOBAL_ELEMENTS = new PermissionNode<>(CustomNpcs.MODID, "global.elements", PermissionTypes.BOOLEAN,
+           (player, id, context) -> inData(CustomNpcs.MODID + ".global.elements", player));
+   public static final PermissionNode<Boolean> GLOBAL_DUNGEONS = new PermissionNode<>(CustomNpcs.MODID, "global.dungeons", PermissionTypes.BOOLEAN,
+           (player, id, context) -> inData(CustomNpcs.MODID + ".global.dungeons", player));
    public static final PermissionNode<Boolean> MONEY_MANAGER = new PermissionNode<>(CustomNpcs.MODID, "money.manager", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".money.manager", player));
    public static final PermissionNode<Boolean> DONAT_MANAGER = new PermissionNode<>(CustomNpcs.MODID, "donat.manager", PermissionTypes.BOOLEAN,
@@ -184,7 +192,7 @@ public class CustomNpcsPermissions {
       for (PermissionNode<?> node : PermissionAPI.getRegisteredNodes()) {
          if (node.getNodeName().equals(permission)) {
             try {
-               return CustomNpcsPermissions.hasPermission(player, (PermissionNode<Boolean>) node);
+               return hasPermission(player, (PermissionNode<Boolean>) node);
             }
             catch (Throwable ignored) { break; }
          }
@@ -195,9 +203,10 @@ public class CustomNpcsPermissions {
    public static boolean hasPermission(ServerPlayer player, PermissionNode<Boolean> permission) {
       if (permission == null) { return true; }
       if (CustomNpcs.OpsOnly && (player == null || !player.hasPermissions(4))) { return false; }
-       return CustomNpcs.DisablePermissions ?
-               PermissionAPI.getPermission(player, permission) :
-               permission.getDefaultResolver().resolve(player, player.getUUID());
+      return CustomNpcs.DisablePermissions ?
+              PermissionAPI.getPermission(player, ADMIN) || PermissionAPI.getPermission(player, permission) :
+              ADMIN.getDefaultResolver().resolve(player, player.getUUID()) ||
+                      permission.getDefaultResolver().resolve(player, player.getUUID());
    }
 
    // New from Unofficial (BetaZavr)
@@ -213,7 +222,11 @@ public class CustomNpcsPermissions {
       Map<PermissionNode<Boolean>, List<String>> map = new LinkedHashMap<>();
       for (PermissionNode<Boolean> node : list) {
          map.put(node, new ArrayList<>());
-         if (node != EDIT_PERMISSION && node != EDIT_CLIENT_SCRIPT && node != DONAT_MANAGER) {
+         if (node != EDIT_PERMISSION &&
+                 node != EDIT_CLIENT_SCRIPT &&
+                 node != GLOBAL_ELEMENTS &&
+                 node != DONAT_MANAGER &&
+                 node != ADMIN) {
             map.get(node).add("All");
             map.get(node).add("Command Block");
          }

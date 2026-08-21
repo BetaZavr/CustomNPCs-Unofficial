@@ -25,11 +25,9 @@ import noppes.npcs.blocks.tiles.TileMailbox;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketGuiOpen;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
+import javax.annotation.Nonnull;
 
-@SuppressWarnings("all")
 public class BlockMailbox extends BlockInterface {
 
    public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 3);
@@ -40,41 +38,41 @@ public class BlockMailbox extends BlockInterface {
       this.type = type;
    }
 
-   public @NotNull String getDescriptionId() {
-      return "block." + CustomNpcs.MODID + ".npcmailbox";
-   }
+   @Override
+   public @Nonnull String getDescriptionId() { return "block." + CustomNpcs.MODID + ".npcmailbox"; }
 
-   /** @deprecated */
-   @Deprecated
-   public @NotNull VoxelShape getOcclusionShape(@NotNull BlockState state, @NotNull BlockGetter getter, @NotNull BlockPos pos) {
+   @Override
+   @SuppressWarnings("deprecation")
+   public @Nonnull VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull BlockGetter getter, @Nonnull BlockPos pos) {
       return Shapes.empty();
    }
 
-   /** @deprecated */
-   @Deprecated
-   public boolean isPathfindable(@NotNull BlockState state, @NotNull BlockGetter getter, @NotNull BlockPos pos, @NotNull PathComputationType pathType) {
+   @Override
+   @SuppressWarnings("deprecation")
+   public boolean isPathfindable(@Nonnull BlockState state, @Nonnull BlockGetter getter, @Nonnull BlockPos pos, @Nonnull PathComputationType pathType) {
       return false;
    }
 
-   /** @deprecated */
-   @Deprecated
-   public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult ray) {
-      if (!level.isClientSide) {
-         Packets.send((ServerPlayer)player, new PacketGuiOpen(EnumGuiType.PlayerMailbox, pos));
+   @Override
+   @SuppressWarnings("deprecation")
+   public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player playerIn,
+                                         @Nonnull InteractionHand hand, @Nonnull BlockHitResult ray) {
+      if (!level.isClientSide && playerIn instanceof ServerPlayer player) {
+         Packets.send(player, new PacketGuiOpen(EnumGuiType.PlayerMailbox, pos));
       }
       return InteractionResult.SUCCESS;
    }
 
-   protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-      builder.add(ROTATION);
+   @Override
+   protected void createBlockStateDefinition(Builder<Block, BlockState> builder) { builder.add(ROTATION); }
+
+   @Override
+   public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) {
+      return this.defaultBlockState().setValue(ROTATION, (Mth.floor((context.getRotation() * 4.0F / 360.0F) + 0.5F) & 3) % 4);
    }
 
-   public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-      int l = Mth.floor((double)(Objects.requireNonNull(context.getPlayer()).getYRot() * 4.0F / 360.0F) + 0.5D) & 3;
-      return this.defaultBlockState().setValue(ROTATION, l % 4);
-   }
-
-   public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+   @Override
+   public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
       return (new TileMailbox(pos, state)).setModel(type);
    }
 

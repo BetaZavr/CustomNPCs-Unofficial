@@ -11,15 +11,12 @@ import java.util.Map;
 @Mixin(value = SoundEngine.class, priority = 498)
 public interface ISoundEngineMixin {
 
-    @Accessor
-    boolean getLoaded();
+    @Accessor boolean getLoaded();
 
-    @Accessor
-    int getTickCount();
+    @Accessor int getTickCount();
 
-    @Accessor
-    Map<SoundInstance, Integer> getSoundDeleteTime();
+    @Accessor Map<SoundInstance, Integer> getSoundDeleteTime();
 
-    @Accessor
-    Map<SoundInstance, ChannelAccess.ChannelHandle> getInstanceToChannel();
+    @Accessor Map<SoundInstance, ChannelAccess.ChannelHandle> getInstanceToChannel();
+
 }

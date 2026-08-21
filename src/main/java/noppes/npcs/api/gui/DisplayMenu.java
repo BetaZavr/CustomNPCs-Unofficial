@@ -67,7 +67,12 @@ public class DisplayMenu extends MainMenuGui {
       })));
       y += 36;
       panel.addLabel(23, "display.size", 0, y + 5, 100, 8);
-      panel.addTextField(24, 100, y, 60, 20).setCharacterType(1).setInteger(display.getSize()).setColor(display.getTint()).setMinMax(0, 50).setOnFocusLost((gui, textfield) -> display.setSize(textfield.getInteger()));
+      panel.addTextField(24, 100, y, 60, 20)
+              .setCharacterType(1)
+              .setFloat(display.getSize())
+              .setColor(display.getTint())
+              .setMinMax(0, 50)
+              .setOnFocusLost((gui, textfield) -> display.setSize(textfield.getInteger()));
       y += 26;
       panel.addLabel(16, "display.livingAnimation", 0, y + 5, 100, 8);
       panel.addButtonList(17, 172, y, 67, 20).setValues("gui.no", "gui.yes").setSelected(display.getHasLivingAnimation() ? 1 : 0).setOnPress((gui2, bb) -> display.setHasLivingAnimation(((IButtonList)bb).getSelected() == 1));

@@ -23,10 +23,12 @@ public class PacketPermissionGlobal extends PacketBasic {
     private final boolean markets;
     private final boolean auctions;
     private final boolean mails;
+    private final boolean elements;
+    private final boolean dungeons;
 
     public PacketPermissionGlobal(boolean banksIn, boolean factionsIn, boolean dialogsIn, boolean questsIn, boolean transportsIn,
                                   boolean players_dataIn, boolean recipesIn, boolean natural_spawnsIn, boolean linkedsIn, boolean marketsIn,
-                                  boolean auctionsIn, boolean mailsIn) {
+                                  boolean auctionsIn, boolean mailsIn, boolean elementsIn, boolean dungeonsIn) {
         banks = banksIn;
         factions = factionsIn;
         dialogs = dialogsIn;
@@ -39,6 +41,8 @@ public class PacketPermissionGlobal extends PacketBasic {
         markets = marketsIn;
         auctions = auctionsIn;
         mails = mailsIn;
+        elements = elementsIn;
+        dungeons = dungeonsIn;
     }
 
     public static void encode(PacketPermissionGlobal msg, FriendlyByteBuf buf) {
@@ -54,12 +58,14 @@ public class PacketPermissionGlobal extends PacketBasic {
         buf.writeBoolean(msg.markets);
         buf.writeBoolean(msg.auctions);
         buf.writeBoolean(msg.mails);
+        buf.writeBoolean(msg.elements);
+        buf.writeBoolean(msg.dungeons);
     }
 
     public static PacketPermissionGlobal decode(FriendlyByteBuf buf) {
         return new PacketPermissionGlobal(buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean(),
                 buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean(),
-                buf.readBoolean());
+                buf.readBoolean(), buf.readBoolean(), buf.readBoolean());
     }
 
     @Override
@@ -69,7 +75,8 @@ public class PacketPermissionGlobal extends PacketBasic {
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
         if (Minecraft.getInstance().screen instanceof GuiNpcGlobalMainMenu gui) {
-            gui.setMenuData(banks, factions, dialogs, quests, transports, players_data, recipes, natural_spawns, linkeds, markets, auctions, mails);
+            gui.setMenuData(banks, factions, dialogs, quests, transports, players_data, recipes,
+                    natural_spawns, linkeds, markets, auctions, mails, elements, dungeons);
         }
         CustomNpcs.debugData.end("Packets");
     }

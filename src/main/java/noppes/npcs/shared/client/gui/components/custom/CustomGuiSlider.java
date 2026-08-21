@@ -172,7 +172,7 @@ public class CustomGuiSlider extends GuiSliderNop implements IComponentCustomGui
          RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
          int lvt_4_1_ = (isHovered ? 2 : 1) * 20;
          graphics.pose().pushPose();
-         graphics.pose().translate(0.0F, 0.0F, 10.0F);
+         graphics.pose().translate(0.0F, 0.0F, id * 0.01F);
          graphics.blit(WIDGETS_LOCATION, getX() + (int)((double)sliderValue * (double)(width - 8)), getY(), 0, 46 + lvt_4_1_, 4, height / 2);
          graphics.blit(WIDGETS_LOCATION, getX() + (int)((double)sliderValue * (double)(width - 8)), getY() + height / 2, 0, 46 + lvt_4_1_ + 20 - height / 2, 4, height / 2);
          graphics.blit(WIDGETS_LOCATION, getX() + (int)((double)sliderValue * (double)(width - 8)) + 4, getY(), 196, 46 + lvt_4_1_, 4, height / 2);

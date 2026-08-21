@@ -34,6 +34,7 @@ import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
+import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.controllers.CustomGuiController;
@@ -453,7 +454,7 @@ public class EventHooks {
    }
 
    public static void onProjectileTick(EntityProjectile projectile) {
-      ProjectileEvent.UpdateEvent event = new ProjectileEvent.UpdateEvent((IProjectile<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(projectile));
+      ProjectileEvent.UpdateEvent event = new ProjectileEvent.UpdateEvent(projectile);
       for (ScriptContainer script : projectile.scripts) {
          if (script.isValid()) {
             script.run(EnumScriptType.PROJECTILE_TICK.function, event);
@@ -615,6 +616,16 @@ public class EventHooks {
 
    public static boolean onPlayerPlace(PlayerScriptData handler, PlayerEvent.PlaceEvent event) {
       return onEvent(handler, EnumScriptType.PLEASED, event);
+   }
+
+   public static void onCustomGuiKeyPressed(PlayerWrapper<?> player, CustomGuiWrapper gui, int keyId) {
+      CustomGuiController.onKeyPressed(new CustomGuiEvent.KeyPressedEvent(player, gui, keyId));
+   }
+
+   public static void onPackageReceived(PackageReceived event, boolean isServerSide) {
+      onEvent(isServerSide ?
+              ScriptController.Instance.forgeScripts :
+              ScriptController.Instance.clientScripts, EnumScriptType.PACKAGE_RECEIVED, event);
    }
 
 }

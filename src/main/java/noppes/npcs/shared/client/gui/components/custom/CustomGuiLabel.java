@@ -57,7 +57,7 @@ public class CustomGuiLabel extends GuiLabel implements IComponentCustomGui {
       if (!visible) { return; }
       PoseStack matrixStack = graphics.pose();
       matrixStack.pushPose();
-      matrixStack.translate(0.0F, 0.0F, (float)id);
+      matrixStack.translate(0.0F, 0.0F, (float)id * 0.01F);
       matrixStack.scale(component.getScale(), component.getScale(), 0.0F);
       if (offsetHoverX != 0 || offsetHoverY != 0) {
          mouseX -= offsetHoverX;

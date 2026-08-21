@@ -40,9 +40,9 @@ public interface INPCDisplay {
 
    void setBossbar(@ParamName("type") int type);
 
-   int getSize();
+   float getSize();
 
-   void setSize(@ParamName("size") int size);
+   void setSize(@ParamName("size") float size);
 
    int getTint();
 
@@ -75,6 +75,15 @@ public interface INPCDisplay {
    void setHitboxState(@ParamName("state") byte state);
 
    byte getHitboxState();
+
+   // New from Unofficial (GoodBird)
+   boolean isOverlayGlowing();
+
+   void setOverlayGlowing(@ParamName("glowing") boolean glowing);
+
+   int[] getLineColors();
+
+   void setLineColors(@ParamName("color1") int color1, @ParamName("color2") int color2, @ParamName("color3") int color3);
 
    // New from Unofficial (BetaZavr)
    float[] getDimensions();

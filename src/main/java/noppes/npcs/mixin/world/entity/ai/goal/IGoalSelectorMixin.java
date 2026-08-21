@@ -12,13 +12,10 @@ import java.util.Map;
 @Mixin(value = GoalSelector.class, priority = 502)
 public interface IGoalSelectorMixin {
 
-    @Accessor
-    int getNewGoalRate();
+    @Accessor int getNewGoalRate();
 
-    @Accessor
-    Map<Goal.Flag, WrappedGoal> getLockedFlags();
+    @Accessor Map<Goal.Flag, WrappedGoal> getLockedFlags();
 
-    @Accessor
-    EnumSet<Goal.Flag> getDisabledFlags();
+    @Accessor EnumSet<Goal.Flag> getDisabledFlags();
 
 }

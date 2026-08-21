@@ -28,19 +28,21 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
-import noppes.npcs.api.mixin.world.entity.decoration.IHangingEntityMixin;
 import noppes.npcs.api.wrapper.WorldWrapper;
 import noppes.npcs.controllers.SchematicController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.items.ItemPlacer;
+import noppes.npcs.mixin.world.entity.decoration.IHangingEntityMixin;
 import noppes.npcs.util.BuilderData;
 import noppes.npcs.util.ValueUtil;
+import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;
 
 public class SchematicWrapper {
 
+   @SuppressWarnings("deprecation")
    public static BlockState rotationState(BlockState state, int rotation) {
       if (rotation == 0) { return state; }
       Rotation rot = switch (rotation) {
@@ -94,9 +96,7 @@ public class SchematicWrapper {
          x += pos.getX();
          y += pos.getY();
          z += pos.getZ();
-         for (int i = 0; i < rotation; i++) {
-            ((IHangingEntityMixin) eh).cnpcs$getDirection(eh.getDirection().getClockWise());
-         }
+         for (int i = 0; i < rotation; i++) { resetDirection(eh); }
          entity.setPos(x, y, z);
          return entity;
       }
@@ -126,6 +126,38 @@ public class SchematicWrapper {
       if (entity instanceof PathfinderMob mob) { mob.restrictTo(entity.getOnPos(), (int) mob.getRestrictRadius()); }
       if (entity instanceof EntityNPCInterface npc) { npc.ais.orientation = (npc.ais.orientation + rotation * 90) % 360; }
       return entity;
+   }
+
+   private static void resetDirection(HangingEntity parent) {
+      Direction direction = parent.getDirection().getClockWise();
+      Validate.notNull(direction);
+      Validate.isTrue(direction.getAxis().isHorizontal());
+      ((IHangingEntityMixin) parent).setDirection(direction);
+      parent.setYRot((float) (direction.get2DDataValue() * 90));
+      parent.yRotO = parent.getYRot();
+      BlockPos pos = ((IHangingEntityMixin) parent).getPos();
+      double d0 = (double) pos.getX() + 0.5D;
+      double d1 = (double) pos.getY() + 0.5D;
+      double d2 = (double) pos.getZ() + 0.5D;
+      double d3 = 0.46875D;
+      double d4 = parent.getWidth() % 32 == 0 ? 0.5D : 0.0D;
+      double d5 = parent.getHeight() % 32 == 0 ? 0.5D : 0.0D;
+      d0 -= (double) direction.getStepX() * d3;
+      d2 -= (double) direction.getStepZ() * d3;
+      d1 += d5;
+      Direction clockWiseDirection = direction.getCounterClockWise();
+      d0 += d4 * (double) clockWiseDirection.getStepX();
+      d2 += d4 * (double) clockWiseDirection.getStepZ();
+      parent.setPosRaw(d0, d1, d2);
+      double d6 = parent.getWidth();
+      double d7 = parent.getHeight();
+      double d8 = parent.getWidth();
+      if (direction.getAxis() == Direction.Axis.Z) { d8 = 1.0D; }
+      else { d6 = 1.0D; }
+      d6 /= 32.0D;
+      d7 /= 32.0D;
+      d8 /= 32.0D;
+      parent.setBoundingBox(new AABB(d0 - d6, d1 - d7, d2 - d8, d0 + d6, d1 + d7, d2 + d8));
    }
 
    protected final TreeMap<Integer, HashMap<ChunkPos, CompoundTag>> tileEntities = new TreeMap<>();
@@ -275,6 +307,7 @@ public class SchematicWrapper {
     * @param x,y,z - BlockPos
     * @param firstLayer - not Air and FullBlock, next vice versa
     */
+   @SuppressWarnings("ConstantConditions")
    public  SchematicBlockData place(int x, int y, int z, boolean firstLayer) {
       BlockState state = schema.getBlockState(x, y, z);
       if (state == null ||
@@ -337,6 +370,7 @@ public class SchematicWrapper {
       }
    }
 
+   @SuppressWarnings("ConstantConditions")
    public void spawn(CompoundTag entityNbt) {
       entityNbt.putString("id", NoppesUtilServer.validLocation(entityNbt.getString("id")));
       Entity entity = EntityType.create(entityNbt, level).orElse(null);

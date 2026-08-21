@@ -62,7 +62,7 @@ public class CustomGuiTextField extends GuiTextFieldNop implements IComponentCus
       isHovered = mouseX >= getX() && mouseX < getX() + width && mouseY >= getY() && mouseY < getY() + height;
       PoseStack matrixStack = graphics.pose();
       matrixStack.pushPose();
-      matrixStack.translate(0.0F, 0.0F, (float) id);
+      matrixStack.translate(0.0F, 0.0F, (float) id * 0.01F);
       super.renderWidget(graphics, mouseX, mouseY, partialTicks);
       matrixStack.popPose();
    }

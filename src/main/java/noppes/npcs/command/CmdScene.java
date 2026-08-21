@@ -10,12 +10,13 @@ import net.minecraft.commands.CommandRuntimeException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.entity.data.DataScenes;
 
 public class CmdScene {
    public static LiteralArgumentBuilder<CommandSourceStack> register() {
        return (((Commands.literal("scene")
-               .requires((source) -> source.hasPermission(2)))
+               .requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)))
                .then(Commands.literal("time").executes((context) -> {
                    context.getSource().sendSuccess(() -> Component.literal("Active scenes:"), false);
                    for (Entry<String, DataScenes.SceneState> entry : DataScenes.StartedScenes.entrySet()) {

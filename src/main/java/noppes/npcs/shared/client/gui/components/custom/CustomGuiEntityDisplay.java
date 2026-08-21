@@ -37,7 +37,8 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
       init();
    }
 
-   public static void renderEntity(GuiGraphics graphics, Entity entity, double x, double y, double z, float yaw, float pitch, boolean b) {
+   @SuppressWarnings("deprecation")
+   public static void renderEntity(GuiGraphics graphics, Entity entity, double x, double y, double z, float yaw, float pitch) {
       Lighting.setupForEntityInInventory();
       EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
       entityrenderdispatcher.setRenderShadow(false);
@@ -82,7 +83,7 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
          graphics.fillGradient(getX(), getY(), width + getX(), height + getY(), 0xC0101010, 0xD0101010);
       }
       if (entity != null) {
-         drawEntity(graphics, entity, getX(), getY(), component.getScale(), component.getRotation() / 2 + 180, 0, mouseX, mouseY, (float)width / 2.0F, (float)height * 0.9F, component.isFollowingCursor ? 0 : 1);
+         drawEntity(graphics, entity, getX(), getY(), component.getScale(), component.getRotation() / 2 + 180, 0, mouseX, mouseY, (float)width / 2.0F, (float)height * 0.9F, component.isFollowingCursor ? 0 : 1, component.isShowingRiders());
       }
       int x = (int) (getX() / component.getScale());
       int y = (int) (getY() / component.getScale());
@@ -96,7 +97,10 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
       return true;
    }
 
-   public static void drawEntity(GuiGraphics graphics, Entity entity, double x, double y, float zoomed, int rotation, int vertical, double xMouse, double yMouse, float guiLeft, float guiTop, int followCursor) {
+   @SuppressWarnings("deprecation")
+   public static void drawEntity(GuiGraphics graphics, Entity entity, double x, double y, float zoomed, int rotation, int vertical,
+                                 double xMouse, double yMouse, float guiLeft, float guiTop,
+                                 int followCursor, boolean showRiders) {
       if (entity == null) { return; }
       EntityNPCInterface npc = null;
       if (entity instanceof EntityNPCInterface) { npc = (EntityNPCInterface) entity; }
@@ -160,7 +164,26 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
       Lighting.setupForEntityInInventory();
       EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
       entityrenderdispatcher.setRenderShadow(false);
-      RenderSystem.runAsFancy(() -> entityrenderdispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, matrixStack, graphics.bufferSource(), 15728880));
+      RenderSystem.runAsFancy(() -> {
+         if (showRiders) {
+            entity.getPassengersAndSelf
+                    ().forEach((e) -> {
+               float offset = 0.0F;
+
+               for(Entity cur = e; cur.getVehicle
+                       () != null; offset = (float)((double)offset + cur.getPassengersRidingOffset
+                       ())) {
+                  cur = cur.getVehicle
+                          ();
+               }
+               entityrenderdispatcher.render(entity, 0.0F, offset, 0.0F,
+                       0.0F, 1.0F, graphics.pose(), graphics.bufferSource(), 15728880);
+            });
+         } else {
+            entityrenderdispatcher.render(entity, 0.0F, 0.0F, 0.0F,
+                    0.0F, 1.0F, graphics.pose(), graphics.bufferSource(), 15728880);
+         }
+      });
       graphics.flush();
       entityrenderdispatcher.setRenderShadow(true);
       posestack.scale(1.0F, 1.0F, -1.0F);

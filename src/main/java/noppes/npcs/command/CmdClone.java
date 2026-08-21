@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.ServerCloneController;
 import noppes.npcs.entity.EntityNPCInterface;
 
@@ -41,7 +42,7 @@ public class CmdClone {
                       })
               )
       );
-      command.then(Commands.literal("add").requires((source) -> source.hasPermission(4))
+      command.then(Commands.literal("add").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
               .then(Commands.argument("npc", StringArgumentType.string())
                       .then(Commands.argument("tab", IntegerArgumentType.integer(0))
                               .suggests(getTabSuggests())
@@ -55,7 +56,7 @@ public class CmdClone {
                                           return 1;
                                       })
                               ))));
-      command.then(Commands.literal("remove").requires((source) -> source.hasPermission(4))
+      command.then(Commands.literal("remove").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
               .then(Commands.argument("npc", StringArgumentType.string())
                       .then(Commands.argument("tab", IntegerArgumentType.integer(0))
                               .suggests(getTabSuggests())
@@ -73,7 +74,7 @@ public class CmdClone {
                                   return 1;
                               })
                       )));
-      command.then(Commands.literal("spawn").requires((source) -> source.hasPermission(2)).then(Commands.argument("npc", StringArgumentType.string())
+      command.then(Commands.literal("spawn").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2)).then(Commands.argument("npc", StringArgumentType.string())
               .then(Commands.argument("tab", IntegerArgumentType.integer(0))
                       .suggests(getTabSuggests())
                       .executes((context) -> {
@@ -91,29 +92,40 @@ public class CmdClone {
                                           return 1;
                                       })
                               )))));
-      command.then(Commands.literal("grid").requires((source) -> source.hasPermission(2))
+      command.then(Commands.literal("grid").requires((source) -> source.hasPermission(CustomNpcs.NoppesCommandOpOnly ? 4 : 2))
               .then(Commands.argument("npc", StringArgumentType.string())
                       .then(Commands.argument("tab", IntegerArgumentType.integer(0))
                               .suggests(getTabSuggests())
                               .then(Commands.argument("length", IntegerArgumentType.integer())
                                       .then(Commands.argument("width", IntegerArgumentType.integer())
-                                              .executes((context) -> {
-                                                  int length = IntegerArgumentType.getInteger(context, "length");
-                                                  int width = IntegerArgumentType.getInteger(context, "width");
-                                                  for(int x = 0; x < length; ++x) {
-                                                      for(int z = 0; z < width; ++z) {
-                                                          spawnClone(context, (new BlockPos((int) context.getSource().getPosition().x, (int) context.getSource().getPosition().y, (int) context.getSource().getPosition().z)).offset(length, 0, width), "");
-                                                      }
-                                                  }
-                                                  return 1;
-                                              })
+                                              .then(Commands.argument("splitx", IntegerArgumentType.integer())
+                                                      .then(Commands.argument("splitz", IntegerArgumentType.integer()).executes((context) -> {
+                                                          int length = IntegerArgumentType.getInteger(context, "length");
+                                                          int width = IntegerArgumentType.getInteger(context, "width");
+                                                          int splitx = IntegerArgumentType.getInteger(context, "splitx");
+                                                          int splitz = IntegerArgumentType.getInteger(context, "splitz");
+                                                          for(int x = 0; x < length; ++x) {
+                                                              for(int z = 0; z < width; ++z) {
+                                                                  spawnClone(context, (new BlockPos((int) context.getSource().getPosition().x,
+                                                                          (int) context.getSource().getPosition().y,
+                                                                          (int) context.getSource().getPosition().z
+                                                                  ))
+                                                                          .offset(x * splitx, 0, z * splitz), "");
+                                                              }
+                                                          }
+
+                                                          return 1;
+                                                      }))
                                               .then(Commands.argument("pos", BlockPosArgument.blockPos())
                                                       .executes((context) -> {
                                                           int length = IntegerArgumentType.getInteger(context, "length");
                                                           int width = IntegerArgumentType.getInteger(context, "width");
+                                                          int splitx = IntegerArgumentType.getInteger(context, "splitx");
+                                                          int splitz = IntegerArgumentType.getInteger(context, "splitz");
                                                           for(int x = 0; x < length; ++x) {
                                                               for(int z = 0; z < width; ++z) {
-                                                                  spawnClone(context, BlockPosArgument.getLoadedBlockPos(context, "pos").offset(length, 0, width), "");
+                                                                  spawnClone(context, BlockPosArgument.getLoadedBlockPos(context, "pos")
+                                                                          .offset(x * splitx, 0, z * splitz), "");
                                                               }
                                                           }
                                                           return 1;
@@ -122,15 +134,19 @@ public class CmdClone {
                                                               .executes((context) -> {
                                                                   int length = IntegerArgumentType.getInteger(context, "length");
                                                                   int width = IntegerArgumentType.getInteger(context, "width");
+                                                                  int splitx = IntegerArgumentType.getInteger(context, "splitx");
+                                                                  int splitz = IntegerArgumentType.getInteger(context, "splitz");
                                                                   for(int x = 0; x < length; ++x) {
                                                                       for(int z = 0; z < width; ++z) {
-                                                                          spawnClone(context, BlockPosArgument.getLoadedBlockPos(context, "pos").offset(length, 0, width), StringArgumentType.getString(context, "display_name"));
+                                                                          spawnClone(context, BlockPosArgument.getLoadedBlockPos(context, "pos")
+                                                                                  .offset(x * splitx, 0, z * splitz),
+                                                                                  StringArgumentType.getString(context, "display_name"));
                                                                       }
                                                                   }
                                                                   return 1;
                                                               })
-                                                      ))))))
-      );
+                                                      )))))
+      )));
       return command;
    }
 
@@ -172,7 +188,7 @@ public class CmdClone {
          Optional<Entity> p = EntityType.create(compound, world);
          if (p.isEmpty()) { return; }
          Entity entity = p.get();
-         entity.setPos((double)pos.getX() + 0.5D, pos.getY() + 1, (double)pos.getZ() + 0.5D);
+         entity.setPos((double) pos.getX() + 0.5D, (double) pos.getY() + 1.0D, (double) pos.getZ() + 0.5D);
          if (entity instanceof EntityNPCInterface npc) {
             npc.ais.setStartPos(pos);
             if (!newName.isEmpty()) {

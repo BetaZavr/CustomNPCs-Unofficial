@@ -121,6 +121,18 @@ public class CustomNpcs {
    public static boolean EnableExternalSaving = false;
    @ConfigProp(info = "The lifetime for the projectiles, after which they get despawned (used for removing stuck projectiles)", def = "1200", min = "10", max = "90000")
    public static int ProjectileLifespan = 1200;
+   @ConfigProp(info = "Server side option.Can CNPC's projectile hit on the minecraft:item_frame?")
+   public static boolean npcProjectileHitItemFrame = false;
+   @ConfigProp(info = "Server side option.Can CNPC's projectile hit on the minecraft:painting?")
+   public static boolean npcProjectileHitPainting = false;
+   @ConfigProp(info = "If the NPCs should attack players in peaceful mode")
+   public static boolean npcsAttackInPeaceful = false;
+   @ConfigProp(info = "Enable new dialog and quest GUI which allow accepting and rejecting quests")
+   public static boolean EnableNewDialogSystem = false;
+   @ConfigProp(info = "The range in which area kill quests work")
+   public static int AreaKillRange = 10;
+   @ConfigProp(info = "Fuzzy match rules for CNPC trader. Format: modid:itemid|field1,field2,...;modid:itemid|field1,field2,...")
+   public static String FuzzyMatchRules = "tacz:modern_kinetic_gun|GunId;slashblade:slashblade|";
 
    // New from Unofficial (BetaZavr)
    @ConfigProp(info = "Are scripts enabled for Forge events or not", def = "true")

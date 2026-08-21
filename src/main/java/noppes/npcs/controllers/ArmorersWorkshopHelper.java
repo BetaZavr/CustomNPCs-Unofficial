@@ -23,9 +23,10 @@ public class ArmorersWorkshopHelper {
     @SuppressWarnings("unchecked")
     public static void onLayerRemoveEvent(RenderCustomNpc<?, ?> renderer, RenderLayer<?, ?> layer) {
         List<? extends RenderLayer<?, ?>> layers = renderer.npcLayers;
-        if (layers == null) { return; }
-        for (int i = 0; i < layers.size(); ++i) {
-            if (layers.get(i) == layer) { layers.remove(i--); }
+        if (layers != null) {
+            for (int i = 0; i < layers.size(); ++i) {
+                if (layers.get(i) == layer) { layers.remove(i--); }
+            }
         }
     }
 

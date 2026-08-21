@@ -47,7 +47,8 @@ public class BlockBorder extends BlockInterface {
 
    @Override
    @SuppressWarnings("deprecation")
-   public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult ray) {
+   public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, Player player,
+                                         @Nonnull InteractionHand hand, @Nonnull BlockHitResult ray) {
       ItemStack currentItem = player.getInventory().getSelected();
       if (!level.isClientSide && currentItem.getItem() == CustomItems.wand) {
          SPacketGuiOpen.sendOpenGui((ServerPlayer) player, EnumGuiType.Border, null, pos);
@@ -58,7 +59,7 @@ public class BlockBorder extends BlockInterface {
 
    @Override
    public BlockState getStateForPlacement(BlockPlaceContext context) {
-      if (context.getPlayer() != null) { return defaultBlockState().setValue(ROTATION,  Direction.fromYRot(context.getPlayer().getYRot()).get2DDataValue()); }
+      if (context.getPlayer() != null) { return defaultBlockState().setValue(ROTATION,  Direction.fromYRot(context.getRotation()).get2DDataValue()); }
       else { return super.getStateForPlacement(context); }
    }
 
@@ -129,6 +130,21 @@ public class BlockBorder extends BlockInterface {
 
    }
 
+   @Override
+   public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
+      return RenderShape.MODEL;
+   }
+
+   @Override
+   public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+      return new TileBorder(pos, state);
+   }
+
+   @Override
+   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> type) {
+      return createTickerHelper(type, CustomBlocks.tile_border, TileBorder::tick);
+   }
+
    private TileBorder getAdjacentTile(Level level, BlockPos pos) {
       BlockEntity tile = level.getBlockEntity(pos);
       Block block = level.getBlockState(pos).getBlock();
@@ -138,15 +154,4 @@ public class BlockBorder extends BlockInterface {
       return null;
    }
 
-   public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) {
-      return RenderShape.MODEL;
-   }
-
-   public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
-      return new TileBorder(pos, state);
-   }
-
-   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<T> type) {
-      return createTickerHelper(type, CustomBlocks.tile_border, TileBorder::tick);
-   }
 }

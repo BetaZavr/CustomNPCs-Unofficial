@@ -68,7 +68,7 @@ public class CustomGuiScroll
       if (!visible) { return; }
       PoseStack matrixStack = graphics.pose();
       matrixStack.pushPose();
-      matrixStack.translate(0.0F, 0.0F, (float) id);
+      matrixStack.translate(0.0F, 0.0F, (float) id * 0.01F);
       super.render(graphics, mouseX, mouseY, partialTicks);
       if (mouseInList && component.hasHoverText() && !hoverText.isEmpty()) {
          if (parent instanceof GuiCustom gui) { gui.setHoverText(component.getHoverTextList()); }

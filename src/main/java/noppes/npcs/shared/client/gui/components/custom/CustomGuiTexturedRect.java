@@ -62,6 +62,7 @@ public class CustomGuiTexturedRect extends GuiLabel implements IComponentCustomG
       if (component.hasHoverText()) { hoverText = component.getHoverTextList(); }
    }
 
+   @SuppressWarnings("unused")
    public CustomGuiTexturedRect setRep(int texRepWidthIn, int texRepHeightIn, int texRepBorderSizeIn) {
       texRepWidth = texRepWidthIn;
       texRepHeight = texRepHeightIn;
@@ -128,12 +129,12 @@ public class CustomGuiTexturedRect extends GuiLabel implements IComponentCustomG
    private void draw(Matrix4f m, float x, float y, float texX, float texY, float width, float height) {
       BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
       bufferbuilder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-      int blitLevel = Math.max(0, id);
+      float z = id * 0.01F;
       float f0 = 1.0f / 256.0f;
-      bufferbuilder.vertex(m, x, y + height * component.getScale(), (float)blitLevel).uv(texX * f0, (texY + height) * f0).endVertex();
-      bufferbuilder.vertex(m, x + width * component.getScale(), y + height * component.getScale(), (float)blitLevel).uv((texX + width) * f0, (texY + height) * f0).endVertex();
-      bufferbuilder.vertex(m, x + width * component.getScale(), y, (float)blitLevel).uv((texX + width) * f0, texY * f0).endVertex();
-      bufferbuilder.vertex(m, x, y, (float)blitLevel).uv(texX * f0, texY * f0).endVertex();
+      bufferbuilder.vertex(m, x, y + height * component.getScale(), z).uv(texX * f0, (texY + height) * f0).endVertex();
+      bufferbuilder.vertex(m, x + width * component.getScale(), y + height * component.getScale(), z).uv((texX + width) * f0, (texY + height) * f0).endVertex();
+      bufferbuilder.vertex(m, x + width * component.getScale(), y, z).uv((texX + width) * f0, texY * f0).endVertex();
+      bufferbuilder.vertex(m, x, y, z).uv(texX * f0, texY * f0).endVertex();
       BufferUploader.drawWithShader(bufferbuilder.end());
    }
 
