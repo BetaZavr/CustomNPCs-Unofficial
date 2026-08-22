@@ -1,23 +1,22 @@
 package noppes.npcs.api.wrapper;
 
-import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.FastColor;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.overlay.IOverlayTexturedRect;
 import noppes.npcs.util.ValueUtil;
 
 public class OverlayTexturedRectWrapper extends OverlayComponentWrapper implements IOverlayTexturedRect {
 
-   private final float[] uv = new float[] { 0.0f, 0.0f, 1.0f, 1.0f };
-   private String texture;
-   private int width;
-   private int height;
-   private int color = 0xFFFFFFFF;
-   int textureX;
-   int textureY = -1;
-   int textureMaxX;
-   int textureMaxY = -1;
+   protected String texture;
+   protected int width;
+   protected int height;
+   protected int color = 0xFFFFFFFF;
+   protected int textureX = 0;
+   protected int textureY = 0;
+   protected int textureMaxX = 256;
+   protected int textureMaxY = 256;
 
    public OverlayTexturedRectWrapper(int id, int x, int y, String textureIn, int widthIn, int heightIn) {
       super(id, x, y);
@@ -57,15 +56,15 @@ public class OverlayTexturedRectWrapper extends OverlayComponentWrapper implemen
 
    @Override
    public IOverlayTexturedRect setTextureOffset(int offsetX, int offsetY) {
-      textureX = offsetX;
-      textureY = offsetY;
+      textureX = ValueUtil.onlyPositiveInt(offsetX, 256);
+      textureY = ValueUtil.onlyPositiveInt(offsetY, 256);
       return this;
    }
 
    @Override
    public IOverlayTexturedRect setTextureMaxSize(int textureMaxXIn, int textureMaxYIn) {
-      textureMaxX = textureMaxXIn;
-      textureMaxY = textureMaxYIn;
+      textureMaxX = ValueUtil.onlyPositiveInt(textureMaxXIn, 256);
+      textureMaxY = ValueUtil.onlyPositiveInt(textureMaxYIn, 256);
       return this;
    }
 
@@ -101,10 +100,10 @@ public class OverlayTexturedRectWrapper extends OverlayComponentWrapper implemen
 
    @Override
    public IOverlayTexturedRect setUV(float u0, float v0, float u1, float v1) {
-      uv[0] = u0;
-      uv[1] = v0;
-      uv[2] = u1;
-      uv[3] = v1;
+      textureX = (int) ((u0 % 1.0F) * 256.0F);
+      textureY = (int) ((v0 % 1.0F) * 256.0F);
+      textureMaxX = (int) ((u1 % 1.0F) * 256.0F);
+      textureMaxY = (int) ((v1 % 1.0F) * 256.0F);
       return this;
    }
 
@@ -139,20 +138,10 @@ public class OverlayTexturedRectWrapper extends OverlayComponentWrapper implemen
    }
 
    @Override
-   public float[] getRGB() {
-      float[] rgba = new float[4];
-      rgba[0] = ((color >> 16) & 255) / 255.0f;
-      rgba[1] = ((color >> 8) & 255) / 255.0f;
-      rgba[2] = (color & 255) / 255.0f;
-      rgba[3] = ((color >> 24) & 255) / 255.0f;
-      return rgba;
-   }
+   public float[] getRGB() { return new float[] { FastColor.ARGB32.red(color), FastColor.ARGB32.green(color), FastColor.ARGB32.blue(color), FastColor.ARGB32.alpha(color) }; }
 
    @Override
    public int getColor() { return color; }
-
-   @Override
-   public float[] getUV() { return uv; }
 
    @Override
    public void toNbt(INbt iNbt) {
@@ -160,15 +149,9 @@ public class OverlayTexturedRectWrapper extends OverlayComponentWrapper implemen
       iNbt.setString("texture", texture);
       iNbt.setInteger("width", width);
       iNbt.setInteger("height", height);
-      ListTag list = new ListTag();
-      list.add(FloatTag.valueOf(uv[0]));
-      list.add(FloatTag.valueOf(uv[1]));
-      list.add(FloatTag.valueOf(uv[2]));
-      list.add(FloatTag.valueOf(uv[3]));
-      iNbt.mcSetTag("u", list);
       iNbt.setInteger("c", color);
-      if (textureX >= 0 && textureY >= 0) { iNbt.setIntegerArray("texPos", new int[] { textureX, textureY }); }
-      if (textureMaxX >= 0 && textureMaxY >= 0) { iNbt.setIntegerArray("texPosMax", new int[] { textureMaxX, textureMaxY }); }
+      iNbt.setIntegerArray("texPosMax", new int[] { textureMaxX, textureMaxY });
+      iNbt.setIntegerArray("texPos", new int[] { textureX, textureY });
    }
 
    @Override
@@ -177,17 +160,17 @@ public class OverlayTexturedRectWrapper extends OverlayComponentWrapper implemen
       texture = iNbt.getString("texture");
       width = iNbt.getInteger("width");
       height = iNbt.getInteger("height");
-      if (iNbt.has("c", 3)) { setColor(iNbt.getInteger("c")); } else { setColor(0xFFFFFFFF); }
-      if (iNbt.has("u", 9) && iNbt.mcGetTag("u") instanceof ListTag list && list.getElementType() == Tag.TAG_FLOAT) {
-         for (int i = 0; i < 4; i++) { uv[i] = i < list.size() ? list.getFloat(i) : 1.0f; }
-      }
-      else if (iNbt.has("u", 3)) {
-         int uvInt = iNbt.getInteger("u");
-         setUV((float)(uvInt >> 24 & 255) / 255.0F, (float)(uvInt >> 16 & 255) / 255.0F, (float)(uvInt >> 8 & 255) / 255.0F, (float)(uvInt & 255) / 255.0F);
-      } // OLD
-      else { setUV(0.0F, 0.0F, 1.0F, 1.0F); }
-      if (iNbt.has("texPos", 11)) { setTextureOffset(iNbt.getIntegerArray("texPos")[0], iNbt.getIntegerArray("texPos")[1]); }
-      if (iNbt.has("texPosMax", 11)) { setTextureMaxSize(iNbt.getIntegerArray("texPosMax")[0], iNbt.getIntegerArray("texPosMax")[1]); }
+      color = 0xFFFFFFFF;
+      float[] uv = new float[] { 0.0F, 0.0F, 1.0F, 1.0F };
+      if (iNbt.has("u", Tag.TAG_LIST) && iNbt.mcGetTag("u") instanceof ListTag list && list.getElementType() == Tag.TAG_FLOAT) {
+         for (int i = 0; i < 4; i++) { uv[i] = i < list.size() ? list.getFloat(i) : (i < 2 ? 0.0F : 1.0f); }
+      } // OLD uv
+      else if (iNbt.has("u", Tag.TAG_ANY_NUMERIC)) { setColor(iNbt.getInteger("u")); } // OLD color
+      setUV(uv[0], uv[1], uv[2], uv[3]);
+      // normal
+      if (iNbt.has("c", Tag.TAG_ANY_NUMERIC)) { setColor(iNbt.getInteger("c")); }
+      if (iNbt.has("texPos", Tag.TAG_INT_ARRAY)) { setTextureOffset(iNbt.getIntegerArray("texPos")[0], iNbt.getIntegerArray("texPos")[1]); }
+      if (iNbt.has("texPosMax", Tag.TAG_INT_ARRAY)) { setTextureMaxSize(iNbt.getIntegerArray("texPosMax")[0], iNbt.getIntegerArray("texPosMax")[1]); }
    }
 
 }

@@ -54,6 +54,7 @@ public class ScriptContainer {
    public boolean canEncryptCode = false;
 
    static {
+      FillMap(AlignmentType.class);
       FillMap(AnimationKind.class);
       FillMap(AnimationType.class);
       FillMap(EntityType.class);
@@ -164,8 +165,8 @@ public class ScriptContainer {
               : event instanceof PlayerEvent ? "Player"
               : event instanceof ItemEvent ? "Item" : event instanceof NpcEvent ? "Npc" : null;
       CustomNpcs.debugData.start(key, functionName);
+      if (executor == null || !currentScriptLanguage.equals(handler.getLanguage())) { fillEngine(handler.getLanguage()); }
       if (executor != null && !executor.isErrored() && hasCode() && !executor.isUnknownFunction(functionName) && CustomNpcs.EnableScripting) {
-         fillEngine(handler.getLanguage());
          ScriptEngine engine = executor.getEngine();
          if (handler.isClient() && (engine.get("mc") == null || engine.get("storedData") == null)) { fillEngineClient(engine); }
          if (!executor.isErrored()) {

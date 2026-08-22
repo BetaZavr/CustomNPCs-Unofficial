@@ -1,47 +1,60 @@
 package noppes.npcs.client.overlay;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import noppes.npcs.api.constants.AlignmentType;
 import noppes.npcs.api.overlay.IOverlayLabel;
 
-import java.awt.*;
+import javax.annotation.Nonnull;
 
 public class OverlayLabelComponent implements IOverlayRenderComponent {
 
-   private final String text;
-   private final int x;
-   private final int y;
-   private final int id;
-   private final float scale;
+   protected final Component text;
+   protected final int x;
+   protected final int y;
+   protected final int id;
+   protected final int color;
+   protected final float scale;
+   protected AlignmentType alignment;
+   protected final @Nonnull Minecraft minecraft;
 
-   public OverlayLabelComponent(IOverlayLabel label) {
-      String textIn = label.getText();
-      x = label.getPosX();
-      y = label.getPosY();
-      id = label.getId();
-      scale = label.getScale();
-      StringBuilder stringBuilder = new StringBuilder();
-      for (String s : textIn.split("&t")) {
-         stringBuilder.append(Component.translatable(s));
+   public OverlayLabelComponent(IOverlayLabel component) {
+      String textIn = component.getText();
+      x = component.getPosX();
+      y = component.getPosY();
+      id = component.getId();
+      color = component.getColor();
+      scale = component.getScale();
+      alignment = AlignmentType.get(component.getAlignment());
+      MutableComponent tempText = Component.empty();
+      if (textIn.contains("<br>") || textIn.contains("&t")) {
+         String nl = textIn.contains("<br>") ? "<br>" : "&t";
+         for (String s : textIn.split(nl)) { tempText.append(Component.translatable(s)); }
       }
-      text = stringBuilder.toString();
+      else { tempText.append(Component.translatable(textIn)); }
+      text = tempText;
+      minecraft = Minecraft.getInstance();
    }
 
    public void render(GuiGraphics graphics, int linkSide) {
-      graphics.pose().pushPose();
-      graphics.pose().translate(x, y, (double)id);
-      graphics.pose().scale(scale, scale, scale);
-      int width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
-      int height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-      renderString(graphics, text, x, y, linkSide, width, height);
-      graphics.pose().popPose();
-   }
-
-   public void renderString(GuiGraphics graphics, String text, int x, int y, int linkSide, int width, int height) {
-      int offsetX = width / 2 * ((linkSide - 1) % 3);
-      int offsetY = height / 2 * ((linkSide - 1) / 3);
-      graphics.drawString(Minecraft.getInstance().font, text, x + offsetX, y + offsetY, new Color(0xFFFFFF).getRGB());
+      int widthWin = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+      int heightWin = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+      float xPos = x;
+      float yPos = y;
+      AlignmentType type = alignment != AlignmentType.NONE ? alignment : AlignmentType.get(linkSide);
+      if (type != AlignmentType.NONE) {
+         xPos += alignment.getOffsetX(widthWin / 2);
+         yPos += alignment.getOffsetY(heightWin / 2);
+      }
+      PoseStack matrixStack = graphics.pose();
+      matrixStack.pushPose();
+      matrixStack.translate(xPos, yPos, (float) id * 0.01F);
+      matrixStack.scale(scale, scale, scale);
+      graphics.drawString(minecraft.font, text, 0, 0, color);
+      matrixStack.popPose();
    }
 
 }

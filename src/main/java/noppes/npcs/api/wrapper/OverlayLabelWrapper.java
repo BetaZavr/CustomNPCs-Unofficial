@@ -1,13 +1,14 @@
 package noppes.npcs.api.wrapper;
 
+import net.minecraft.nbt.Tag;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.overlay.IOverlayLabel;
 
 public class OverlayLabelWrapper extends OverlayComponentWrapper implements IOverlayLabel {
 
-   private String text;
-   private boolean isCenter = false;
-   private float scale = 1.0F;
+   protected int color = 0xFFFFFF;
+   protected String text;
+   protected boolean isCenter = false;
 
    public OverlayLabelWrapper(int id, int x, int y, String textIn) {
       super(id, x, y);
@@ -24,10 +25,10 @@ public class OverlayLabelWrapper extends OverlayComponentWrapper implements IOve
    }
 
    @Override
-   public float getScale() { return scale; }
+   public int getColor() { return (color & 0x00FFFFFF) | 0xFF000000; }
 
    @Override
-   public void setScale(float scaleIn) { scale = scaleIn; }
+   public void setColor(int colorIn) { color = colorIn & 0x00FFFFFF; }
 
    @Override
    public IOverlayLabel setCentered(boolean centered) {
@@ -44,16 +45,17 @@ public class OverlayLabelWrapper extends OverlayComponentWrapper implements IOve
    @Override
    public void toNbt(INbt iNbt) {
       super.toNbt(iNbt);
+      iNbt.setInteger("color", color);
       iNbt.setString("text", text);
-      iNbt.setFloat("scale", scale);
       iNbt.setBoolean("centered", isCenter);
    }
 
    @Override
    public void fromNbt(INbt iNbt) {
       super.fromNbt(iNbt);
+      color = 0xFFFFFF;
+      if (iNbt.has("color", Tag.TAG_ANY_NUMERIC)) { color = iNbt.getInteger("color"); }
       text = iNbt.getString("text");
-      scale = iNbt.getFloat("scale");
       isCenter = iNbt.getBoolean("centered");
    }
 

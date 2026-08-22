@@ -1,23 +1,31 @@
 package noppes.npcs.client.overlay;
 
-import java.util.Objects;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+import noppes.npcs.api.constants.AlignmentType;
 import noppes.npcs.api.overlay.IOverlayTexturedRect;
+
+import javax.annotation.Nonnull;
 
 public class OverlayTexturedRectComponent implements IOverlayRenderComponent {
 
-   private final int x;
-   private final int y;
-   private final int width;
-   private final int height;
-   private final String texture;
-   private final int textureX;
-   private final int textureY;
-   private final int textureMaxX;
-   private final int textureMaxY;
-   private final int id;
+   protected final int x;
+   protected final int y;
+   protected final int width;
+   protected final int height;
+   protected final float textureX;
+   protected final float textureY;
+   protected final int textureMaxX;
+   protected final int textureMaxY;
+   protected final int id;
+   protected final float[] layerColor;
+   protected final float scale;
+   protected final String texture;
+   protected AlignmentType alignment;
+   protected final @Nonnull Minecraft minecraft;
 
    public OverlayTexturedRectComponent(IOverlayTexturedRect component) {
       x = component.getPosX();
@@ -30,50 +38,31 @@ public class OverlayTexturedRectComponent implements IOverlayRenderComponent {
       textureY = component.getTextureY();
       textureMaxX = component.getTextureMaxX();
       textureMaxY = component.getTextureMaxY();
+      alignment = AlignmentType.get(component.getAlignment());
+      scale = component.getScale();
+      layerColor = component.getRGB();
+      minecraft = Minecraft.getInstance();
    }
 
    public void render(GuiGraphics graphics, int linkSide) {
-      graphics.pose().pushPose();
-      graphics.pose().translate(2 * x, 2 * y, (double)id);
-      int width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
-      int height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-      int i = width / 2;
-      if (Objects.equals(texture, "")) {
-         renderGradientRect(graphics, x, y, linkSide, width, height, width, height, i, -1072689136, -804253680);
-      } else {
-         ResourceLocation resLoc = ResourceLocation.tryParse(texture);
-         if (textureX >= 0 && textureY >= 0) {
-            if (textureMaxX >= 0 && textureMaxY >= 0) {
-               renderRectTextureCustomSize(graphics, resLoc, x, y, linkSide, width, height, width, height, textureX, textureY, textureMaxX, textureMaxY);
-            } else {
-               renderRectTextureSize(graphics, resLoc, x, y, linkSide, width, height, width, height, textureX, textureY);
-            }
-         } else {
-            renderRectTexture(graphics, resLoc, x, y, linkSide, width, height, width, height);
-         }
+      int widthWin = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+      int heightWin = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+      float xPos = x;
+      float yPos = y;
+      AlignmentType type = alignment != AlignmentType.NONE ? alignment : AlignmentType.get(linkSide);
+      if (type != AlignmentType.NONE) {
+         xPos += alignment.getOffsetX(widthWin / 2);
+         yPos += alignment.getOffsetY(heightWin / 2);
       }
-
-      graphics.pose().popPose();
-   }
-
-   public void renderGradientRect(GuiGraphics graphics, int x, int y, int linkSide, int widthScaled, int heightScaled, int width, int height, int ignoredI, int startColor, int endColor) {
-      int offsetX = widthScaled / 2 * ((linkSide - 1) % 3);
-      int offsetY = heightScaled / 2 * ((linkSide - 1) / 3);
-      graphics.fillGradient(offsetX, offsetY, offsetX + width, offsetY + height, startColor, endColor);
-   }
-
-   public void renderRectTexture(GuiGraphics graphics, ResourceLocation resLoc, int x, int y, int linkSide, int widthScaled, int heightScaled, int width, int height) {
-      renderRectTextureCustomSize(graphics, resLoc, 0, 0, linkSide, widthScaled, heightScaled, width, height, 0, 0, 256, 256);
-   }
-
-   public void renderRectTextureSize(GuiGraphics graphics, ResourceLocation resLoc, int x, int y, int linkSide, int widthScaled, int heightScaled, int width, int height, int textureX, int textureY) {
-      renderRectTextureCustomSize(graphics, resLoc, 0, 0, linkSide, widthScaled, heightScaled, width, height, textureX, textureY, 256, 256);
-   }
-
-   public void renderRectTextureCustomSize(GuiGraphics graphics, ResourceLocation resLoc, int x, int y, int linkSide, int widthScaled, int heightScaled, int width, int height, int textureX, int textureY, int textureMaxX, int textureMaxY) {
-      int offsetX = widthScaled / 2 * ((linkSide - 1) % 3);
-      int offsetY = heightScaled / 2 * ((linkSide - 1) / 3);
-      graphics.blit(resLoc, offsetX, offsetY, (float)textureX, (float)textureY, width, height, textureMaxX, textureMaxY);
+      PoseStack matrixStack = graphics.pose();
+      matrixStack.pushPose();
+      matrixStack.translate(xPos, yPos, (float) id * 0.01F);
+      matrixStack.scale(scale, scale, 1.0f);
+      if (layerColor[3] != 0) { RenderSystem.setShaderColor(layerColor[0], layerColor[1], layerColor[2], layerColor[3]); }
+      ResourceLocation resLoc = ResourceLocation.tryParse(texture);
+      if (texture.isEmpty() || resLoc == null) { graphics.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010); } // no texture
+      else { graphics.blit(resLoc, 0, 0, textureX, textureY, width, height, textureMaxX, textureMaxY); }
+      matrixStack.popPose();
    }
 
 }

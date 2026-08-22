@@ -12,8 +12,8 @@ public interface IOverlayLabel extends IOverlayComponent {
 
    boolean isCentered();
 
-   float getScale();
+   int getColor();
 
-   void setScale(@ParamName("scale") float scale);
+   void setColor(@ParamName("color") int color);
 
 }

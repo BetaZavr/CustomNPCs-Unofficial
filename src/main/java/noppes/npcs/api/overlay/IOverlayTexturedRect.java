@@ -2,6 +2,7 @@ package noppes.npcs.api.overlay;
 
 import noppes.npcs.api.interfaces.ParamName;
 
+@SuppressWarnings("unused")
 public interface IOverlayTexturedRect extends IOverlayComponent {
 
    String getTexture();
@@ -17,8 +18,6 @@ public interface IOverlayTexturedRect extends IOverlayComponent {
    IOverlayTexturedRect setHeight(@ParamName("height") int height);
 
    int getColor();
-
-   float[] getUV();
 
    IOverlayTexturedRect setUV(@ParamName("u0") float u0, @ParamName("v0") float v0, @ParamName("u1") float u1, @ParamName("v1") float v1);
 
@@ -40,6 +39,7 @@ public interface IOverlayTexturedRect extends IOverlayComponent {
 
    IOverlayTexturedRect setTextureOffset(@ParamName("offsetX") int offsetX, @ParamName("offsetY") int offsetY);
 
+   @SuppressWarnings("UnusedReturnValue")
    IOverlayTexturedRect setTextureMaxSize(@ParamName("textureMaxX") int textureMaxX, @ParamName("textureMaxY") int textureMaxY);
 
 }

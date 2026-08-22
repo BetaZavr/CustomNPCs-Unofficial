@@ -48,8 +48,8 @@ public enum AnimationKind {
     final int type;
     AnimationKind parent = null;
 
-    AnimationKind(int i, boolean movement, boolean quickStart) {
-        type = i;
+    AnimationKind(int typeIn, boolean movement, boolean quickStart) {
+        type = typeIn;
         isMovement = movement;
         isQuick = quickStart;
     }

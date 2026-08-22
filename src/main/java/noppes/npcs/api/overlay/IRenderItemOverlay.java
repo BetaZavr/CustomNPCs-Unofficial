@@ -5,8 +5,8 @@ import noppes.npcs.api.item.IItemStack;
 
 public interface IRenderItemOverlay extends IOverlayComponent {
 
-   IItemStack getItem();
+    IItemStack getItem();
 
-   IRenderItemOverlay setItem(@ParamName("stack") IItemStack stack);
+    IRenderItemOverlay setItem(@ParamName("stack") IItemStack stack);
 
 }

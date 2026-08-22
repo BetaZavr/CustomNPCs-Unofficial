@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public class OverlayRenderItemWrapper extends OverlayComponentWrapper implements IRenderItemOverlay {
 
-   private ItemStack item;
+   protected ItemStack item;
 
    public OverlayRenderItemWrapper(int id, int x, int y, IItemStack itemIn) {
       super(id, x, y);
