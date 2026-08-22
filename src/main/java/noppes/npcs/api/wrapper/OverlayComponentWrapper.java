@@ -57,10 +57,13 @@ public abstract class OverlayComponentWrapper implements IOverlayComponent {
    }
 
    @Override
-   public int getAlignment() { return alignment.getAlignment(); }
+   public int getAlignment() { return alignment.get(); }
 
    @Override
    public void setAlignment(int type) { alignment = AlignmentType.get(type); }
+
+   @SuppressWarnings("unused")
+   public void setAlignment(AlignmentType type) { alignment = type; }
 
    @Override
    public float getScale() { return scale; }

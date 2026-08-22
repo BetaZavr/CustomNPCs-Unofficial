@@ -25,7 +25,7 @@ public enum AlignmentType {
         heightStep = heightStepIn % 3;
     }
 
-    public int getAlignment() { return alignment; }
+    public int get() { return alignment; }
 
     public int getOffsetX(int halfWidth) { return widthStep * halfWidth; }
 
