@@ -4,8 +4,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import noppes.npcs.CustomItems;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
-import noppes.npcs.packets.Packets;
-import noppes.npcs.packets.server.SPacketScriptGet;
 
 public class GuiScriptItem extends GuiScriptInterface {
 
@@ -14,7 +12,6 @@ public class GuiScriptItem extends GuiScriptInterface {
    public GuiScriptItem() {
       super(2);
       handler = item = new ItemScriptedWrapper(new ItemStack(CustomItems.scripted_item));
-      Packets.sendServer(new SPacketScriptGet(type));
    }
 
    @Override

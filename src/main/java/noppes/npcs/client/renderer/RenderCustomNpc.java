@@ -272,17 +272,19 @@ public class RenderCustomNpc<T extends EntityCustomNpc, M extends HumanoidModel<
 			if (entity instanceof EntityNPCInterface) { ((EntityNPCInterface)entity).display.setSize(5); }
 			EntityRenderer<? super LivingEntity> render = entityRenderDispatcher.getRenderer(entity);
 			if (!npcIn.modelData.simpleRender && render instanceof LivingEntityRenderer standardRender) {
-				matrixScale.pushPose();
-				((ILivingRendererMixin) standardRender).callScale(entity, matrixScale, partialTicks);
-				if (matrixScale.last().normal().isFinite()) {
-					matrixScale.popPose();
-					((ILivingRendererMixin) standardRender).callScale(entity, matrixScale, partialTicks);
+				// Prevent infinite recursion when the rendered entity uses RenderCustomNpc
+				if (standardRender instanceof RenderCustomNpc) {
+					super.scale(npcIn, matrixScale, f);
 				} else {
-					matrixScale.popPose();
+					matrixScale.pushPose();
+					((ILivingRendererMixin) standardRender).callScale(entity, matrixScale, partialTicks);
+					if (matrixScale.last().normal().isFinite()) {
+						matrixScale.popPose();
+						((ILivingRendererMixin) standardRender).callScale(entity, matrixScale, partialTicks);
+					} else {
+						matrixScale.popPose();
+					}
 				}
-			}
-			if (!npcIn.modelData.simpleRender && render instanceof LivingEntityRenderer standardRender) {
-				((ILivingRendererMixin) standardRender).callScale(entity, matrixScale, partialTicks);
 			}
 			npcIn.display.setSize(size);
 			size *= 0.2F;

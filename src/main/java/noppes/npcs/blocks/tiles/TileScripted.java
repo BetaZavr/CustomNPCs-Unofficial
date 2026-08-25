@@ -344,7 +344,7 @@ public class TileScripted extends TileNpcEntity implements IScriptBlockHandler {
          }
          tile.tickCount = 0;
       }
-      if (tile.needsClientUpdate) {
+      if (tile.needsClientUpdate && !level.isClientSide()) {
          tile.setChanged();
          level.sendBlockUpdated(pos, state, state, 3);
          tile.needsClientUpdate = false;

@@ -77,50 +77,60 @@ public class GuiLog
    public static float scaleW, scaleH;
    public static int fontHeight = ClientProxy.LogFont.getHeight();
 
-   public static boolean preDrawEntity(PoseStack matrixStack, String modelName) {
+   public static float[] preDrawEntity(String modelName, Entity entity) {
+      initScale();
+      float[] offsets = new float[] { 0.0f, 0.0f, 1.0f };
       boolean canUpdate = true;
       switch (modelName) {
          case "customnpcs:npcslime":
          case "minecraft:shulker":
-            matrixStack.translate(-2.0f, -15.0f * scaleH, 0.0f);
+            offsets[0] = -2.0f * scaleW;
+            offsets[1] = -15.0f * scaleH;
             break;
          case "minecraft:magma_cube":
          case "minecraft:silverfish":
          case "minecraft:slime":
-            matrixStack.translate(-2.0f, -21.0f * scaleH, 0.0f);
+            offsets[0] = -2.0f * scaleW;
+            offsets[1] = -21.0f * scaleH;
             break;
          case "minecraft:zombie":
-            matrixStack.translate(3.0f, 9.0f * scaleH, 0.0f);
+            offsets[0] = 3.0f * scaleW;
+            offsets[1] = 9.0f * scaleH;
             break;
          case "minecraft:vex":
-            matrixStack.translate(-3.0f, -15.0f * scaleH, 0.0f);
+            offsets[0] = -3.0f * scaleW;
+            offsets[1] = -15.0f * scaleH;
             break;
          case "minecraft:endermite":
-            matrixStack.translate(-1.0f, -25.0f * scaleH, 0.0f);
+            offsets[0] = -1.0f * scaleW;
+            offsets[1] = -25.0f * scaleH;
             break;
          case "minecraft:enderman":
-            matrixStack.translate(0.0f, 30.0f * scaleH, 0.0f);
+            offsets[1] = 30.0f * scaleH;
             break;
          case "minecraft:cave_spider":
-            matrixStack.translate(-2.0f, -18.0f * scaleH, 0.0f);
+            offsets[0] = -2.0f * scaleW;
+            offsets[1] = -18.0f * scaleH;
             break;
          case "minecraft:chicken":
+         case "minecraft:cow":
          case "minecraft:wolf":
          case "minecraft:ocelot":
          case "minecraft:spider":
-            matrixStack.translate(0.0f, -15.0f * scaleH, 0.0f);
+            offsets[1] = -15.0f * scaleH;
             break;
          case "minecraft:squid":
-            matrixStack.translate(0.0f, -5.0f * scaleH, 0.0f);
+            offsets[1] = -5.0f * scaleH;
             break;
          case "minecraft:guardian":
-            matrixStack.translate(4.0f, -18.5f * scaleH, 0.0f);
+            offsets[0] = 4.0f * scaleW;
+            offsets[1] = -18.5f * scaleH;
             canUpdate = false;
             break;
          case "minecraft:parrot":
          case "minecraft:rabbit":
          case "minecraft:bat":
-            matrixStack.translate(0.0f, -19.0f * scaleH, 0.0f);
+            offsets[1] = -19.0f * scaleH;
             break;
          case "minecraft:horse":
          case "minecraft:illusion_illager":
@@ -136,67 +146,74 @@ public class GuiLog
          case "minecraft:mule":
          case "minecraft:evocation_illager":
          case "minecraft:zombie_pigman":
-            matrixStack.translate(0.0f, 5.0f * scaleH, 0.0f);
+            offsets[1] = 5.0f * scaleH;
             break;
          case "minecraft:ender_dragon":
-            matrixStack.translate(35.0f, -32.0f * scaleH, 0.0f);
-            matrixStack.scale(0.5f, 0.5f, 0.5f);
+            offsets[0] = 35.0f * scaleW;
+            offsets[1] = -32.0f * scaleH;
+            offsets[2] = 0.5f;
             break;
          case "minecraft:elder_guardian":
-            matrixStack.translate(1.5f, -15.0f * scaleH, 0.0f);
-            matrixStack.scale(0.5f, 0.5f, 0.5f);
+            offsets[0] = 1.5f * scaleW;
+            offsets[1] = -15.0f * scaleH;
+            offsets[2] = 0.5f;
             canUpdate = false;
             break;
          case "minecraft:giant":
-            matrixStack.translate(0.0f, 15.0f * scaleH, 0.0f);
-            matrixStack.scale(0.1875f, 0.1875f, 0.1875f);
+            offsets[1] = 15.0f * scaleH;
+            offsets[2] = 0.1875f;
             canUpdate = false;
             break;
          case "customnpcs:npcdragon":
-            matrixStack.translate(22.0f, -16.0f * scaleH, 0.0f);
+            offsets[0] = 22.0f * scaleW;
+            offsets[1] = -16.0f * scaleH;
             canUpdate = false;
             break;
          case "customnpcs:npcpony":
-            matrixStack.translate(-5.0f, 2.0f * scaleH, 0.0f);
+            offsets[0] = -5.0f * scaleW;
+            offsets[1] = 2.0f * scaleH;
             break;
          case "customnpcs:npccrystal":
-            matrixStack.translate(0.0f, 3.0f * scaleH, 0.0f);
+            offsets[1] = 3.0f * scaleH;
             break;
          case "minecraft:wither_skeleton":
          case "minecraft:villager_golem":
          case "minecraft:customnpcs.npcgolem":
-            matrixStack.translate(0.0f, 18.0f * scaleH, 0.0f);
+            offsets[1] = 18.0f * scaleH;
             break;
          case "minecraft:polar_bear":
-            matrixStack.translate(-1.0f, -12.0f * scaleH, 0.0f);
-            matrixStack.scale(0.75f, 0.75f, 0.75f);
+            offsets[0] = -1.0f * scaleW;
+            offsets[1] = -12.0f * scaleH;
+            offsets[2] = 0.75f;
             break;
          case "minecraft:husk":
          case "minecraft:llama":
-            matrixStack.translate(0.0f, 12.0f * scaleH, 0.0f);
+            offsets[1] = 12.0f * scaleH;
             break;
          case "minecraft:pig":
-            matrixStack.translate(0.0f, -12.0f * scaleH, 0.0f);
+            offsets[1] = -12.0f * scaleH;
             break;
          case "minecraft:wither":
-            matrixStack.translate(-3.0f, 3.0f * scaleH, 0.0f);
-            matrixStack.scale(0.5f, 0.5f, 0.5f);
+            offsets[0] = -3.0f * scaleW;
+            offsets[1] = 3.0f * scaleH;
+            offsets[2] = 0.5f;
             break;
          case "minecraft:ghast":
-            matrixStack.translate(-2.0f, -21.0f * scaleH, 0.0f);
-            matrixStack.scale(0.2f, 0.2f, 0.2f);
+            offsets[0] = -2.0f * scaleW;
+            offsets[1] = -21.0f * scaleH;
+            offsets[2] = 0.2f;
             break;
          case "minecraft:customnpcs.customnpcalex":
-            matrixStack.translate(-1.0f, 0.0f * scaleH, 0.0f);
+            offsets[0] = -1.0f * scaleW;
             break;
          default:
-            matrixStack.translate(0.0f, -8.0f * scaleH, 0.0f);
+            offsets[1] = -8.0f * scaleH;
             break;
       }
-      matrixStack.mulPose(Axis.XP.rotationDegrees(180.0f));
-      matrixStack.mulPose(Axis.YP.rotationDegrees(210.0f));
-      return canUpdate;
+      if (canUpdate) { entity.tick(); }
+      return offsets;
    }
+
    /*
     * 0-tab inv; 1-tab factions; 2-tab quests; 3-tab compass 4-page right; 5-page
     * left 6-quest; 7/14-tab categories 16-pre cat list; 17-next cat list 20/28-cat
@@ -391,7 +408,7 @@ public class GuiLog
             return true;
          } // page left
          case 6: {
-            if (hoverQuestId > 0) {
+            if (hoverQuestId >= 0) {
                String catName = "";
                int i = 0;
                for (String key : categories.keySet()) {
@@ -871,8 +888,10 @@ public class GuiLog
                String modelName;
                if (activeQuest.npc.display.getModel() != null) { modelName = activeQuest.npc.display.getModel(); }
                else { modelName = EntityType.getKey(activeQuest.npc.getType()).toString(); }
-               GuiLog.preDrawEntity(matrixStack, modelName);
-               drawNpc(graphics, activeQuest.npc, (int) (74.0f * scaleW), 70 + (int) (41.0f * scaleH), 1.0f, 30, 0, 1);
+               float[] offsets = GuiLog.preDrawEntity(modelName, activeQuest.npc);
+               drawNpc(graphics, activeQuest.npc, (int) (74.0f * scaleW + offsets[0]),
+                       70 + (int) (41.0f * scaleH + offsets[1]),
+                       offsets[2], 30, 0, 1);
                graphics.disableScissor();
                matrixStack.popPose();
 
@@ -1633,14 +1652,13 @@ public class GuiLog
       String modelName;
       if (entity instanceof EntityNPCInterface && ((EntityNPCInterface) entity).display.getModel() != null) { modelName = ((EntityNPCInterface) entity).display.getModel(); }
       else { modelName = EntityType.getKey(entity.getType()).toString(); }
-      boolean canUpdate = GuiLog.preDrawEntity(matrixStack, modelName);
       int rot = 0;
       if (minecraft.level != null) {
          rot = (int) ((minecraft.level.getGameTime() % 360) * 5.0f);
       }
       matrixStack.scale(25.0f, 25.0f, 25.0f);
       entity.tickCount = 1;
-      if (canUpdate) { entity.tick(); }
+      GuiLog.preDrawEntity(modelName, entity);
       drawNpc(graphics, entity, mouseX - (guiLeft + 22), mouseY - guiTopLog, 1.0f, rot, 0, 1);
       matrixStack.popPose();
       return true;
@@ -1651,8 +1669,7 @@ public class GuiLog
       super.init();
       if (minecraft == null) { minecraft = Minecraft.getInstance(); }
       fontHeight = ClientProxy.LogFont.height("A") + 1;
-      scaleW = ((float) minecraft.getWindow().getGuiScaledWidth() - 160.0f) / 256.0f;
-      scaleH = ((float) minecraft.getWindow().getGuiScaledHeight() - 78.0f) / 175.0f;
+      initScale();
       guiCenter = (int) Math.ceil((double) minecraft.getWindow().getGuiScaledWidth() / 2.0d + 15.0d * scaleW);
       width = (int) (256.0f * scaleW);
       height = (int) (203.0f * scaleH);
@@ -1787,6 +1804,11 @@ public class GuiLog
                  .setDisplay(CustomNpcs.TypeShowQuestCompass)
          ;
       } // Compass
+   }
+
+   public static void initScale() {
+      scaleW = ((float) Minecraft.getInstance().getWindow().getGuiScaledWidth() - 160.0f) / 256.0f;
+      scaleH = ((float) Minecraft.getInstance().getWindow().getGuiScaledHeight() - 78.0f) / 175.0f;
    }
 
    @Override

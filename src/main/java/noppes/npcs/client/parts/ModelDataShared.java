@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.constants.BodyPart;
 import noppes.npcs.constants.EnumParts;
 
@@ -191,8 +192,9 @@ public abstract class ModelDataShared {
       }
    }
 
-   public void setEntity(ResourceLocation resourceLocation) {
-      entityName = resourceLocation;
+   public void setEntity(ResourceLocation entityNameIn) {
+      if (new ResourceLocation(CustomNpcs.MODID, "customnpc").equals(entityNameIn)) { entityNameIn = null; }
+      entityName = entityNameIn;
       clearEntity();
       extra = new CompoundTag();
    }

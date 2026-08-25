@@ -1027,7 +1027,6 @@
   "encrypt.hover.type.false": "Зашифровать скрипт из текущей вкладки совместно со всеми скриптами из подгруженных файлов",
   "encrypt.hover.type.true": "Зашифровать только видимый скрипт из текущей вкладки",
   "encrypt.only.tab": "Только видимый скрипт вкладки",
-  "entity.customnpc": "Кастомный NPC",
   "entity.customnpcs.customnpc": "Кастомный NPC",
   "entity.customnpcs.customnpcalex": "NPC Алекс",
   "entity.customnpcs.customnpcchairmount": "Маунт NPC блок",
@@ -3189,5 +3188,16 @@
   "keybind.scene3": "Начало/пауза сцены 3",
   "keybind.scenereset": "Сброс сцены",
   "schemas.no.available": "Схемы отсутствуют",
-  "command.player.data.remove": "Данные мода CustomNPCs у игрока \"%s\" (%s) были удалены"
+  "command.player.data.remove": "Данные мода CustomNPCs у игрока \"%s\" (%s) были удалены",
+  "entity.hover.customnpcs.customnpc": "Стандартный NPC мода CustomNPCs Unofficial",
+  "entity.hover.customnpcs.customnpc64x32": "NPC, использующий старый формат текстуры скина",
+  "entity.hover.customnpcs.customnpcalex": "NPC с моделью Алекс (женская модель)",
+  "entity.hover.customnpcs.customnpcclassic": "NPC, использующий старую анимацию игрока (из ранних версий игры)",
+  "entity.hover.customnpcs.npccrystal": "NPC с моделью Кристалл Края",
+  "entity.hover.customnpcs.npcdragon": "NPC с моделью Дракона Края",
+  "entity.hover.customnpcs.npcgolem": "NPC с моделью Голема",
+  "entity.hover.customnpcs.npcpony": "NPC с моделью Пони",
+  "entity.hover.customnpcs.npcslime": "NPC с моделью Слайма",
+  "entity.hover.minecraft": "NPC с моделью моба из игры",
+  "entity.hover.in.mod": "NPC с моделью моба из другого мода (%s)"
 }

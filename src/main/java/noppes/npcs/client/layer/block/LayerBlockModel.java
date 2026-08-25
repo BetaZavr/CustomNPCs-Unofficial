@@ -115,7 +115,7 @@ public class LayerBlockModel implements ILayerBlockModel {
             itemModel = (ItemStackWrapper) Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(ItemStack.of(nbtLayer.getCompound("ItemModel")));
         }
         if (nbtLayer.contains("BlockModel", 10)) {
-            blockModel = BlockWrapper.of(nbt.getMCNBT().getCompound("BlockState"));
+            blockModel = BlockWrapper.of(nbt.getMCNBT().getCompound("BlockModel"));
         }
         // OBJ
         if (nbtLayer.contains("OBJModel", 8)) { objModel = new ResourceLocation(nbtLayer.getString("OBJModel")); }

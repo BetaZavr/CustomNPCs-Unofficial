@@ -3,8 +3,6 @@ package noppes.npcs.client.gui.script;
 import net.minecraft.nbt.CompoundTag;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScript;
-import noppes.npcs.packets.Packets;
-import noppes.npcs.packets.server.SPacketScriptGet;
 
 public class GuiScriptNpc extends GuiScriptInterface {
 
@@ -14,7 +12,6 @@ public class GuiScriptNpc extends GuiScriptInterface {
    public GuiScriptNpc(EntityNPCInterface npc) {
       super(0);
       handler = script = npc.script;
-      Packets.sendServer(new SPacketScriptGet(type));
    }
 
    @Override

@@ -70,12 +70,14 @@ public class ModelData extends ModelDataShared {
       return data;
    }
 
+   @Override
    public CompoundTag save() {
       CompoundTag compound = super.save();
       compound.putBoolean("SimpleRender", simpleRender);
       return compound;
    }
 
+   @Override
    public void load(CompoundTag compound) {
       super.load(compound);
       simpleRender = compound.getBoolean("SimpleRender");

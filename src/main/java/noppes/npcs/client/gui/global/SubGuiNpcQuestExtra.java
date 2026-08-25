@@ -1,16 +1,16 @@
-package noppes.npcs.client.gui;
+package noppes.npcs.client.gui.global;
 
 import java.awt.*;
-import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.shared.client.gui.GuiTextAreaScreen;
 import noppes.npcs.shared.client.gui.components.*;
@@ -23,6 +23,8 @@ import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityNPCInterface;
+
+import javax.annotation.Nonnull;
 
 // New from Unofficial (BetaZavr)
 public class SubGuiNpcQuestExtra extends GuiNPCInterface implements ITextfieldListener {
@@ -65,11 +67,8 @@ public class SubGuiNpcQuestExtra extends GuiNPCInterface implements ITextfieldLi
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        if (minecraft == null) { minecraft = Minecraft.getInstance(); }
-        List<Component> tempHoverText = getHoverText();
-        hoverText.clear();
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void renderBackground(@Nonnull GuiGraphics graphics) {
+        super.renderBackground(graphics);
         int u = guiLeft + 182;
         int v = guiTop + 97;
         if (getButton(2) != null) {
@@ -93,8 +92,13 @@ public class SubGuiNpcQuestExtra extends GuiNPCInterface implements ITextfieldLi
             graphics.enableScissor((u + 10), (v + 11), (u + 54), (v + 44));
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             matrixStack.translate(0.0f, 0.0f, 10.0f);
-            //graphics.fill((u + 10), (v + 11), (u + 54), (v + 44), 0xFFFF0000);
-            drawNpc(graphics, showNpc, 218, 149, 1.0f, 30, -5, 1);
+            String modelName;
+            if (showNpc.display.getModel() != null) { modelName = showNpc.display.getModel(); }
+            else { modelName = EntityType.getKey(showNpc.getType()).toString(); }
+            float[] offsets = GuiLog.preDrawEntity(modelName, showNpc);
+            drawNpc(graphics, showNpc, 218 + (int) offsets[0],
+                    149 + (int) offsets[1],
+                    offsets[2], 30, -5, 1);
             graphics.disableScissor();
             matrixStack.popPose();
 
@@ -179,8 +183,6 @@ public class SubGuiNpcQuestExtra extends GuiNPCInterface implements ITextfieldLi
             graphics.blit(quest.texture, 0, 0, 0, 0, 256, 256);
             matrixStack.popPose();
         }
-        if (tempHoverText != null) { setHoverText(tempHoverText); }
-        super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     @Override

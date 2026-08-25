@@ -11,7 +11,6 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.shared.client.gui.listeners.IGuiData;
 import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
 import noppes.npcs.shared.common.PacketBasic;
-import noppes.npcs.shared.common.util.LogWriter;
 
 public class PacketGuiData extends PacketBasic {
 

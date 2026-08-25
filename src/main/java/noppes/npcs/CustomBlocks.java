@@ -1,6 +1,5 @@
 package noppes.npcs;
 
-import com.mojang.datafixers.types.Type;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.nbt.CompoundTag;
@@ -437,15 +436,15 @@ public class CustomBlocks {
          for (Map.Entry<ICustomElement, Item> entry : entries) { customblocks.put(entry.getKey(), entry.getValue()); }
       } // 2
       if (event.getRegistryKey() == Keys.BLOCK_ENTITY_TYPES) {
-         event.getForgeRegistry().register(CustomNpcs.MODID + ":tileblockanvil", tile_anvil = (BlockEntityType<TileBlockAnvil>) createTile(TileBlockAnvil::new, null, carpenty));
-         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilenpcborder", tile_border = (BlockEntityType<TileBorder>) createTile(TileBorder::new, null, border));
-         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilenpcbuilder", tile_builder = (BlockEntityType<TileBuilder>) createTile(TileBuilder::new, null, builder));
-         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilenpccopy", tile_copy = (BlockEntityType<TileCopy>) createTile(TileCopy::new, null, copy));
-         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilemailbox", tile_mailbox = (BlockEntityType<TileMailbox>) createTile(TileMailbox::new, null, mailbox, mailbox2, mailbox3));
-         event.getForgeRegistry().register(CustomNpcs.MODID + ":tileredstoneblock", tile_redstoneblock = (BlockEntityType<TileRedstoneBlock>) createTile(TileRedstoneBlock::new, null, redstone));
-         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilenpcscripted", tile_scripted = (BlockEntityType<TileScripted>) createTile(TileScripted::new, null, scripted));
-         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilenpcscripteddoor", tile_scripteddoor = (BlockEntityType<TileScriptedDoor>) createTile(TileScriptedDoor::new, null, scripted_door));
-         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilewaypoint", tile_waypoint = (BlockEntityType<TileWaypoint>) createTile(TileWaypoint::new, null, waypoint));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":tileblockanvil", tile_anvil = (BlockEntityType<TileBlockAnvil>) createTile(TileBlockAnvil::new, carpenty));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilenpcborder", tile_border = (BlockEntityType<TileBorder>) createTile(TileBorder::new, border));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilenpcbuilder", tile_builder = (BlockEntityType<TileBuilder>) createTile(TileBuilder::new, builder));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilenpccopy", tile_copy = (BlockEntityType<TileCopy>) createTile(TileCopy::new, copy));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilemailbox", tile_mailbox = (BlockEntityType<TileMailbox>) createTile(TileMailbox::new, mailbox, mailbox2, mailbox3));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":tileredstoneblock", tile_redstoneblock = (BlockEntityType<TileRedstoneBlock>) createTile(TileRedstoneBlock::new, redstone));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilenpcscripted", tile_scripted = (BlockEntityType<TileScripted>) createTile(TileScripted::new, scripted));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilenpcscripteddoor", tile_scripteddoor = (BlockEntityType<TileScriptedDoor>) createTile(TileScriptedDoor::new, scripted_door));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":tilewaypoint", tile_waypoint = (BlockEntityType<TileWaypoint>) createTile(TileWaypoint::new, waypoint));
          // custom
          List<CustomBlockPortal> portals = new ArrayList<>();
          List<CustomChest> chests = new ArrayList<>();
@@ -455,11 +454,11 @@ public class CustomBlocks {
          }
          if (!portals.isEmpty()) {
             event.getForgeRegistry().register(CustomNpcs.MODID + ":tilecustomportal",
-                    tile_custom_portal = (BlockEntityType<CustomTileEntityPortal>) createTile(CustomTileEntityPortal::new, null, portals.toArray(new Block[0])));
+                    tile_custom_portal = (BlockEntityType<CustomTileEntityPortal>) createTile(CustomTileEntityPortal::new, portals.toArray(new Block[0])));
          }
          if (!chests.isEmpty()) {
             event.getForgeRegistry().register(CustomNpcs.MODID + ":tilecustomchest",
-                    tile_custom_chest = (BlockEntityType<CustomTileEntityChest>) createTile(CustomTileEntityChest::new, null, chests.toArray(new Block[0])));
+                    tile_custom_chest = (BlockEntityType<CustomTileEntityChest>) createTile(CustomTileEntityChest::new, chests.toArray(new Block[0])));
          }
       } // 12
       CustomNpcs.debugData.end("Mod");
@@ -729,9 +728,9 @@ public class CustomBlocks {
       return BlockSetType.OAK;
    }
 
-   @SuppressWarnings("all")
-   private static BlockEntityType<?> createTile(BlockEntitySupplier<?> factoryIn, Type<?> type, Block... blocks) {
-      return Builder.of(factoryIn, blocks).build(type);
+   @SuppressWarnings("ConstantConditions")
+   private static BlockEntityType<?> createTile(BlockEntitySupplier<?> factoryIn, Block... blocks) {
+      return Builder.of(factoryIn, blocks).build(null);
    }
 
    private static MapColor getMapColor(@Nonnull String name) {

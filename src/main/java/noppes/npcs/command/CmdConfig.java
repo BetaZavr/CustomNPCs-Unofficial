@@ -95,10 +95,10 @@ public class CmdConfig {
          }
          else {
             try {
+               //noppes.npcs.CreaterAPITypeJS.collectModClassFiles();
                /*
                if (context.getSource().getPlayer() != null) {
-                  noppes.npcs.CreaterAPITypeJS.searchForCodeChange(context.getSource().getPlayer(),
-                          "20250809_obf", "20260711_obf");
+                  noppes.npcs.CreaterAPITypeJS.searchForCodeChange(context.getSource().getPlayer(), "20250809_obf", "20260711_obf");
                }
                /**/
                CustomNpcs.VerboseDebug = Boolean.parseBoolean(arg);

@@ -10,12 +10,13 @@ import java.util.concurrent.TimeUnit;
 
 public class CustomNPCsScheduler {
 
-   private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+   private static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
    public static void runTack(Runnable task) { runTack(task, 0L); }
 
    public static void runTack(Runnable task, long delayMilliSeconds) {
       boolean isServer = Util.instance.getSide() == Dist.DEDICATED_SERVER;
+      if (executor.isShutdown()) { executor = Executors.newScheduledThreadPool(1); }
       executor.schedule(() -> {
          if (isServer && CustomNpcs.Server != null) { CustomNpcs.Server.submit(task); }
          else if (!isServer) { Minecraft.getInstance().submit(task); }

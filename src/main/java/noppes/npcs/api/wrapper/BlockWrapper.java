@@ -40,6 +40,7 @@ import noppes.npcs.blocks.tiles.TileNpcEntity;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.mixin.world.entity.IEntityMixin;
 import noppes.npcs.shared.common.util.LRUHashMap;
+import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 import javax.annotation.Nonnull;
@@ -85,7 +86,11 @@ public class BlockWrapper implements IBlock {
       Level level = CustomNpcs.proxy.overworld();
       BlockState state;
       if (level == null) { state = Blocks.AIR.defaultBlockState(); }
-      else { state = NbtUtils.readBlockState(level.holderLookup(Registries.BLOCK), compound); }
+      else {
+         LogWriter.info("[DEBUG] compound "+compound);
+         state = NbtUtils.readBlockState(level.holderLookup(Registries.BLOCK), compound);
+         LogWriter.info("[DEBUG] state "+state);
+      }
       BlockPos pos = BlockPos.of(compound.getLong("BlockPos"));
       Block block = state.getBlock();
       if (block instanceof BlockScripted) { return new BlockScriptedWrapper(level, state, pos); }
@@ -287,7 +292,7 @@ public class BlockWrapper implements IBlock {
    }
 
    @Override
-   public boolean isEmpty() { return getMCBlock() == Blocks.AIR; }
+   public boolean isEmpty() { return state == null ? getMCBlock() == Blocks.AIR : state.isAir(); }
 
    public TileNpcEntity getStorage() { return storage; }
 
@@ -296,7 +301,7 @@ public class BlockWrapper implements IBlock {
    public @Nullable BlockEntity getTile() { return tile; }
 
    public CompoundTag save() {
-      CompoundTag compound = NbtUtils.writeBlockState(getMCBlockState());
+      CompoundTag compound = NbtUtils.writeBlockState(state != null ? state : getMCBlockState());
       compound.putLong("BlockPos", iPos.blockPos.asLong());
       return compound;
    }

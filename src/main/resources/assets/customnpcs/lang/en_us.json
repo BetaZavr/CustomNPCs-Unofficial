@@ -1035,7 +1035,6 @@
   "encrypt.hover.type.false": "Encrypt the script from the current tab together with all scripts from the loaded files",
   "encrypt.hover.type.true": "Encrypt only visible script from the current tab",
   "encrypt.only.tab": "Visible tab script only",
-  "entity.customnpc": "Custom NPC",
   "entity.customnpcs.customnpc": "Custom NPC",
   "entity.customnpcs.customnpc64x32": "NPC 64x32",
   "entity.customnpcs.customnpcalex": "NPC Alex",
@@ -3234,5 +3233,16 @@
   "keybind.scene3": "Scene3 start/pause",
   "keybind.scenereset": "Scene reset",
   "schemas.no.available": "No schemas available",
-  "command.player.data.remove": "CustomNPCs mod data for player \"%s\" (%s) has been removed."
+  "command.player.data.remove": "CustomNPCs mod data for player \"%s\" (%s) has been removed.",
+  "entity.hover.customnpcs.customnpc": "Standard NPC from the CustomNPCs Unofficial mod",
+  "entity.hover.customnpcs.customnpc64x32": "NPC using the old skin texture format",
+  "entity.hover.customnpcs.customnpcalex": "NPC with the Alex model (female model)",
+  "entity.hover.customnpcs.customnpcclassic": "NPC using the old player animation (from earlier versions of the game)",
+  "entity.hover.customnpcs.npccrystal": "NPC with the Ender Crystal model",
+  "entity.hover.customnpcs.npcdragon": "NPC with the Ender Dragon model",
+  "entity.hover.customnpcs.npcgolem": "NPC with the Golem model",
+  "entity.hover.customnpcs.npcpony": "NPC with Pony model",
+  "entity.hover.customnpcs.npcslime": "NPC with Slime model",
+  "entity.hover.minecraft": "NPC with in-game mob model",
+  "entity.hover.in.mod": "NPC with mob model from another mod (%s)"
 }

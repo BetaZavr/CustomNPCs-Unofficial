@@ -89,8 +89,7 @@ public class BlockScripted
          if (tile == null) { return InteractionResult.FAIL; }
          return EventHooks.onScriptBlockInteract(tile, player, ray.getDirection().get3DDataValue(), x, y, z) ? InteractionResult.FAIL : InteractionResult.SUCCESS;
       } else {
-         PlayerData data = PlayerData.get(player);
-         data.scriptBlockPos = pos;
+         PlayerData.get(player).scriptBlockPos = pos;
          SPacketGuiOpen.sendOpenGui((ServerPlayer) player, EnumGuiType.ScriptBlock, null, pos);
          return InteractionResult.SUCCESS;
       }
@@ -99,8 +98,7 @@ public class BlockScripted
    @Override
    public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity entity, @Nonnull ItemStack item) {
       if (!level.isClientSide && entity instanceof Player player) {
-         PlayerData data = PlayerData.get(player);
-         data.scriptBlockPos = pos;
+         PlayerData.get(player).scriptBlockPos = pos;
          SPacketGuiOpen.sendOpenGui((ServerPlayer) player, EnumGuiType.ScriptBlock, null, pos);
       }
    }

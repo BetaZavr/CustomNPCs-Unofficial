@@ -3,8 +3,6 @@ package noppes.npcs.client.gui.script;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
-import noppes.npcs.packets.Packets;
-import noppes.npcs.packets.server.SPacketScriptGet;
 
 public class GuiScriptDoor extends GuiScriptInterface {
 
@@ -13,7 +11,6 @@ public class GuiScriptDoor extends GuiScriptInterface {
    public GuiScriptDoor(BlockPos pos) {
       super(5);
       handler = script = (TileScriptedDoor) player.level().getBlockEntity(pos);
-      Packets.sendServer(new SPacketScriptGet(type));
    }
 
    @Override

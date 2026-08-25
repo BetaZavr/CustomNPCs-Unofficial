@@ -105,7 +105,7 @@ public class ScriptContainer {
       else { ScriptController.Instance.tryAddErrored(this); }
       fullscript = null;
       canEncryptCode = compound.getBoolean("HasNoEncryptScriptCode");
-      if (handler.isClient()) { executor.setErrored(false); }
+      if (handler.isClient() && executor != null) { executor.setErrored(false); }
    }
 
    public CompoundTag save(CompoundTag compound) {

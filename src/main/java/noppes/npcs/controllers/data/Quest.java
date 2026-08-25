@@ -169,10 +169,16 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
       nextQuestTitle = compound.getString("NextQuestTitle");
       if (hasNewQuest()) { nextQuestTitle = getNextQuest().title; }
       else { nextQuestTitle = ""; }
-      if (compound.contains("QuestIcon", 8)) { icon = new ResourceLocation(compound.getString("QuestIcon")); }
-      else { icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest/icon/q_0.png"); }
-      if (compound.contains("QuestTexture", 8)) { texture = new ResourceLocation(compound.getString("QuestTexture")); }
-      else { texture = null; }
+      if (compound.contains("QuestIcon", 8)) {
+         String loc = compound.getString("QuestIcon");
+         if (loc.contains("quest icon")) { loc = loc.replace("quest icon", "quest/icon"); }
+         icon = new ResourceLocation(NoppesUtilServer.validLocation(loc));
+      } else {
+         icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest/icon/q_0.png");
+      }
+      if (compound.contains("QuestTexture", 8)) {
+         texture = new ResourceLocation(NoppesUtilServer.validLocation(compound.getString("QuestTexture")));
+      } else { texture = null; }
       extraButtonText = compound.getString("ExtraButtonText");
       level = compound.getInt("QuestLevel");
       cancelable = compound.getBoolean("Cancelable");
@@ -604,12 +610,15 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
          try { uuid = compound.getUUID("CompleterUUID"); } catch (Exception ignored) {}
          if (compound.contains("CompleterIsStrict", Tag.TAG_BYTE)) { strict = compound.getBoolean("CompleterIsStrict"); }
          if (compound.contains("CompleterNpc", Tag.TAG_COMPOUND)) { spawnData = compound.getCompound("CompleterNpc"); }
+         if (compound.contains("CompleterName", Tag.TAG_STRING)) { name = compound.getString("CompleterName"); }
+         if (name.isEmpty() && !spawnData.getString("Name").isEmpty()) { name = spawnData.getString("Name"); }
       }
 
       public CompoundTag save(CompoundTag compound) {
          compound.putString("CompleterPosDimension", dimension.location().toString());
          compound.putLong("CompleterPos", npcPos.asLong());
          compound.putUUID("CompleterUUID", uuid);
+         compound.putString("CompleterName", name);
          compound.putBoolean("CompleterIsStrict", strict);
          compound.put("CompleterNpc", spawnData);
          return compound;
@@ -631,6 +640,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
             dimension = npcIn.homeDimensionId;
             npcPos = npcIn.getOnPos();
             uuid = npcIn.getUUID();
+            name = npcIn.getName().getString();
             strict = true;
          }
       }

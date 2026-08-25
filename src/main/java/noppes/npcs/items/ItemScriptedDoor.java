@@ -23,8 +23,7 @@ public class ItemScriptedDoor extends DoubleHighBlockItem implements INPCToolIte
    public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
       InteractionResult res = super.useOn(context);
       if (res == InteractionResult.SUCCESS && !context.getLevel().isClientSide && context.getPlayer() != null) {
-         PlayerData data = PlayerData.get(context.getPlayer());
-         data.scriptBlockPos = context.getClickedPos();
+         PlayerData.get(context.getPlayer()).scriptBlockPos = context.getClickedPos();
          SPacketGuiOpen.sendOpenGui((ServerPlayer) context.getPlayer(), EnumGuiType.ScriptDoor, null, context.getClickedPos().above());
          return InteractionResult.SUCCESS;
       } else {

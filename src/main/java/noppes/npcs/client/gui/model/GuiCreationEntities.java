@@ -1,8 +1,6 @@
 package noppes.npcs.client.gui.model;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -14,6 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
+import noppes.npcs.CustomEntities;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
@@ -35,20 +34,6 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
       xOffset = 60;
    }
 
-   private static List<EntityType<? extends Entity>> getAllEntities(Level level) {
-      List<EntityType<? extends Entity>> data = new ArrayList<>();
-      for (EntityType<?> ent : ForgeRegistries.ENTITY_TYPES.getValues()) {
-         try {
-            Entity e = ent.create(level);
-            if (e != null) {
-               if (LivingEntity.class.isAssignableFrom(e.getClass()) && !EnderDragon.class.isAssignableFrom(e.getClass())) { data.add(ent); }
-               e.discard();
-            }
-         } catch (Exception ignored) {}
-      }
-      return data;
-   }
-
    @Override
    public void init() {
       super.init();
@@ -57,25 +42,42 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
                  playerdata.setEntity(null);
                  npc.display.setSkinTexture(CustomNpcs.MODID + ":textures/entity/humanmale/steve.png");
                  resetToSelected = true;
+                 npc.reset();
                  init();
               }).setSize(120, 20));
       if (scroll == null) {
          List<Component> list = new ArrayList<>();
-         for (String line : types.stream().map(EntityType::getDescriptionId).toList()) { list.add(Component.translatable(line)); }
-         scroll = addScroll(0).setUnsortedList(list);
+         LinkedHashMap<Integer, List<Component>> hts = new LinkedHashMap<>();
+         for (String line : types.stream().map(EntityType::getDescriptionId).toList()) {
+            list.add(Component.translatable(line));
+            Component hover;
+            if (line.startsWith("entity.customnpcs.")) {
+               hover = Component.translatable(line.replace("entity.customnpcs.", "entity.hover.customnpcs."));
+            }
+            else if (line.startsWith("entity.minecraft.")) {
+               hover = Component.translatable("entity.hover.minecraft");
+            }
+            else {
+               String modName = line.substring(7, line.indexOf(".", 7));
+               hover = Component.translatable("entity.hover.in.mod", modName);
+            }
+            hts.put(hts.size(), Collections.singletonList(hover));
+         }
+         scroll = addScroll(0)
+                 .setUnsortedList(list)
+                 .setHoverTexts(hts);
       }
       int index = -1;
-      if (entity != null) {
-         for(int i = 0; i < types.size(); ++i) {
-            EntityType<?> type = types.get(i);
-            if (type == entity.getType()) {
-               index = i;
-               break;
-            }
+      for(int i = 0; i < types.size(); ++i) {
+         EntityType<?> type = types.get(i);
+         if ((entity == null && type == CustomEntities.entityCustomNpc) || (entity != null && type == entity.getType())) {
+            index = i;
+            break;
          }
       }
       if (index >= 0) { scroll.setSelected(index); }
       else { scroll.setSelected("entity." + CustomNpcs.MODID + ".customnpc"); }
+
       if (resetToSelected) {
          scroll.scrollTo(scroll.getSelected());
          resetToSelected = false;
@@ -83,6 +85,7 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
       add(scroll.setPos(guiLeft, guiTop + 68)
               .setSize(120, imageHeight - 96));
       addLabel(110, guiLeft + 124, guiTop + 5, "gui.simpleRenderer")
+              .setSize(122, 10)
               .setColor(CustomNpcs.MainColor.getRGB());
       add(new GuiButtonYesNo(this, 110, guiLeft + 260, guiTop, playerdata.simpleRender,
               (b) -> playerdata.simpleRender = ((GuiButtonYesNo)b).getBoolean()));
@@ -90,10 +93,8 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
 
    @Override
    public void scrollClicked(GuiCustomScrollNop scroll) {
-      String selected = scroll.getSelected();
-      if (selected.equals("Custom NPC")) { playerdata.setEntity(null); }
+      if (!scroll.hasSelected()) { playerdata.setEntity(null); }
       else { playerdata.setEntity(ForgeRegistries.ENTITY_TYPES.getKey(types.get(scroll.getSelectedIndex()))); }
-
       Entity entity = playerdata.getEntity(npc);
       if (entity != null) {
          if (minecraft == null) { minecraft = Minecraft.getInstance(); }
@@ -109,10 +110,25 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
       else {
          npc.display.setSkinTexture(CustomNpcs.MODID + ":textures/entity/humanmale/steve.png");
       }
+      npc.reset();
       init();
    }
 
    @Override
    public void scrollDoubleClicked(GuiCustomScrollNop scroll) { }
+
+   private static List<EntityType<? extends Entity>> getAllEntities(Level level) {
+      List<EntityType<? extends Entity>> data = new ArrayList<>();
+      for (EntityType<?> ent : ForgeRegistries.ENTITY_TYPES.getValues()) {
+         try {
+            Entity e = ent.create(level);
+            if (e != null) {
+               if (LivingEntity.class.isAssignableFrom(e.getClass()) && !EnderDragon.class.isAssignableFrom(e.getClass())) { data.add(ent); }
+               e.discard();
+            }
+         } catch (Exception ignored) {}
+      }
+      return data;
+   }
 
 }

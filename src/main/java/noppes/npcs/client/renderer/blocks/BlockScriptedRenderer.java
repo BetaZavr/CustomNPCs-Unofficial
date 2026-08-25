@@ -47,7 +47,7 @@ public class BlockScriptedRenderer<T extends TileScripted> extends BlockRenderer
 		// Default model
         if(overrideModel()){
 			matrixStack.pushPose();
-			matrixStack.translate(0.5f, 0.5f, 0.5f);
+			matrixStack.translate(0.5F, 0.5F, 0.5F);
         	renderItem(new ItemStack(CustomBlocks.scripted), matrixStack, buffer, light, overlay);
 			matrixStack.popPose();
 			return;
@@ -60,7 +60,6 @@ public class BlockScriptedRenderer<T extends TileScripted> extends BlockRenderer
 			if (!itemModel.isEmpty() || !blockModel.isEmpty() || objModel != null) {
 				matrixStack.pushPose();
 				RenderSystem.enableBlend();
-				matrixStack.translate(0.5f, 0.0f, 0.5f);
 				// offset
 				matrixStack.translate(layer.getOffset(0), layer.getOffset(1), layer.getOffset(2));
 				// rotate
@@ -74,7 +73,7 @@ public class BlockScriptedRenderer<T extends TileScripted> extends BlockRenderer
 				matrixStack.scale(layer.getScale(0), layer.getScale(1), layer.getScale(2));
 				// model
 				if (!itemModel.isEmpty()) {
-					matrixStack.translate(0.0, 0.5, 0.0);
+					matrixStack.translate(0.5F, 0.5F, 0.5F);
 					renderItem(itemModel.getMCItemStack(), matrixStack, buffer, light, overlay);
 				}
 				else if (!blockModel.isEmpty()) {

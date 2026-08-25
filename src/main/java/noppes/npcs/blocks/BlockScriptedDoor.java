@@ -74,8 +74,7 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
          if (currentItem.getItem() == CustomItems.wand ||
                  currentItem.getItem() == CustomItems.scripter ||
                  currentItem.getItem() == CustomBlocks.scripted_door_item) {
-            PlayerData data = PlayerData.get(player);
-            data.scriptBlockPos = blockpos1;
+            PlayerData.get(player).scriptBlockPos = blockpos1;
             SPacketGuiOpen.sendOpenGui((ServerPlayer) player, EnumGuiType.ScriptDoor, null, blockpos1);
             return InteractionResult.SUCCESS;
          }

@@ -2,8 +2,6 @@ package noppes.npcs.client.gui.script;
 
 import net.minecraft.nbt.CompoundTag;
 import noppes.npcs.controllers.data.NpcScriptData;
-import noppes.npcs.packets.Packets;
-import noppes.npcs.packets.server.SPacketScriptGet;
 
 public class GuiScriptPotion extends GuiScriptInterface {
 
@@ -12,7 +10,6 @@ public class GuiScriptPotion extends GuiScriptInterface {
     public GuiScriptPotion() {
         super(7);
         handler = script;
-        Packets.sendServer(new SPacketScriptGet(type));
     }
 
     @Override

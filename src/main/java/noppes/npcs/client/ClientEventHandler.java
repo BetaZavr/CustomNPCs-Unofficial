@@ -379,14 +379,16 @@ public class ClientEventHandler {
             return;
         }
         // any
-        for (RenderType rType : bakedModel.getRenderTypes(state, RandomSource.create(), ModelData.EMPTY)) {
+        // Use deterministic seed for consistent rendering
+        for (RenderType rType : bakedModel.getRenderTypes(state, RandomSource.create(42L), ModelData.EMPTY)) {
             @Nonnull RenderType renderType = RenderTypeHelper.getEntityRenderType(rType, false);
-            Holder<Biome> biome = level.getBiome(pos);
-            int grassColor = biome.get().getGrassColor(pos.getX(), pos.getZ());
-            float red   = ((grassColor >> 16) & 0xFF) / 255.0F;
-            float green = ((grassColor >> 8)  & 0xFF) / 255.0F;
-            float blue  = (grassColor         & 0xFF) / 255.0F;
-            VertexConsumer consumer = buffer.getBuffer(RenderType.translucent());
+            // Get the proper block tint color instead of biome grass color
+            int blockColor = Minecraft.getInstance().getBlockColors().getColor(state, level, pos, 0);
+            float red   = ((blockColor >> 16) & 0xFF) / 255.0F;
+            float green = ((blockColor >> 8)  & 0xFF) / 255.0F;
+            float blue  = (blockColor         & 0xFF) / 255.0F;
+            // Use the correct render type buffer, not hardcoded translucent
+            VertexConsumer consumer = buffer.getBuffer(renderType);
             dispatcher.getModelRenderer().renderModel(matrixStack.last(), consumer, state, bakedModel,
                     red, green, blue, light, overlay, ModelData.EMPTY, renderType);
         }
@@ -425,8 +427,7 @@ public class ClientEventHandler {
                 1.0f, 0.0f, 0.0f, 1.0f);
     }
 
-    private static void renderEntityForBook(Entity entityIn, GuiGraphics graphics) {
-        if (!(entityIn instanceof LivingEntity entity)) { return; }
+    private static void renderEntityForBook(@Nonnull GuiGraphics graphics, @Nonnull LivingEntity entity) {
         EntityNPCInterface npc = null;
         int visible = 0;
         int showName = 0;
@@ -2902,12 +2903,12 @@ public class ClientEventHandler {
                     }
                 }
                 matrixStack.pushPose();
-                if (entity != null) {
+                if (entity instanceof LivingEntity living) {
                     matrixStack.pushPose();
                     matrixStack.translate(8.0d + playerData.overlay.getWindowSize().getWidth() / 2.0d,
                             playerData.overlay.getWindowSize().getHeight() - 45.0d - 3.5d * lH,
                             -200.0d);
-                    renderEntityForBook(entity, graphics);
+                    renderEntityForBook(graphics, living);
                     matrixStack.popPose();
                 }
                 else if (state != null) {

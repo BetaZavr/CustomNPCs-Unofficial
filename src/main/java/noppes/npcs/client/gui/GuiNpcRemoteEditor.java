@@ -152,16 +152,18 @@ public class GuiNpcRemoteEditor
       if (!hasSubGui()) {
          PoseStack matrixStack = graphics.pose();
          matrixStack.pushPose();
+         int u = guiLeft + 191;
+         int v = guiTop + 85;
+         matrixStack.translate(0.0f, 0.0f, 1.0f);
+         graphics.fill(u, v, u + 61, v + 86, new Color(0xFF808080).getRGB());
+         graphics.fill(u + 1, v + 1, u + 60, v + 85, new Color(0xFF000000).getRGB());
          if (selectEntity != null) {
             int yaw = (int) (3 * player.level().getGameTime() % 360);
-            int x = 221;
-            int y = 162;
-            if (selectEntity instanceof ItemEntity) { y -= 18; }
-            drawNpc(graphics, selectEntity, x, y, 1.0f, yaw, 0, 1);
+            u -= guiLeft - 30;
+            v -= guiTop - 77;
+            if (selectEntity instanceof ItemEntity) { v -= 18; }
+            drawNpc(graphics, selectEntity, u, v, 1.0f, yaw, 0, 1);
          }
-         matrixStack.translate(0.0f, 0.0f, 1.0f);
-         graphics.fill(guiLeft + 191, guiTop + 85, guiLeft + 252, guiTop + 171, new Color(0xFF808080).getRGB());
-         graphics.fill(guiLeft + 192, guiTop + 86, guiLeft + 251, guiTop + 170, new Color(0xFF000000).getRGB());
          matrixStack.popPose();
          if (GuiBasic.showHoverText && isMouseHover(mouseX, mouseY, guiLeft + 191, guiTop + 85, 61, 86)) {
             setHoverText("wand.hover.entity");

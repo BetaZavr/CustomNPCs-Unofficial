@@ -22,10 +22,7 @@ import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.ClientScriptData;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.SPacketScriptConsole;
-import noppes.npcs.packets.server.SPacketSaveClientScripts;
-import noppes.npcs.packets.server.SPacketScriptEncrypt;
-import noppes.npcs.packets.server.SPacketScriptSave;
-import noppes.npcs.packets.server.SPacketScriptText;
+import noppes.npcs.packets.server.*;
 import noppes.npcs.shared.client.gui.components.*;
 import noppes.npcs.shared.client.gui.listeners.IComponentGui;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
@@ -65,6 +62,7 @@ public class GuiScriptInterface
       setBackground("menubg.png");
 
       type = typeIn;
+      Packets.sendServer(new SPacketScriptGet(type));
    }
 
    @Override
@@ -380,10 +378,10 @@ public class GuiScriptInterface
 
    @Override
    public void setGuiData(CompoundTag compound) {
-      ListTag data = compound.getList("Languages", 10);
+      ListTag languagesList = compound.getList("Languages", 10);
       Map<String, Map<String, Long>> newLanguages = new HashMap<>();
-      for(int i = 0; i < data.size(); ++i) {
-         CompoundTag comp = data.getCompound(i);
+      for(int i = 0; i < languagesList.size(); ++i) {
+         CompoundTag comp = languagesList.getCompound(i);
          Map<String, Long> scripts = new TreeMap<>();
          ListTag list = comp.getList("Scripts", 8);
          long[] ld = new long[list.size()];

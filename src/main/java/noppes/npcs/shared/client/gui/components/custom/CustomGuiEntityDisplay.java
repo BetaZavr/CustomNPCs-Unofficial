@@ -14,9 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.wrapper.gui.CustomGuiEntityDisplayWrapper;
-import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.gui.custom.GuiCustom;
-import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.shared.client.gui.components.GuiLabel;
 import noppes.npcs.shared.client.gui.listeners.custom.IComponentCustomGui;
@@ -118,11 +116,8 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
          headRotationO = livingEntity.yHeadRotO;
          headRotation = livingEntity.yHeadRot;
       }
-
       float scale = 1.0F;
-      if ((double)entity.getBbHeight() > 2.4D) {
-         scale = 2.0F / entity.getBbHeight();
-      }
+      if ((double)entity.getBbHeight() > 2.4D) { scale = 2.0F / entity.getBbHeight(); }
       float f7 = guiLeft + (float)x - (float)xMouse;
       float f8 = (guiTop + (float)y - 50.0F * scale * zoomed) * (entity.getBbHeight() / entity.getEyeHeight()) - (float)yMouse;
 
@@ -141,10 +136,6 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
          npc.ais.orientation = (int)entity.getYRot();
          showname = npc.display.getShowName();
          npc.display.setShowName(1);
-      }
-
-      if (npc instanceof EntityCustomNpc cnpc && cnpc.modelData.getEntity(cnpc) != null) {
-         EntityUtil.Copy(npc, cnpc.modelData.getEntity(cnpc));
       }
 
       float scaledZoom = 30.0F * scale * zoomed;
@@ -166,24 +157,19 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
       entityrenderdispatcher.setRenderShadow(false);
       RenderSystem.runAsFancy(() -> {
          if (showRiders) {
-            entity.getPassengersAndSelf
-                    ().forEach((e) -> {
-               float offset = 0.0F;
-
-               for(Entity cur = e; cur.getVehicle
-                       () != null; offset = (float)((double)offset + cur.getPassengersRidingOffset
-                       ())) {
-                  cur = cur.getVehicle
-                          ();
-               }
-               entityrenderdispatcher.render(entity, 0.0F, offset, 0.0F,
-                       0.0F, 1.0F, graphics.pose(), graphics.bufferSource(), 15728880);
+            entity.getPassengersAndSelf().forEach((e) -> {
+               double offset = 0.0D;
+               for(Entity cur = e; cur.getVehicle() != null; offset += cur.getPassengersRidingOffset()) { cur = cur.getVehicle(); }
+               entityrenderdispatcher.render(entity, 0.0D, offset, 0.0D,
+                       0.0F, 1.0F, matrixStack, graphics.bufferSource(), 0xF000F0);
             });
-         } else {
-            entityrenderdispatcher.render(entity, 0.0F, 0.0F, 0.0F,
-                    0.0F, 1.0F, graphics.pose(), graphics.bufferSource(), 15728880);
+         }
+         else {
+            entityrenderdispatcher.render(entity, 0.0D, 0.0D, 0.0D,
+                    0.0F, 1.0F, matrixStack, graphics.bufferSource(), 0xF000F0);
          }
       });
+
       graphics.flush();
       entityrenderdispatcher.setRenderShadow(true);
       posestack.scale(1.0F, 1.0F, -1.0F);
@@ -201,10 +187,6 @@ public class CustomGuiEntityDisplay extends GuiLabel implements IComponentCustom
       if (npc != null) {
          npc.ais.orientation = orientation;
          npc.display.setShowName(showname);
-      }
-
-      if (npc instanceof EntityCustomNpc cnpc && cnpc.modelData.getEntity(cnpc) != null) {
-         EntityUtil.Copy(npc, cnpc.modelData.getEntity(cnpc));
       }
    }
 

@@ -62,12 +62,10 @@ public class SPacketScriptGet extends PacketServerBasic {
          case 1: {
             PlayerData data = PlayerData.get(player);
             BlockEntity tile = player.level().getBlockEntity(data.scriptBlockPos);
-            if (!(tile instanceof TileScripted)) {
-               CustomNpcs.debugData.end("Packets");
-               return;
+            if (tile instanceof TileScripted) {
+               ((TileScripted)tile).save(compound);
+               compound.put("Methods", NBTTags.nbtStringList(Arrays.stream(EnumScriptType.blockScripts).map((type) -> type.function).collect(Collectors.toList())));
             }
-            ((TileScripted)tile).save(compound);
-            compound.put("Methods", NBTTags.nbtStringList(Arrays.stream(EnumScriptType.blockScripts).map((type) -> type.function).collect(Collectors.toList())));
             break;
          } // Block
          case 2: {
@@ -89,12 +87,10 @@ public class SPacketScriptGet extends PacketServerBasic {
          case 5: {
             PlayerData data = PlayerData.get(player);
             BlockEntity tile = player.level().getBlockEntity(data.scriptBlockPos);
-            if (!(tile instanceof TileScriptedDoor)) {
-               CustomNpcs.debugData.end("Packets");
-               return;
+            if (tile instanceof TileScriptedDoor) {
+               ((TileScriptedDoor)tile).getNBT(compound);
+               compound.put("Methods", NBTTags.nbtStringList(Arrays.stream(EnumScriptType.doorScripts).map((type) -> type.function).collect(Collectors.toList())));
             }
-            ((TileScriptedDoor)tile).getNBT(compound);
-            compound.put("Methods", NBTTags.nbtStringList(Arrays.stream(EnumScriptType.doorScripts).map((type) -> type.function).collect(Collectors.toList())));
             break;
          } // Door
          case 6: {
@@ -113,53 +109,55 @@ public class SPacketScriptGet extends PacketServerBasic {
             break;
          } // all NPC's
       }
-      compound.put("Languages", ScriptController.Instance.nbtLanguages(type == 6));
-      compound.putString("DirPath", ScriptController.Instance.dir.getAbsolutePath());
-      // collect and clear scripts and consoles
-      Map<Integer, List<String>> mapScripts = new TreeMap<>();
-      Map<Integer, Map<Long, List<String>>> mapConsoles = new TreeMap<>();
-      ListTag scripts = compound.getList("Scripts", 10);
-      for (int i = 0; i < scripts.size(); i++) {
-         CompoundTag scriptNbt = scripts.getCompound(i);
-         // Script
-         if (scriptNbt.contains("Script", 8)) { mapScripts.put(i, Util.instance.getStringData(scriptNbt.getString("Script"))); }
-         else {
-            mapScripts.put(i, new ArrayList<>());
-            ListTag list = scriptNbt.getList("Script", 8);
-            for (int k = 0; k < list.size(); k++) { mapScripts.get(i).add(list.getString(k)); }
-         }
-         scriptNbt.put("Script", new ListTag());
-         // Console
-         ListTag consoles = scriptNbt.getList("Console", 10);
-         for (int j = 0; j < consoles.size(); j++) {
-            if (!mapConsoles.containsKey(i)) { mapConsoles.put(i, new LinkedHashMap<>()); }
-            CompoundTag errorNbt = consoles.getCompound(j);
-            long time = errorNbt.getLong("Long");
-            if (errorNbt.contains("String", 8)) {
-               mapConsoles.get(i).put(time, Util.instance.getStringData(errorNbt.getString("String")));
-            }
+      if (compound.contains("Methods", ListTag.TAG_LIST)) {
+         compound.put("Languages", ScriptController.Instance.nbtLanguages(type == 6));
+         compound.putString("DirPath", ScriptController.Instance.dir.getAbsolutePath());
+         // collect and clear scripts and consoles
+         Map<Integer, List<String>> mapScripts = new TreeMap<>();
+         Map<Integer, Map<Long, List<String>>> mapConsoles = new TreeMap<>();
+         ListTag scripts = compound.getList("Scripts", 10);
+         for (int i = 0; i < scripts.size(); i++) {
+            CompoundTag scriptNbt = scripts.getCompound(i);
+            // Script
+            if (scriptNbt.contains("Script", 8)) { mapScripts.put(i, Util.instance.getStringData(scriptNbt.getString("Script"))); }
             else {
-               mapConsoles.get(i).put(time, new ArrayList<>());
-               ListTag list = errorNbt.getList("String", 8);
-               for (int k = 0; k < list.size(); k++) { mapConsoles.get(i).get(time).add(list.getString(k)); }
+               mapScripts.put(i, new ArrayList<>());
+               ListTag list = scriptNbt.getList("Script", 8);
+               for (int k = 0; k < list.size(); k++) { mapScripts.get(i).add(list.getString(k)); }
             }
-            errorNbt.put("String", new ListTag());
+            scriptNbt.put("Script", new ListTag());
+            // Console
+            ListTag consoles = scriptNbt.getList("Console", 10);
+            for (int j = 0; j < consoles.size(); j++) {
+               if (!mapConsoles.containsKey(i)) { mapConsoles.put(i, new LinkedHashMap<>()); }
+               CompoundTag errorNbt = consoles.getCompound(j);
+               long time = errorNbt.getLong("Long");
+               if (errorNbt.contains("String", 8)) {
+                  mapConsoles.get(i).put(time, Util.instance.getStringData(errorNbt.getString("String")));
+               }
+               else {
+                  mapConsoles.get(i).put(time, new ArrayList<>());
+                  ListTag list = errorNbt.getList("String", 8);
+                  for (int k = 0; k < list.size(); k++) { mapConsoles.get(i).get(time).add(list.getString(k)); }
+               }
+               errorNbt.put("String", new ListTag());
+            }
          }
-      }
-      Packets.send(player, new PacketGuiData(compound));
-      for (int tab : mapScripts.keySet()) {
-         List<String> scriptStrings = mapScripts.get(tab);
-         int i = 0;
-         for (String part : scriptStrings) {
-            Packets.send(player, new PacketScriptText(tab, i++, scriptStrings.size(), part, false));
-         }
-      }
-      for (int tab : mapConsoles.keySet()) {
-         for (long time : mapConsoles.get(tab).keySet()) {
-            List<String> consoleStrings = mapConsoles.get(tab).get(time);
+         Packets.send(player, new PacketGuiData(compound));
+         for (int tab : mapScripts.keySet()) {
+            List<String> scriptStrings = mapScripts.get(tab);
             int i = 0;
-            for (String part : consoleStrings) {
-               Packets.send(player, new PacketScriptConsole(tab, time, i++, consoleStrings.size(), part, false));
+            for (String part : scriptStrings) {
+               Packets.send(player, new PacketScriptText(tab, i++, scriptStrings.size(), part, false));
+            }
+         }
+         for (int tab : mapConsoles.keySet()) {
+            for (long time : mapConsoles.get(tab).keySet()) {
+               List<String> consoleStrings = mapConsoles.get(tab).get(time);
+               int i = 0;
+               for (String part : consoleStrings) {
+                  Packets.send(player, new PacketScriptConsole(tab, time, i++, consoleStrings.size(), part, false));
+               }
             }
          }
       }
