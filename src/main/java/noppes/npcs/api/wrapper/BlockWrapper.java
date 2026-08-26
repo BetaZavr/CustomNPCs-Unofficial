@@ -40,7 +40,6 @@ import noppes.npcs.blocks.tiles.TileNpcEntity;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.mixin.world.entity.IEntityMixin;
 import noppes.npcs.shared.common.util.LRUHashMap;
-import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.CustomNPCsScheduler;
 
 import javax.annotation.Nonnull;
@@ -86,11 +85,7 @@ public class BlockWrapper implements IBlock {
       Level level = CustomNpcs.proxy.overworld();
       BlockState state;
       if (level == null) { state = Blocks.AIR.defaultBlockState(); }
-      else {
-         LogWriter.info("[DEBUG] compound "+compound);
-         state = NbtUtils.readBlockState(level.holderLookup(Registries.BLOCK), compound);
-         LogWriter.info("[DEBUG] state "+state);
-      }
+      else { state = NbtUtils.readBlockState(level.holderLookup(Registries.BLOCK), compound); }
       BlockPos pos = BlockPos.of(compound.getLong("BlockPos"));
       Block block = state.getBlock();
       if (block instanceof BlockScripted) { return new BlockScriptedWrapper(level, state, pos); }

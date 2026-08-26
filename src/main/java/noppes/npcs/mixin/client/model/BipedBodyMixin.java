@@ -8,7 +8,6 @@ import net.minecraft.world.entity.LivingEntity;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.model.animation.AnimationHandler;
 import noppes.npcs.client.renderer.RenderCustomNpc;
-import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.entity.EntityCustomNpc;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -43,7 +42,7 @@ public class BipedBodyMixin<T extends LivingEntity> {
       HumanoidModel<T> bipedModel = (HumanoidModel<T>) (Object) this;
       if (livingEntity instanceof EntityCustomNpc npc) {
          AnimationHandler.animateBipedPost(ClientProxy.data, bipedModel, livingEntity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-         if (npc.advanced.animationType == EnumAnimationType.PUPPET) {
+         if (npc.advanced.animationType == 1) {
             if (npc.puppet.isActive()) {
                float pi = (float) Math.PI;
                float partialTicks = Minecraft.getInstance().getDeltaFrameTime();

@@ -26,7 +26,8 @@ public enum AnimationKind {
     SITTING(21, true, false),
     SLEEPING(22, true, false),
     SNEAK_STAND(24, true, false),
-    SNEAK_WALK(25, true, false);
+    SNEAK_WALK(25, true, false),
+    DIALOG(26, true, false);
 
     public static AnimationKind get(int type) {
         for (AnimationKind ak : AnimationKind.values()) {

@@ -207,6 +207,7 @@
   "animation.hover.anim.22": "Animation is activated when alive and sleeping",
   "animation.hover.anim.23": "Animation is activated when standing on the ground and sneaking",
   "animation.hover.anim.24": "Animation is activated when walking on the ground and sneaking",
+  "animation.hover.anim.26": "Animation is superimposed on NPCs in the dialogue GUI",
   "animation.hover.anim.3": "Animation is activated when moving while in the air<br>§7Any stop does not cancel the animation; it plays until the end",
   "animation.hover.anim.4": "Animation is activated when initialized in the world<br>§7And also upon resurrection or initialization",
   "animation.hover.anim.5": "Animation is activated when breaking away from a block<br>§7More than§6 0.25<br>§7Cannot fly, swim, or move up stairs<br>§7Looping, repeats the last frame in any case until it lands on the ground",
@@ -320,6 +321,7 @@
   "animation.type.custom": "Custom",
   "animation.type.none": "No",
   "animation.type.puppet": "Puppet",
+  "animation.setts": "Animation options:",
   "argument.entity.selector.not_allowed": "Selector not allowed",
   "argument.no.https": "URL must start with https://",
   "argument.texture.not.type": "Incorrect texture type specified",
@@ -2347,6 +2349,7 @@
   "puppet.walking": "§b§lWhile walking",
   "puppet.waterstand": "§7§lStanding§9§l in water",
   "puppet.waterwalk": "§b§lWalking§9§l in water",
+  "puppet.dialog": "§d§lDialogues",
   "quest.areakill": "AreaKill",
   "quest.base.0": "Help Villager",
   "quest.base.complete.text.0": "The peasant saw you, took the wood, and gave you a reward.",
@@ -3244,5 +3247,5 @@
   "entity.hover.customnpcs.npcpony": "NPC with Pony model",
   "entity.hover.customnpcs.npcslime": "NPC with Slime model",
   "entity.hover.minecraft": "NPC with in-game mob model",
-  "entity.hover.in.mod": "NPC with mob model from another mod (%s)"
+  "entity.hover.in.mod": "NPC with mob model from another mod"
 }

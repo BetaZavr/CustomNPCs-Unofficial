@@ -111,7 +111,7 @@ public class GuiCustomScrollNop extends Screen implements IComponentGui {
       listHeight = lineHeight * listSize;
       if (listHeight > 0) { scrollHeight = (int)((double)(height - 2) / (double)listHeight * (double)(height - 2)); }
       else { scrollHeight = Integer.MAX_VALUE; }
-      maxScrollY = listHeight - (height - 2) - 1;
+      maxScrollY = listHeight - height + 2;
       resetRoll();
       return this;
    }

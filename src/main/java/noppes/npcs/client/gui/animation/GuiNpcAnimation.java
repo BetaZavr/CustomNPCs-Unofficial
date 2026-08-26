@@ -77,6 +77,7 @@ public class GuiNpcAnimation extends GuiNPCInterface
         dataType.put(Component.translatable("puppet." + AnimationKind.FLY_WALK.name().toLowerCase().replace("_", "")), AnimationKind.FLY_WALK);
         dataType.put(Component.translatable("puppet." + AnimationKind.WATER_WALK.name().toLowerCase().replace("_", "")), AnimationKind.WATER_WALK);
         dataType.put(Component.translatable("puppet." + AnimationKind.REVENGE_WALK.name().toLowerCase().replace("_", "")), AnimationKind.REVENGE_WALK);
+        dataType.put(Component.translatable("puppet." + AnimationKind.DIALOG.name().toLowerCase().replace("_", "")), AnimationKind.DIALOG);
     }
 
     public GuiNpcAnimation(@Nonnull EntityCustomNpc npcIn) {
@@ -84,7 +85,6 @@ public class GuiNpcAnimation extends GuiNPCInterface
         setBackground("bgfilled.png");
         imageWidth = 420;
         imageHeight = 217;
-        closeOnEsc = true;
 
         animation = new DataAnimation(npcIn);
         int i = 0;
@@ -247,7 +247,7 @@ public class GuiNpcAnimation extends GuiNPCInterface
         scrollType.setSelected(selType);
         addLabel(0, x + 1, y - 10, Component.translatable("animation.type", ""))
                 .setSize(120, 10);
-        x += 123;
+        x += scrollType.getWidth() + 3;
         dataAnimations.clear();
         dataAllAnimations.clear();
         aData = AnimationController.getInstance();
@@ -286,6 +286,8 @@ public class GuiNpcAnimation extends GuiNPCInterface
         }
         add(scrollAnimations.setPos(x, y)
                 .setUnsortedList(dataAnimations));
+        addLabel(1, x + 1, y - 10, Component.translatable("animation.setts"))
+                .setSize(120, 10);
 
         if (selAnim.getString().isEmpty() && selBaseAnim.getString().isEmpty() && !scrollAnimations.getList().isEmpty()) {
             for (Component key : scrollAnimations.getNormalList()) {
@@ -309,7 +311,7 @@ public class GuiNpcAnimation extends GuiNPCInterface
                 .setHoverTexts(hts));
         if (!selBaseAnim.getString().isEmpty()) { scrollAllAnimations.setSelected(selBaseAnim); }
         AnimationConfig anim = getAnim();
-        addLabel(1, x + 1, y - 10, Component.translatable("movement.animation").append(":"))
+        addLabel(2, x + 1, y - 10, Component.translatable("movement.animation").append(":"))
                 .setSize(120, 10);
         // create
         addButton(0, x, y, "markov.generate")

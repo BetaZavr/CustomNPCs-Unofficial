@@ -9,7 +9,6 @@ import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.data.INPCAdvanced;
 import noppes.npcs.client.controllers.MusicController;
-import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumSeeTarget;
 import noppes.npcs.controllers.data.*;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -43,7 +42,13 @@ public class DataAdvanced implements INPCAdvanced {
    public DataScenes scenes;
 
    // New from Unofficial (BetaZavr)
-   public EnumAnimationType animationType = EnumAnimationType.NONE;
+   /*
+    * 0 - none
+    * 1 - puppet
+    * 2 - custom anims
+    * 3 - geckolib
+    */
+   public int animationType = 0;
    public HashSet<Integer> attackFactions = new HashSet<>();
    public HashSet<Integer> friendFactions = new HashSet<>();
    public EntityNPCInterface spawner;
@@ -76,7 +81,7 @@ public class DataAdvanced implements INPCAdvanced {
       compound.put("NpcScenes", scenes.save(new CompoundTag()));
       compound.putIntArray("NPCDialogOptions", npc.dialogs);
       // New from Unofficial (BetaZavr)
-      compound.putInt("AnimationType", animationType.ordinal());
+      compound.putInt("AnimationType", animationType);
       compound.putBoolean("ThroughWalls", throughWalls);
       compound.put("AttackFactions", NBTTags.nbtIntegerCollection(attackFactions));
       compound.put("FrendFactions", NBTTags.nbtIntegerCollection(friendFactions));
@@ -209,9 +214,7 @@ public class DataAdvanced implements INPCAdvanced {
 
    public Line getLevelLine() { return worldLines.getLine(!orderedLines); }
 
-   public Line getNPCInteractLine() {
-      return npcInteractLines.getLine(!orderedLines);
-   }
+   public Line getNPCInteractLine() { return npcInteractLines.getLine(!orderedLines); }
 
    public void setRole(int id) { RoleType.get(id).setToNpc(npc); }
 
@@ -234,11 +237,11 @@ public class DataAdvanced implements INPCAdvanced {
    }
 
    @Override
-   public int getAnimationType() { return animationType.ordinal(); }
+   public int getAnimationType() { return animationType; }
 
    @Override
    public void setAnimationType(int type) {
-      animationType = EnumAnimationType.values()[ValueUtil.onlyPositiveInt(type, EnumAnimationType.values().length - 1)];
+      animationType = ValueUtil.onlyPositiveInt(type, 100);
       npc.updateClient = true;
    }
 

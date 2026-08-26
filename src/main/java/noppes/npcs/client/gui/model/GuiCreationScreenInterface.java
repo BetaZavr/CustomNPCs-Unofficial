@@ -84,7 +84,6 @@ public abstract class GuiCreationScreenInterface extends GuiNPCInterface impleme
          add(new GuiButtonNop(this, 5, "gui.load", guiLeft + 62, guiTop + imageHeight - 24,
                  button -> openGui(new GuiCreationLoad(npc))).setSize(60, 20));
       }
-
       if (getButton(active) == null) { openGui(new GuiCreationEntities(npc)); }
       else {
          getButton(active).active = false;
