@@ -1664,7 +1664,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		ais.mountControl = compound.getBoolean("MountControl");
 
 		// animation
-		animationType = EnumNPCAnimationType.values()[compound.getInteger("AnimationType")];
+		animationType = EnumNPCAnimationType.values()[compound.getInteger("NPCAnimationType")];
 		if (compound.hasKey("Puppet")) { puppet.load(compound.getCompoundTag("Puppet")); }
 	}
 
@@ -2189,7 +2189,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		compound.setString("LinkedNpcName", linkedName);
 		compound.setInteger("HomeDimensionId", homeDimensionId);
 
-		puppet.save(compound);
+		compound.setTag("Puppet", puppet.save(new NBTTagCompound()));
 	}
 
 	public NBTTagCompound writeSpawnData() {
@@ -2243,7 +2243,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		compound.setBoolean("MountControl", ais.mountControl);
 
 		// animation
-		compound.setInteger("AnimationType", animationType.ordinal());
+		compound.setInteger("NPCAnimationType", animationType.ordinal());
 		compound.setTag("Puppet", puppet.save(new NBTTagCompound()));
 		return compound;
 	}

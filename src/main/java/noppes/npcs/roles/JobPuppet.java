@@ -138,7 +138,6 @@ public class JobPuppet extends JobInterface implements IJobPuppet {
         return calcRotation(part1.rotationX, part2.rotationX, partialTicks);
     }
 
-    @SuppressWarnings("unused")
     public float getRotationY(PartConfig part1, PartConfig part2, float partialTicks) {
         return calcRotation(part1.rotationY, part2.rotationY, partialTicks);
     }

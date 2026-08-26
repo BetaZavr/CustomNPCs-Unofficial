@@ -71,7 +71,7 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 			}
 			case 3: setSubGui(new SubGuiTextureSelection(this, 0, npc, npc.display.getSkinTexture(), ".png", 0)); break;
 			case 4: display.setShadowType(button.getValue()); break;
-			case 5: display.setHasLivingAnimation(button.getValue() == 0); break;
+			case 5: display.setHasLivingAnimation(((GuiButtonYesNo) button).getBoolean()); break;
 			case 7: display.setVisible(button.getValue()); initGui(); break;
 			case 8: setSubGui(new SubGuiTextureSelection(this, 1, npc, npc.display.getCapeTexture(), ".png", 1)); break;
 			case 9: setSubGui(new SubGuiTextureSelection(this, 1, npc, npc.display.getOverlayTexture(), ".png", 2)); break;

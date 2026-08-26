@@ -34,6 +34,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.model.part.AnimData;
 import noppes.npcs.client.model.part.head.ModelHeadwear;
+import noppes.npcs.constants.EnumAnimationType;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityCustomNpc;
@@ -42,6 +43,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.EntityNpcAlex;
 import noppes.npcs.entity.EntityNpcClassicPlayer;
 import noppes.npcs.entity.data.DataAnimation;
+import noppes.npcs.roles.JobPuppet;
 
 import javax.annotation.Nonnull;
 
@@ -721,6 +723,20 @@ public class ModelNpcAlt extends ModelPlayer {
                 }
             }
         }
+        if (entityIn instanceof EntityNPCInterface) {
+            EntityNPCInterface npc = (EntityNPCInterface) entityIn;
+            if (npc.advanced.animationType == EnumAnimationType.PUPPET && npc.puppet.isActive()) {
+                Minecraft minecraft = Minecraft.getMinecraft();
+                float partialTicks = 0.0f;
+                if (minecraft.currentScreen == null || minecraft.currentScreen.isFocused()) { partialTicks = minecraft.getRenderPartialTicks(); }
+                setPuppetRotation(bipedHead, npc.puppet, npc.puppet.head, npc.puppet.head2, partialTicks);
+                setPuppetRotation(bipedBody, npc.puppet, npc.puppet.body, npc.puppet.body2, partialTicks);
+                setPuppetRotation(bipedRightArm, npc.puppet, npc.puppet.rarm, npc.puppet.rarm2, partialTicks);
+                setPuppetRotation(bipedLeftArm, npc.puppet, npc.puppet.larm, npc.puppet.larm2, partialTicks);
+                setPuppetRotation(bipedRightLeg, npc.puppet, npc.puppet.rleg, npc.puppet.rleg2, partialTicks);
+                setPuppetRotation(bipedLeftLeg, npc.puppet, npc.puppet.lleg, npc.puppet.lleg2, partialTicks);
+            }
+        }
         if (CustomNpcs.HeadWearType != 2) {
             copyModelAngles((ModelRendererAlt) bipedHead, (ModelRendererAlt) bipedHeadwear);
             if (bipedHeadwear_64 != null) { copyModelAngles((ModelRendererAlt) bipedHead, bipedHeadwear_64); }
@@ -758,6 +774,13 @@ public class ModelNpcAlt extends ModelPlayer {
             if (bipedLeftLeg instanceof ModelRendererAlt && bipedLeftLegwear instanceof ModelRendererAlt) { copyModelAngles((ModelRendererAlt) bipedLeftLeg, (ModelRendererAlt) bipedLeftLegwear); }
             else { copyModelAngles(bipedLeftLeg, bipedLeftLegwear); }
         }
+    }
+
+    private void setPuppetRotation(ModelRenderer part, JobPuppet puppet, JobPuppet.PartConfig start, JobPuppet.PartConfig end, float partialTicks) {
+        if (part == null || start == null || end == null || start.disabled) { return; }
+        part.rotateAngleX = puppet.getRotationX(start, end, partialTicks) * (float) Math.PI;
+        part.rotateAngleY = puppet.getRotationY(start, end, partialTicks) * (float) Math.PI;
+        part.rotateAngleZ = puppet.getRotationZ(start, end, partialTicks) * (float) Math.PI;
     }
 
     @Override

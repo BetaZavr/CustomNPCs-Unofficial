@@ -564,6 +564,8 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		}
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		GlStateManager.popMatrix();
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0.0f, 0.0f, 100.0f);
 		if (!options.isEmpty()) {
 			if (waitToAnswer > System.currentTimeMillis()) {
 				ClientProxy.Font.draw(Component.empty().append(Component.translatable("gui.wait",
@@ -647,6 +649,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 				if (selected == -1) { selected = options.size() - 1; }
 			}
 		}
+		GlStateManager.popMatrix();
 	}
 
 	protected void drawString(String text, int left, int color, int linePos) {
