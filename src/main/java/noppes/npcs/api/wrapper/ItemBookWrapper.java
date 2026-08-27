@@ -6,67 +6,54 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.world.item.ItemStack;
+import noppes.npcs.api.constants.ItemType;
 import noppes.npcs.api.item.IItemBook;
 
 public class ItemBookWrapper extends ItemStackWrapper implements IItemBook {
 
-   protected ItemBookWrapper(ItemStack item) {
-      super(item);
-   }
+   protected ItemBookWrapper(ItemStack item) { super(item); }
 
-   public String getTitle() {
-      return this.getTag().getString("title");
-   }
+   @Override
+   public String getTitle() { return getTag().getString("title"); }
 
-   public void setTitle(String title) {
-      this.getTag().putString("title", title);
-   }
+   @Override
+   public void setTitle(String title) { getTag().putString("title", title); }
 
-   public String getAuthor() {
-      return this.getTag().getString("author");
-   }
+   @Override
+   public String getAuthor() { return getTag().getString("author"); }
 
-   public void setAuthor(String author) {
-      this.getTag().putString("author", author);
-   }
+   @Override
+   public void setAuthor(String author) { getTag().putString("author", author); }
 
+   @Override
    public String[] getText() {
       List<String> list = new ArrayList<>();
-      ListTag pages = this.getTag().getList("pages", 8);
-
+      ListTag pages = getTag().getList("pages", 8);
       for(int i = 0; i < pages.size(); ++i) {
          list.add(pages.getString(i));
       }
-
       return list.toArray(new String[0]);
    }
 
+   @Override
    public void setText(String... pages) {
       ListTag list = new ListTag();
       if (pages != null) {
-         for (String page : pages) {
-            list.add(StringTag.valueOf(page));
-         }
+         for (String page : pages) { list.add(StringTag.valueOf(page)); }
       }
-
-      this.getTag().put("pages", list);
+      getTag().put("pages", list);
    }
+
+   @Override
+   public boolean isBook() { return true; }
+
+   @Override
+   public int getType() { return ItemType.BOOK.get(); }
 
    private CompoundTag getTag() {
-      CompoundTag comp = this.item.getTag();
-      if (comp == null) {
-         this.item.setTag(comp = new CompoundTag());
-      }
-
+      CompoundTag comp = item.getTag();
+      if (comp == null) { item.setTag(comp = new CompoundTag()); }
       return comp;
-   }
-
-   public boolean isBook() {
-      return true;
-   }
-
-   public int getType() {
-      return 1;
    }
 
 }

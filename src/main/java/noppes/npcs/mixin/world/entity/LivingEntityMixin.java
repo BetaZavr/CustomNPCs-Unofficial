@@ -3,13 +3,7 @@ package noppes.npcs.mixin.world.entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.mixin.entity.ILivingEntityMixin;
 import noppes.npcs.controllers.data.MarkData;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -34,34 +28,6 @@ public class LivingEntityMixin implements ILivingEntityMixin {
     private void cnpcs$renderToBuffer(CompoundTag compound, CallbackInfo callbackInfo) {
         LivingEntity e = (LivingEntity) (Object) this;
         if (!e.level().isClientSide()) { MarkData.get(e).save(); }
-    }
-
-    // change recoil force from mod settings
-    @Inject(at = @At("HEAD"),
-            method = "knockback(DDD)V",
-            cancellable = true)
-    private void npcs$knockback(double strength, double ratioX, double ratioZ, CallbackInfo ci) {
-        LivingEntity parent = (LivingEntity) (Object) this;
-        if (npcs$currentDamageSource != null && !npcs$currentDamageSource.getMsgId().toLowerCase().contains("explosion") && npcs$currentDamageSource.is(DamageTypeTags.IS_PROJECTILE)) {
-            strength *= 0.375f * ((float) CustomNpcs.KnockBackBasePowerRanged / 100.0f);
-        }
-        else { strength *= 0.5f * ((float) CustomNpcs.KnockBackBasePower / 100.0f); }
-        LivingKnockBackEvent event = ForgeHooks.onLivingKnockBack(parent, (float) strength, ratioX, ratioZ);
-        if (!event.isCanceled()) {
-            strength = event.getStrength();
-            ratioX = event.getRatioX();
-            ratioZ = event.getRatioZ();
-            strength *= 1.0 - parent.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
-            if (!(strength <= 0.0)) {
-                parent.hasImpulse = true;
-                Vec3 vec3 = parent.getDeltaMovement();
-                Vec3 vec31 = (new Vec3(ratioX, 0.0, ratioZ)).normalize().scale(strength);
-                parent.setDeltaMovement(vec3.x / 2.0 - vec31.x, parent.onGround() ? Math.min(0.4, vec3.y / 2.0 + strength) : vec3.y, vec3.z / 2.0 - vec31.z);
-            }
-        }
-        if (event.isCanceled()) { return; }
-        npcs$currentDamageSource = null;
-        ci.cancel();
     }
 
     // remember the source of damage
@@ -89,6 +55,9 @@ public class LivingEntityMixin implements ILivingEntityMixin {
         }
         if (strength != 0) { instance.knockback(strength, xRatio, zRatio); }
     }
+
+    @Override
+    public DamageSource npcs$getCurrentDamageSource() { return npcs$currentDamageSource; }
 
     @Override
     public void npcs$setCurrentDamageSource(DamageSource source) { npcs$currentDamageSource = source; }

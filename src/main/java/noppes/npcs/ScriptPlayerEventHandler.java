@@ -19,10 +19,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -50,9 +52,7 @@ import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.*;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent.Close;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent.Open;
@@ -832,6 +832,36 @@ public class ScriptPlayerEventHandler {
          else { drops.set(i, iStack.getMCItemStack()); }
       }
       CustomNpcs.debugData.end(player);
+   }
+
+   @SubscribeEvent
+   public void cnpcKnockBackEvent(LivingKnockBackEvent event) {
+      LivingEntity entity = event.getEntity();
+      CustomNpcs.debugData.start(entity);
+      ILivingEntityMixin mixin = (ILivingEntityMixin) entity;
+      float strength = event.getStrength();
+      if (mixin.npcs$getCurrentDamageSource() != null &&
+              !mixin.npcs$getCurrentDamageSource().getMsgId().toLowerCase().contains("explosion") &&
+              mixin.npcs$getCurrentDamageSource().is(DamageTypeTags.IS_PROJECTILE)) {
+         strength *= 0.375f * ((float) CustomNpcs.KnockBackBasePowerRanged / 100.0f);
+      }
+      else { strength *= 0.5f * ((float) CustomNpcs.KnockBackBasePower / 100.0f); }
+
+      double ratioX = event.getRatioX();
+      double ratioZ = event.getRatioZ();
+      strength *= 1.0F - (float) entity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
+      if (strength > 0.0F) {
+         entity.hasImpulse = true;
+         Vec3 vec3 = entity.getDeltaMovement();
+         Vec3 vec31 = (new Vec3(ratioX, 0.0, ratioZ)).normalize().scale(strength);
+         entity.setDeltaMovement(vec3.x / 2.0 - vec31.x,
+                 entity.onGround() ? Math.min(0.4, vec3.y / 2.0 + strength) : vec3.y, vec3.z / 2.0 - vec31.z);
+      }
+      mixin.npcs$setCurrentDamageSource(null);
+      event.setStrength(strength);
+      event.setStrength(strength);
+      event.setCanceled(true);
+      CustomNpcs.debugData.end(entity);
    }
 
    @SubscribeEvent

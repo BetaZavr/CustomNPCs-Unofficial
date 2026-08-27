@@ -15,6 +15,7 @@ import net.minecraftforge.eventbus.api.Event;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.constants.ItemType;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.item.IItemScripted;
@@ -117,9 +118,7 @@ public class ItemScriptedWrapper extends ItemStackWrapper implements IItemScript
    }
 
    @Override
-   public int getType() {
-      return 6;
-   }
+   public int getType() { return ItemType.SCRIPTED.get(); }
 
    @Override
    public void runScript(String type, Event event) {

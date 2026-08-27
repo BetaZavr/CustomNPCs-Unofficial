@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
+import noppes.npcs.api.constants.ItemType;
 import noppes.npcs.api.item.IItemBlock;
 
 public class ItemBlockWrapper extends ItemStackWrapper implements IItemBlock {
@@ -18,8 +19,10 @@ public class ItemBlockWrapper extends ItemStackWrapper implements IItemBlock {
       this.blockName = registryName.toString();
    }
 
-   public int getType() { return 2; }
+   @Override
+   public int getType() { return ItemType.BLOCK.get(); }
 
+   @Override
    public String getBlockName() { return blockName; }
 
 }

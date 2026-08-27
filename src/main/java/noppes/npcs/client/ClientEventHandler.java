@@ -476,7 +476,7 @@ public class ClientEventHandler {
 
     // DebugRenderer.renderFilledBox(PoseStack, MultiBufferSource, aabb, red, green, blue, alpha);
     public void renderFilledBox(VertexConsumer consumer, Matrix4f matrix4f, AABB aabb,
-                                 boolean addFromInside, float red, float green, float blue, float alpha) {
+                                boolean addFromInside, float red, float green, float blue, float alpha) {
         float minX = (float) aabb.minX;
         float minY = (float) aabb.minY;
         float minZ = (float) aabb.minZ;
@@ -622,14 +622,14 @@ public class ClientEventHandler {
                     Field field = CubeMap.class.getField(name);
                     field.setAccessible(true);
                     GuiButtonNop button = new GuiButtonNop(null, 150, 3, 3, (b) -> {
-                                int v = ((GuiButtonNop) b).getValue() - 1;
-                                try { field.set(TitleScreen.CUBE_MAP, v); }  catch (Exception ignored) { }
-                                ResourceLocation[] images = ((ICubeMapMixin) TitleScreen.CUBE_MAP).getImages();
-                                for(int i = 0; i < 6; ++i) {
-                                    if (v < 0) { images[i] = new ResourceLocation("textures/gui/title/background/panorama_" + i + ".png"); }
-                                    else { images[i] = new ResourceLocation(CustomNpcs.MODID, "textures/gui/title/background/" + v + "/panorama_" + i + ".png"); }
-                                }
-                            },
+                        int v = ((GuiButtonNop) b).getValue() - 1;
+                        try { field.set(TitleScreen.CUBE_MAP, v); }  catch (Exception ignored) { }
+                        ResourceLocation[] images = ((ICubeMapMixin) TitleScreen.CUBE_MAP).getImages();
+                        for(int i = 0; i < 6; ++i) {
+                            if (v < 0) { images[i] = new ResourceLocation("textures/gui/title/background/panorama_" + i + ".png"); }
+                            else { images[i] = new ResourceLocation(CustomNpcs.MODID, "textures/gui/title/background/" + v + "/panorama_" + i + ".png"); }
+                        }
+                    },
                             (int) field.get(TitleScreen.CUBE_MAP) + 1, Component.literal("MC"),
                             Component.literal("1"),
                             Component.literal("2"),
