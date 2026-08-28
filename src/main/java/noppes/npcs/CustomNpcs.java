@@ -264,7 +264,8 @@ public class CustomNpcs {
    public static boolean FreezeNPCs = false;
    public static final String MODID = "customnpcs";
    public static final String MODNAME = "CustomNpcs";
-   public static final String VERSION = "1.20.1";
+   @SuppressWarnings("unused")
+   public static final String VERSION = "5.433";
    public static ConfigLoader Config;
    public static MinecraftServer Server;
    public static File Dir;

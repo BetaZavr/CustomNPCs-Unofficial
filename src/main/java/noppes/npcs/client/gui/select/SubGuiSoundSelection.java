@@ -56,7 +56,7 @@ public class SubGuiSoundSelection extends ResourceSelection {
    public void init() {
       super.init();
       if (scroll == null) { scroll = addScroll(0); }
-      scroll.setSize(scrollWidth, 180);
+      scroll.setSize(scrollWidth, 168);
       int h = guiTop + imageHeight - 25;
       List<Object> options = new ArrayList<>();
       options.add("spawner.random");
@@ -148,12 +148,15 @@ public class SubGuiSoundSelection extends ResourceSelection {
                            name.setMessage(Component.literal(musicData.name)
                                    .append(Component.literal(" / ").withStyle(ChatFormatting.GRAY))
                                    .append(Component.literal(musicData.resource.getPath().replaceAll("/", ".")).withStyle(ChatFormatting.GRAY)));
+                           error = null;
                            LogWriter.info("Sound found and is played: "+md.name+"; option: "+md.resource);
                            return;
                         }
                      }
                   }
-                  error = Component.literal(resource.getPath()).append(" -").append(Component.translatable("quest.task.location.1"));
+                  error = Component.literal(resource.getPath())
+                          .append(" - ")
+                          .append(Component.translatable("quest.task.location.1"));
                }, 100);
             }
             break;
@@ -177,16 +180,17 @@ public class SubGuiSoundSelection extends ResourceSelection {
    @Override
    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
       super.render(graphics, mouseX, mouseY, partialTicks);
+      int left = guiLeft + 5;
+      int right = guiLeft + imageWidth - 5;
+      int top = guiTop + imageHeight - 37;
+      int bottom = guiTop + imageHeight - 27;
+      graphics.fill(left, top, right, bottom, 0xFF808080);
       if (isPlay) {
          if (minecraft == null) { minecraft = Minecraft.getInstance(); }
          int alpha = 0x80;
          if (delay > 0L) {
             alpha = Math.min(128, Math.max(0, (int) ((double) (delay - System.currentTimeMillis()) * 0.064d)));
          }
-         int left = guiLeft + 5;
-         int right = guiLeft + imageWidth - 5;
-         int top = guiTop + imageHeight - 37;
-         int bottom = guiTop + imageHeight - 27;
          graphics.fill(left, top, right, bottom, alpha << 24);
          if (error != null) {
             if (delay == 0L) { delay = System.currentTimeMillis() + 4000L; }

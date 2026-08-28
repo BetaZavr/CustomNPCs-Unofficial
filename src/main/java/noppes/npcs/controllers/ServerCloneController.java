@@ -150,6 +150,7 @@ public class ServerCloneController implements ICloneHandler {
    public void cleanTags(CompoundTag compound) {
       if (compound.contains("ItemGiverId")) { compound.putInt("ItemGiverId", 0); }
       if (compound.contains("TransporterId")) { compound.putInt("TransporterId", -1); }
+      compound.remove("HomeDimensionId");
       compound.remove("StartPosNew");
       compound.remove("StartPos");
       compound.remove("MovingPathNew");

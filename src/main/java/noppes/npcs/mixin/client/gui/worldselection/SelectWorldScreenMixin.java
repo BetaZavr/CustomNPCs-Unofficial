@@ -19,6 +19,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Mixin(value = WorldSelectionList.WorldListEntry.class, priority = 498)
 public class SelectWorldScreenMixin {
 
@@ -56,6 +59,33 @@ public class SelectWorldScreenMixin {
             }
         }
         catch (Exception e) { LogWriter.error("Error while checking user agreement: "); }
+    }
+
+    /*
+     * Check all worlds.
+     * If it was deleted, then the agreement is cancelled
+     */
+    @Inject(method = "doDeleteWorld", at = @At("TAIL"))
+    private void npcs$doDeleteWorld(CallbackInfo ci) {
+        try {
+            List<String> checkList = new ArrayList<>();
+            var source = minecraft.getLevelSource();
+            var candidates = source.findLevelCandidates();
+            List<LevelSummary> summaries = source.loadLevelSummaries(candidates).join();
+            for (LevelSummary lvlSummary : summaries) {
+                if (lvlSummary != null) {
+                    checkList.add(
+                            lvlSummary.getLevelName() + "_" +
+                                    lvlSummary.getLevelId() + "_" +
+                                    lvlSummary.getWorldVersionName().getString() + "_" +
+                                    lvlSummary.getSettings().gameType()
+                    );
+                }
+            }
+            ScriptController.Instance.checkAgreements(checkList);
+        } catch (Exception e) {
+            LogWriter.error("Error while getting check list: " + e.getMessage());
+        }
     }
 
 }

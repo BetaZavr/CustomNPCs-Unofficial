@@ -76,9 +76,9 @@ public class SPacketGuiOpen extends PacketServerBasic {
                buffer.writeInt(npc != null ? npc.getId() : -1);
                buffer.writeBlockPos(pos);
             });
-            Map<String, Integer> map = getScrollData(player, gui, npc);
-            if (map != null && !map.isEmpty()) { NoppesUtilServer.sendScrollData(player, map); }
          }
+         Map<String, Integer> map = getScrollData(player, gui, npc);
+         if (map != null && !map.isEmpty()) { NoppesUtilServer.sendScrollData(player, map); }
       });
    }
 

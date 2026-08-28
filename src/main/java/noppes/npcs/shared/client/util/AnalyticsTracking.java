@@ -51,10 +51,10 @@ public class AnalyticsTracking {
       body.addProperty("client_id", uuid.toString());
       JsonArray events = new JsonArray();
       JsonObject event = new JsonObject();
-      event.addProperty("name", CustomNpcs.MODID + "_" + CustomNpcs.VERSION.replace(".", "_"));
+      event.addProperty("name", CustomNpcs.MODID + "_1_20_1");
       JsonObject eventParams = new JsonObject();
       eventParams.addProperty("type", data);
-      eventParams.addProperty("version", CustomNpcs.VERSION);
+      eventParams.addProperty("version", "1.20.1");
       event.add("params", eventParams);
       events.add(event);
       body.add("events", events);

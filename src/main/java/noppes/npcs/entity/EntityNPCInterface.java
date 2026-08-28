@@ -9,7 +9,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -65,7 +67,6 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.Node;
@@ -124,10 +125,8 @@ import noppes.npcs.api.wrapper.data.DataBlock;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.ISynchedEntityData;
 import noppes.npcs.client.SkinUtil;
-import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.parts.ModelData;
 import noppes.npcs.client.parts.ModelPartConfig;
-import noppes.npcs.constants.EnumAnimationStages;
 import noppes.npcs.constants.EnumNPCAnimationType;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.constants.EnumSeeTarget;
@@ -1155,8 +1154,7 @@ public abstract class EntityNPCInterface
       linkedName = compound.getString("LinkedNpcName");
       if (!isClientSide()) { LinkedNpcController.Instance.loadNpcData(this); }
       Objects.requireNonNull(getAttribute(Attributes.FOLLOW_RANGE)).setBaseValue(CustomNpcs.NpcNavRange);
-
-      if (compound.contains("Puppet", 10)) { puppet.load(compound.getCompound("Puppet")); }
+      if (compound.contains("Puppet", Tag.TAG_COMPOUND)) { puppet.load(compound.getCompound("Puppet")); }
       updateAI = true;
    }
 
@@ -1673,6 +1671,7 @@ public abstract class EntityNPCInterface
       compound.putInt("AnimationType", animationType.ordinal());
       compound.put("Puppet", puppet.save(new CompoundTag()));
       if (this instanceof EntityCustomNpc) { compound.put("ModelData", ((EntityCustomNpc)this).modelData.save()); }
+      compound.putString("HomeDimension", homeDimensionId.location().toString());
       return compound;
    }
 
@@ -1695,25 +1694,28 @@ public abstract class EntityNPCInterface
       inventory.weapons.clear();
       inventory.weapons.putAll(NBTTags.getIItemStackMap(compound.getList("Weapons", 10)));
       // Old Noppes
-      if (compound.contains("Role", 3) && compound.contains("NpcJob", 3)) {
+      if (compound.contains("Role", Tag.TAG_INT) && compound.contains("NpcJob", Tag.TAG_INT)) {
          advanced.setRole(compound.getInt("Role"));
          advanced.setJob(compound.getInt("NpcJob"));
          role.load(compound);
          job.load(compound);
       }
       // Old BetaZavr
-      if (compound.contains("Role", 10) && compound.contains("Job", 10)) {
+      if (compound.contains("Role", Tag.TAG_COMPOUND) && compound.contains("Job", Tag.TAG_COMPOUND)) {
          advanced.setRole(compound.getCompound("Role").getInt("Type"));
          advanced.setJob(compound.getCompound("Job").getInt("Type"));
          role.load(compound.getCompound("Role"));
          job.load(compound.getCompound("Job"));
       }
-      if (role instanceof RoleTrader && compound.contains("MarketID", 3)) { role.load(compound); }
+      if (role instanceof RoleTrader && compound.contains("MarketID", Tag.TAG_INT)) { role.load(compound); }
       if (job.getEnumType() == JobType.BARD) { job.load(compound.getCompound("Bard")); }
       if (role.getEnumType() == RoleType.COMPANION) { role.load(compound.getCompound("Companion")); }
-      if (compound.contains("Puppet", 10)) { puppet.load(compound.getCompound("Puppet")); }
+      if (compound.contains("Puppet", Tag.TAG_COMPOUND)) { puppet.load(compound.getCompound("Puppet")); }
       if (this instanceof EntityCustomNpc cNpc) { cNpc.modelData.load(compound.getCompound("ModelData")); }
       display.load(compound);
+      if (compound.contains("HomeDimension", Tag.TAG_STRING)) {
+         homeDimensionId = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString("HomeDimension")));
+      }
       refreshDimensions();
    }
 
