@@ -19,7 +19,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomItems;
@@ -222,25 +221,6 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 				model.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity);
 				model.isChild = entity.isChild();
 				NPCRendererHelper.renderModel(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, renderEntity, model, Objects.requireNonNull(getEntityTexture(npc)));
-				if (!npc.display.getOverlayTexture().isEmpty()) {
-					GlStateManager.depthFunc(515);
-					if (npc.textureGlowLocation == null) { npc.textureGlowLocation = new ResourceLocation(npc.display.getOverlayTexture()); }
-					float f1 = 1.0f;
-					GlStateManager.enableBlend();
-					GlStateManager.blendFunc(1, 1);
-					GlStateManager.disableLighting();
-					GlStateManager.depthMask(!npc.isInvisible());
-					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-					GlStateManager.pushMatrix();
-					GlStateManager.scale(1.001f, 1.001f, 1.001f);
-					NPCRendererHelper.renderModel(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, renderEntity, model, npc.textureGlowLocation);
-					GlStateManager.popMatrix();
-					GlStateManager.enableLighting();
-					GlStateManager.color(1.0f, 1.0f, 1.0f, f1);
-					GlStateManager.depthFunc(515);
-					GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-					GlStateManager.disableBlend();
-				}
 			}
 			finally {
 				if (isTransparent) {

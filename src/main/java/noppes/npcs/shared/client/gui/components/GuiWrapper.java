@@ -6,6 +6,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 import noppes.npcs.api.constants.GuiComponentType;
+import noppes.npcs.client.gui.config.CustomNpcsConfigGui;
+import noppes.npcs.client.gui.select.SubGuiColorSelector;
 import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.GuiBasicContainer;
 import noppes.npcs.shared.client.gui.components.custom.CustomGuiEntityDisplay;
@@ -206,6 +208,10 @@ public class GuiWrapper {
                 parent.setFocused(false);
                 ((IGuiInterface) parent).getWrapper().subgui = null;
                 ((IGuiInterface) parent).subGuiClosed((GuiScreen) gui);
+                parent.initGui();
+            }
+            else if (parent instanceof CustomNpcsConfigGui && gui instanceof SubGuiColorSelector) {
+                ((CustomNpcsConfigGui) parent).subGuiClosed((SubGuiColorSelector) gui);
                 parent.initGui();
             }
             else { mc.displayGuiScreen(parent); }

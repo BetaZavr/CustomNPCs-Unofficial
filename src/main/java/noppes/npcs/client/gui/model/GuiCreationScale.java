@@ -9,6 +9,7 @@ import noppes.npcs.client.model.part.ModelPartConfig;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
+import noppes.npcs.shared.client.gui.components.GuiButtonYesNo;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.components.GuiSliderNop;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
@@ -32,7 +33,7 @@ public class GuiCreationScale extends GuiCreationScreenInterface
 	@Override
 	public void buttonEvent(@Nonnull GuiButtonNop button) {
 		if (button.id == 13) {
-            playerdata.getPartConfig(GuiCreationScale.selected).notShared = button.getValue() == 0;
+            playerdata.getPartConfig(GuiCreationScale.selected).notShared = ((GuiButtonYesNo) button).getBoolean();
 			initGui();
 		}
 		super.buttonEvent(button);
@@ -61,8 +62,8 @@ public class GuiCreationScale extends GuiCreationScreenInterface
 		}
 		add(scroll.setPos(guiLeft, guiTop + 46)
 				.setUnsortedList(list)
-				.setSelected(Component.translatable("part." + GuiCreationScale.selected.name))
-				.setSize(100, imageHeight - 74));
+				.setSize(100, imageHeight - 74)
+				.disabledSearch());
 		ModelPartConfig config2 = playerdata.getPartConfig(GuiCreationScale.selected);
 		int y = guiTop + 65;
 		addLabel(10, guiLeft + 102, y + 5, "scale.width")

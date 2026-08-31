@@ -37,7 +37,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
@@ -138,7 +137,6 @@ import noppes.npcs.mixin.client.settings.IKeyBindingMixin;
 import noppes.npcs.client.particles.CustomParticleSettings;
 import noppes.npcs.potions.PotionData;
 import noppes.npcs.shared.common.util.LogWriter;
-import noppes.npcs.util.Util;
 import noppes.npcs.util.TempFile;
 import noppes.npcs.util.ValueUtil;
 
@@ -288,7 +286,7 @@ public class ClientProxy extends CommonProxy {
 					returnGui = new GuiNpcDisplay(npc);
 					break;
 				}
-				player.sendMessage(new TextComponentString(Util.instance.translateGoogle(player, "Unable to find npc")));
+				player.sendMessage(Component.translatable("message.unable.find.npc").getParent());
 				break;
 			}
 			case MainMenuStats: returnGui = npc == null ? null : new GuiNpcStats(npc); break;

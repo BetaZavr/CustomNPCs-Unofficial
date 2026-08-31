@@ -866,9 +866,7 @@ public class GuiLog extends GuiNPCInterface
 		String selectCat = "";
 		for (String catName : categories.keySet()) {
 			if (p < st) {
-				if (catSelect == p && step < 0) {
-					selectCat = catName;
-				}
+				if (catSelect == p && step < 0) { selectCat = catName; }
 				p++;
 				continue;
 			}
@@ -896,7 +894,7 @@ public class GuiLog extends GuiNPCInterface
 				}
 				name.append(catName.charAt(j));
 			}
-			draw(catName, guiLeft + 4 - catW + 7 + i, (int) (guiTopLog + 23.5f * scaleH + (16.0f * scaleH - 10.0f) / 2.0f + (i * 16.0f) * scaleH), questLogColor, 90 + i);
+			draw(catName, 4 - catW + 7 + i, (int) ((16.0f * scaleH - 10.0f) / 2.0f + (i * 16.0f) * scaleH), questLogColor, 90 + i);
 			i++;
 			p++;
 			if (i >= 8) {
@@ -906,9 +904,7 @@ public class GuiLog extends GuiNPCInterface
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.popMatrix();
 
-		if (step != -1) {
-			return;
-		}
+		if (step != -1) { return; }
 		if (activeQuest != null) {
 			int first = 0;
 			// NPC
@@ -1017,7 +1013,7 @@ public class GuiLog extends GuiNPCInterface
 						line = line.replace("" + ((char) 0xfffe), space);
 						k++;
 					}
-					draw(line, guiLLeft + (int) ((l == 1 ? 105.0f : 0.0f) * scaleW), guiLTop + (page == 0 && l == 0 ? first : 0) + h * fontHeight, questLogColor, (int) (98.0f * scaleW));
+					draw(line, (int) ((l == 1 ? 105.0f : 0.0f) * scaleW), (page == 0 && l == 0 ? first : 0) + h * fontHeight, questLogColor, (int) (98.0f * scaleW));
 					h++;
 				}
 				GlStateManager.popMatrix();

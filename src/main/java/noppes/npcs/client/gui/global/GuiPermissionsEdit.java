@@ -15,7 +15,6 @@ import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
 import noppes.npcs.shared.common.util.ComponentOrderComparator;
-import noppes.npcs.util.Util;
 
 import java.util.*;
 
@@ -116,10 +115,7 @@ public class GuiPermissionsEdit extends GuiNPCInterface implements ICustomScroll
             if (name.equalsIgnoreCase("all")) { name = "All"; }
             else if (name.equalsIgnoreCase("command block")) { name = "Command Block"; }
             else if (!name.matches(UserNameRegex)) {
-                String error = "§c" + Util.instance.translateGoogle(player, "Player name must be at least 4 characters long and must not contain spaces or characters other than _");
-                if (error.contains("4")) { error = error.replace("4", "§64§c"); }
-                if (error.contains("_")) { error = error.replace("_", "'§f_§c'"); }
-                player.sendMessage(Component.literal(error).getParent());
+                player.sendMessage(Component.translatable("message.permission.error.player.name", "§c§o" + name).getParent());
                 return;
             }
             String node = ((TextComponentTranslation) permissions.getNormalSelected().getContents()).getKey().substring(11);

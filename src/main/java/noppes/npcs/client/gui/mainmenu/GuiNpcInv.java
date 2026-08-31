@@ -272,7 +272,7 @@ public class GuiNpcInv extends GuiContainerNPCInterface2<ContainerNPCInv>
 				for (ICustomDrop ids : inventory.getDrops()) {
 					DropSet ds = (DropSet) ids;
 					dropsData.put(ds.getKey(), ds);
-					hts.put(i++, ds.getHover(player));
+					hts.put(i++, ds.getHover(false));
 					stacks.add(ds.item);
 				}
 			}
@@ -309,7 +309,7 @@ public class GuiNpcInv extends GuiContainerNPCInterface2<ContainerNPCInv>
 					int i = 0;
 					for (DropSet ds : temp.groups.get(groupId).values()) {
 						dropsData.put(ds.getKey(), ds);
-						hts.put(i++, ds.getHover(player));
+						hts.put(i++, ds.getHover(false));
 						stacks.add(ds.item);
 					}
 				}
@@ -380,7 +380,7 @@ public class GuiNpcInv extends GuiContainerNPCInterface2<ContainerNPCInv>
 				for (ICustomDrop ids : inventory.getDrops()) {
 					DropSet ds = (DropSet) ids;
 					dropsData.put(ds.getKey(), ds);
-					hts.put(i++, ds.getHover(player));
+					hts.put(i++, ds.getHover(false));
 					stacks.add(ds.item);
 				}
 			}

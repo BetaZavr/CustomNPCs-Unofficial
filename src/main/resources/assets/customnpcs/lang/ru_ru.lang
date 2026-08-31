@@ -857,7 +857,7 @@ display.hover.cloak=Расположение текстуры Плаща<br>§7�
 display.hover.color=Цвет наложенный поверх скина NPC<br>§7Применяется для всех текстур
 display.hover.extra=Дополнительные настройки модели
 display.hover.eyes=Расположение текстуры Глаз<br>§7Доступно не для каждой модели NPC
-display.hover.glint=Яркая в темноте
+display.hover.glint=Наложенная текстура яркая (светится) в темноте
 display.hover.group.either=Пол NPC<br>§7Используется при выборе случайного имени
 display.hover.group.name=Выбрать группу имён
 display.hover.hitbox.height=Высота NPC<br>§7Значение для текущей модели:<br>§7базовое:§6 %s§7; текущее:§6 %s<br>§7Используется для определения Хитбокса<br>§7Установите на§6 -1§7, чтобы использовать HitBox по умолчанию<br>§7Максимум§6 15,0
@@ -1700,13 +1700,20 @@ inv.inventory=Инвентарь
 inv.loot.0=Лут с: "%s"
 inv.loot.1=(для игрока %s)
 inv.loot.players=Все игроки:
-inv.lootpickup=Подбор добычи игроком
+inv.lootpickup=Способ получения игроком
 inv.maxExp=Макс. опыта
 inv.minExp=Мин. опыта
 inv.npcInventory=NPC Инвентарь
 inv.use.drops.0=Использовать NPC
 inv.use.drops.1=Использовать Шаблон
 inv.use.drops.2=Использовать Оба
+
+inv.lootmode.0.false=Выдаётся игроку, убившему этого NPC
+inv.lootmode.1.false=Упадёт на землю возле убитого NPC
+inv.lootmode.2.false=Будет помещено в инвентарь, доступный после смерти NPC
+inv.lootmode.0.true=Выдаётся игроку в инвентарь
+inv.lootmode.1.true=Упадёт на землю (под ноги игрока)
+inv.lootmode.2.true=(не используется)
 
 inventory.hover.currency=Ваши деньги:
 inventory.hover.donat=Ваш донат:
@@ -2106,6 +2113,8 @@ message.pather.farwarning=Предупреждение: точка находи�
 message.pather.home=Изменена домашняя позиция x:%s y:%s z:%s для NPC "%s"
 message.pather.register=Зарегистрирован "%s" на ваш %s
 message.pather.warn.added=§cПредупреждение§r: новая позиция слишком далеко от предыдущей. Максимальная дистанция (в блоках) для перемещения: %s
+message.unable.find.npc=§cНе удалось найти NPC
+message.permission.error.player.name=§cИмя игрока \"%s\" должно быть не менее§6 4§c символов и не должно содержать пробелов или символов, кроме '§f_§c'
 
 minecraft:any=Любое
 

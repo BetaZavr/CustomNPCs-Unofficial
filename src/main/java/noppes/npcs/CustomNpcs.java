@@ -294,7 +294,7 @@ public class CustomNpcs {
 	public static CommonProxy proxy;
 	public static final String MODID = "customnpcs";
 	public static final String MODNAME = "CustomNpcs";
-	public static final String VERSION = "5.433";
+	public static final String VERSION = "5.435";
 	public static CustomNpcs instance;
 	public static CommandNoppes NoppesCommand = new CommandNoppes();
 	public static MarkovGenerator[] MARKOV_GENERATOR = new MarkovGenerator[10];

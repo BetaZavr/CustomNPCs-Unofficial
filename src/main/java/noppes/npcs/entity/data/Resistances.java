@@ -44,8 +44,7 @@ public class Resistances {
 				if (compound.hasKey("names", 9)) {
 					for (int i = 0; i < compound.getTagList("names", 8).tagCount(); ++i) {
 						String name = compound.getTagList("Data", 10).getStringTagAt(i);
-						if (name.isEmpty()) { name = "any"; }
-						allDamageNames.add(name);
+						if (!name.isEmpty()) { allDamageNames.add(name); }
 					}
 				}
 			} else { saveAll(); }
@@ -73,8 +72,9 @@ public class Resistances {
 	}
 
 	public static void add(String damageType) {
+		if (damageType == null || damageType.isEmpty()) { return; }
 		if (allDamageNames.isEmpty()) { loadAllDamages(); }
-		if (damageType == null || damageType.isEmpty() || allDamageNames.contains(damageType) ||
+		if (allDamageNames.contains(damageType) ||
 				damageType.equals("null") || damageType.equals("thrown") ||
 				damageType.equals("player") ||damageType.equals("explosion.player") ||
 				damageType.equals("generic") || damageType.equals("outOfWorld")) { return; }

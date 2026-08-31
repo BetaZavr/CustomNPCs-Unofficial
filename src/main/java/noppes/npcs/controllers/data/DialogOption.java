@@ -105,7 +105,7 @@ public class DialogOption implements IDialogOption {
 	public boolean isAvailable(EntityPlayer player) {
 		if (optionType == OptionType.DISABLED) { return false; }
 		if (optionType != OptionType.DIALOG_OPTION) { return true; }
-		Dialog dialog = getDialog(player);
+		Dialog dialog = getDialog(player); // inside there is a check for availability of OptionDialogID
 		return dialog != null && dialog.availability.isAvailable(player);
 	}
 

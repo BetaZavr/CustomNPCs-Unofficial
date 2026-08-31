@@ -59,25 +59,6 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 	protected boolean isGrabbed = false;
 
 	// New from Unofficial (BetaZavr)
-	public static class DialogTexture {
-
-		public ResourceLocation res;
-		public TextBlockClient line;
-		public int left;
-		public int  uS;
-		public int  vS;
-		public int  height;
-
-		protected DialogTexture(ResourceLocation r, int[] uv, TextBlockClient tb) {
-			res = r;
-			left = 0;
-			uS = uv[0];
-			vS = uv[1];
-			height = uv[2];
-			line = tb;
-		}
-
-	}
 	public static Map<Integer, ResourceLocation> icons;
 	static {
 		icons = new LinkedHashMap<>();
@@ -92,7 +73,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 	}
 	protected final ResourceLocation npcSkin;
 	protected final ResourceLocation playerSkin;
-	protected final Map<Integer, List<String>> options = new TreeMap<>(); // [slotID, text]
+	protected final Map<Integer, TempOption> options = new TreeMap<>(); // [slotID, text]
 	// dialog place
 	protected int lineStart = 0;
 	protected int lineTotal = 0;
@@ -166,181 +147,87 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		appendDialog(dialogIn);
 	}
 
-	public void appendDialog(Dialog d) {
-		closeOnEsc = !d.disableEsc;
-		newDialogSet = true;
-		Dialog oldDialog = dialog;
-		dialog = d.copy();
-		options.clear();
-		selected = 0;
-		selectedStart = 0;
-
-		// Old Sound
-		MusicController.Instance.stopSound(null, SoundCategory.VOICE);
-		if (d.sound != null) {
-			BlockPos pos = npc.getPosition();
-			if (oldDialog != null && !oldDialog.equals(d) && oldDialog.sound != null && MusicController.Instance.isPlaying(oldDialog.sound)) {
-				MusicController.Instance.stopSound(oldDialog.sound, SoundCategory.VOICE);
+	@Override
+	public void initGui() {
+		super.initGui();
+		sw = new ScaledResolution(mc);
+		double windowWidth = sw.getScaledWidth_double();
+		double windowHeight = sw.getScaledHeight_double();
+		guiSettings.init(sw.getScaledWidth_double(), windowHeight);
+		// display NPC name
+		if (dialogNpc != null && guiSettings.showNPC) {
+			boolean addDots = false;
+			String name = npc.getDisplayName().getFormattedText();
+			while (ClientProxy.Font.width(name) > guiSettings.npcWidth && name.length() > 2) {
+				name = name.substring(0, name.length() - 2);
+				addDots = true;
 			}
-			boolean isPlay = MusicController.Instance.isPlaying(d.sound);
-			if (isPlay) {
-				MusicController.Instance.stopSound(d.sound, SoundCategory.VOICE);
+			if (addDots) { name += "..."; }
+			dialogNpc.display.setName(name);
+			addDots = false;
+			String title = dialogNpc.display.getTitle();
+			while (ClientProxy.Font.width(title) > guiSettings.npcWidth && title.length() > 2) {
+				title = title.substring(0, title.length() - 2);
+				addDots = true;
 			}
-			CustomNPCsScheduler.runTack(() -> MusicController.Instance.playSoundDialog(SoundCategory.VOICE, d.sound, pos, 1.0f, 1.0f) , 50);
+			if (addDots) { dialogNpc.display.setTitle(title + "..."); }
 		}
 
-		// Dialog texts
-		startTime = System.currentTimeMillis();
-		setStartLine();
-		StringBuilder dText = new StringBuilder(!d.text.contains("%") ? Component.translatable(d.text).getString() : d.text);
-		while (dText.toString().contains("<br>")) { dText = new StringBuilder(dText.toString().replace("<br>", "" + ((char) 10))); }
-		while (dText.toString().contains("\\n")) { dText = new StringBuilder(dText.toString().replace("\\n", "" + ((char) 10))); }
-		ResourceLocation txtr = null;
-		int[] txtrSize = null;
-		if (!d.texture.isEmpty()) {
-			txtr = new ResourceLocation(d.texture);
-			minecraft.getTextureManager().bindTexture(txtr);
-			try {
-				IResource res = minecraft.getResourceManager().getResource(new ResourceLocation(d.texture));
-				BufferedImage buffer = ImageIO.read(res.getInputStream());
-				txtrSize = new int[] { buffer.getWidth(), buffer.getHeight(),
-						(int) Math.ceil((double) buffer.getHeight() / (double) fontHeight / 2.0d) };
-			} catch (IOException e) { LogWriter.error(e); }
+		isGrabbed = false;
+		grabMouse(dialog.showWheel);
+		guiLeft = guiSettings.guiLeft;
+		guiTop = 0;
+		fontHeight = getFontHeight(null);
+		width = (int) windowWidth;
+		height = (int) windowHeight;
+		int optionHeight = dialog.showWheel ? 60 : guiSettings.optionHeight;
+		dialogHeight = height - optionHeight;
+		if (!lines.isEmpty()) {
+			int max = guiSettings.dialogWidth - 2 - ClientProxy.Font.width((dialogNpc != null ? dialogNpc.getName() : npc.getName()) + ": ");
+			if (lineTotal > lineVisibleSize) { max -= 18; }
+			for (TextBlockClient textBlock : lines) {
+				textBlock.lines.clear();
+				textBlock.resetWidth(max, false);
+			}
 		}
-		if (txtrSize != null) {
-			for (int i = 0; i < txtrSize[2]; i++) { dText.append("" + ((char) 10)); }
-		}
-
-		// Lines
-		lines.add(new TextBlockClient(dialogNpc, dText.toString(), guiSettings.dialogWidth - 13,
-				0xE0E0E0, dialogNpc, player, npc));
-		if (!d.showFits) { setStartLine(); }
-
-		// Dialog options
-		resetOptions();
-		grabMouse(d.showWheel);
-		waitToAnswer = dialog != null ? System.currentTimeMillis() + dialog.delay * 50L : 0L;
+		if (!options.isEmpty()) { resetOptions(); }
 		lineTotal = 0;
 		for (TextBlockClient textBlock : lines) { lineTotal += 1 + textBlock.lines.size(); }
 		selectedTotal.clear();
 		int i = 0;
 		selectedSize = 0;
 		for (int id : options.keySet()) {
-			selectedTotal.put(i, options.get(id).size());
-			selectedSize += options.get(id).size();
+			selectedTotal.put(i, options.get(id).lines.size());
+			selectedSize += options.get(id).lines.size();
 			i++;
 		}
 		lineVisibleSize = dialogHeight / fontHeight;
 		selectedVisibleSize = Math.round((float) (height - dialogHeight - 2) / (float) fontHeight);
-		selected = 0;
+		setFirstOption();
 		selectedStart = 0;
+		lineStart = lineTotal - lineVisibleSize;
 		if (lineStart < 0) { lineStart = 0; }
-
-		// Add dialog texture
-		if (txtr != null && txtrSize != null && !textures.containsKey(lineTotal - 1 - txtrSize[2])) {
-			textures.put(lineTotal - 1 - txtrSize[2], new DialogTexture(txtr, txtrSize, lines.get(lines.size() - 1)));
-		}
-		initGui();
-	}
-
-	protected void checkSelected() {
-		int selSize = 0, pos = 1;
-		for (int i = selectedTotal.size() - 1; i > 0; i--) {
-			selSize += selectedTotal.get(i);
-			if (selSize >= selectedVisibleSize) { break; }
-			pos++;
-		}
-		if (selectedStart <= 0) {
-			selectedStart = 0;
-			if (scrollO != null) {
-				scrollO[8] = selectedStart;
-				scrollO[7] = wrapper.mouseY;
-			}
-		}
-		else if (selectedStart >= selectedTotal.size() - pos) {
-			selectedStart = selectedTotal.size() - pos;
-			if (scrollO != null) {
-				scrollO[8] = selectedStart;
-				scrollO[7] = wrapper.mouseY;
-			}
-		}
-	}
-
-	@Override
-	public void onGuiClosed() {
-		grabMouse(false);
-		if (dialog.sound != null && dialog.stopSound && MusicController.Instance.isPlaying(dialog.sound)) {
-			MusicController.Instance.stopSound(dialog.sound, SoundCategory.VOICE);
-		}
-		Packets.sendServer(new SPacketQuestCompletionCheckAll());
-		super.onGuiClosed();
-	}
-
-	@Override
-	public void save() {
-		PlayerData data = PlayerData.get(player);
-		data.dialogData.addLogs(lines, npcSkin.toString());
-		NBTTagCompound compound = new NBTTagCompound();
-		data.dialogData.save(compound);
-		Packets.sendServer(new SPacketSyncUpdate(5, compound));
-	}
-
-	protected void drawLinedOptions() {
-		int i = 0;
-		int optPos = 0;
-		int endW = guiSettings.guiRight - 1;
-		int left = guiLeft + 24;
-		int addX = 0;
-		// scroll bar
-		if (selectedSize > selectedVisibleSize && !dialog.showWheel) { left += 13; }
-		if (selectedSize > selectedVisibleSize) {
-			endW -= 13;
-			if (!dialog.showWheel) { left += 13; }
-			if (guiSettings.getType() == 2) { addX = 13; }
-			else { left -= 12; }
-		}
-		for (int id : options.keySet()) {
-			if (optPos < selectedStart) {
-				optPos++;
-				continue;
-			}
-			DialogOption option = dialog.options.get(id);
-			List<String> lines = options.get(id);
-			int j = 0;
-			for (String sct : lines) {
-				if (j == 0) {
-					ClientProxy.Font.draw(optPos == selected ? "->" : " *", guiLeft + 1 + (icons.containsKey(option.iconId) ? 0 : 10) + addX, dialogHeight + i * fontHeight, guiSettings.pointerColor);
-					if (i != 0 && optPos - 1 != selected) {
-						drawHorizontalLine(guiLeft + 2 + addX, endW + addX, dialogHeight + i * fontHeight, guiSettings.scrollLineColor);
-					}
-					if (selected == optPos) {
-						drawHorizontalLine(left, endW + addX, dialogHeight + i * fontHeight, guiSettings.hoverLineColor);
-					}
-					if (icons.containsKey(option.iconId)) {
-						minecraft.getTextureManager().bindTexture(icons.get(option.iconId));
-						GlStateManager.pushMatrix();
-						GlStateManager.translate(guiLeft + 11.5f + addX, dialogHeight + i * fontHeight + 1.0f, 0.0f);
-						GlStateManager.color((float) (option.optionColor >> 16 & 255) / 255.0F, (float) (option.optionColor >> 8 & 255) / 255.0F, (float) (option.optionColor & 255) / 255.0F, 1.0F);
-						float s = 12.0f / 256.0f;
-						GlStateManager.scale(s, s, s);
-						drawTexturedModalRect(0, 0, 0, 0, 256, 256);
-						GlStateManager.popMatrix();
+		// Dialog texture
+		if (!textures.isEmpty()) {
+			Map<Integer, DialogTexture> newTextures = new HashMap<>();
+			for (int pos : textures.keySet()) {
+				DialogTexture dt = textures.get(pos);
+				int lt = 0;
+				boolean found = false;
+				for (TextBlockClient textBlock : lines) {
+					lt += 1 + textBlock.lines.size();
+					if (textBlock.equals(dt.line)) {
+						newTextures.put(lt - 1 - dt.height, dt);
+						found = true;
+						break;
 					}
 				}
-				// select
-				if (selected == optPos) {
-					fill(left, dialogHeight + i * fontHeight + (j == 0 ? 1 : 0), endW + addX, dialogHeight + (i + 1) * fontHeight, zLevel, guiSettings.selectOptionLeftColor, guiSettings.selectOptionRightColor);
-				}
-				// option
-				ClientProxy.Font.draw(sct, left, dialogHeight + i * fontHeight, option.optionColor);
-				i++;
-				j++;
-				if (j == lines.size()) {
-					drawHorizontalLine(guiLeft + 2 + addX, endW + addX, dialogHeight + i * fontHeight, guiSettings.scrollLineColor);
-					if (selected == optPos) { drawHorizontalLine(left, endW + addX, dialogHeight + i * fontHeight, guiSettings.hoverLineColor); }
+				if (!found) {
+					newTextures.put(pos, dt);
 				}
 			}
-			optPos++;
+			textures.clear();
+			textures.putAll(newTextures);
 		}
 	}
 
@@ -488,8 +375,9 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 
 		// Dialog text lines
 		GlStateManager.enableBlend();
-		GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+		GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
 		GlStateManager.enableAlpha();
+
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.5f, 100.065f);
 		int time = 1 + (int) ((System.currentTimeMillis() - startTime) / (1000L / CustomNpcs.DialogShowFitsSpeed));
@@ -564,6 +452,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		}
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		GlStateManager.popMatrix();
+
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(0.0f, 0.0f, 100.0f);
 		if (!options.isEmpty()) {
@@ -578,7 +467,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 				if (!dialog.showWheel) { drawLinedOptions(); }
 				else { drawWheel(); }
 			}
-		}
+		} // wait
 		if (showOptions) {
 			if (newDialogSet && lineTotal == l) { newDialogSet = false; }
 			// Dialog Slider
@@ -624,32 +513,260 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 				drawVerticalLine(r, dialogHeight, height - 1, guiSettings.linesColor);
 			}
 			else { scrollO = null; }
-			// Dialog
-			// cursor select option
-			if (isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, guiSettings.dialogWidth, height - dialogHeight)) { // options text
-				int y = (int) Math.floor(((double) mouseY - (double) dialogHeight) / (double) fontHeight);
-				i = 0;
-				int optPos = 0;
-				selected = -1;
-				for (List<String> list : options.values()) {
-					if (optPos < selectedStart) {
-						optPos++;
-						continue;
-					}
-					for (String ignored : list) {
-						if (i == y) {
-							selected = optPos;
-							break;
-						}
-						i++;
-					}
-					if (selected != -1) { break; }
-					optPos++;
-				}
-				if (selected == -1) { selected = options.size() - 1; }
-			}
 		}
 		GlStateManager.popMatrix();
+	}
+
+	@Override
+	public boolean keyPressed(char typedChar, int keyCode) {
+		if (!hasSubGui() && showOptions) {
+			if (keyCode == Keyboard.KEY_UP || keyCode == minecraft.gameSettings.keyBindForward.getKeyCode()) {
+                do {
+                    --selected;
+                    --selectedStart;
+                } while (selected > 0 && !options.get(selected).isEnable);
+				if (selected < 0) { selected = 0; }
+				checkSelected();
+				return true;
+			}
+			if (keyCode == Keyboard.KEY_DOWN || keyCode == minecraft.gameSettings.keyBindBack.getKeyCode()) {
+                do {
+                    ++selected;
+                    ++selectedStart;
+                } while (selected < options.size() && !options.get(selected).isEnable);
+				if (selected >= options.size()) { selected = options.size() - 1; }
+				checkSelected();
+				return true;
+			}
+			if (keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_NUMPADENTER) {
+				handleDialogSelection();
+				return true;
+			}
+		}
+		if (closeOnEsc && (keyCode == Keyboard.KEY_ESCAPE || isInventoryKey(keyCode))) {
+			Packets.sendServer(new SPacketDialogSelected(dialog.id, -1));
+			onClose();
+			return true;
+		}
+		return super.keyPressed(typedChar, keyCode);
+	}
+
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int mouseBottom) {
+		if (!showOptions) {
+			if (newDialogSet) {
+				dialog.showFits = false;
+				lineStart = lineTotal - lineVisibleSize;
+				if (lineStart < 0) { lineStart = 0; }
+				else if (lineStart > lineTotal - lineVisibleSize) { lineStart = lineTotal - lineVisibleSize; }
+			}
+			return true;
+		}
+		if (scrollD != null) {
+			scrollD[7] = -1;
+			if (isMouseHover(mouseX, mouseY, scrollD[0], scrollD[4], scrollD[2] - scrollD[0], scrollD[5])) {
+				if (isMouseHover(mouseX, mouseY, scrollD[0], scrollD[1], scrollD[2] - scrollD[0], scrollD[3] - scrollD[1])) {
+					scrollD[7] = mouseY;
+					scrollD[8] = lineStart;
+				}
+				return true;
+			}
+		}
+		if (scrollO != null) {
+			scrollO[7] = -1;
+			if (isMouseHover(mouseX, mouseY, scrollO[0], scrollO[4], scrollO[2] - scrollO[0], scrollO[5])) {
+				if (isMouseHover(mouseX, mouseY, scrollO[0], scrollO[1], scrollO[2] - scrollO[0], scrollO[3] - scrollO[1])) {
+					scrollO[7] = mouseY;
+					scrollO[8] = selectedStart;
+				}
+				return true;
+			}
+		}
+		if (dialog.showWheel) {
+			if (selectedWheel != 0) {
+				if (selectedWheel == 1) {
+					wheelList--;
+					if (wheelList < 0) {
+						wheelList = 0;
+					}
+				} else {
+					wheelList++;
+					int max = (int) Math.ceil(options.size() / 6.0d);
+					if (wheelList >= max) {
+						wheelList = max - 1;
+					}
+				}
+				minecraft.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+				return true;
+			}
+			else if (selected < 0) { return true; }
+		}
+		else if (!isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, width - guiLeft, height - dialogHeight)) { return true; }
+		if (mouseBottom == 0) { handleDialogSelection(); }
+		return true;
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrolled) {
+		int drag = (int) scrolled;
+		if (lineTotal > lineVisibleSize && drag != 0 && isMouseHover(mouseX, mouseY, guiLeft, 0, guiSettings.dialogWidth, dialogHeight)) {
+			lineStart -= drag;
+			if (lineStart < 0) { lineStart = 0; }
+			else if (lineStart > lineTotal - lineVisibleSize) { lineStart = lineTotal - lineVisibleSize; }
+		}
+		// cursor select option
+		if (isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, guiSettings.dialogWidth, height - dialogHeight)) { // options text
+			if (selectedSize > selectedVisibleSize && drag != 0) {
+				selectedStart -= drag;
+				checkSelected();
+			}
+		}
+		return super.mouseScrolled(mouseX, mouseY, scrolled);
+	}
+
+	@Override
+	public void mouseMoved(double mouseX, double mouseY) {
+		// cursor select option
+		if (isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, guiSettings.dialogWidth, height - dialogHeight)) { // options text
+			int y = (int) Math.floor((mouseY - (double) dialogHeight) / (double) fontHeight);
+			int i = 0;
+			int optPos = 0;
+			selected = -1;
+			for (TempOption tOpt : options.values()) {
+				if (optPos < selectedStart) {
+					optPos++;
+					continue;
+				}
+				for (String ignored : tOpt.lines) {
+					if (i == y) {
+						selected = optPos;
+						while (selected > 0 && !options.get(selected).isEnable) { selected--; }
+						break;
+					}
+					i++;
+				}
+				if (selected != -1) { break; }
+				optPos++;
+			}
+			if (selected == -1) {
+				selected = optPos - 1;
+				while (!options.get(selected).isEnable) { selected--; }
+			}
+		}
+		if (Mouse.isButtonDown(0)) {
+			if (scrollD != null && scrollD[7] > -1) {
+				double offsetLine = (scrollD[7] - mouseY) / scrollD[6];
+				if (offsetLine == 0.0d) { return; }
+				lineStart = (int) (scrollD[8] - offsetLine);
+				if (lineStart < 0) {
+					lineStart = 0;
+					scrollD[8] = lineStart;
+					scrollD[7] = mouseY;
+					return;
+				}
+				else if (lineStart > lineTotal - lineVisibleSize) {
+					lineStart = lineTotal - lineVisibleSize;
+					scrollD[8] = lineStart;
+					scrollD[7] = mouseY;
+					return;
+				}
+			}
+			if (scrollO != null && scrollO[7] > -1) {
+				double offsetLine = (scrollO[7] - mouseY) / scrollO[6];
+				if (offsetLine == 0.0) { return; }
+				selectedStart = (int) (scrollO[8] - offsetLine);
+				checkSelected();
+			}
+		}
+	}
+
+	@Override
+	public void setClose(NBTTagCompound nbt) { grabMouse(false); }
+
+	@Override
+	public void onGuiClosed() {
+		grabMouse(false);
+		if (dialog.sound != null && dialog.stopSound && MusicController.Instance.isPlaying(dialog.sound)) {
+			MusicController.Instance.stopSound(dialog.sound, SoundCategory.VOICE);
+		}
+		Packets.sendServer(new SPacketQuestCompletionCheckAll());
+		super.onGuiClosed();
+	}
+
+	@Override
+	public void save() {
+		PlayerData data = PlayerData.get(player);
+		data.dialogData.addLogs(lines, npcSkin.toString());
+		NBTTagCompound compound = new NBTTagCompound();
+		data.dialogData.save(compound);
+		Packets.sendServer(new SPacketSyncUpdate(5, compound));
+	}
+
+	protected void drawLinedOptions() {
+		int i = 0;
+		int optPos = 0;
+		int endW = guiSettings.guiRight - 1;
+		int left = guiLeft + 24;
+		int addX = 0;
+		// scroll bar
+		if (selectedSize > selectedVisibleSize && !dialog.showWheel) { left += 13; }
+		if (selectedSize > selectedVisibleSize) {
+			endW -= 13;
+			if (!dialog.showWheel) { left += 13; }
+			if (guiSettings.getType() == 2) { addX = 13; }
+			else { left -= 12; }
+		}
+		for (int id : options.keySet()) {
+			if (optPos < selectedStart) {
+				optPos++;
+				continue;
+			}
+			DialogOption option = dialog.options.get(id);
+			TempOption tOpt = options.get(id);
+			int j = 0;
+
+			for (String sct : tOpt.lines) {
+				if (j == 0) {
+					ClientProxy.Font.draw((tOpt.isEnable ? optPos == selected ? "->" : " *" : TextFormatting.STRIKETHROUGH + "" + TextFormatting.GRAY + "   "),
+							guiLeft + 1 + (icons.containsKey(option.iconId) ? 0 : 10) + addX, dialogHeight + i * fontHeight, guiSettings.pointerColor);
+					// up option line
+					drawHorizontalLine(guiLeft + 2 + addX, endW - 1 + addX, dialogHeight + i * fontHeight, guiSettings.scrollLineColor);
+					int iconId = option.iconId == 0 && !tOpt.isEnable ? 8 : option.iconId;
+					if (icons.containsKey(iconId)) {
+						GlStateManager.pushMatrix();
+						GlStateManager.translate(guiLeft + 0.5f + addX, dialogHeight + i * fontHeight + 1.0f, 1.0f);
+						int color = !tOpt.isEnable ? 0x808080 : option.optionColor;
+						GlStateManager.color((float) (color >> 16 & 255) / 255.0F, (float) (color >> 8 & 255) / 255.0F, (float) (color & 255) / 255.0F, 1.0F);
+						float s = 11.0f / 256.0f;
+						GlStateManager.scale(s, s, s);
+						minecraft.getTextureManager().bindTexture(icons.get(iconId));
+						drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+						GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+						GlStateManager.popMatrix();
+					}
+				}
+				// select
+				if (selected == optPos) {
+					drawRect(left, dialogHeight + i * fontHeight + (j == 0 ? 1 : 0), endW + addX, dialogHeight + (i + 1) * fontHeight, guiSettings.selectOptionLeftColor);
+				}
+				// option
+				ClientProxy.Font.draw(sct, left, dialogHeight + i * fontHeight, option.optionColor);
+				i++;
+				j++;
+				// down option line
+				if (j == tOpt.lines.size()) {
+					drawHorizontalLine(guiLeft + 2 + addX, endW - 1 + addX, dialogHeight + i * fontHeight, guiSettings.scrollLineColor);
+				}
+				if (selected == optPos) {
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(0.0f, 0.0f, 1.0f);
+					drawHorizontalLine(left, endW - 1 + addX, dialogHeight + (i - 1) * fontHeight, guiSettings.hoverLineColor);
+					drawHorizontalLine(left, endW - 1 + addX, dialogHeight + i * fontHeight, guiSettings.hoverLineColor);
+					GlStateManager.popMatrix();
+				} // select lines
+			}
+			optPos++;
+		}
 	}
 
 	protected void drawString(String text, int left, int color, int linePos) {
@@ -659,9 +776,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		int x = guiLeft + 1 + left;
 		if (guiSettings.getType() == 2 && lineTotal > lineVisibleSize) { x += 13; }
 		ClientProxy.Font.draw(text, x, guiTop + height, color);
-		if (textures.containsKey(linePos)) {
-			textures.get(linePos).left = guiLeft + 1 + left;
-		}
+		if (textures.containsKey(linePos)) { textures.get(linePos).left = guiLeft + 1 + left; }
 	}
 
 	protected void drawWheel() {
@@ -833,263 +948,28 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 	protected void handleDialogSelection() {
 		int optionId = getSelected();
 		if (!options.containsKey(optionId)) {
-			if (options.isEmpty() && closeOnEsc) {
-				onClose();
-				return;
-			}
+			if (options.isEmpty() && closeOnEsc) { onClose(); }
 			return;
 		}
 		Packets.sendServer(new SPacketDialogSelected(dialog.id, optionId));
 		if (dialog == null || dialog.notHasOtherOptions() || options.isEmpty()) {
-			if (closeOnEsc) {
-				onClose();
-				return;
-			}
+			if (closeOnEsc) { onClose(); }
 			return;
 		}
 		DialogOption option = dialog.options.get(optionId);
 		if (option == null || !(option.optionType == OptionType.DIALOG_OPTION || option.optionType == OptionType.ROLE_OPTION)) {
-			if (closeOnEsc) {
-				onClose();
-				return;
-			}
+			if (closeOnEsc) { onClose(); }
 			return;
 		}
-		lines.add(new TextBlockClient(player.getDisplayNameString(), option.title, guiSettings.dialogWidth, option.optionColor, dialogNpc, player, dialogNpc));
+		lines.add(new TextBlockClient(player, option.title, guiSettings.dialogWidth, option.optionColor, dialogNpc, player, npc));
 		NoppesUtil.clickSound();
 	}
 
-	@Override
-	public void initGui() {
-		super.initGui();
-		sw = new ScaledResolution(mc);
-		guiSettings.init(sw.getScaledWidth_double(), sw.getScaledHeight_double());
-		// display NPC name
-		if (dialogNpc != null && guiSettings.showNPC) {
-			boolean addDots = false;
-			String name = npc.getName();
-			while (ClientProxy.Font.width(name) > guiSettings.npcWidth && name.length() > 2) {
-				name = name.substring(0, name.length() - 2);
-				addDots = true;
-			}
-			if (addDots) { name += "..."; }
-			dialogNpc.display.setName(name);
-			addDots = false;
-			String title = dialogNpc.display.getTitle();
-			while (ClientProxy.Font.width(title) > guiSettings.npcWidth && title.length() > 2) {
-				title = title.substring(0, title.length() - 2);
-				addDots = true;
-			}
-			if (addDots) { dialogNpc.display.setTitle(title + "..."); }
-		}
-
-		isGrabbed = false;
-		grabMouse(dialog.showWheel);
-		guiLeft = guiSettings.guiLeft;
-		guiTop = 0;
-		fontHeight = getFontHeight(null);
-		width = (int) Math.ceil(sw.getScaledWidth_double());
-		height = (int) Math.ceil(sw.getScaledHeight_double());
-        int optionHeight = dialog.showWheel ? 60 : guiSettings.optionHeight;
-		dialogHeight = height - optionHeight;
-		if (!lines.isEmpty()) {
-			int max = guiSettings.dialogWidth - 2 - ClientProxy.Font.width((dialogNpc != null ? dialogNpc.getName() : npc.getName()) + ": ");
-			if (lineTotal > lineVisibleSize) { max -= 18; }
-			for (TextBlockClient textBlock : lines) {
-				textBlock.lines.clear();
-				textBlock.resetWidth(max, false);
-			}
-		}
-		if (!options.isEmpty()) { resetOptions(); }
-		lineTotal = 0;
-		for (TextBlockClient textBlock : lines) { lineTotal += 1 + textBlock.lines.size(); }
-		selectedTotal.clear();
-		int i = 0;
-		selectedSize = 0;
-		for (int id : options.keySet()) {
-			selectedTotal.put(i, options.get(id).size());
-			selectedSize += options.get(id).size();
-			i++;
-		}
-		lineVisibleSize = dialogHeight / fontHeight;
-		selectedVisibleSize = Math.round((float) (height - dialogHeight - 2) / (float) fontHeight);
-		selected = 0;
-		selectedStart = 0;
-		lineStart = lineTotal - lineVisibleSize;
-		if (lineStart < 0) { lineStart = 0; }
-		// Dialog texture
-		if (!textures.isEmpty()) {
-			Map<Integer, DialogTexture> newTextures = new HashMap<>();
-			for (int pos : textures.keySet()) {
-				DialogTexture dt = textures.get(pos);
-				int lt = 0;
-				boolean found = false;
-				for (TextBlockClient textBlock : lines) {
-					lt += 1 + textBlock.lines.size();
-					if (textBlock.equals(dt.line)) {
-						newTextures.put(lt - 1 - dt.height, dt);
-						found = true;
-						break;
-					}
-				}
-				if (!found) { newTextures.put(pos, dt); }
-			}
-			textures.clear();
-			textures.putAll(newTextures);
-		}
-	}
-
-	@Override
-	public boolean keyPressed(char typedChar, int keyCode) {
-		if (!hasSubGui() && showOptions) {
-			if (keyCode == Keyboard.KEY_UP || keyCode == minecraft.gameSettings.keyBindForward.getKeyCode()) {
-				--selected;
-				--selectedStart;
-				if (selected < 0) { selected = 0; }
-				checkSelected();
-				return true;
-			}
-			if (keyCode == Keyboard.KEY_DOWN || keyCode == minecraft.gameSettings.keyBindBack.getKeyCode()) {
-				++selected;
-				++selectedStart;
-				if (selected >= options.size()) { selected = options.size() - 1; }
-				checkSelected();
-				return true;
-			}
-			if (keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_NUMPADENTER) {
-				handleDialogSelection();
-				return true;
-			}
-		}
-		if (closeOnEsc && (keyCode == Keyboard.KEY_ESCAPE || isInventoryKey(keyCode))) {
-			Packets.sendServer(new SPacketDialogSelected(dialog.id, -1));
-			onClose();
-			return true;
-		}
-		return super.keyPressed(typedChar, keyCode);
-	}
-
-	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double scrolled) {
-		int drag = (int) scrolled;
-		if (lineTotal > lineVisibleSize && drag != 0 && isMouseHover(mouseX, mouseY, guiLeft, 0, guiSettings.dialogWidth, dialogHeight)) {
-			lineStart -= drag;
-			if (lineStart < 0) { lineStart = 0; }
-			else if (lineStart > lineTotal - lineVisibleSize) { lineStart = lineTotal - lineVisibleSize; }
-		}
-		// cursor select option
-		if (isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, guiSettings.dialogWidth, height - dialogHeight)) { // options text
-			if (selectedSize > selectedVisibleSize && drag != 0) {
-				selectedStart -= drag;
-				checkSelected();
-			}
-		}
-		return super.mouseScrolled(mouseX, mouseY, scrolled);
-	}
-
-	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int mouseBottom) {
-		if (!showOptions) {
-			if (newDialogSet) {
-				dialog.showFits = false;
-				lineStart = lineTotal - lineVisibleSize;
-				if (lineStart < 0) { lineStart = 0; }
-				else if (lineStart > lineTotal - lineVisibleSize) { lineStart = lineTotal - lineVisibleSize; }
-			}
-			return true;
-		}
-		if (scrollD != null) {
-			scrollD[7] = -1;
-			if (isMouseHover(mouseX, mouseY, scrollD[0], scrollD[4], scrollD[2] - scrollD[0], scrollD[5])) {
-				if (isMouseHover(mouseX, mouseY, scrollD[0], scrollD[1], scrollD[2] - scrollD[0], scrollD[3] - scrollD[1])) {
-					scrollD[7] = mouseY;
-					scrollD[8] = lineStart;
-				}
-				return true;
-			}
-		}
-		if (scrollO != null) {
-			scrollO[7] = -1;
-			if (isMouseHover(mouseX, mouseY, scrollO[0], scrollO[4], scrollO[2] - scrollO[0], scrollO[5])) {
-				if (isMouseHover(mouseX, mouseY, scrollO[0], scrollO[1], scrollO[2] - scrollO[0], scrollO[3] - scrollO[1])) {
-					scrollO[7] = mouseY;
-					scrollO[8] = selectedStart;
-				}
-				return true;
-			}
-		}
-		if (dialog.showWheel) {
-			if (selectedWheel != 0) {
-				if (selectedWheel == 1) {
-					wheelList--;
-					if (wheelList < 0) {
-						wheelList = 0;
-					}
-				} else {
-					wheelList++;
-					int max = (int) Math.ceil(options.size() / 6.0d);
-					if (wheelList >= max) {
-						wheelList = max - 1;
-					}
-				}
-				minecraft.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-				return true;
-			}
-			else if (selected < 0) { return true; }
-		}
-		else if (!isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, width - guiLeft, height - dialogHeight)) { return true; }
-		if (mouseBottom == 0) { handleDialogSelection(); }
-		return true;
-	}
-
-	@Override
-	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
-		// cursor select option
-		if (isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, guiSettings.dialogWidth, height - dialogHeight)) { // options text
-			int y = (int) Math.floor((mouseY - (double) dialogHeight) / (double) fontHeight);
-			int i = 0;
-			int optPos = 0;
-			selected = -1;
-			for (List<String> list : options.values()) {
-				if (optPos < selectedStart) {
-					optPos++;
-					continue;
-				}
-				for (String ignored : list) {
-					if (i == y) {
-						selected = optPos;
-						break;
-					}
-					i++;
-				}
-				if (selected != -1) { break; }
-				optPos++;
-			}
-			if (selected == -1) { selected = options.size() - 1; }
-		}
-		if (Mouse.isButtonDown(0)) {
-			if (scrollD != null && scrollD[7] > -1) {
-				double offsetLine = (scrollD[7] - mouseY) / scrollD[6];
-				if (offsetLine == 0.0d) { return; }
-				lineStart = (int) (scrollD[8] - offsetLine);
-				if (lineStart < 0) {
-					lineStart = 0;
-					scrollD[8] = lineStart;
-					scrollD[7] = mouseY;
-					return;
-				}
-				else if (lineStart > lineTotal - lineVisibleSize) {
-					lineStart = lineTotal - lineVisibleSize;
-					scrollD[8] = lineStart;
-					scrollD[7] = mouseY;
-					return;
-				}
-			}
-			if (scrollO != null && scrollO[7] > -1) {
-				double offsetLine = (scrollO[7] - mouseY) / scrollO[6];
-				if (offsetLine == 0.0) { return; }
-				selectedStart = (int) (scrollO[8] - offsetLine);
-				checkSelected();
+	private void setFirstOption() {
+		for (Map.Entry<Integer, TempOption> entry : options.entrySet()) {
+			if (entry.getValue().isEnable) {
+				selected = entry.getKey();
+				break;
 			}
 		}
 	}
@@ -1100,34 +980,168 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		options.clear();
 		for (int slot : dialog.options.keySet()) {
 			DialogOption option = dialog.options.get(slot);
-			if (option == null || option.optionType == OptionType.DISABLED || !option.isAvailable(player)) { continue; }
-			String optionText = NoppesStringUtils.formatText(option.title, player, dialogNpc);
-			List<String> lines = new ArrayList<>();
-			if (ClientProxy.Font.width(optionText) > max) {
-				StringBuilder total = new StringBuilder();
-				for (String sct : optionText.split(" ")) {
-					if (ClientProxy.Font.width(total + " " + sct) > max) {
-						lines.add(total.toString());
-						total = new StringBuilder(sct);
-					} else {
-						if (total.length() > 0) { total.append(" "); }
-						total.append(sct);
-					}
+			if (option != null && option.optionType != OptionType.DISABLED) {
+				String optionText = NoppesStringUtils.formatText(option.title, player, dialogNpc);
+				if (!option.isAvailable(player)) {
+					optionText = TextFormatting.STRIKETHROUGH + "" + TextFormatting.GRAY + Util.instance.deleteColor(optionText);
 				}
-				if (total.length() > 0) { lines.add(total.toString()); }
+				TempOption tOpt = new TempOption(option.isAvailable(player), new ArrayList<>());
+				if (ClientProxy.Font.width(optionText) > max) {
+					StringBuilder total = new StringBuilder();
+					for (String sct : optionText.split(" ")) {
+						if (ClientProxy.Font.width(total + " " + sct) > max) {
+							tOpt.lines.add(total.toString());
+							total = new StringBuilder(sct);
+						} else {
+							if (total.length() > 0) { total.append(" "); }
+							total.append(sct);
+						}
+					}
+					if (total.length() > 0) { tOpt.lines.add(total.toString()); }
+				} else {
+					tOpt.lines.add(optionText);
+				}
+				options.put(slot, tOpt);
 			}
-			else { lines.add(optionText); }
-			options.put(slot, lines);
 		}
 		if (!closeOnEsc && options.isEmpty()) { closeOnEsc = true; }
 	}
 
-    @Override
-	public void setClose(NBTTagCompound nbt) { grabMouse(false); }
+	public void appendDialog(Dialog d) {
+		closeOnEsc = !d.disableEsc;
+		newDialogSet = true;
+		Dialog oldDialog = dialog;
+		dialog = d.copy();
+		options.clear();
+		selected = 0;
+		selectedStart = 0;
+
+		// Old Sound
+		MusicController.Instance.stopSound(null, SoundCategory.VOICE);
+		if (d.sound != null) {
+			BlockPos pos = npc.getPosition();
+			if (oldDialog != null && !oldDialog.equals(d) && oldDialog.sound != null && MusicController.Instance.isPlaying(oldDialog.sound)) {
+				MusicController.Instance.stopSound(oldDialog.sound, SoundCategory.VOICE);
+			}
+			boolean isPlay = MusicController.Instance.isPlaying(d.sound);
+			if (isPlay) {
+				MusicController.Instance.stopSound(d.sound, SoundCategory.VOICE);
+			}
+			CustomNPCsScheduler.runTack(() -> MusicController.Instance.playSoundDialog(SoundCategory.VOICE, d.sound, pos, 1.0f, 1.0f) , 50);
+		}
+
+		// Dialog texts
+		startTime = System.currentTimeMillis();
+		setStartLine();
+		StringBuilder dText = new StringBuilder(!d.text.contains("%") ? Component.translatable(d.text).getString() : d.text);
+		while (dText.toString().contains("<br>")) { dText = new StringBuilder(dText.toString().replace("<br>", "" + ((char) 10))); }
+		while (dText.toString().contains("\\n")) { dText = new StringBuilder(dText.toString().replace("\\n", "" + ((char) 10))); }
+		ResourceLocation txtr = null;
+		int[] txtrSize = null;
+		if (!d.texture.isEmpty()) {
+			txtr = new ResourceLocation(d.texture);
+			minecraft.getTextureManager().bindTexture(txtr);
+			try {
+				IResource res = minecraft.getResourceManager().getResource(new ResourceLocation(d.texture));
+				BufferedImage buffer = ImageIO.read(res.getInputStream());
+				txtrSize = new int[] { buffer.getWidth(), buffer.getHeight(),
+						(int) Math.ceil((double) buffer.getHeight() / (double) fontHeight / 2.0d) };
+			} catch (IOException e) { LogWriter.error(e); }
+		}
+		if (txtrSize != null) {
+			for (int i = 0; i < txtrSize[2]; i++) { dText.append("" + ((char) 10)); }
+		}
+
+		// Lines
+		lines.add(new TextBlockClient(dialogNpc, dText.toString(), guiSettings.dialogWidth - 13,
+				0xE0E0E0, dialogNpc, player, npc));
+		if (!d.showFits) { setStartLine(); }
+
+		// Dialog options
+		resetOptions();
+		grabMouse(d.showWheel);
+		waitToAnswer = dialog != null ? System.currentTimeMillis() + dialog.delay * 50L : 0L;
+		lineTotal = 0;
+		for (TextBlockClient textBlock : lines) { lineTotal += 1 + textBlock.lines.size(); }
+		selectedTotal.clear();
+		int i = 0;
+		selectedSize = 0;
+		for (int id : options.keySet()) {
+			selectedTotal.put(i, options.get(id).lines.size());
+			selectedSize += options.get(id).lines.size();
+			i++;
+		}
+		lineVisibleSize = dialogHeight / fontHeight;
+		selectedVisibleSize = Math.round((float) (height - dialogHeight - 2) / (float) fontHeight);
+		selected = 0;
+		selectedStart = 0;
+		if (lineStart < 0) { lineStart = 0; }
+
+		// Add dialog texture
+		if (txtr != null && txtrSize != null && !textures.containsKey(lineTotal - 1 - txtrSize[2])) {
+			textures.put(lineTotal - 1 - txtrSize[2], new DialogTexture(txtr, txtrSize, lines.get(lines.size() - 1)));
+		}
+		initGui();
+	}
+
+	protected void checkSelected() {
+		int selSize = 0, pos = 1;
+		for (int i = selectedTotal.size() - 1; i > 0; i--) {
+			selSize += selectedTotal.get(i);
+			if (selSize >= selectedVisibleSize) { break; }
+			pos++;
+		}
+		if (selectedStart <= 0) {
+			selectedStart = 0;
+			if (scrollO != null) {
+				scrollO[8] = selectedStart;
+				scrollO[7] = wrapper.mouseY;
+			}
+		}
+		else if (selectedStart >= selectedTotal.size() - pos) {
+			selectedStart = selectedTotal.size() - pos;
+			if (scrollO != null) {
+				scrollO[8] = selectedStart;
+				scrollO[7] = wrapper.mouseY;
+			}
+		}
+	}
 
 	protected void setStartLine() {
 		startLine = 0;
 		for (TextBlockClient textBlock : lines) { startLine += textBlock.lines.size() + 1; }
+	}
+
+	public static class DialogTexture {
+
+		public ResourceLocation res;
+		public TextBlockClient line;
+		public int left;
+		public int  uS;
+		public int  vS;
+		public int  height;
+
+		protected DialogTexture(ResourceLocation r, int[] uv, TextBlockClient tb) {
+			res = r;
+			left = 0;
+			uS = uv[0];
+			vS = uv[1];
+			height = uv[2];
+			line = tb;
+		}
+
+	}
+
+	public static class TempOption {
+
+		public final List<String> lines;
+		public final boolean isEnable;
+
+		public TempOption(boolean isEnableIn, List<String> linesIn) {
+			isEnable = isEnableIn;
+			lines = linesIn;
+		}
+
 	}
 
 }

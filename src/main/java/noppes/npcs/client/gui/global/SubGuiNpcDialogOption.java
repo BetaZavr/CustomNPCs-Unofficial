@@ -113,39 +113,37 @@ public class SubGuiNpcDialogOption
 		add(scroll.setPos(x0, guiTop + 96));
 		if (!data.containsKey(select)) { select = Component.empty(); }
 
-		if (option.optionType == OptionType.DIALOG_OPTION) { // next dialog
+		if (option.optionType == OptionType.DIALOG_OPTION) {
 			addLabel(4, x0, guiTop + 84, "gui.options");
 			addButton(3, x2, guiTop + 96, "gui.add")
 					.setSize(50, 20)
 					.setHoverTexts("dialog.option.hover.add");
 			addButton(4, x3, guiTop + 96, "gui.remove")
 					.setSize(50, 20)
-					.setIsEnabled(!select.getString().isEmpty())
+					.setIsEnabled(scroll.hasSelected())
 					.setHoverTexts("dialog.option.hover.del");
 			addButton(5, x2, guiTop + 118, "gui.edit")
 					.setSize(80, 20)
+					.setIsEnabled(scroll.hasSelected())
 					.setHoverTexts("dialog.option.hover.edit");
 			addButton(6, x2, guiTop + 140, "type.up")
 					.setSize(50, 20)
-					.setIsEnabled(!select.getString().isEmpty() && pos != 0)
+					.setIsEnabled(scroll.hasSelected() && pos != 0)
 					.setHoverTexts("dialog.option.hover.up");
 			addButton(7, x3, guiTop + 140, "type.down")
 					.setSize(50, 20)
-					.setIsEnabled(!select.getString().isEmpty() && pos > -1 && pos < data.size() - 1)
+					.setIsEnabled(scroll.hasSelected() && pos > -1 && pos < data.size() - 1)
 					.setHoverTexts("dialog.option.hover.down");
 			addButton(8, x2, guiTop + 162, "availability.available")
 					.setSize(80, 20)
-					.setHoverTexts("dialog.option.hover.availability", select);
-		}
+					.setIsEnabled(scroll.hasSelected())
+					.setHoverTexts(Component.translatable("dialog.option.hover.availability",
+							select.getString()));
+		} // next dialog
 		else if (option.optionType == OptionType.COMMAND_BLOCK) { // command
 			addTextField(4, x0, guiTop + 84, 248, 20, option.command)
-					.setHoverTexts("dialog.option.hover.command")
-					.setMaxStringLength(Short.MAX_VALUE);
-			addLabel(4, x0, guiTop + 110, "advMode.command");
-			addLabel(5, x0, guiTop + 125, "advMode.nearestPlayer");
-			addLabel(6, x0, guiTop + 140, "advMode.randomPlayer");
-			addLabel(7, x0, guiTop + 155, "advMode.allPlayers");
-			addLabel(8, x0, guiTop + 170, "dialog.commandoptionplayer");
+					.setMaxStringLength(Short.MAX_VALUE)
+					.setHoverTexts(Component.translatable("command.hover.text", Short.MAX_VALUE));
 		}
 		addButton(66, guiLeft + 149, guiTop + 192, "gui.done")
 				.setSize(80, 20)

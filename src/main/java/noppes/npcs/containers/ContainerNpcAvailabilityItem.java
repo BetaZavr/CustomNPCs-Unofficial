@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.FriendlyByteBuf;
 import noppes.npcs.controllers.data.Availability;
 
 import javax.annotation.Nonnull;
@@ -15,13 +15,12 @@ public class ContainerNpcAvailabilityItem extends Container {
     public final NpcMiscInventory inv;
     public final SlotAvailability slot;
 
-    public ContainerNpcAvailabilityItem(EntityPlayer player, NBTTagCompound availabilityNBT) {
+    public ContainerNpcAvailabilityItem(EntityPlayer player, FriendlyByteBuf buffer) {
         availability = new Availability();
-        availability.load(availabilityNBT);
+        availability.load(buffer.readNbt());
         inv = availability.stacks;
 
         addSlotToContainer(slot = new SlotAvailability(inv, 0, 8, 89));
-        slot.putStack(inv.getStackInSlot(availabilityNBT.getInteger("SlotID")));
 
         for(int y = 0; y < 3; ++y) {
             for(int x = 0; x < 9; ++x) { addSlotToContainer(new Slot(player.inventory, x + y * 9 + 9, 8 + x * 18, 113 + y * 18)); }

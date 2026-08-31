@@ -122,12 +122,10 @@ public class MusicData {
 	}
 
 	public long getCurrentTime() {
-		if (source == null) {
-			if (sndSystem != null) {
-				Library soundLibrary = ((ISoundSystemMixin) sndSystem).getSoundLibrary();
-				HashMap<String, Source> sourceMap = ((ILibraryMixin) soundLibrary).getSourceMap();
-				if (sourceMap != null && sourceMap.containsKey(uuid)) { source = sourceMap.get(uuid); }
-			}
+		if (source == null && sndSystem != null) {
+			Library soundLibrary = ((ISoundSystemMixin) sndSystem).getSoundLibrary();
+			HashMap<String, Source> sourceMap = ((ILibraryMixin) soundLibrary).getSourceMap();
+			if (sourceMap != null && sourceMap.containsKey(uuid)) { source = sourceMap.get(uuid); }
 		}
 		return source == null || duration < source.millisecondsPlayed() ? duration : (long) source.millisecondsPlayed(); }
 
@@ -184,12 +182,26 @@ public class MusicData {
 	}
 
 	public boolean playing() {
-		try { return source != null && source.playing(); } catch (Exception ignored) { }
+		try {
+			if (source == null && sndSystem != null) {
+				Library soundLibrary = ((ISoundSystemMixin) sndSystem).getSoundLibrary();
+				HashMap<String, Source> sourceMap = ((ILibraryMixin) soundLibrary).getSourceMap();
+				if (sourceMap != null && sourceMap.containsKey(uuid)) { source = sourceMap.get(uuid); }
+			}
+			return source != null && source.playing();
+		} catch (Exception ignored) { }
 		return false;
-    }
+	}
 
 	public boolean stopped() {
-		try { return source == null || source.stopped(); } catch (Exception ignored) { }
+		try {
+			if (source == null && sndSystem != null) {
+				Library soundLibrary = ((ISoundSystemMixin) sndSystem).getSoundLibrary();
+				HashMap<String, Source> sourceMap = ((ILibraryMixin) soundLibrary).getSourceMap();
+				if (sourceMap != null && sourceMap.containsKey(uuid)) { source = sourceMap.get(uuid); }
+			}
+			return source == null || source.stopped();
+		} catch (Exception ignored) { }
 		return false;
 	}
 

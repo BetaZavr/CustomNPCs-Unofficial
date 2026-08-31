@@ -127,7 +127,12 @@ public class GuiBasicContainer<T extends Container> extends GuiContainer impleme
         }
         int dWheel = Mouse.getEventDWheel();
         if (dWheel != 0) { mouseScrolled(mouseX, mouseY, (double) dWheel / 120.0d); }
+        mouseMoved(mouseX, mouseY);
+        super.handleMouseInput();
     }
+
+    @SuppressWarnings("unused")
+    public void mouseMoved(double mouseX, double mouseY) {  }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {

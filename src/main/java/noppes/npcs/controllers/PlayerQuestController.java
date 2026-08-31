@@ -34,7 +34,7 @@ public class PlayerQuestController {
 	}
 
 	public static boolean isQuestActive(EntityPlayer player, int questId) {
-		return !PlayerData.get(player).questData.activeQuests.containsKey(questId);
+		return PlayerData.get(player).questData.activeQuests.containsKey(questId);
 	}
 
 	public static boolean isQuestCompleted(EntityPlayer player, int questId) {

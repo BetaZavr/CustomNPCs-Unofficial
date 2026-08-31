@@ -1,8 +1,11 @@
 package noppes.npcs.client.layer;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 
 public class LayerGlow<T extends EntityLivingBase> extends LayerInterface<T> {
 
@@ -14,13 +17,25 @@ public class LayerGlow<T extends EntityLivingBase> extends LayerInterface<T> {
             if (npc.textureGlowLocation == null) {
                 npc.textureGlowLocation = new ResourceLocation(npc.display.getOverlayTexture());
             }
-            /*VertexConsumer iVertexBuilder;
+            Minecraft.getMinecraft().getTextureManager().bindTexture(npc.textureGlowLocation);
             if (npc.display.isOverlayGlowing()) {
-                iVertexBuilder = typeBuffer.getBuffer(RenderType.entityTranslucentEmissive(npc.textureGlowLocation));
-            } else {
-                iVertexBuilder = typeBuffer.getBuffer(RenderType.entityTranslucent(npc.textureGlowLocation));
+                GlStateManager.depthFunc(GL11.GL_LEQUAL);
+                GlStateManager.enableBlend();
+                GlStateManager.blendFunc(GL11.GL_ONE, GL11.GL_ONE);
+                GlStateManager.disableLighting();
+                GlStateManager.pushMatrix();
             }
-            model.render(matrixStackIn, iVertexBuilder, packedLightIn, LivingEntityRenderer.getOverlayCoords(npc, 0.0F), 1.0F, 1.0F, 1.0F, 1.0F);*/
+            model.render(npc, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+            if (npc.display.isOverlayGlowing()) {
+                GlStateManager.popMatrix();
+                GlStateManager.enableLighting();
+                GlStateManager.depthFunc(GL11.GL_LEQUAL);
+                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+                        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                        GlStateManager.SourceFactor.ONE,
+                        GlStateManager.DestFactor.ZERO);
+                GlStateManager.disableBlend();
+            }
         }
     }
 

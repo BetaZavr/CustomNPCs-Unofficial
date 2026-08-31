@@ -1645,6 +1645,7 @@ public class Util implements IMethods {
 		return target;
 	}
 
+	@SuppressWarnings("unused")
 	public String translateGoogle(EntityPlayer player, String originalText) {
 		return translateGoogle("en", CustomNpcs.proxy.getTranslateLanguage(player), originalText);
 	}

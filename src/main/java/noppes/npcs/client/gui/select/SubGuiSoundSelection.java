@@ -113,16 +113,14 @@ public class SubGuiSoundSelection extends ResourceSelection {
 				MusicController.Instance.stopSounds();
 				SoundEventAccessor event = eventsData.get(resource.toString());
 				isPlay = true;
-				musicData = null;
 				error = null;
 				delay = 0L;
 				wait = System.currentTimeMillis();
 				ResourceLocation played = resource;
-				ISound playing;
+				ISound playing = null;
 				List<Sound> sounds = getSounds(event);
 				if (sounds.isEmpty()) {
-                    playing = null;
-                    MusicController.Instance.playSound(SoundCategory.MASTER, played.toString(), player.posX, player.posY, player.posZ, 1.0F, 1.0F);
+					MusicController.Instance.playSound(SoundCategory.MASTER, played.toString(), player.posX, player.posY, player.posZ, 1.0F, 1.0F);
 				}
 				else {
 					int i = (int) (Math.random() * (double) sounds.size());
@@ -147,25 +145,65 @@ public class SubGuiSoundSelection extends ResourceSelection {
 				}
 				name.setMessage(Component.literal(played.getResourcePath()));
 				time.setMessage(Component.empty());
-				CustomNPCsScheduler.runTack(() -> {
-					long n = System.currentTimeMillis() + 2500L;
-					while (n >= System.currentTimeMillis()) {
-						for (MusicData md : ClientTickHandler.musics) {
-							if (md != null && (md.sound == playing || md.resource.equals(played))) {
-								musicData = md;
-								name.setMessage(Component.literal(musicData.name)
-										.append(Component.literal(" / ").withStyle(TextFormatting.GRAY))
-										.append(Component.literal(musicData.resource.getResourcePath().replaceAll("/", ".")).withStyle(TextFormatting.GRAY)));
-								error = null;
-								LogWriter.info("Sound found and is played: "+md.name+"; option: "+md.resource);
-								return;
+				// Create MusicData synchronously so the progress bar works even if the Forge event doesn't fire
+				try {
+					java.lang.reflect.Field soundSystemField = null;
+					net.minecraft.client.audio.SoundHandler sh = minecraft.getSoundHandler();
+					for (java.lang.reflect.Field f : sh.getClass().getDeclaredFields()) {
+						if (f.getType().getName().contains("SoundSystem")) {
+							f.setAccessible(true);
+							soundSystemField = f;
+							break;
+						}
+					}
+					if (soundSystemField != null) {
+						java.lang.reflect.Field soundManagerField = null;
+						for (java.lang.reflect.Field f : sh.getClass().getDeclaredFields()) {
+							if (f.getType().getName().contains("SoundManager") || f.getType().getSimpleName().equals("sndManager")) {
+								f.setAccessible(true);
+								soundManagerField = f;
+								break;
+							}
+						}
+						if (soundManagerField != null) {
+							net.minecraft.client.audio.SoundManager manager = (net.minecraft.client.audio.SoundManager) soundManagerField.get(sh);
+							if (manager != null && playing != null) {
+								musicData = new noppes.npcs.client.util.MusicData(playing, playing.getSound().getSoundLocation().toString(), manager);
 							}
 						}
 					}
-					error = Component.literal(resource.getResourcePath())
-							.append(" - ")
-							.append(Component.translatable("quest.task.location.1"));
-				}, 100);
+				}
+				catch (Exception ignored) { }
+				if (musicData == null) {
+					// Fallback: try to find it from the Forge event within 2.5s
+					CustomNPCsScheduler.runTack(() -> {
+						long n = System.currentTimeMillis() + 2500L;
+						while (n >= System.currentTimeMillis()) {
+							for (noppes.npcs.client.util.MusicData md : ClientTickHandler.musics) {
+								if (md != null && md.resource.equals(played)) {
+									musicData = md;
+									name.setMessage(Component.literal(musicData.name)
+											.append(Component.literal(" / ").withStyle(TextFormatting.GRAY))
+											.append(Component.literal(musicData.resource.getResourcePath().replaceAll("/", ".")).withStyle(TextFormatting.GRAY)));
+									error = null;
+									LogWriter.info("Sound found via Forge event: "+md.name+"; option: "+md.resource);
+									return;
+								}
+							}
+						}
+						if (musicData == null) {
+							error = Component.literal(resource.getResourcePath())
+									.append(" - ")
+									.append(Component.translatable("quest.task.location.1"));
+						}
+					}, 100);
+				}
+				else {
+					name.setMessage(Component.literal(musicData.name)
+							.append(Component.literal(" / ").withStyle(TextFormatting.GRAY))
+							.append(Component.literal(musicData.resource.getResourcePath().replaceAll("/", ".")).withStyle(TextFormatting.GRAY)));
+					LogWriter.info("Sound created synchronously: "+musicData.name+"; duration: "+musicData.duration);
+				}
 				break;
 			} // play
 			case 4: if (resource != null) { NoppesStringUtils.setClipboardContents(resource.toString()); } break; // copy
@@ -204,10 +242,11 @@ public class SubGuiSoundSelection extends ResourceSelection {
 				if (delay < System.currentTimeMillis()) { isPlay = false; }
 				return;
 			}
-			if (musicData != null) {
-				double track = (double) musicData.getCurrentTime() / (double) musicData.duration;
+			if (musicData != null && musicData.duration > 0) {
+				long currentTime = Math.min(musicData.getCurrentTime(), musicData.duration);
+				double track = (double) currentTime / (double) musicData.duration;
 				int len = left + (int) (track * ((double) imageWidth - 10.0d));
-				time.setMessage(Component.literal(Util.instance.ticksToElapsedTime(musicData.getCurrentTime() / 50L, false, false, false))
+				time.setMessage(Component.literal(Util.instance.ticksToElapsedTime(currentTime / 50L, false, false, false))
 						.append(Component.literal("/").withStyle(TextFormatting.GRAY))
 						.append(Component.literal(Util.instance.ticksToElapsedTime(musicData.duration / 50L, false, false, false)).withStyle(TextFormatting.GRAY)));
 				drawRect(left, top, len, bottom, 0xF000 | alpha << 24);
@@ -215,8 +254,9 @@ public class SubGuiSoundSelection extends ResourceSelection {
 					if (delay == 0L) { delay = System.currentTimeMillis() + 2000L; }
 					if (delay < System.currentTimeMillis()) { isPlay = false; }
 				}
-			} else {
-				time.setMessage(Component.literal(Util.instance.ticksToElapsedTime((2500L - Math.min(2500L, Math.max(0L, System.currentTimeMillis() - wait))) / 50, false, false, false)).withStyle(TextFormatting.GRAY));
+			} else if (musicData == null) {
+				// Waiting for sound data to be available
+				time.setMessage(Component.literal("...").withStyle(TextFormatting.GRAY));
 			}
 			name.render(mouseX, mouseY, partialTicks);
 			time.render(mouseX, mouseY, partialTicks);

@@ -1,6 +1,5 @@
 package noppes.npcs;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 import net.minecraft.block.Block;
@@ -39,15 +38,12 @@ import noppes.npcs.controllers.data.*;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataInventory;
 import noppes.npcs.mixin.entity.player.IEntityPlayerMPMixin;
+import noppes.npcs.mixin.minecraftforge.registries.ForgeRegistryMixin;
 import noppes.npcs.mixin.stats.IRecipeBookMixin;
-import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nullable;
 
 public class CommonProxy implements IGuiHandler {
-
-	public static final Map<EntityPlayer, Availability> availabilityStacks = new HashMap<>();
-	private static Field availabilityMapField;
 
 	@Override
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) { return null; }
@@ -55,7 +51,7 @@ public class CommonProxy implements IGuiHandler {
 	public static Container getContainer(EnumGuiType gui, EntityPlayer player, FriendlyByteBuf buffer) {
 		EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 		switch (gui) {
-			case AvailabilityStack: { return new ContainerAvailabilityInv(player); }
+			case AvailabilityStack: { return new ContainerNpcAvailabilityItem(player, buffer); }
 			case CustomContainer: {
 				buffer.readInt(); // npc id
 				TileEntity tile = player.world.getTileEntity(BlockPos.fromLong(buffer.readLong()));
@@ -257,7 +253,9 @@ public class CommonProxy implements IGuiHandler {
 				ResourceLocation key = recipe.getRegistryName();
 				int id = forgeRegistry.getID(key);
 				modifiable.remove(key);
-				if (id >= 0) { clearAvailabilityMapId(id); }
+				if (id >= 0) {
+					((ForgeRegistryMixin) CustomNpcs.proxy.getRecipeManager()).getAvailabilityMap().clear(id);
+				}
 			}
 
 			// 3. We register only current RecipeCarpentry
@@ -274,21 +272,6 @@ public class CommonProxy implements IGuiHandler {
 		if (CustomNpcs.Server != null) {
 			for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) { syncRecipe(player.getRecipeBook()); }
 		}
-	}
-
-	private static void clearAvailabilityMapId(int id) {
-		try {
-			if (availabilityMapField == null) {
-				availabilityMapField = ForgeRegistry.class.getDeclaredField("availabilityMap");
-				availabilityMapField.setAccessible(true);
-			}
-			IForgeRegistry<IRecipe> manager = CustomNpcs.proxy.getRecipeManager();
-			BitSet map = (BitSet) availabilityMapField.get(manager);
-			if (map != null) {
-				map.clear(id);
-			}
-		}
-		catch (Exception e) { LogWriter.error(e); }
 	}
 
 	protected void syncRecipe(RecipeBook book) {

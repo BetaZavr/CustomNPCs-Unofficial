@@ -324,7 +324,9 @@ public class GuiNpcManageBanks
 		bank.load(compound);
 		if (compound.hasKey("CurrentCeil", 3)) { ceil = compound.getInteger("CurrentCeil"); }
 		container.setBank(bank, ceil);
-		selected = Component.translatable(bank.name);
+		selected = Component.empty()
+				.append(Component.literal("ID:" + bank.id + " ").withStyle(TextFormatting.GRAY))
+				.append(Component.literal(bank.name).withStyle(TextFormatting.RESET));
 		isWait = false;
 		initGui();
 	}

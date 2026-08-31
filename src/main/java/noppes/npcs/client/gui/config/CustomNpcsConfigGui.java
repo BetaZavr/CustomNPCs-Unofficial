@@ -65,29 +65,19 @@ public class CustomNpcsConfigGui extends GuiConfig {
 			GuiUtils.drawGradientRect(0, left + 1, y + 1, right - 1, y + 17, color, color);
 		}
 
-		public GuiButtonExt getButton() {
-			return btnValue;
-		}
+		public GuiButtonExt getButton() { return btnValue; }
 
 		@Override
-		public Object getCurrentValue() {
-			return currentValue;
-		}
+		public Object getCurrentValue() { return currentValue; }
 
 		@Override
-		public Object[] getCurrentValues() {
-			return new Object[] { getCurrentValue() };
-		}
+		public Object[] getCurrentValues() { return new Object[] { getCurrentValue() }; }
 
 		@Override
-		public boolean isChanged() {
-			return beforeValue != null ? !beforeValue.equals(currentValue) : currentValue.trim().isEmpty();
-		}
+		public boolean isChanged() { return beforeValue != null ? !beforeValue.equals(currentValue) : currentValue.trim().isEmpty(); }
 
 		@Override
-		public boolean isDefault() {
-			return configElement.getDefault() != null ? configElement.getDefault().toString().equals(currentValue) : currentValue.trim().isEmpty();
-		}
+		public boolean isDefault() { return configElement.getDefault() != null ? configElement.getDefault().toString().equals(currentValue) : currentValue.trim().isEmpty(); }
 
 		@Override
 		public boolean saveConfigElement() {
@@ -123,22 +113,20 @@ public class CustomNpcsConfigGui extends GuiConfig {
 		}
 
 		@Override
-		public void updateValueButtonText() {
-			btnValue.displayString = I18n.format(String.valueOf(currentValue));
-		}
+		public void updateValueButtonText() { btnValue.displayString = I18n.format(String.valueOf(currentValue)); }
 
 		@Override
 		public void valueButtonPressed(int slotIndex) {
 			if (enabled()) {
-				CustomNpcsConfigGui.subGui = new SubGuiColorSelector((int) Long.parseLong(currentValue, 16));
-				CustomNpcsConfigGui.subGui.width = owningEntryList.width;
-				CustomNpcsConfigGui.subGui.height = owningEntryList.height;
-				CustomNpcsConfigGui.subGui.initGui();
-				CustomNpcsConfigGui.subGui.object = this;
-				CustomNpcsConfigGui.subGui.background = null;
+				subGui = new SubGuiColorSelector((int) Long.parseLong(currentValue, 16));
+				subGui.width = owningEntryList.width;
+				subGui.height = owningEntryList.height;
+				subGui.initGui();
+				subGui.object = this;
+				subGui.background = null;
+				subGui.wrapper.parent = owningScreen;
 			}
 		}
-
 	}
 
 	public static class CustomArrayEntry extends ArrayEntry {
@@ -149,7 +137,7 @@ public class CustomNpcsConfigGui extends GuiConfig {
 
 		@Override
 		public void valueButtonPressed(int slotIndex) {
-			mc.displayGuiScreen(new CustomNpcsConfigGui.CustomGuiEditArray(owningScreen, configElement, slotIndex, currentValues, enabled()));
+			mc.displayGuiScreen(new CustomGuiEditArray(owningScreen, configElement, slotIndex, currentValues, enabled()));
 		}
 	}
 
@@ -307,11 +295,11 @@ public class CustomNpcsConfigGui extends GuiConfig {
 			if (entry.getConfigElement().getType() != ConfigGuiType.COLOR) { continue; }
 			if (entry.getClass() == StringEntry.class) {
 				entryList.listEntries.remove(entry);
-				entryList.listEntries.add(i, new CustomNpcsConfigGui.ColorEntry(this, entryList, entry.getConfigElement()));
+				entryList.listEntries.add(i, new ColorEntry(this, entryList, entry.getConfigElement()));
 			}
 			if (entry.getClass() == ArrayEntry.class) {
 				entryList.listEntries.remove(entry);
-				entryList.listEntries.add(i, new CustomNpcsConfigGui.CustomArrayEntry(this, entryList, entry.getConfigElement()));
+				entryList.listEntries.add(i, new CustomArrayEntry(this, entryList, entry.getConfigElement()));
 			}
 		}
 	}

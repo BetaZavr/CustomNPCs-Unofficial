@@ -38,6 +38,7 @@
     "item.crafting.IIngredientMixin",
     "minecraftforge.common.IDimensionManagerMixin",
     "minecraftforge.event.entity.living.ILivingAttackEventMixin",
+    "minecraftforge.registries.ForgeRegistryMixin",
     "nbt.INBTTagListMixin",
     "nbt.INBTTagLongArrayMixin",
     "network.NetworkManagerMixin",

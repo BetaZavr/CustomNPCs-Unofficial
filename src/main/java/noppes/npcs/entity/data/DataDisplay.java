@@ -5,6 +5,7 @@ import java.util.*;
 
 import noppes.npcs.client.model.part.ModelPartConfig;
 import noppes.npcs.controllers.VisibilityController;
+import noppes.npcs.shared.client.gui.util.NoppesStringUtils;
 import noppes.npcs.shared.common.util.LogWriter;
 import org.apache.commons.codec.binary.Base64;
 
@@ -102,7 +103,7 @@ public class DataDisplay implements INPCDisplay {
 
 	@Override
 	public String getCapeTexture() {
-		return cloakTexture;
+		return NoppesStringUtils.cleanResource(cloakTexture);
 	}
 
 	@Override
@@ -177,9 +178,7 @@ public class DataDisplay implements INPCDisplay {
 	}
 
 	@Override
-	public String getOverlayTexture() {
-		return glowTexture;
-	}
+	public String getOverlayTexture() { return NoppesStringUtils.cleanResource(glowTexture); }
 
 	public String getRandomName() {
 		return CustomNpcs.MARKOV_GENERATOR[markovGeneratorId].fetch(markovGender);
@@ -199,9 +198,7 @@ public class DataDisplay implements INPCDisplay {
 	}
 
 	@Override
-	public String getSkinTexture() {
-		return texture;
-	}
+	public String getSkinTexture() { return NoppesStringUtils.cleanResource(texture); }
 
 	@Override
 	public String getSkinUrl() {
@@ -345,10 +342,11 @@ public class DataDisplay implements INPCDisplay {
 
 	@Override
 	public void setCapeTexture(String texture) {
-		if (cloakTexture.equals(texture)) { return; }
-		cloakTexture = texture.toLowerCase();
-		npc.textureCloakLocation = null;
-		npc.updateClient = true;
+		if (!cloakTexture.equals(texture)) {
+			cloakTexture = NoppesStringUtils.cleanResource(texture);
+			npc.textureCloakLocation = null;
+			npc.updateClient = true;
+		}
 	}
 
 	@Override
@@ -446,22 +444,20 @@ public class DataDisplay implements INPCDisplay {
 	}
 
 	@Override
-	public void setOverlayTexture(String texture) {
-		if (glowTexture.equals(texture)) {
-			return;
+	public void setOverlayTexture(String textureIn) {
+		if (!glowTexture.equals(textureIn)) {
+			glowTexture = NoppesStringUtils.cleanResource(textureIn);
+			npc.textureGlowLocation = null;
+			npc.updateClient = true;
 		}
-		glowTexture = texture;
-		npc.textureGlowLocation = null;
-		npc.updateClient = true;
 	}
 
 	@Override
 	public void setShowName(int type) {
-		if (type == showName) {
-			return;
+		if (type != showName) {
+			showName = ValueUtil.correctInt(type, 0, 2);
+			npc.updateClient = true;
 		}
-		showName = ValueUtil.correctInt(type, 0, 2);
-		npc.updateClient = true;
 	}
 
 	@Override
@@ -485,14 +481,13 @@ public class DataDisplay implements INPCDisplay {
 	}
 
 	@Override
-	public void setSkinTexture(String newTexture) {
-		if (newTexture == null || texture.equals(newTexture)) {
-			return;
+	public void setSkinTexture(String textureIn) {
+		if (textureIn != null && !texture.equals(textureIn)) {
+			texture = NoppesStringUtils.cleanResource(textureIn);
+			npc.textureLocation = null;
+			skinType = 0;
+			npc.updateClient = true;
 		}
-		texture = newTexture.toLowerCase();
-		npc.textureLocation = null;
-		skinType = 0;
-		npc.updateClient = true;
 	}
 
 	@Override

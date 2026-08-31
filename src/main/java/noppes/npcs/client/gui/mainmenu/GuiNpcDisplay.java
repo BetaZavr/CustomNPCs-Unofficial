@@ -39,7 +39,7 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 	protected float baseHitBoxWidth;
 	protected float baseHitBoxHeight;
 	protected final DecimalFormat df = new DecimalFormat("#.#");
-	
+
 	public GuiNpcDisplay(EntityNPCInterface npc) {
 		super(npc, 1);
 		backGui = null;
@@ -74,7 +74,7 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 			case 5: display.setHasLivingAnimation(((GuiButtonYesNo) button).getBoolean()); break;
 			case 7: display.setVisible(button.getValue()); initGui(); break;
 			case 8: setSubGui(new SubGuiTextureSelection(this, 1, npc, npc.display.getCapeTexture(), ".png", 1)); break;
-			case 9: setSubGui(new SubGuiTextureSelection(this, 1, npc, npc.display.getOverlayTexture(), ".png", 2)); break;
+			case 9: setSubGui(new SubGuiTextureSelection(this, 2, npc, npc.display.getOverlayTexture(), ".png", 2)); break;
 			case 10: display.setBossbar(button.getValue()); break;
 			case 12: { display.setBossColor(button.getValue()); break; }
 			case 13: display.setHitboxState((byte) button.getValue()); break;
@@ -125,8 +125,8 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 		int x3 = x2 - 2 - tw;
 		addLabel(lID++, x3, y + 5, "display.size")
 				.setSize(tw + 1, 10);
-		addTextField(2, x2 + 1, y, 40, 20, display.getSize())
-				.setMinMaxDefault(1.0F, 30.0F, 5.0F)
+		addTextField(2, x2 + 1, y, 40, 20, (int) display.getSize())
+				.setMinMaxDefault(1, 30, 5)
 				.setHoverTexts("display.hover.size");
 		addLabel(lID++, x2 + 43, y + 5, "(1-30)")
 				.setSize(w, 10);
@@ -298,13 +298,13 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 			case 9: display.setOverlayTexture(textfield.getValue()); break;
 			case 11: display.setTitle(textfield.getValue()); break;
 			case 12: {
-				float f = (float) textfield.getDouble();
+				float f = textfield.getFloat();
 				display.width = f < 0.0f ? baseHitBoxWidth : f;
 				if (f < 0.0f) { textfield.setValue(df.format(display.width)); }
 				break;
 			}
 			case 13: {
-				float f = (float) textfield.getDouble();
+				float f = textfield.getFloat();
 				display.height = f < 0.0f ? baseHitBoxHeight : f;
 				if (f < 0.0f) { textfield.setValue(df.format(display.height)); }
 				break;

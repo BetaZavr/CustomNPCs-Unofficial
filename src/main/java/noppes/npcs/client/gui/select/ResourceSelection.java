@@ -184,7 +184,13 @@ public class ResourceSelection
                 .setColor(new Color(0xFF000000).getRGB());
         addButton(66, guiLeft + imageWidth - 17, guiTop + 5, "X")
                 .setSize(12, 12);
-        select = scroll.getNormalSelected();
+        if (scroll.hasSelected() && scroll.getSelected().equals(CustomNpcs.MODID)) {
+            scroll.setSelected(-1);
+            select = Component.empty();
+        }
+        else {
+            select = scroll.getNormalSelected();
+        }
     }
 
     @Override

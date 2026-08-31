@@ -81,26 +81,6 @@ public class SubGuiTextureSelection extends ResourceSelection {
 		}
 	}
 
-	protected void applyTexture(String res) {
-		switch (type) {
-			case 1: {
-				npc.display.setCapeTexture(res);
-				if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setCapeTexture(res); }
-				break;
-			}
-			case 2: {
-				npc.display.setOverlayTexture(res);
-				if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setOverlayTexture(res); }
-				break;
-			}
-			default: {
-				npc.display.setSkinTexture(res);
-				if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setSkinTexture(res); }
-				break;
-			}
-		}
-	}
-
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -188,24 +168,8 @@ public class SubGuiTextureSelection extends ResourceSelection {
 	@Override
 	protected void cancel() {
 		super.cancel();
-		if (npc != null && type >= 0 && type <= 2) {
-			switch (type) {
-				case 1: {
-					npc.display.setCapeTexture(baseResource);
-					if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setCapeTexture(baseResource); }
-					break;
-				}
-				case 2: {
-					npc.display.setOverlayTexture(baseResource);
-					if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setOverlayTexture(baseResource); }
-					break;
-				}
-				default: {
-					npc.display.setSkinTexture(baseResource);
-					if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setSkinTexture(baseResource); }
-					break;
-				}
-			}
+		if (npc != null && type >= 0 && type <= 2 && resource != null) {
+			applyTexture(resource.toString());
 			npc.textureLocation = null;
 		}
 	}
@@ -216,5 +180,25 @@ public class SubGuiTextureSelection extends ResourceSelection {
 	}
 
 	public interface TextureSelection {  void save(SubGuiTextureSelection subGuiTexture); }
+
+	protected void applyTexture(@Nonnull String res) {
+		switch (type) {
+			case 1: {
+				npc.display.setCapeTexture(res);
+				if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setCapeTexture(res); }
+				break;
+			}
+			case 2: {
+				npc.display.setOverlayTexture(res);
+				if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setOverlayTexture(res); }
+				break;
+			}
+			default: {
+				npc.display.setSkinTexture(res);
+				if (displayEntity instanceof EntityNPCInterface) { ((EntityNPCInterface) displayEntity).display.setSkinTexture(res); }
+				break;
+			}
+		}
+	}
 
 }

@@ -859,7 +859,7 @@ display.hover.cloak=Location of the Cloak texture<br>§7Available not for every 
 display.hover.color=Color overlay on top of NPC skin<br>§7Applies to all textures.
 display.hover.extra=Additional model settings
 display.hover.eyes=Location of Eye texture<br>§7Available not for every NPC model
-display.hover.glint=Bright in the dark
+display.hover.glint=Applied texture is bright (glowing) in the dark
 display.hover.group.either=NPC Gender<br>§7Use when selecting a random name
 display.hover.group.name=Select a group of names
 display.hover.hitbox.height=NPC height<br>§7Current model value:<br>§7Base:§6 %s§7; Current:§6 %s<br>§7Used to determine HitBox<br>§7Set to§6 -1§7 to use default HitBox<br>§7Maximum§6 15.0
@@ -1705,13 +1705,20 @@ inv.inventory=Inventory
 inv.loot.0=Loot from: "%s"
 inv.loot.1=(for player %s)
 inv.loot.players=All players:
-inv.lootpickup=Player loot pickup
+inv.lootpickup=Method of obtaining by player
 inv.maxExp=Max Exp
 inv.minExp=Min Exp
 inv.npcInventory=NPC Inventory
 inv.use.drops.0=Use NPCs
 inv.use.drops.1=Use Template
 inv.use.drops.2=Use Both
+
+inv.lootmode.0.false=Will fall to the player who killed this NPC
+inv.lootmode.1.false=Will fall to the ground near the killed NPC
+inv.lootmode.2.false=Will be placed in the inventory available when the NPC dies
+inv.lootmode.0.true=Given to the player's inventory
+inv.lootmode.1.true=Will fall to the ground (at the player's feet)
+inv.lootmode.2.true=(not used)
 
 inventory.hover.currency=Your money:
 inventory.hover.donat=Your donation:
@@ -2120,6 +2127,8 @@ message.pather.farwarning=Warning: point is too far away from previous point. Ma
 message.pather.home=Changed home position x:%s y:%s z:%s for NPC "%s"
 message.pather.register=Registered "%s" to your %s
 message.pather.warn.added=§cWarning§r: the new position is too far from the previous position. Maximum distance (in blocks) for moving: %s
+message.unable.find.npc=§cUnable to find npc
+message.permission.error.player.name=§cPlayer name "%s" must be at least§6 4§c characters long and must not contain spaces or characters other than '§f_§c'
 
 minecraft:any=Any
 

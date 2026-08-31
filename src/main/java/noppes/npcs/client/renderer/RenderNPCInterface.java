@@ -143,7 +143,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 	}
 
 	@Override
-	protected void renderModel(@Nonnull T npc, float limbSwing, float par3, float par4, float par5, float par6, float par7) {
+	protected void renderModel(@Nonnull T npc, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		boolean isTransparent = false;
 		if (npc.display.getVisible() == 1) {
 			isTransparent = Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() != CustomItems.wand && npc.display.getAvailability().isAvailable(Minecraft.getMinecraft().player);
@@ -152,6 +152,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 		}
 
 		// main model
+
 		if (bindEntityTexture(npc)) {
 			if (isTransparent) {
 				GlStateManager.enableBlend();
@@ -159,7 +160,7 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f);
 				GlStateManager.depthMask(false);
 			}
-			try { mainModel.render(npc, limbSwing, par3, par4, par5, par6, par7); }
+			try { mainModel.render(npc, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale); }
 			finally {
 				if (isTransparent) {
 					GlStateManager.depthMask(true);
@@ -167,39 +168,6 @@ public class RenderNPCInterface<T extends EntityNPCInterface> extends RenderLivi
 					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				}
 			}
-		}
-		// glowing
-		if (!npc.display.getOverlayTexture().isEmpty()) {
-			GlStateManager.depthFunc(515);
-			if (npc.textureGlowLocation == null) {
-				npc.textureGlowLocation = new ResourceLocation(npc.display.getOverlayTexture());
-			}
-			float f1 = 1.0f;
-
-			GlStateManager.enableBlend();
-			GlStateManager.blendFunc(1, 1);
-			GlStateManager.disableLighting();
-			if (isTransparent) {
-				GlStateManager.enableBlend();
-				GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-				GlStateManager.color(1.0f, 1.0f, 1.0f, 0.5f);
-				GlStateManager.depthMask(false);
-			}
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.pushMatrix();
-			GlStateManager.scale(1.001f, 1.001f, 1.001f);
-			mainModel.render(npc, limbSwing, par3, par4, par5, par6, par7);
-			GlStateManager.popMatrix();
-			GlStateManager.enableLighting();
-			if (isTransparent) {
-				GlStateManager.depthMask(true);
-				GlStateManager.disableBlend();
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			}
-			GlStateManager.color(1.0f, 1.0f, 1.0f, f1);
-			GlStateManager.depthFunc(515);
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-			GlStateManager.disableBlend();
 		}
 	}
 

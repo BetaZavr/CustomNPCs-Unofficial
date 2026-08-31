@@ -22,6 +22,7 @@ import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.listeners.GuiSelectionListener;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
 import noppes.npcs.shared.client.gui.listeners.IGuiData;
+import org.lwjgl.input.Keyboard;
 
 public class GuiNPCDialogNpcOptions
 		extends GuiNPCInterface2
@@ -195,6 +196,19 @@ public class GuiNPCDialogNpcOptions
 			}
 		}
 		Packets.sendServer(new SPacketNpcDialogSet(selectedSlot, id));
+	}
+
+	@Override
+	public boolean keyPressed(char typedChar, int keyCode) {
+		if (!hasSubGui() && (keyCode == Keyboard.KEY_DELETE || keyCode == Keyboard.KEY_DECIMAL) &&
+				selectedSlot > -1 && data.containsKey(selectedSlot)) {
+			data.clear();
+			Packets.sendServer(new SPacketDialogOptionRemove(selectedSlot));
+			selectedSlot = -1;
+			initGui();
+			return true;
+		}
+		return super.keyPressed(typedChar, keyCode);
 	}
 
 }

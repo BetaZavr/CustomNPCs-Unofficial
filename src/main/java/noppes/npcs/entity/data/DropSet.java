@@ -33,7 +33,6 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.constants.EnumAvailabilityQuest;
 import noppes.npcs.controllers.data.Availability;
-import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 
 import javax.annotation.Nonnull;
@@ -634,29 +633,33 @@ public class DropSet implements IInventory, ICustomDrop {
 		return keyName;
 	}
 
-	public List<Component> getHover(EntityPlayer player) {
+	public List<Component> getHover(boolean isReward) {
 		List<Component> list = new ArrayList<>();
 		// pos
 		if (pos < 0) {
 			list.add(Component.empty()
-					.append(Component.literal("- ").withStyle(TextFormatting.GRAY))
-					.append(Component.literal("ID" + toString().substring(toString().indexOf("@") + 1)).withStyle(TextFormatting.DARK_GRAY)));
+					.append(Component.translatable("gui.position").withStyle(TextFormatting.GRAY))
+					.append(Component.literal(": ").withStyle(TextFormatting.GRAY))
+					.append(Component.literal(toString().substring(toString().indexOf("@") + 1)).withStyle(TextFormatting.DARK_GRAY)));
 		}
 		else {
 			list.add(Component.empty()
-					.append(Component.literal("- " + Util.instance.translateGoogle(player, "Position") + ": ").withStyle(TextFormatting.GRAY))
+					.append(Component.translatable("gui.position").withStyle(TextFormatting.GRAY))
+					.append(Component.literal(": ").withStyle(TextFormatting.GRAY))
 					.append(Component.literal("" + pos).withStyle(TextFormatting.RESET)));
 		}
 		// stack
 		Component stackKey = Component.empty()
-				.append(Component.literal("- " + Util.instance.translateGoogle(player, "Item") + ": ").withStyle(TextFormatting.GRAY));
+				.append(Component.translatable("gui.name").withStyle(TextFormatting.GRAY))
+				.append(Component.literal(": ").withStyle(TextFormatting.GRAY));
 		if (item == null) { stackKey.append(Component.literal("null").withStyle(TextFormatting.DARK_RED)); }
-		else if (item.isEmpty()) { stackKey.append(Component.literal("Empty").withStyle(TextFormatting.RED)); }
+		else if (item.isEmpty()) { stackKey.append(Component.translatable("type.empty").withStyle(TextFormatting.RED)); }
 		else { stackKey.append(Component.literal("" + item.getItem().getRegistryName()).withStyle(TextFormatting.RESET)); }
 		list.add(stackKey);
 		// amount
 		Component amountKey = Component.empty()
-				.append(Component.literal("- " + Util.instance.translateGoogle(player, "Amount") + ": ").withStyle(TextFormatting.GRAY));
+				.append(Component.translatable("quest.itemamount").withStyle(TextFormatting.GRAY))
+				.append(Component.literal(": ").withStyle(TextFormatting.GRAY));
 		if (amount[0] == amount[1]) { amountKey.append(Component.literal("" + amount[0]).withStyle(TextFormatting.GOLD)); }
 		else {
 			amountKey.append(Component.literal("[min:").withStyle(TextFormatting.GRAY))
@@ -668,7 +671,8 @@ public class DropSet implements IInventory, ICustomDrop {
 		list.add(amountKey);
 		// chance
 		Component chanceKey = Component.empty()
-				.append(Component.literal("- " + Util.instance.translateGoogle(player, "Chance") + ": ").withStyle(TextFormatting.GRAY));
+				.append(Component.translatable("drop.chance").withStyle(TextFormatting.GRAY))
+				.append(Component.literal(": ").withStyle(TextFormatting.GRAY));
 		if (chance == (int) chance) {
 			chanceKey.append(Component.literal("" + (int) chance).withStyle(TextFormatting.YELLOW))
 					.append(Component.literal("%").withStyle(TextFormatting.GRAY));
@@ -679,28 +683,20 @@ public class DropSet implements IInventory, ICustomDrop {
 		}
 		list.add(chanceKey);
 		// loot mode
-		Component lootKey = Component.empty()
-				.append(Component.literal("- " + Util.instance.translateGoogle(player, "Loot") + ": ").withStyle(TextFormatting.GRAY));
-		if (lootMode == 1) { lootKey.append(Component.literal(Util.instance.translateGoogle(player, "Will fall to the ground"))
-				.withStyle(TextFormatting.RESET)); }
-		else if (lootMode == 2) { lootKey.append(Component.literal(Util.instance.translateGoogle(player, "Will be placed in the inventory available when the NPC dies."))
-				.withStyle(TextFormatting.RESET)); }
-		else { lootKey.append(Component.literal(Util.instance.translateGoogle(player, "Will fall to the player who killed this NPC"))
-				.withStyle(TextFormatting.RESET)); }
-		list.add(lootKey);
+		list.add(Component.empty()
+				.append(Component.translatable("inv.lootpickup").withStyle(TextFormatting.GRAY))
+				.append(Component.literal(": ").withStyle(TextFormatting.GRAY))
+				.append(Component.translatable("inv.lootmode." + (lootMode % 3) + "." + isReward).withStyle(TextFormatting.RESET)));
 		// availability
-		if (availability.hasOptions()) {
-			list.add(Component.empty()
-					.append(Component.literal("- " + Util.instance.translateGoogle(player, "There are accessibility settings")).withStyle(TextFormatting.GRAY)));
-		}
-		else {
-			list.add(Component.empty()
-					.append(Component.literal("- " + Util.instance.translateGoogle(player, "Availability not specified")).withStyle(TextFormatting.GRAY)));
-		}
+		list.add(Component.empty()
+				.append(Component.translatable("availability.available").withStyle(TextFormatting.GRAY))
+				.append(Component.literal(": ").withStyle(TextFormatting.GRAY))
+				.append(Component.translatable("availability." + (availability.hasOptions() ? "contains" : "except")).withStyle(TextFormatting.RESET)));
 		// enchants
 		if (!enchants.isEmpty()) {
 			Component enchKey = Component.empty()
-					.append(Component.literal("- " + Util.instance.translateGoogle(player, "Enchants") + ": [").withStyle(TextFormatting.GRAY));
+					.append(Component.translatable("drop.enchants").withStyle(TextFormatting.GRAY))
+					.append(Component.literal(": [").withStyle(TextFormatting.GRAY));
 			boolean start = false;
 			for (EnchantSet es : enchants) {
 				if (start) { enchKey.append(Component.literal(", ").withStyle(TextFormatting.GRAY)); }
@@ -715,12 +711,15 @@ public class DropSet implements IInventory, ICustomDrop {
 		}
 		else {
 			list.add(Component.empty()
-					.append(Component.literal("- " + Util.instance.translateGoogle(player, "\"Enchants\" - not specified")).withStyle(TextFormatting.GRAY)));
+					.append(Component.translatable("drop.enchants").withStyle(TextFormatting.GRAY))
+					.append(Component.literal(": ").withStyle(TextFormatting.GRAY))
+					.append(Component.translatable("availability.except").withStyle(TextFormatting.RESET)));
 		}
 		// attributes
 		if (!attributes.isEmpty()) {
 			Component attrKey = Component.empty()
-					.append(Component.literal("- " + Util.instance.translateGoogle(player, "Attributes") + ": [").withStyle(TextFormatting.GRAY));
+					.append(Component.translatable("drop.attributes").withStyle(TextFormatting.GRAY))
+					.append(Component.literal(": [").withStyle(TextFormatting.GRAY));
 			boolean start = false;
 			for (AttributeSet as : attributes) {
 				if (start) { attrKey.append(Component.literal(", ").withStyle(TextFormatting.GRAY)); }
@@ -735,12 +734,15 @@ public class DropSet implements IInventory, ICustomDrop {
 		}
 		else {
 			list.add(Component.empty()
-					.append(Component.literal("- " + Util.instance.translateGoogle(player, "\"Attributes\" - not specified")).withStyle(TextFormatting.GRAY)));
+					.append(Component.translatable("drop.attributes").withStyle(TextFormatting.GRAY))
+					.append(Component.literal(": ").withStyle(TextFormatting.GRAY))
+					.append(Component.translatable("availability.except").withStyle(TextFormatting.RESET)));
 		}
 		// tags
 		if (!tags.isEmpty()) {
 			Component nbtKey = Component.empty()
-					.append(Component.literal("- " + Util.instance.translateGoogle(player, "Attributes") + ": [").withStyle(TextFormatting.GRAY));
+					.append(Component.translatable("drop.tags").withStyle(TextFormatting.GRAY))
+					.append(Component.literal(": [").withStyle(TextFormatting.GRAY));
 			boolean start = false;
 			for (DropNbtSet ns : tags) {
 				if (start) { nbtKey.append(Component.literal(", ").withStyle(TextFormatting.GRAY)); }
@@ -755,7 +757,9 @@ public class DropSet implements IInventory, ICustomDrop {
 		}
 		else {
 			list.add(Component.empty()
-					.append(Component.literal("- " + Util.instance.translateGoogle(player, "\"NBT tags\" - not specified")).withStyle(TextFormatting.GRAY)));
+					.append(Component.translatable("drop.tags").withStyle(TextFormatting.GRAY))
+					.append(Component.literal(": ").withStyle(TextFormatting.GRAY))
+					.append(Component.translatable("availability.except").withStyle(TextFormatting.RESET)));
 		}
 		return list;
 	}

@@ -261,7 +261,7 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface<ContainerNPCTr
 			for (ICustomDrop dropSet : caseItems) {
 				list.add(((DropSet) dropSet).getKey());
 				stacks.add(dropSet.getMCItemStack());
-				hts.put(i++, ((DropSet) dropSet).getHover(player));
+				hts.put(i++, ((DropSet) dropSet).getHover(true));
 			}
 			scroll.setUnsortedList(list).setStacks(stacks).setHoverTexts(hts);
 			addButton(5, x, y, "gui.add")

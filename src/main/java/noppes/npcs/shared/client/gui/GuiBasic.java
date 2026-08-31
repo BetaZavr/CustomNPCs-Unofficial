@@ -236,6 +236,8 @@ public class GuiBasic extends GuiScreen implements IGuiInterface {
         }
         int dWheel = Mouse.getEventDWheel();
         if (dWheel != 0) { mouseScrolled(mouseX, mouseY, (double) dWheel / 120.0d); }
+        mouseMoved(mouseX, mouseY);
+        super.handleMouseInput();
     }
 
     @Override
@@ -271,6 +273,8 @@ public class GuiBasic extends GuiScreen implements IGuiInterface {
         super.mouseReleased((int) mouseX, (int) mouseY, mouseButton);
         return false;
     }
+
+    public void mouseMoved(double mouseX, double mouseY) {  }
 
     @Override
     public void setFocused(boolean hasFocusedControlIn) {
@@ -675,8 +679,11 @@ public class GuiBasic extends GuiScreen implements IGuiInterface {
         if (!hoverIsGame && !Util.instance.equalsDeleteColor(hoverText.get(hoverText.size() - 1).getFormattedText(), addHoverText.getFormattedText(), false)) {
             hoverText.add(addHoverText);
         }
+        GlStateManager.pushMatrix();
         if (hoverFont == null) { drawHoveringText(toHoverText(), mouseX, mouseY, fontRenderer); }
         else { renderTooltipInternal(mouseX, ValueUtil.correctInt(mouseY, 16, height), this, hoverFont, hoverText, bgScale); }
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.popMatrix();
     }
 
     protected List<String> toHoverText() {

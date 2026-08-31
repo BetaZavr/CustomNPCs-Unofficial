@@ -24,7 +24,7 @@ public class SubGuiNpcResistanceProperties extends GuiNPCInterface
 	protected final Resistances resistances;
 
 	// New from Unofficial (BetaZavr)
-	protected final Map<Component, String> data = new HashMap<>();
+	protected final Map<Component, String> data = new LinkedHashMap<>();
 	protected GuiCustomScrollNop scroll;
 	protected Component select = Component.empty();
 
@@ -45,8 +45,6 @@ public class SubGuiNpcResistanceProperties extends GuiNPCInterface
 		List<Component> names = new ArrayList<>();
 		List<Component> notList = new ArrayList<>();
 		Map<Component, Component> mapSfx = new HashMap<>();
-		LinkedHashMap<Integer, List<Component>> hts = new LinkedHashMap<>();
-		int i = 0;
 		for (Component key : data.keySet()) {
 			String name = data.get(key);
 			Component sfx;
@@ -61,16 +59,19 @@ public class SubGuiNpcResistanceProperties extends GuiNPCInterface
 				sfx = Component.empty();
 			}
 			mapSfx.put(key, sfx);
+		}
+		names.addAll(notList);
+		if (select.getFormattedText().isEmpty() && !names.isEmpty()) { select = names.get(0); }
+		List<Component> suffixes = new ArrayList<>();
+		LinkedHashMap<Integer, List<Component>> hts = new LinkedHashMap<>();
+		int i = 0;
+		for (Component key : names) {
+			suffixes.add(mapSfx.get(key));
 			hts.put(i++, Collections.singletonList(Component.empty()
 					.append(Component.literal("Damage Type name: \"").withStyle(TextFormatting.GRAY))
 					.append(Component.literal(data.get(key)).withStyle(TextFormatting.GOLD))
 					.append(Component.literal("\"").withStyle(TextFormatting.GRAY))));
 		}
-		names.addAll(notList);
-		if (select.getFormattedText().isEmpty() && !names.isEmpty()) { select = names.get(0); }
-		List<Component> suffixes = new ArrayList<>();
-		for (Component key : names) { suffixes.add(mapSfx.get(key)); }
-
 		if (scroll == null) { scroll = addScroll(0).setSize(248, 176); }
 		add(scroll.setSelected(npc.linkedName)
 				.setPos(guiLeft + 4, guiTop + 4)

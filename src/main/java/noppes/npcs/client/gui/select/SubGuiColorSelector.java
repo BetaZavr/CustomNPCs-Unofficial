@@ -41,6 +41,8 @@ public class SubGuiColorSelector
 	protected GuiSliderNop alphaSlider;
 	protected GuiTextFieldNop alphaField;
 	public Object object;
+	protected int xColorPos = 0;
+	protected int yColorPos = 0;
 
 	public SubGuiColorSelector(int colorIn) {
 		super();
@@ -77,13 +79,12 @@ public class SubGuiColorSelector
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
+	public void drawDefaultBackground() {
+		super.drawDefaultBackground();
 		// background
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		mc.getTextureManager().bindTexture(SubGuiColorSelector.resource);
 		drawTexturedModalRect(colorX, colorY, 0, 0, 120, 120);
-		hoverTexture = !(mouseX < (double) colorX) && !(mouseX > (double) (colorX + 117)) && !(mouseY < (double) colorY) && !(mouseY > (double) (colorY + 117));
 		if (textfield == null) { return; }
 		int x = textfield.getX() + textfield.getWidth() + 4;
 		int y = textfield.getY();
@@ -92,7 +93,7 @@ public class SubGuiColorSelector
 		c = color;
 		if (bufferedimage != null && hoverTexture) {
 			try {
-				c = new Color(bufferedimage.getRGB((int)(mouseX - (double)guiLeft - 30.0D) * 4, (int)(mouseY - (double)guiTop - 50.0D) * 4) & new Color(0xFFFFFF).getRGB()).getRGB();
+				c = new Color(bufferedimage.getRGB(xColorPos, yColorPos) & new Color(0xFFFFFF).getRGB()).getRGB();
 				StringBuilder str = new StringBuilder(Integer.toHexString(c));
 				while (str.length() < 6) { str.insert(0, "0"); }
 				while (str.length() > 6) { str.deleteCharAt(0); }
@@ -108,6 +109,14 @@ public class SubGuiColorSelector
 		float alpha = (float) (c >> 24 & 255) / 255.0F;
 		if (alpha == 0.0f) { c += new Color(0xFF000000).getRGB(); }
 		drawRect(x, y, x + 40, y + 20, c);
+	}
+
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		hoverTexture = !(mouseX < colorX) && !(mouseX > (colorX + 117)) && !(mouseY < colorY) && !(mouseY > colorY + 117);
+		xColorPos = (int)((double) mouseX - (double) guiLeft - 30.0D) * 4;
+		yColorPos = (int)((double) mouseY - (double) guiTop - 50.0D) * 4;
+		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
 	@Override
