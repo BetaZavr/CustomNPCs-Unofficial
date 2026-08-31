@@ -232,7 +232,7 @@ public class GuiNpcDisplay
          case 5: display.setHasLivingAnimation(button.getValue() == 0); break;
          case 7: display.setVisible(button.getValue()); init(); break;
          case 8: setSubGui(new SubGuiTextureSelection(this, 1, npc, npc.display.getCapeTexture(), ".png", 1)); break;
-         case 9: setSubGui(new SubGuiTextureSelection(this, 1, npc, npc.display.getOverlayTexture(), ".png", 2)); break;
+         case 9: setSubGui(new SubGuiTextureSelection(this, 2, npc, npc.display.getOverlayTexture(), ".png", 2)); break;
          case 10: display.setBossbar(button.getValue()); break;
          case 12: { display.setBossColor(button.getValue()); break; }
          case 13: display.setHitboxState((byte) button.getValue()); break;

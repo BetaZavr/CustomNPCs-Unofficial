@@ -844,7 +844,7 @@
   "display.hover.color": "Color overlay on top of NPC skin<br>§7Applies to all textures.",
   "display.hover.extra": "Additional model settings",
   "display.hover.eyes": "Location of Eye texture<br>§7Available not for every NPC model",
-  "display.hover.glint": "Bright in the dark",
+  "display.hover.glint": "Applied texture is bright (glowing) in the dark",
   "display.hover.group.either": "NPC Gender<br>§7Use when selecting a random name",
   "display.hover.group.name": "Select a group of names",
   "display.hover.hitbox.height": "NPC height<br>§7Current model value:<br>§7Base:§6 %s§7; Current:§6 %s<br>§7Used to determine HitBox<br>§7Set to§6 -1§7 to use default HitBox<br>§7Maximum§6 15.0",
@@ -1669,7 +1669,7 @@
   "inv.loot.0": "Loot from: \"%s\"",
   "inv.loot.1": "(for player %s)",
   "inv.loot.players": "All players:",
-  "inv.lootpickup": "Player loot pickup",
+  "inv.lootpickup": "Method of obtaining by player",
   "inv.maxExp": "Max Exp",
   "inv.minExp": "Min Exp",
   "inv.npcInventory": "NPC Inventory",
@@ -3247,5 +3247,13 @@
   "entity.hover.customnpcs.npcpony": "NPC with Pony model",
   "entity.hover.customnpcs.npcslime": "NPC with Slime model",
   "entity.hover.minecraft": "NPC with in-game mob model",
-  "entity.hover.in.mod": "NPC with mob model from another mod"
+  "entity.hover.in.mod": "NPC with mob model from another mod",
+  "inv.lootmode.0.false": "Will fall to the player who killed this NPC",
+  "inv.lootmode.1.false": "Will fall to the ground near the killed NPC",
+  "inv.lootmode.2.false": "Will be placed in the inventory available when the NPC dies",
+  "inv.lootmode.0.true": "Given to the player's inventory",
+  "inv.lootmode.1.true": "Will fall to the ground (at the player's feet)",
+  "inv.lootmode.2.true": "(not used)",
+  "message.unable.find.npc": "§cUnable to find npc",
+  "message.permission.error.player.name": "§cPlayer name \"%s\" must be at least§6 4§c characters long and must not contain spaces or characters other than '§f_§c'"
 }

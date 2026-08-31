@@ -276,7 +276,6 @@ public class GuiNpcManageBanks
             break;
          } // remove bank
          case 8: {
-            if (bank == null) { return; }
             setSubGui(new SubGuiEditBankAccess(bank));
             break;
          } // settings
@@ -328,7 +327,9 @@ public class GuiNpcManageBanks
       bank.load(compound);
       if (compound.contains("CurrentCeil", 3)) { ceil = compound.getInt("CurrentCeil"); }
       container.setBank(bank, ceil);
-      selected = Component.translatable(bank.name);
+      selected = Component.empty()
+              .append(Component.literal("ID:" + bank.id + " ").withStyle(ChatFormatting.GRAY))
+              .append(Component.literal(bank.name).withStyle(ChatFormatting.RESET));
       isWait = false;
       init();
    }
@@ -376,7 +377,7 @@ public class GuiNpcManageBanks
 
    @Override
    public void save() {
-      if (selected != null && data.containsKey(selected) && bank != null && bank.id >= 0 && bank.ceilSettings.containsKey(ceil)) {
+      if (selected != null && data.containsKey(selected) && bank.id >= 0 && bank.ceilSettings.containsKey(ceil)) {
          bank.ceilSettings.get(ceil).openStack = container.getSlot(0).getItem();
          bank.ceilSettings.get(ceil).upgradeStack = container.getSlot(1).getItem();
          Packets.sendServer(new SPacketBankSave(ceil, bank.save()));

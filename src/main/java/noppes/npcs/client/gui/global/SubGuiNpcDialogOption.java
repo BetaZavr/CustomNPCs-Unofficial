@@ -56,7 +56,6 @@ public class SubGuiNpcDialogOption
       int x3 = x2 + 52;
       addLabel(66, guiLeft, guiTop + 4, "dialog.editoption")
               .setCenter(imageWidth);
-
       addLabel(0, x0, guiTop + 20, "gui.text")
               .setSize(58, 10);
       addTextField(0, x1, guiTop + 15, 188, 20, option.title)
@@ -84,7 +83,6 @@ public class SubGuiNpcDialogOption
       addButton(1, x1, guiTop + 62, false, option.optionType.get(), options)
               .setSize(92, 20)
               .setHoverTexts("dialog.option.hover.type." + option.optionType.get());
-
 
       data.clear();
       List<Component> keys = new ArrayList<>();

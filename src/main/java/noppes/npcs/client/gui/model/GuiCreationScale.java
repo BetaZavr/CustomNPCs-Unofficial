@@ -46,7 +46,6 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
       }
       add(scroll.setPos(guiLeft, guiTop + 46)
               .setUnsortedList(list)
-              .setSelected(Component.translatable("part." + selected.name).toString())
               .setSize(120, imageHeight - 50)
               .disabledSearch());
       ModelPartConfig config = playerdata.getPartConfig(selected);
@@ -77,9 +76,9 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
    }
 
    @Override
-   public void buttonEvent(GuiButtonNop guiButton) {
-      if (guiButton.id == 13) {
-         playerdata.getPartConfig(selected).notShared = guiButton.getValue() == 0;
+   public void buttonEvent(GuiButtonNop button) {
+      if (button.id == 13) {
+         playerdata.getPartConfig(selected).notShared = ((GuiButtonYesNo) button).getBoolean();
          init();
       }
    }

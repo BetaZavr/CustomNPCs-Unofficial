@@ -5,6 +5,7 @@ import noppes.npcs.api.interfaces.ParamName;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("unused")
 public interface ICustomDrop {
 
     IAttributeSet addAttribute(@ParamName("name") String attributeName);

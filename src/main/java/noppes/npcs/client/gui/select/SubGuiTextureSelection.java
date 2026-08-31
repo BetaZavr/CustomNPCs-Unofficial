@@ -12,7 +12,6 @@ import net.minecraft.world.entity.Entity;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNpcUtil;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.components.*;
 import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.Util;
@@ -68,33 +67,15 @@ public class SubGuiTextureSelection extends ResourceSelection {
 
    @Override
    public void buttonEvent(GuiButtonNop button) {
-      super.buttonEvent(button);
       if (button.id == 3) {
          dark = ((GuiCheckBoxNop) button).selected();
          return;
       }
-      String res = baseResource;
-      if (button.id == 2 && resource != null) { res = resource.toString(); }
-      if (npc != null && type >= 0 && type <= 2) {
-         switch (type) {
-            case 1: {
-               npc.display.setCapeTexture(res);
-               if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setCapeTexture(resource.toString()); }
-               break;
-            }
-            case 2: {
-               npc.display.setOverlayTexture(res);
-               if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setOverlayTexture(resource.toString()); }
-               break;
-            }
-            default: {
-               npc.display.setSkinTexture(res);
-               if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setSkinTexture(resource.toString()); }
-               break;
-            }
-         }
+      if (button.id == 2 && npc != null && type >= 0 && type <= 2 && resource != null) {
+         applyTexture(resource.toString());
          npc.textureLocation = null;
       }
+      super.buttonEvent(button);
       if (button.id != 1 && button.id != 2 && button.id != 66) { onClose(); }
       if (wrapper.parent instanceof Screen screen) {
          if (minecraft == null) { minecraft = Minecraft.getInstance(); }
@@ -179,51 +160,20 @@ public class SubGuiTextureSelection extends ResourceSelection {
    @Override
    public void scrollClicked(GuiCustomScrollNop scroll) {
       super.scrollClicked(scroll);
-      if (!scroll.getNormalSelected().equals(back) && selectDir != null && scroll.getSelected().endsWith(suffix)) {
-         if (npc != null && type >= 0 && type <= 2) {
-            switch (type) {
-               case 1: {
-                  npc.display.setCapeTexture(resource.toString());
-                  if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setCapeTexture(resource.toString()); }
-                  break;
-               }
-               case 2: {
-                  npc.display.setOverlayTexture(resource.toString());
-                  if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setOverlayTexture(resource.toString()); }
-                  break;
-               }
-               default: {
-                  npc.display.setSkinTexture(resource.toString());
-                  if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setSkinTexture(resource.toString()); }
-                  break;
-               }
-            }
-         }
+      if (!scroll.getNormalSelected().equals(back) && selectDir != null && scroll.getSelected().endsWith(suffix) &&
+              npc != null && type >= 0 && type <= 2 && resource != null) {
+         applyTexture(resource.toString());
+         npc.textureLocation = null;
       }
    }
 
    // New from Unofficial (BetaZavr)
+
    @Override
    protected void cancel() {
       super.cancel();
-      if (npc != null && type >= 0 && type <= 2) {
-         switch (type) {
-            case 1: {
-               npc.display.setCapeTexture(baseResource);
-               if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setCapeTexture(baseResource); }
-               break;
-            }
-            case 2: {
-               npc.display.setOverlayTexture(baseResource);
-               if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setOverlayTexture(baseResource); }
-               break;
-            }
-            default: {
-               npc.display.setSkinTexture(baseResource);
-               if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setSkinTexture(baseResource); }
-               break;
-            }
-         }
+      if (npc != null && type >= 0 && type <= 2 && resource != null) {
+         applyTexture(resource.toString());
          npc.textureLocation = null;
       }
    }
@@ -234,5 +184,25 @@ public class SubGuiTextureSelection extends ResourceSelection {
    }
 
    public interface TextureSelection {  void save(SubGuiTextureSelection subGuiTexture); }
+
+   protected void applyTexture(@Nonnull String res) {
+      switch (type) {
+         case 1: {
+            npc.display.setCapeTexture(res);
+            if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setCapeTexture(res); }
+            break;
+         }
+         case 2: {
+            npc.display.setOverlayTexture(res);
+            if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setOverlayTexture(res); }
+            break;
+         }
+         default: {
+            npc.display.setSkinTexture(res);
+            if (displayEntity instanceof EntityNPCInterface dNpc) { dNpc.display.setSkinTexture(res); }
+            break;
+         }
+      }
+   }
 
 }

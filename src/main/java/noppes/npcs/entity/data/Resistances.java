@@ -33,8 +33,7 @@ public class Resistances {
                 if (compound.contains("names", 9)) {
                     for (int i = 0; i < compound.getList("names", 8).size(); ++i) {
                         String name = compound.getList("Data", 10).getString(i);
-                        if (name.isEmpty()) { name = "any"; }
-                        allDamageNames.add(name);
+                        if (!name.isEmpty()) { allDamageNames.add(name); }
                     }
                 }
                 stream.close();
@@ -62,13 +61,14 @@ public class Resistances {
         CustomNpcs.debugData.end("Mod");
     }
 
-    public static void add(String type) {
+    public static void add(String damageType) {
+        if (damageType == null || damageType.isEmpty()) { return; }
         if (allDamageNames.isEmpty()) { loadAllDamages(); }
-        if (type == null || type.isEmpty() || allDamageNames.contains(type) ||
-                type.equals("null") || type.equals("thrown") ||
-                type.equals("player") || type.equals("explosion.player") ||
-                type.equals("generic") || type.equals("outOfWorld")) { return; }
-        allDamageNames.add(type);
+        if (allDamageNames.contains(damageType) ||
+                damageType.equals("null") || damageType.equals("thrown") ||
+                damageType.equals("player") || damageType.equals("explosion.player") ||
+                damageType.equals("generic") || damageType.equals("outOfWorld")) { return; }
+        allDamageNames.add(damageType);
         Collections.sort(allDamageNames);
         saveAll();
     }

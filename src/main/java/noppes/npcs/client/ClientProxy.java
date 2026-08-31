@@ -321,7 +321,7 @@ public class ClientProxy extends CommonProxy {
       switch (preEvent.guiType) {
          case MainMenuDisplay: {
             if (preEvent.npc != null) { returnGui = new GuiNpcDisplay(preEvent.npc); }
-            else if (mc.player != null) { mc.player.sendSystemMessage(Component.literal(Util.instance.translateGoogle(mc.player,"Unable to find npc"))); }
+            else if (mc.player != null) { mc.player.sendSystemMessage(Component.translatable("message.unable.find.npc")); }
             break;
          }
          case MainMenuStats: returnGui = new GuiNpcStats(preEvent.npc); break;

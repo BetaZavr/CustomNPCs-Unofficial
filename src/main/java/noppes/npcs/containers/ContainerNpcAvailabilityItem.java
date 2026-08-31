@@ -26,7 +26,6 @@ public class ContainerNpcAvailabilityItem extends AbstractContainerMenu {
         inv = availability.stacks;
 
         addSlot(slot = new SlotAvailability(inv, 0, 8, 89));
-        setItem(0, 0, inv.getItem(availabilityNBT.getInt("SlotID")));
 
         for(int y = 0; y < 3; ++y) {
             for(int x = 0; x < 9; ++x) { addSlot(new Slot(playerInventory, x + y * 9 + 9, 8 + x * 18, 113 + y * 18)); }

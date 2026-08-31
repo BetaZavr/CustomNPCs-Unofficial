@@ -45,34 +45,44 @@ public class SubGuiNpcAvailability
       // colloquium 1
       addButton(0, x, y, "availability.selectdialog")
               .setSize(120, h)
-              .setHoverTexts("availability.hover.selectdialog");
+              .setHoverTexts("availability.hover.selectdialog")
+              .layerColor = availability.dialogues.isEmpty() ? 0xFFC0C0C0 : 0xFF00C000;
       addButton(1, x, y += h + 2, "availability.selectquest")
               .setSize(120, h)
-              .setHoverTexts("availability.hover.selectquest");
+              .setHoverTexts("availability.hover.selectquest")
+              .layerColor = availability.quests.isEmpty() ? 0xFFC0C0C0 : 0xFF00C000;
       addButton(2, x, y += h + 2, "availability.selectfaction")
               .setSize(120, h)
-              .setHoverTexts("availability.hover.selectfaction");
+              .setHoverTexts("availability.hover.selectfaction")
+              .layerColor = availability.factions.isEmpty() ? 0xFFC0C0C0 : 0xFF00C000;
+
       addButton(8, x, y += h + 2, "availability.stack")
               .setSize(120, h)
-              .setHoverTexts("availability.hover.stack");
+              .setHoverTexts("availability.hover.stack")
+              .layerColor = availability.stacks.isEmpty() ? 0xFFC0C0C0 : 0xFF00C000;
       addButton(10, x, y + h + 2, "availability.currency")
               .setSize(120, h)
-              .setHoverTexts("availability.hover.currency");
+              .setHoverTexts("availability.hover.currency")
+              .layerColor = availability.moneys.isEmpty() ? 0xFFC0C0C0 : 0xFF00C000;
       // colloquium 2
       x += 124;
       y = guiTop + 16;
       addButton(3, x, y, "availability.selectscoreboard")
               .setSize(120, h)
-              .setHoverTexts("availability.hover.selectscoreboard");
+              .setHoverTexts("availability.hover.selectscoreboard")
+              .layerColor = availability.scoreboards.isEmpty() ? 0xFFC0C0C0 : 0xFF00C000;
       addButton(6, x, y += h + 2, "availability.selectnames")
               .setSize(120, h)
-              .setHoverTexts("availability.hover.selectnames");
+              .setHoverTexts("availability.hover.selectnames")
+              .layerColor = availability.playerNames.isEmpty() ? 0xFFC0C0C0 : 0xFF00C000;
       addButton(7, x, y += h + 2, "availability.storeddata")
               .setSize(120, h)
-              .setHoverTexts("availability.hover.storeddata");
+              .setHoverTexts("availability.hover.storeddata")
+              .layerColor = availability.storeddata.isEmpty() ? 0xFFC0C0C0 : 0xFF00C000;
       addButton(9, x, y + h + 2, "availability.region")
               .setSize(120, h)
-              .setHoverTexts("availability.hover.region");
+              .setHoverTexts("availability.hover.region")
+              .layerColor = availability.regions.isEmpty() ? 0xFFC0C0C0 : 0xFF00C000;
       // exit
       addButton(66, guiLeft + 82, guiTop + 192, "gui.done")
               .setSize(98, h)

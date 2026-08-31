@@ -186,6 +186,7 @@ public class Util implements IMethods {
         return saveFile(file, NBTJsonUtil.Convert(nbt.getMCNBT()));
     }
 
+    @SuppressWarnings("unused")
     public String translateGoogle(Player player, String originalText) {
         return translateGoogle("en", CustomNpcs.proxy.getTranslateLanguage(player), originalText);
     }

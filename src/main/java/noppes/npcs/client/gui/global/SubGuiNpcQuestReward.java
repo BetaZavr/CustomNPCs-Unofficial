@@ -56,7 +56,7 @@ public class SubGuiNpcQuestReward extends GuiBasic implements ITextfieldListener
          Component key = entry.getValue().getKey();
          list.add(key);
          data.put(key, entry.getValue());
-         hts.put(i++, entry.getValue().getHover(player));
+         hts.put(i++, entry.getValue().getHover(true));
          stacks.add(entry.getValue().item);
       }
       add(scroll.setPos(x0, y)

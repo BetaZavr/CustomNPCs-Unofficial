@@ -247,7 +247,7 @@ public class GuiNpcInv extends GuiContainerNPCInterface2<ContainerNPCInv>
                Component key = ds.getKey();
                dropsData.put(key, ds);
                list.add(key);
-               hts.put(i++, ds.getHover(player));
+               hts.put(i++, ds.getHover(false));
                stacks.add(ds.item);
             }
          }
@@ -287,7 +287,7 @@ public class GuiNpcInv extends GuiContainerNPCInterface2<ContainerNPCInv>
                   Component key = ds.getKey();
                   dropsData.put(key, ds);
                   list.add(key);
-                  hts.put(i++, ds.getHover(player));
+                  hts.put(i++, ds.getHover(false));
                   stacks.add(ds.item);
                }
             }
@@ -361,7 +361,7 @@ public class GuiNpcInv extends GuiContainerNPCInterface2<ContainerNPCInv>
                Component key = ds.getKey();
                dropsData.put(key, ds);
                list.add(key);
-               hts.put(i++, ds.getHover(player));
+               hts.put(i++, ds.getHover(false));
                stacks.add(ds.item);
             }
          }

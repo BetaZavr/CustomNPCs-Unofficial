@@ -13,7 +13,6 @@ import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
 import noppes.npcs.shared.client.gui.listeners.IScrollData;
 import noppes.npcs.shared.client.gui.listeners.ISliderListener;
 import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
-import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.Util;
 
 import java.util.*;
@@ -44,8 +43,6 @@ public class SubGuiNpcResistanceProperties extends GuiNPCInterface
       List<Component> names = new ArrayList<>();
       List<Component> notList = new ArrayList<>();
       Map<Component, Component> mapSfx = new HashMap<>();
-      LinkedHashMap<Integer, List<Component>> hts = new LinkedHashMap<>();
-      int i = 0;
       for (Component key : data.keySet()) {
          String name = data.get(key);
          Component sfx;
@@ -60,16 +57,19 @@ public class SubGuiNpcResistanceProperties extends GuiNPCInterface
             sfx = Component.empty();
          }
          mapSfx.put(key, sfx);
+      }
+      names.addAll(notList);
+      if (select.getString().isEmpty() && !names.isEmpty()) { select = names.get(0); }
+      List<Component> suffixes = new ArrayList<>();
+      LinkedHashMap<Integer, List<Component>> hts = new LinkedHashMap<>();
+      int i = 0;
+      for (Component key : names) {
+         suffixes.add(mapSfx.get(key));
          hts.put(i++, Collections.singletonList(Component.empty()
                  .append(Component.literal("Damage Type name: \"").withStyle(ChatFormatting.GRAY))
                  .append(Component.literal(data.get(key)).withStyle(ChatFormatting.GOLD))
                  .append(Component.literal("\"").withStyle(ChatFormatting.GRAY))));
       }
-      names.addAll(notList);
-      if (select.getString().isEmpty() && !names.isEmpty()) { select = names.get(0); }
-      List<Component> suffixes = new ArrayList<>();
-      for (Component key : names) { suffixes.add(mapSfx.get(key)); }
-
       if (scroll == null) { scroll = addScroll(0).setSize(248, 176); }
       add(scroll.setSelected(npc.linkedName)
               .setPos(guiLeft + 4, guiTop + 4)
@@ -128,7 +128,6 @@ public class SubGuiNpcResistanceProperties extends GuiNPCInterface
 
    @Override
    public void mouseReleased(GuiSliderNop slider) {
-      LogWriter.info("[DEBUG] ");
       if (!data.containsKey(select)) { return; }
       setValue(data.get(select), (int) (slider.sliderValue * 600.0f - 500.0f));
    }

@@ -25,7 +25,6 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.constants.EnumAvailabilityQuest;
 import noppes.npcs.controllers.data.Availability;
-import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -60,6 +59,7 @@ public class DropSet implements Container, ICustomDrop {
         attributeSlotsName.put("head", 5);
     }
 
+    @SuppressWarnings("unused")
     public IAttributeSet addAttribute(IAttributeSet attribute) {
         attributes.add((AttributeSet) attribute);
         return attribute;
@@ -73,6 +73,7 @@ public class DropSet implements Container, ICustomDrop {
         return newAS;
     }
 
+    @SuppressWarnings("unused")
     public IDropNbtSet addDropNbtSet(IDropNbtSet nbtDS) {
         tags.add((DropNbtSet) nbtDS);
         return nbtDS;
@@ -99,6 +100,7 @@ public class DropSet implements Container, ICustomDrop {
         return null;
     }
 
+    @SuppressWarnings("unused")
     public IEnchantSet addEnchant(IEnchantSet enchant) {
         if (enchant != null) {
             enchants.add((EnchantSet) enchant);
@@ -111,6 +113,7 @@ public class DropSet implements Container, ICustomDrop {
     public IEnchantSet addEnchant(int enchantId) { return addEnchant(Enchantment.byId(enchantId)); }
 
     @Override
+    @SuppressWarnings("deprecation")
     public IEnchantSet addEnchant(String enchantName) {
         return addEnchant(BuiltInRegistries.ENCHANTMENT.get(new ResourceLocation(enchantName)));
     }
@@ -400,29 +403,34 @@ public class DropSet implements Container, ICustomDrop {
         return keyName;
     }
 
-    public List<Component> getHover(Player player) {
+    @SuppressWarnings("deprecation")
+    public List<Component> getHover(boolean isReward) {
         List<Component> list = new ArrayList<>();
         // pos
         if (pos < 0) {
             list.add(Component.empty()
-                        .append(Component.literal("- ").withStyle(ChatFormatting.GRAY))
-                .append(Component.literal("ID" + toString().substring(toString().indexOf("@") + 1)).withStyle(ChatFormatting.DARK_GRAY)));
+                    .append(Component.translatable("gui.position").withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(toString().substring(toString().indexOf("@") + 1)).withStyle(ChatFormatting.DARK_GRAY)));
         }
         else {
             list.add(Component.empty()
-                    .append(Component.literal("- " + Util.instance.translateGoogle(player, "Position") + ": ").withStyle(ChatFormatting.GRAY))
+                    .append(Component.translatable("gui.position").withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
                     .append(Component.literal("" + pos).withStyle(ChatFormatting.RESET)));
         }
         // stack
         MutableComponent stackKey = Component.empty()
-                .append(Component.literal("- " + Util.instance.translateGoogle(player, "Item") + ": ").withStyle(ChatFormatting.GRAY));
+                .append(Component.translatable("gui.name").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(": ").withStyle(ChatFormatting.GRAY));
         if (item == null) { stackKey.append(Component.literal("null").withStyle(ChatFormatting.DARK_RED)); }
-        else if (item.isEmpty()) { stackKey.append(Component.literal("Empty").withStyle(ChatFormatting.RED)); }
+        else if (item.isEmpty()) { stackKey.append(Component.translatable("type.empty").withStyle(ChatFormatting.RED)); }
         else { stackKey.append(Component.literal("" + BuiltInRegistries.ITEM.getKey(item.getItem())).withStyle(ChatFormatting.RESET)); }
         list.add(stackKey);
         // amount
         MutableComponent amountKey = Component.empty()
-                .append(Component.literal("- " + Util.instance.translateGoogle(player, "Amount") + ": ").withStyle(ChatFormatting.GRAY));
+                .append(Component.translatable("quest.itemamount").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(": ").withStyle(ChatFormatting.GRAY));
         if (amount[0] == amount[1]) { amountKey.append(Component.literal("" + amount[0]).withStyle(ChatFormatting.GOLD)); }
         else {
             amountKey.append(Component.literal("[min:").withStyle(ChatFormatting.GRAY))
@@ -434,7 +442,8 @@ public class DropSet implements Container, ICustomDrop {
         list.add(amountKey);
         // chance
         MutableComponent chanceKey = Component.empty()
-                .append(Component.literal("- " + Util.instance.translateGoogle(player, "Chance") + ": ").withStyle(ChatFormatting.GRAY));
+                .append(Component.translatable("drop.chance").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(": ").withStyle(ChatFormatting.GRAY));
         if (chance == (int) chance) {
             chanceKey.append(Component.literal("" + (int) chance).withStyle(ChatFormatting.YELLOW))
                     .append(Component.literal("%").withStyle(ChatFormatting.GRAY));
@@ -445,28 +454,20 @@ public class DropSet implements Container, ICustomDrop {
         }
         list.add(chanceKey);
         // loot mode
-        MutableComponent lootKey = Component.empty()
-                .append(Component.literal("- " + Util.instance.translateGoogle(player, "Loot") + ": ").withStyle(ChatFormatting.GRAY));
-        if (lootMode == 1) { lootKey.append(Component.literal(Util.instance.translateGoogle(player, "Will fall to the ground"))
-                .withStyle(ChatFormatting.RESET)); }
-        else if (lootMode == 2) { lootKey.append(Component.literal(Util.instance.translateGoogle(player, "Will be placed in the inventory available when the NPC dies."))
-                .withStyle(ChatFormatting.RESET)); }
-        else { lootKey.append(Component.literal(Util.instance.translateGoogle(player, "Will fall to the player who killed this NPC"))
-                .withStyle(ChatFormatting.RESET)); }
-        list.add(lootKey);
+        list.add(Component.empty()
+                .append(Component.translatable("inv.lootpickup").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
+                .append(Component.translatable("inv.lootmode." + (lootMode % 3) + "." + isReward).withStyle(ChatFormatting.RESET)));
         // availability
-        if (availability.hasOptions()) {
-            list.add(Component.empty()
-                    .append(Component.literal("- " + Util.instance.translateGoogle(player, "There are accessibility settings")).withStyle(ChatFormatting.GRAY)));
-        }
-        else {
-            list.add(Component.empty()
-                .append(Component.literal("- " + Util.instance.translateGoogle(player, "Availability not specified")).withStyle(ChatFormatting.GRAY)));
-        }
+        list.add(Component.empty()
+                .append(Component.translatable("availability.available").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
+                .append(Component.translatable("availability." + (availability.hasOptions() ? "contains" : "except")).withStyle(ChatFormatting.RESET)));
         // enchants
         if (!enchants.isEmpty()) {
             MutableComponent enchKey = Component.empty()
-                    .append(Component.literal("- " + Util.instance.translateGoogle(player, "Enchants") + ": [").withStyle(ChatFormatting.GRAY));
+                    .append(Component.translatable("drop.enchants").withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(": [").withStyle(ChatFormatting.GRAY));
             boolean start = false;
             for (EnchantSet es : enchants) {
                 if (start) { enchKey.append(Component.literal(", ").withStyle(ChatFormatting.GRAY)); }
@@ -481,12 +482,15 @@ public class DropSet implements Container, ICustomDrop {
         }
         else {
             list.add(Component.empty()
-                    .append(Component.literal("- " + Util.instance.translateGoogle(player, "\"Enchants\" - not specified")).withStyle(ChatFormatting.GRAY)));
+                    .append(Component.translatable("drop.enchants").withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
+                    .append(Component.translatable("availability.except").withStyle(ChatFormatting.RESET)));
         }
         // attributes
         if (!attributes.isEmpty()) {
             MutableComponent attrKey = Component.empty()
-                    .append(Component.literal("- " + Util.instance.translateGoogle(player, "Attributes") + ": [").withStyle(ChatFormatting.GRAY));
+                    .append(Component.translatable("drop.attributes").withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(": [").withStyle(ChatFormatting.GRAY));
             boolean start = false;
             for (AttributeSet as : attributes) {
                 if (start) { attrKey.append(Component.literal(", ").withStyle(ChatFormatting.GRAY)); }
@@ -501,12 +505,15 @@ public class DropSet implements Container, ICustomDrop {
         }
         else {
             list.add(Component.empty()
-                    .append(Component.literal("- " + Util.instance.translateGoogle(player, "\"Attributes\" - not specified")).withStyle(ChatFormatting.GRAY)));
+                    .append(Component.translatable("drop.attributes").withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
+                    .append(Component.translatable("availability.except").withStyle(ChatFormatting.RESET)));
         }
         // tags
         if (!tags.isEmpty()) {
             MutableComponent nbtKey = Component.empty()
-                    .append(Component.literal("- " + Util.instance.translateGoogle(player, "Attributes") + ": [").withStyle(ChatFormatting.GRAY));
+                    .append(Component.translatable("drop.tags").withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(": [").withStyle(ChatFormatting.GRAY));
             boolean start = false;
             for (DropNbtSet ns : tags) {
                 if (start) { nbtKey.append(Component.literal(", ").withStyle(ChatFormatting.GRAY)); }
@@ -521,7 +528,9 @@ public class DropSet implements Container, ICustomDrop {
         }
         else {
             list.add(Component.empty()
-                    .append(Component.literal("- " + Util.instance.translateGoogle(player, "\"NBT tags\" - not specified")).withStyle(ChatFormatting.GRAY)));
+                    .append(Component.translatable("drop.tags").withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(": ").withStyle(ChatFormatting.GRAY))
+                    .append(Component.translatable("availability.except").withStyle(ChatFormatting.RESET)));
         }
         return list;
     }

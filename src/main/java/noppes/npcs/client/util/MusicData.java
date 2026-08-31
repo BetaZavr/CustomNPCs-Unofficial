@@ -130,7 +130,7 @@ public class MusicData {
             }
         }
         if (EventHooks.onEvent(ScriptController.Instance.clientScripts, sType, ev)) {
-            channel.stopped();
+            try { channel.stopped(); } catch (Exception ignored) { }
         }
     }
 
