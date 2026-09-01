@@ -443,13 +443,13 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 					if (!has) { list.add(new TempDropData(ds)); }
 				}
 			}
-
 			if (!list.isEmpty() || rewardExp > 0 || rewardMoney > 0 || rewardDonat > 0 ||!rewardText.isEmpty()) {
 				allTextLogs.add("");
-				allTextLogs.add(Component.translatable("questlog.reward").withStyle(TextFormatting.GRAY).getFormattedText());
+				allTextLogs.add(Component.translatable("questlog.reward").getFormattedText());
 			}
 			if (!list.isEmpty()) {
-				allTextLogs.add(Component.translatable("questlog." + (rewardType == EnumRewardType.ONE_SELECT ? "one" :
+				allTextLogs.add(Component.translatable("questlog."
+						+ (rewardType == EnumRewardType.ONE_SELECT ? "one" :
 						rewardType == EnumRewardType.RANDOM_ONE ? "rnd" : "all") + ".reward").getFormattedText());
 				for (TempDropData tdd : list) {
 					StringBuilder line = new StringBuilder(" -  ")

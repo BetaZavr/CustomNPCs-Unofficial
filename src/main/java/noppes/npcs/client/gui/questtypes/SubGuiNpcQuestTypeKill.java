@@ -72,7 +72,7 @@ public class SubGuiNpcQuestTypeKill
 				.setSize(208, 14)
 				.setHoverTexts("quest.hover.part.name");
 		// check title
-		addCheckBox(2, x0, y += 16, Component.translatable("quest.kill.add.title", Component.translatable("gui.title")), null, task.isAndTitle())
+		addCheckBox(2, x0, y += 16, Component.translatable("quest.kill.add.title", Component.translatable("gui.title").getFormattedText()), null, task.isAndTitle())
 				.setSize(208, 14)
 				.setHoverTexts("quest.hover.add.title", Component.translatable("gui.title"));
 		// info

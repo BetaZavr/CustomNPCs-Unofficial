@@ -21,12 +21,12 @@ public class ContainerNpcQuestTypeItem extends Container {
 		slotID = slotIDIn;
 		task = quest.questInterface.tasks[slotIDIn];
 
-		addSlotToContainer(slot = new Slot(quest.questInterface.items, 0, 8, 92) {
-			public void onSlotChanged() {
-				task.setItem(getStack());
-			}
-		}); // New
-		putStackInSlot(0, quest.questInterface.items.getStackInSlot(slotID));
+		NpcMiscInventory inv = new NpcMiscInventory(1);
+		inv.setInventorySlotContents(0, task.getItemStack().copy());
+		addSlotToContainer(slot = new Slot(inv, 0, 8, 92) {
+			@Override
+			public void onSlotChanged() { task.setItem(getStack()); }
+		});
 
 		for(int y = 0; y < 3; ++y) {
 			for(int x = 0; x < 9; ++x) { addSlotToContainer(new Slot(player.inventory, x + y * 9 + 9, 8 + x * 18, 113 + y * 18)); }

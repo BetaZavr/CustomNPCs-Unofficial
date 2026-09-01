@@ -7,11 +7,12 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.TextBlockClient;
 import noppes.npcs.client.gui.util.*;
-import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketQuestCompletionCheck;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
+
+import javax.annotation.Nonnull;
 
 public class GuiQuestCompletion extends GuiNPCInterface {
 
@@ -25,31 +26,26 @@ public class GuiQuestCompletion extends GuiNPCInterface {
 	protected int currentPage = 0;
 	protected int hover;
 
-	public GuiQuestCompletion(int questId) {
+	public GuiQuestCompletion(@Nonnull Quest questIn) {
 		super();
 		imageWidth = 176;
 		imageHeight = 222;
 		drawDefaultBackground = false;
 
-		quest = QuestController.instance.get(questId);
+		quest = questIn;
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		Component questTitle = Component.translatable("questlog.completed").append(Component.translatable(quest.getName()));
-		int left = (imageWidth - fontRenderer.getStringWidth(questTitle.getFormattedText())) / 2;
-		addLabel(0, guiLeft + left, guiTop + 4, Component.translatable(quest.getName()));
+		addLabel(0, guiLeft + 4, guiTop + 4, Component.translatable("questlog.completed")
+				.append(" ")
+				.append(Component.translatable(quest.getName())))
+				.setSize(imageWidth - 8, 10);
 		textBlockClient = new TextBlockClient(Component.translatable(quest.getCompleteText()).getFormattedText(), 170, true, npc, player);
 		maxLine = 180 / fontRenderer.FONT_HEIGHT;
-		if (textBlockClient.lines.size() > maxLine) {
-			addButton(0, guiLeft + 28, guiTop + imageHeight - 24, "quest.complete")
-					.setSize(80, 20);
-		}
-		else {
-			addButton(0, guiLeft + 48, guiTop + imageHeight - 24, "quest.complete")
-					.setSize(80, 20);
-		}
+		addButton(0, guiLeft + 28 + (textBlockClient.lines.size() > maxLine ? 0 : 20), guiTop + imageHeight - 20, "quest.complete")
+				.setSize(80, 16);
 	}
 
 	@Override

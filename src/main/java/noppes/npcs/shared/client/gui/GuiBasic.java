@@ -237,7 +237,6 @@ public class GuiBasic extends GuiScreen implements IGuiInterface {
         int dWheel = Mouse.getEventDWheel();
         if (dWheel != 0) { mouseScrolled(mouseX, mouseY, (double) dWheel / 120.0d); }
         mouseMoved(mouseX, mouseY);
-        super.handleMouseInput();
     }
 
     @Override

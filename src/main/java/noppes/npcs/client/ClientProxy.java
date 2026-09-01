@@ -365,7 +365,11 @@ public class ClientProxy extends CommonProxy {
 			case CompanionInv: returnGui = new GuiNpcCompanionInv(npc, (ContainerNPCCompanion) container); break;
 			case NbtBook: returnGui = new GuiNbtBook(buffer.readBlockPos()); break;
 			case CustomGui: returnGui = new GuiCustom((ContainerCustomGui) container); break;
-			case QuestCompleteText: returnGui = new GuiQuestCompletion(preEvent.buffer.readInt()); break;
+			case QuestCompleteText: {
+				Quest quest = QuestController.instance.get(preEvent.buffer.readBlockPos().getX());
+				if (quest != null) { returnGui = new GuiQuestCompletion(quest); }
+				break;
+			}
 			case QuestLog: returnGui = new GuiLog(buffer.readInt()); break;
 			case DeadInventory: returnGui = new GuiNPCDeadInventory(npc, (ContainerDead) container); break;
 			case CreationParts: returnGui = new GuiCreationParts(npc); break;

@@ -10,6 +10,8 @@ import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.api.handler.data.IDialogOption;
 import noppes.npcs.controllers.DialogController;
 
+import javax.annotation.Nullable;
+
 public class DialogOption implements IDialogOption {
 
 	public static class OptionDialogID {
@@ -92,21 +94,36 @@ public class DialogOption implements IDialogOption {
 
 	public boolean hasDialogs() { return !dialogs.isEmpty() && optionType == OptionType.DIALOG_OPTION; }
 
-	public Dialog getDialog(EntityPlayer player) {
+	public @Nullable Dialog getDialog(EntityPlayer player) {
 		if (!hasDialogs() || player == null) { return null; }
 		DialogController dData = DialogController.instance;
 		for (OptionDialogID od : dialogs) {
-			if (!dData.hasDialog(od.dialogId)) { continue; }
-			if (od.availability.isAvailable(player)) { return dData.get(od.dialogId); }
+			Dialog dialog = dData.get(od.dialogId);
+			if (dialog != null && od.availability.isAvailable(player)) { return dialog; }
 		}
 		return null;
 	}
 
 	public boolean isAvailable(EntityPlayer player) {
 		if (optionType == OptionType.DISABLED) { return false; }
-		if (optionType != OptionType.DIALOG_OPTION) { return true; }
+		if (!hasDialogs() || player == null) { return true; }
 		Dialog dialog = getDialog(player); // inside there is a check for availability of OptionDialogID
 		return dialog != null && dialog.availability.isAvailable(player);
+	}
+
+	public int getOptionAvailable(EntityPlayer player) {
+		if (optionType == OptionType.DISABLED) { return 2; }
+		if (!hasDialogs() || player == null) { return 0; }
+		DialogController dData = DialogController.instance;
+		for (OptionDialogID od : dialogs) {
+			if (dData.hasDialog(od.dialogId) && od.availability.isAvailable(player)) {
+				Dialog dialog = dData.get(od.dialogId);
+				if (dialog != null && dialog.availability.isAvailable(player)) {
+					return od.availability.isAvailable(player) ? 0 : 1;
+				}
+			}
+		}
+		return 2;
 	}
 
 	@Override

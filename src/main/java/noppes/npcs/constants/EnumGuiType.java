@@ -70,7 +70,7 @@ public enum EnumGuiType
 	ReplaceTool(true), // npc id; BlockPos(buildId, type, 0)
 	PlacerTool, // BlockPos(buildId, type, 0)
 	SaverTool, // BlockPos(buildId, type, 0)
-	QuestTypeItem,
+	QuestTypeItem(true),
 	MoneyBag,
 	CustomChest(true),
 	DimensionSetting(true),

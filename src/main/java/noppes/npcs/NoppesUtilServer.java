@@ -179,7 +179,6 @@ public class NoppesUtilServer {
 	}
 
 	public static boolean openContainerGui(EntityPlayerMP player, EnumGuiType gui, Consumer<FriendlyByteBuf> extraDataWriter) {
-		LogWriter.info("[DEBUG] "+gui);
 		if (!gui.hasContainer) { return false; }
 		try {
 			final FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
@@ -187,8 +186,6 @@ public class NoppesUtilServer {
 			player.getNextWindowId();
 			player.closeContainer();
 			Container container = CommonProxy.getContainer(gui, player, buffer.copy());
-			LogWriter.info("[DEBUG] "+container);
-
 			if (container != null) {
 				int windowId = player.currentWindowId;
 				player.openContainer = container;

@@ -425,8 +425,10 @@ public class GuiButtonNop extends Gui implements IComponentGui {
             if (renderStack != null && !renderStack.isEmpty()) {
                 GlStateManager.pushMatrix();
                 GlStateManager.translate((float) x + (float) width / 2.0f - 8.0f, (float) y + (float) height / 2.0f - 8.0f, 30.0F);
+                RenderHelper.enableGUIStandardItemLighting();
                 mc.getRenderItem().renderItemAndEffectIntoGUI(renderStack, 0, 0);
                 mc.getRenderItem().renderItemOverlays(mc.fontRenderer, renderStack, 0, 0);
+                RenderHelper.disableStandardItemLighting();
                 GlStateManager.popMatrix();
             }
             if (wait == 0) {
