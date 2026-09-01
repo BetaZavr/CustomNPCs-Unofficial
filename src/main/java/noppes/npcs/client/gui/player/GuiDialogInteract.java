@@ -612,7 +612,7 @@ public class GuiDialogInteract
    public void mouseMoved(double mouseX, double mouseY) {
       if (minecraft == null) { minecraft = Minecraft.getInstance(); }
       // cursor select option
-      if (isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, guiSettings.dialogWidth, height - dialogHeight)) { // options text
+      if (!options.isEmpty() && isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, guiSettings.dialogWidth, height - dialogHeight)) { // options text
          int y = (int) Math.floor((mouseY - (double) dialogHeight) / (double) fontHeight);
          int i = 0;
          int optPos = 0;
@@ -625,18 +625,22 @@ public class GuiDialogInteract
             for (String ignored : tOpt.lines) {
                if (i == y) {
                   selected = optPos;
-                  while (selected > 0 && !options.get(selected).isEnable) { selected--; }
-                  break;
+                  while (selected > -1 &&
+                          options.get(selected) != null &&
+                          !options.get(selected).isEnable) { selected--; }
+                  if (selected > -1) { break; }
                }
                i++;
             }
             if (selected != -1) { break; }
             optPos++;
-         }
-         if (selected == -1) {
+         } // in place
+         if (selected == -1 && optPos > 1) {
             selected = optPos - 1;
-            while (!options.get(selected).isEnable) { selected--; }
-         }
+            while (selected > -1 &&
+                    options.get(selected) != null &&
+                    !options.get(selected).isEnable) { selected--; }
+         } // > max
       }
       boolean lbm = ((IMouseHandlerMixin) minecraft.mouseHandler).getActiveButton() == 0;
       if (lbm) {
@@ -967,28 +971,31 @@ public class GuiDialogInteract
       options.clear();
       for (int slot : dialog.options.keySet()) {
          DialogOption option = dialog.options.get(slot);
-         if (option != null && option.optionType != OptionType.DISABLED) {
-            String optionText = NoppesStringUtils.formatText(option.title, player, dialogNpc);
-            if (!option.isAvailable(player)) {
-               optionText = ChatFormatting.STRIKETHROUGH + "" + ChatFormatting.GRAY + Util.instance.deleteColor(optionText);
-            }
-            TempOption tOpt = new TempOption(option.isAvailable(player), new ArrayList<>());
-            if (ClientProxy.Font.width(optionText) > max) {
-               StringBuilder total = new StringBuilder();
-               for (String sct : optionText.split(" ")) {
-                  if (ClientProxy.Font.width(total + " " + sct) > max) {
-                     tOpt.lines.add(total.toString());
-                     total = new StringBuilder(sct);
-                  } else {
-                     if (!total.isEmpty()) { total.append(" "); }
-                     total.append(sct);
-                  }
+         if (option != null) {
+            int type = option.getOptionAvailable(player);
+            if (type < 2) {
+               String optionText = NoppesStringUtils.formatText(option.title, player, dialogNpc);
+               if (type == 1) {
+                  optionText = ChatFormatting.STRIKETHROUGH + "" + ChatFormatting.GRAY + Util.instance.deleteColor(optionText);
                }
-               if (!total.isEmpty()) { tOpt.lines.add(total.toString()); }
-            } else {
-               tOpt.lines.add(optionText);
+               TempOption tOpt = new TempOption(option.isAvailable(player), new ArrayList<>());
+               if (ClientProxy.Font.width(optionText) > max) {
+                  StringBuilder total = new StringBuilder();
+                  for (String sct : optionText.split(" ")) {
+                     if (ClientProxy.Font.width(total + " " + sct) > max) {
+                        tOpt.lines.add(total.toString());
+                        total = new StringBuilder(sct);
+                     } else {
+                        if (!total.isEmpty()) { total.append(" "); }
+                        total.append(sct);
+                     }
+                  }
+                  if (!total.isEmpty()) { tOpt.lines.add(total.toString()); }
+               } else {
+                  tOpt.lines.add(optionText);
+               }
+               options.put(slot, tOpt);
             }
-            options.put(slot, tOpt);
          }
       }
       if (!closeOnEsc && options.isEmpty()) { closeOnEsc = true; }

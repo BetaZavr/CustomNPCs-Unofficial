@@ -918,32 +918,43 @@ public class GuiLog
             if (list != null) {
                RenderSystem.disableDepthTest();
                matrixStack.pushPose();
-               matrixStack.translate(0.0f, 0.0f, 3.0d);
+               matrixStack.translate(guiLLeft, guiLTop, 3.0d);
                int h = 0;
+               int xPos, yPos;
+               float scale = (float) fontHeight / 16.0f;
+               int size = (int) (fontHeight * scaleH);
                for (String line : list) {
+                  xPos = (int) ((l == 1 ? 105.0f : 0.0f) * scaleW);
+                  yPos = (page == 0 && l == 0 ? first : 0) + h * fontHeight;
                   // item stack
                   if (line.contains(" " + ((char) 0xffff) + " ") || line.contains(((char) 0xffff) + " ")) {
+                     String preText;
+                     String postText;
+                     String stackText = " ";
+                     while (ClientProxy.LogFont.width(stackText) < fontHeight + 1) { stackText += " "; }
+                     if (line.contains(" " + ((char) 0xffff) + " ")) {
+                        preText = line.substring(0, line.indexOf(" " + ((char) 0xffff) + " "));
+                        postText = line.substring(line.indexOf(" " + ((char) 0xffff) + " ") + 3);
+                     }
+                     else {
+                        preText = line.substring(0, line.indexOf(((char) 0xffff) + " "));
+                        postText = line.substring(line.indexOf(((char) 0xffff) + " ") + 2);
+                     }
                      if (j < stacks.length) {
-                        int pos = ClientProxy.LogFont.width(line.substring(0, line.indexOf("" + ((char) 0xffff)) - 1)) + 1;
+                        int pos = ClientProxy.LogFont.width(preText) + 1;
                         ItemStack stack = stacks[j];
-                        float x = pos + (l == 1 ? 105.0f * scaleW : 0);
-                        float y = (page == 0 && l == 0 ? first : 0.0f) + h * fontHeight;
-                        if (isMouseHover(mouseX, mouseY, guiLLeft + (int) x, guiLTop + (int) y, 10, 10)) {
+                        if (isMouseHover(mouseX, mouseY, guiLLeft + pos + xPos, guiLTop + yPos, size, size)) {
                            hover = stack.getTooltipLines(player, minecraft.options.advancedItemTooltips ? TooltipFlag.ADVANCED : TooltipFlag.NORMAL);
                            setHoverText(hover);
                         }
                         matrixStack.pushPose();
-                        matrixStack.translate(guiLLeft + x - 4.0f, guiLTop + y - 5.5f, 0.0f);
-                        matrixStack.scale(0.65f, 0.65f, 0.65f);
-
-                        matrixStack.translate(6.0f, 8.0f, 0.0f);
+                        matrixStack.translate(pos + xPos, yPos, 0.0f);
+                        matrixStack.scale(scale, scale, scale);
                         graphics.renderItem(stack, 0, 0);
                         matrixStack.popPose();
                         j++;
                      }
-                     String space = " ";
-                     while (ClientProxy.LogFont.width(space) < fontHeight - 3) { space += " "; }
-                     line = line.replace("" + ((char) 0xffff), space);
+                     line = preText + stackText + postText;
                   }
                   // entity
                   if (line.indexOf(((char) 0xfffe)) != -1) {
@@ -965,13 +976,14 @@ public class GuiLog
                      line = line.replace("" + ((char) 0xfffe), space);
                      k++;
                   }
-                  draw(graphics, line, guiLLeft + (int) ((l == 1 ? 105.0f : 0.0f) * scaleW), guiLTop + (page == 0 && l == 0 ? first : 0) + h * fontHeight, questLogColor, (int) (98.0f * scaleW));
+                  draw(graphics, line, xPos, yPos, questLogColor, (int) (98.0f * scaleW));
                   h++;
                }
                matrixStack.popPose();
                RenderSystem.enableDepthTest();
             }
          }
+         // buttons
          if (page > 0) {
             matrixStack.pushPose();
             matrixStack.translate(guiLLeft - 5.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);

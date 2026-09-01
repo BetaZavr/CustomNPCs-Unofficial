@@ -1,30 +1,33 @@
 package noppes.npcs.client.gui.player;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketQuestCompletionCheck;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class GuiNpcQuestChooseReward extends GuiNPCInterface {
 
+    protected static final ResourceLocation SLOT = new ResourceLocation(CustomNpcs.MODID, "textures/gui/itemsetup.png");
     protected final Map<Integer, ItemStack> rewardItems;
-    protected final int questId;
+    protected final Quest quest;
 
-    public GuiNpcQuestChooseReward(Quest quest, Map<Integer, ItemStack> rewardItemsIn) {
+    public GuiNpcQuestChooseReward(@Nonnull Quest questIn, @Nonnull Map<Integer, ItemStack> rewardItemsIn) {
         super();
-        title = Component.translatable("gui.quest", ": ").append(Component.translatable(quest.title));
         setBackground("smallbg.png");
-        imageWidth = 176;
-        imageHeight = 42 + (int) (Math.floor(rewardItemsIn.size() / 9.0f) * 18.0f);
+        int slots = rewardItemsIn.size() % 9;
+        imageWidth = slots < 6 ? 98 : slots * 18 + 8;
+        imageHeight = 38 + (int) (Math.ceil(rewardItemsIn.size() / 9.0f) * 18.0f);
 
-        questId = quest.id;
+        quest = questIn;
         rewardItems = rewardItemsIn;
     }
 
@@ -32,28 +35,31 @@ public class GuiNpcQuestChooseReward extends GuiNPCInterface {
     public void init() {
         super.init();
         if (minecraft == null) { minecraft = Minecraft.getInstance(); }
-        int x = guiLeft + 4;
+        addLabel(0, guiLeft + 4, guiTop + 4,"quest.choose.reward")
+                .setSize(imageWidth - 8, 10);
+        addButton(0, guiLeft + imageWidth - 94, guiTop + imageHeight - 20, "quest.no.thanks")
+                .setSize(90, 16);
+        int x = guiLeft + (imageWidth - (rewardItems.size() % 9) * 18) / 2;
         int y = guiTop + 16;
-        addButton(0, guiLeft + imageWidth - 114, guiTop + imageHeight - 24, "quest.no.thanks")
-                .setSize(110, 20);
         for (Map.Entry<Integer, ItemStack> entry : rewardItems.entrySet()) {
-            addButton(0, x + (entry.getKey() % 9) * 18, y + (int) Math.floor((entry.getKey() / 9.0f) * 18), "quest.no.thanks")
+            addButton(entry.getKey() + 1, x + (entry.getKey() % 9) * 18,
+                    y + ((int) Math.floor(entry.getKey() / 9.0f) * 18),
+                    "")
                     .setSize(18, 18)
-                    .setTexture(RESOURCE_SLOT)
-                    .setUV(220, 0, 36, 36)
+                    .setTexture(SLOT)
+                    .setUV(7, 112, 18, 18)
                     .setStacks(entry.getValue())
                     .setCurrentStackPos(0)
                     .setHoverTexts(entry.getValue().getTooltipLines(player,
-                            minecraft.options.advancedItemTooltips ? TooltipFlag.ADVANCED : TooltipFlag.NORMAL));
+                            minecraft.options.advancedItemTooltips ? TooltipFlag.ADVANCED : TooltipFlag.NORMAL))
+                    .isSimple = true;
         }
     }
 
     @Override
     public void buttonEvent(GuiButtonNop button) {
-        ItemStack stack = ItemStack.EMPTY;
-        if (button.id == 0) { onClose(); }
-        else { stack = button.renderStack; }
-        Packets.sendServer(new SPacketQuestCompletionCheck(questId, stack));
+        Packets.sendServer(new SPacketQuestCompletionCheck(quest.id, button.id == 0 ?ItemStack.EMPTY : button.renderStack));
+        onClose();
     }
 
 }

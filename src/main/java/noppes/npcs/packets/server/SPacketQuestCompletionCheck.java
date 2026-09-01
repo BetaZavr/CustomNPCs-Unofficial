@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -100,12 +101,12 @@ public class SPacketQuestCompletionCheck extends PacketServerBasic {
                   }
                   case ONE_SELECT: {
                      if (!selectStack.isEmpty()) { itemRewards.add(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(selectStack)); }
-                     return;
-                  }
-                  default: { // ALL
-                     itemRewards.addAll(createRewardItems);
                      break;
                   }
+                  default: {
+                     itemRewards.addAll(createRewardItems);
+                     break;
+                  } // ALL
                }
                createRewardItems.clear();
             }
@@ -142,7 +143,9 @@ public class SPacketQuestCompletionCheck extends PacketServerBasic {
             }
             Packets.send(player, new PacketAchievement(Component.translatable("quest.finished"), Component.translatable(quest.title), 2, new CompoundTag()));
             Packets.send(player, new PacketChat(Component.translatable("quest.finished").append(":").append(Component.translatable(quest.title))));
-            if (!quest.getCompleteText().isEmpty()) { NoppesUtilServer.sendOpenGui(player, EnumGuiType.QuestCompleteText, npc); }
+            if (!quest.getCompleteText().isEmpty()) {
+               SPacketGuiOpen.sendOpenGui(player, EnumGuiType.QuestCompleteText, npc, new BlockPos(questId, 0, 0));
+            }
          }
       }
       CustomNpcs.debugData.end("Packets");

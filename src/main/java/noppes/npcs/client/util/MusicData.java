@@ -24,6 +24,7 @@ import noppes.npcs.mixin.client.resources.sounds.IAbstractSoundInstanceMixin;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.system.MemoryStack;
 
+import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -43,7 +44,7 @@ public class MusicData {
     public final SoundSource category;
     private final ClientLevel level;
 
-    public MusicData(String nameIn, SoundInstance soundIn, Channel channelIn, ClientLevel levelIn) {
+    public MusicData(String nameIn, @Nonnull SoundInstance soundIn, Channel channelIn, ClientLevel levelIn) {
         name = nameIn;
         sound = soundIn;
         resource = sound.getSound().getLocation();

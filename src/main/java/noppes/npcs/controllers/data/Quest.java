@@ -469,7 +469,8 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
             allTextLogs.add(Util.instance.getOldFormattedText(Component.translatable("questlog.reward")));
          }
          if (!list.isEmpty()) {
-            allTextLogs.add(Util.instance.getOldFormattedText(Component.translatable("questlog." + (rewardType == EnumRewardType.ONE_SELECT ? "one" :
+            allTextLogs.add(Util.instance.getOldFormattedText(Component.translatable("questlog."
+                    + (rewardType == EnumRewardType.ONE_SELECT ? "one" :
                             rewardType == EnumRewardType.RANDOM_ONE ? "rnd" : "all") + ".reward")));
             for (TempDropData tdd : list) {
                StringBuilder line = new StringBuilder(" -  ")

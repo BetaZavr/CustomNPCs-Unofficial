@@ -373,7 +373,11 @@ public class ClientProxy extends CommonProxy {
             }
             break;
          }
-         case QuestCompleteText: returnGui = new GuiQuestCompletion(preEvent.buffer.readInt()); break;
+         case QuestCompleteText: {
+            Quest quest = QuestController.instance.get(preEvent.buffer.readBlockPos().getX());
+            if (quest != null) { returnGui = new GuiQuestCompletion(quest); }
+            break;
+         }
          case QuestChooseReward: {
             Quest quest = QuestController.instance.get(preEvent.buffer.readInt());
             if (quest != null) {
