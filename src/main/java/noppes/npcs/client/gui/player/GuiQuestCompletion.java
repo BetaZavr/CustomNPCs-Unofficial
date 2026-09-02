@@ -64,6 +64,7 @@ public class GuiQuestCompletion extends GuiNPCInterface implements ITopButtonLis
    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
       renderBackground(graphics);
       RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+      RenderSystem.enableBlend();
       graphics.blit(resource, guiLeft, guiTop, 0, 0, imageWidth, imageHeight);
       graphics.hLine(guiLeft + 4, guiLeft + 170, guiTop + 13, CustomNpcResourceListener.DefaultTextColor | 0xFF000000);
       drawQuestText(graphics);
@@ -105,8 +106,7 @@ public class GuiQuestCompletion extends GuiNPCInterface implements ITopButtonLis
 
    private void drawQuestText(GuiGraphics graphics) {
       for (int i = currentPage * maxLine, j = 0; j < maxLine && i < textBlockClient.lines.size(); ++i, ++j) {
-         graphics.drawString(font, textBlockClient.lines.get(i),
-                 guiLeft + 4, guiTop + 16 + j * font.lineHeight, CustomNpcResourceListener.DefaultTextColor);
+         graphics.drawString(font, textBlockClient.lines.get(i), guiLeft + 4, guiTop + 16 + j * font.lineHeight, CustomNpcResourceListener.DefaultTextColor);
       }
    }
 

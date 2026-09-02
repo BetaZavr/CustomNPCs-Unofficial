@@ -150,14 +150,14 @@ public class Availability implements ICompatibilty, IAvailability {
          switch (playerNames.get(name)) {
             case Only: {
                hasOnly = true;
-               if (player.getScoreboardName().equals(name)) {
+               if (player.getName().getString().equals(name)) {
                   hasOnly = false;
                   exit = true;
                }
                break;
             }
             case Except: {
-               if (player.getScoreboardName().equals(name)) {
+               if (player.getName().getString().equals(name)) {
                   returnName = true;
                   exit = true;
                }
@@ -215,8 +215,8 @@ public class Availability implements ICompatibilty, IAvailability {
    public boolean scoreboardAvailable(Player player, String objective, EnumAvailabilityScoreboard type, int value) {
       if (!objective.isEmpty()) {
          Objective sbObjective = player.getScoreboard().getObjective(objective);
-         if (sbObjective == null || !player.getScoreboard().hasPlayerScore(player.getScoreboardName(), sbObjective)) { return false; }
-         int i = player.getScoreboard().getOrCreatePlayerScore(player.getScoreboardName(), sbObjective).getScore();
+         if (sbObjective == null || !player.getScoreboard().hasPlayerScore(player.getName().getString(), sbObjective)) { return false; }
+         int i = player.getScoreboard().getOrCreatePlayerScore(player.getName().getString(), sbObjective).getScore();
          if (type == EnumAvailabilityScoreboard.EQUAL) { return i == value; }
          if (type == EnumAvailabilityScoreboard.BIGGER) { return i > value; }
          return i < value;
@@ -1008,7 +1008,7 @@ public class Availability implements ICompatibilty, IAvailability {
                if (!st) { data.append("; "); } else { st = false; }
                data.append(name);
             }
-            data.append("]").append(Component.translatable("quest.task.manual."+(listOnly.contains(player.getScoreboardName()) ? "0" : "1")));
+            data.append("]").append(Component.translatable("quest.task.manual."+(listOnly.contains(player.getName().getString()) ? "0" : "1")));
          }
          if (!listExcept.isEmpty()) {
             data.append(Component.translatable("availability.except")).append("[");
@@ -1017,7 +1017,7 @@ public class Availability implements ICompatibilty, IAvailability {
                if (!st) { data.append("; "); } else { st = false; }
                data.append(name);
             }
-            data.append("]").append(Component.translatable("quest.task.manual."+(listExcept.contains(player.getScoreboardName()) ? "0" : "1")));
+            data.append("]").append(Component.translatable("quest.task.manual."+(listExcept.contains(player.getName().getString()) ? "0" : "1")));
          }
          if (!data.getString().isEmpty()) { list.add(Component.translatable("availability.type.player.names").append(data)); }
       }

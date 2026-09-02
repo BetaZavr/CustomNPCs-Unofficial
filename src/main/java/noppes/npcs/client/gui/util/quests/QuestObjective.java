@@ -66,7 +66,8 @@ public class QuestObjective implements IQuestObjective {
     public int rangeCompass = 5;
     public int colorCompass = (int) (Math.random() * 16777215.0) | 0xFF000000;
     public BlockPos pos = BlockPos.ZERO;
-    public String entityName = "";
+    public String compassEntityName = "";
+    public String entityClass = "";
 
     public QuestObjective(int parentIDIn, int objectPosIn, Player playerIn) {
         parentID = parentIDIn;
@@ -98,7 +99,8 @@ public class QuestObjective implements IQuestObjective {
         newObj.dimension = dimension;
         newObj.rangeCompass = rangeCompass;
         newObj.colorCompass = colorCompass;
-        newObj.entityName = entityName;
+        newObj.compassEntityName = compassEntityName;
+        newObj.entityClass = entityClass;
         return newObj;
     }
 
@@ -160,7 +162,8 @@ public class QuestObjective implements IQuestObjective {
         nbtCompass.putInt("Range", rangeCompass);
         nbtCompass.putInt("Color", colorCompass);
         nbtCompass.putInt("ObjectPos", objectPos);
-        nbtCompass.putString("EntityName", entityName);
+        nbtCompass.putString("EntityName", compassEntityName);
+        nbtCompass.putString("EntityClass", entityClass);
         nbtTask.put("CompassData", nbtCompass);
         if (maxProgress > 0) { nbtTask.putInt("Progress", maxProgress); }
         if (id > 0) { nbtTask.putInt("TargetID", id); }
@@ -181,7 +184,7 @@ public class QuestObjective implements IQuestObjective {
     }
 
     @Override
-    public String getOrientationEntityName() { return entityName; }
+    public String getOrientationEntityName() { return compassEntityName; }
 
     @Override
     public int getProgress() {
@@ -323,7 +326,7 @@ public class QuestObjective implements IQuestObjective {
             if (nbtCompass.contains("RegionID", 3)) { regionID = nbtCompass.getInt("RegionID"); }
             if (nbtCompass.contains("Color", 3)) { colorCompass = nbtCompass.getInt("Color"); }
             rangeCompass = nbtCompass.getInt("Range");
-            entityName = nbtCompass.getString("EntityName");
+            compassEntityName = nbtCompass.getString("EntityName");
         }
         if (nbtTask.contains("Progress", 3)) { setMaxProgress(nbtTask.getInt("Progress")); }
         if (nbtTask.contains("TargetID", 3)) { setTargetID(nbtTask.getInt("TargetID")); }
@@ -332,6 +335,7 @@ public class QuestObjective implements IQuestObjective {
             partName = nbtTask.getBoolean("TargetPart");
             andTitle = nbtTask.getBoolean("TargetTitle");
             notShowLogEntity = nbtTask.getBoolean("NotShowLogEntity");
+            entityClass = nbtTask.getString("EntityClass");
         }
         if (nbtTask.contains("Range", 3)) { setAreaRange(nbtTask.getInt("Range")); }
         if (nbtTask.contains("Item", 10)) {
@@ -463,7 +467,7 @@ public class QuestObjective implements IQuestObjective {
     public void setNotShowLogEntity(boolean notShowLogEntityIn) { notShowLogEntity = notShowLogEntityIn; }
 
     @Override
-    public void setOrientationEntityName(String name) { entityName = name; }
+    public void setOrientationEntityName(String name) { compassEntityName = name; }
 
     @Override
     public void setPartName(boolean isPart) { partName = isPart; }

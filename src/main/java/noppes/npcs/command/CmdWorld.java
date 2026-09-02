@@ -211,7 +211,7 @@ public class CmdWorld {
     private static void teleportTo(CommandSourceStack source, Collection<ServerPlayer> targets, ServerLevel level, double x, double y, double z, float yaw, float pitch) {
         for (ServerPlayer target : targets) {
             Util.instance.transferEntity(target, level, x, y, z, yaw, pitch);
-            source.sendSuccess(() -> Component.translatable("command.world.tp", target.getScoreboardName(), level.dimension().location().toString()), false);
+            source.sendSuccess(() -> Component.translatable("command.world.tp", target.getName().getString(), level.dimension().location().toString()), false);
         }
     }
 

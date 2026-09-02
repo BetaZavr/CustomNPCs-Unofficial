@@ -61,7 +61,7 @@ public class PacketSyncUpdate extends PacketBasic {
             PlayerQuestData questData = PlayerData.get(player).questData;
             for (QuestData qd : new ArrayList<>(questData.activeQuests.values())) {
                if (qd.quest.id == quest.id) {
-                  qd.quest = quest;
+                  qd.reset(quest);
                   break;
                }
             }

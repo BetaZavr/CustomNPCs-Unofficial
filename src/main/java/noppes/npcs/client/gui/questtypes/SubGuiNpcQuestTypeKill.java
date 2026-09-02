@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.questtypes;
 import java.util.*;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -12,14 +13,13 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.gui.IDimensionGetter;
-import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.global.GuiNpcManageQuest;
 import noppes.npcs.client.gui.global.SubGuiQuestObjectiveSelect;
+import noppes.npcs.client.gui.model.GuiCreationEntities;
 import noppes.npcs.client.gui.select.SubGuiColorSelector;
 import noppes.npcs.client.gui.select.SubGuiDialogSelection;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
@@ -44,9 +44,9 @@ public class SubGuiNpcQuestTypeKill
    protected Screen parent;
    protected final QuestObjective task;
    protected final Map<Integer, ResourceLocation> dataDimIDs = new HashMap<>();
-   private final Map<Component, EntityNPCInterface> dataNPCs = new HashMap<>();
    protected final Map<Component, Entity> dataEntities = new HashMap<>();
    protected GuiCustomScrollNop scroll;
+   protected final Map<Component, EntityType<? extends Entity>> types;
 
    public SubGuiNpcQuestTypeKill(EntityNPCInterface npcIn, QuestObjective taskObj, Screen gui) {
       super(npcIn);
@@ -57,11 +57,14 @@ public class SubGuiNpcQuestTypeKill
       parent = gui;
 
       task = taskObj;
+      if (minecraft == null) { minecraft = Minecraft.getInstance(); }
+      types = GuiCreationEntities.getAllEntities(minecraft.level, true);
    }
 
    @Override
    public void init() {
       super.init();
+      if (minecraft == null) { minecraft = Minecraft.getInstance(); }
       int lId = 0;
       int x0 = guiLeft + 6;
       int y = guiTop + 6;
@@ -101,7 +104,6 @@ public class SubGuiNpcQuestTypeKill
          while (map.containsKey(distance)) { distance += 0.0001f; }
          map.put(distance, npc);
       }
-      dataNPCs.clear();
       for (Float distance : map.keySet()) {
          Component name = map.get(distance).getName();
          Component key = name.copy().withStyle(ChatFormatting.GREEN);
@@ -114,7 +116,6 @@ public class SubGuiNpcQuestTypeKill
          }
          if (!added) { continue; }
          list.add(key);
-         dataNPCs.put(key, map.get(distance));
          dataEntities.put(key, map.get(distance));
          ArrayList<Component> hoverList = new ArrayList<>();
          hoverList.add(Component.empty()
@@ -127,23 +128,33 @@ public class SubGuiNpcQuestTypeKill
          hts.put(i++, hoverList);
       }
       // registry entity names
-      Map<String, Entity> regNames = new TreeMap<>();
-      for (EntityType<? extends Entity> entityType : EntityUtil.getAllEntitiesClasses(player.level()).keySet()) {
-         Entity entity = entityType.create(player.level());
-         if (entity instanceof LivingEntity) { regNames.put(entity.getClass().getSimpleName(), entity); }
+      if (minecraft.level != null) {
+         for (Map.Entry<Component, EntityType<? extends Entity>> entry : types.entrySet()) {
+            String line = entry.getValue().getDescriptionId();
+            List<Component> hover = new ArrayList<>();
+            if (line.startsWith("entity.customnpcs.")) {
+               hover.add(Component.translatable(line.replace("entity.customnpcs.", "entity.hover.customnpcs.")));
+            }
+            else if (line.startsWith("entity.minecraft.")) {
+               hover.add(Component.translatable("entity.hover.minecraft"));
+            }
+            else {
+               hover.add(Component.translatable("entity.hover.in.mod"));
+               hover.add(Component.literal(line.substring(7, line.indexOf(".", 7))));
+            }
+            list.add(entry.getKey());
+            dataEntities.put(entry.getKey(), entry.getValue().create(minecraft.level));
+            hts.put(i++, hover);
+         }
       }
-      for (String name : regNames.keySet()) {
-         Component key = Component.translatable(name);
-         list.add(key);
-         dataEntities.put(key, regNames.get(name));
-         hts.put(i++, Collections.singletonList(Component.literal("Normal entity name").withStyle(ChatFormatting.GRAY)));
-      }
+      // gui elements
       if (scroll == null) { scroll = addScroll(0); }
       add(scroll.setPos(guiLeft + 220, guiTop + 14)
               .setSize(130, 198)
               .setUnsortedList(list)
               .setHoverTexts(hts)
       );
+      scroll.setSelected(task.getTargetName());
       // exit
       addButton(66, x0, guiTop + imageHeight - 21, "gui.back")
               .setSize(98, 16)
@@ -211,7 +222,7 @@ public class SubGuiNpcQuestTypeKill
       // N
       addLabel(lId, x0 + 54, y + 2, "N:")
               .setSize(12, 10);
-      addTextField(15, x0 + 65, y, 131, 14, task.entityName)
+      addTextField(15, x0 + 65, y, 131, 14, task.compassEntityName)
               .setHoverTexts(Component.translatable("quest.hover.compass.entity").append(compass));
       addButton(9, x0 + 198, y, "")
               .setSize(14, 14)
@@ -286,6 +297,60 @@ public class SubGuiNpcQuestTypeKill
    }
 
    @Override
+   public void scrollClicked(GuiCustomScrollNop scroll) {
+      String name = Util.instance.deleteColor(scroll.getSelected());
+      getTextField(0).setValue(name);
+      // clear point
+      task.dimension = player.level().dimension().location();
+      task.pos = BlockPos.ZERO;
+      task.compassEntityName = "";
+      task.entityClass = "";
+      task.regionID = BorderController.getInstance().getRegionID(task.dimension.toString(), player);
+      task.setAreaRange(5);
+      if (dataEntities.containsKey(scroll.getNormalSelected())) {
+         Entity entity = dataEntities.get(scroll.getNormalSelected());
+         task.entityClass = entity.getClass().getSimpleName();
+         if (!entity.blockPosition().equals(BlockPos.ZERO)) {
+            task.dimension = entity.level().dimension().location();
+            task.pos = entity.blockPosition();
+            task.compassEntityName = name;
+            int range = 5;
+            if (entity instanceof EntityNPCInterface npcIn) {
+               if (npcIn.ais.getMovingType() == 1) { range = npcIn.ais.getWanderingRange(); }
+               else if (npcIn.ais.getMovingType() == 2) {
+                  int xm = Integer.MAX_VALUE, xn = Integer.MIN_VALUE;
+                  int ym = Integer.MAX_VALUE, yn = Integer.MIN_VALUE;
+                  int zm = Integer.MAX_VALUE, zn = Integer.MIN_VALUE;
+                  for (int[] pos : npcIn.ais.getMovingPath()) {
+                     if (xm > pos[0]) { xm = pos[0]; }
+                     if (xn < pos[0]) { xn = pos[0]; }
+                     if (ym > pos[1]) { ym = pos[1]; }
+                     if (yn < pos[1]) { yn = pos[1]; }
+                     if (zm > pos[2]) { zm = pos[2]; }
+                     if (zn < pos[2]) { zn = pos[2]; }
+                  }
+                  if (xm != Integer.MAX_VALUE) {
+                     if (xm == xn) { task.pos = new BlockPos(xm, ym, zm); } // One pos
+                     else {
+                        task.pos = new BlockPos(xm + (xn - xm) / 2, ym + (yn - ym) / 2, zm + (zn - zm) / 2);
+                        range = 5 + Math.max(xn - xm, Math.max(yn - ym, zn - zm)) / 2;
+                     }
+                  }
+               }
+            }
+            task.regionID = BorderController.getInstance().getRegionID(task.dimension.toString(), task.pos);
+            task.setAreaRange(Math.max(range, 32));
+         }
+      } // set point of entity
+      task.setTargetName(getTextField(0).getValue());
+      task.setMaxProgress(getTextField(1).getInteger());
+      init();
+   }
+
+   @Override
+   public void scrollDoubleClicked(GuiCustomScrollNop scroll) { }
+
+   @Override
    public void onClose() {
       super.onClose();
       if (task.getTargetName().isEmpty()) {
@@ -303,6 +368,7 @@ public class SubGuiNpcQuestTypeKill
       task.setMaxProgress(getTextField(1).getInteger());
    }
 
+   @Override
    public void unFocused(GuiTextFieldNop textField) {
       if (task == null) { return; }
       switch (textField.id) {
@@ -322,56 +388,9 @@ public class SubGuiNpcQuestTypeKill
          case 11: task.pos = new BlockPos(task.pos.getX(), textField.getInteger(), task.pos.getZ()); break;
          case 12: task.pos = new BlockPos(task.pos.getX(), task.pos.getY(), textField.getInteger()); break;
          case 14: task.rangeCompass = textField.getInteger(); break;
-         case 15: task.entityName = textField.getValue(); break;
+         case 15: task.compassEntityName = textField.getValue(); break;
       }
    }
-
-   public void scrollClicked(GuiCustomScrollNop scroll) {
-      String name = Util.instance.deleteColor(scroll.getSelected());
-      getTextField(0).setValue(name);
-      if (dataNPCs.containsKey(scroll.getNormalSelected())) {
-         EntityNPCInterface npcIn = dataNPCs.get(scroll.getNormalSelected());
-         task.dimension = npcIn.level().dimension().location();
-         task.pos = npcIn.blockPosition();
-         task.entityName = name;
-         int range = 5;
-         if (npcIn.ais.getMovingType() == 1) { range = npcIn.ais.getWanderingRange(); }
-         else if (npcIn.ais.getMovingType() == 2) {
-            int xm = Integer.MAX_VALUE, xn = Integer.MIN_VALUE;
-            int ym = Integer.MAX_VALUE, yn = Integer.MIN_VALUE;
-            int zm = Integer.MAX_VALUE, zn = Integer.MIN_VALUE;
-            for (int[] pos : npcIn.ais.getMovingPath()) {
-               if (xm > pos[0]) { xm = pos[0]; }
-               if (xn < pos[0]) { xn = pos[0]; }
-               if (ym > pos[1]) { ym = pos[1]; }
-               if (yn < pos[1]) { yn = pos[1]; }
-               if (zm > pos[2]) { zm = pos[2]; }
-               if (zn < pos[2]) { zn = pos[2]; }
-            }
-            if (xm != Integer.MAX_VALUE) {
-               if (xm == xn) { task.pos = new BlockPos(xm, ym, zm); } // One pos
-               else {
-                  task.pos = new BlockPos(xm + (xn - xm) / 2, ym + (yn - ym) / 2, zm + (zn - zm) / 2);
-                  range = 5 + Math.max(xn - xm, Math.max(yn - ym, zn - zm)) / 2;
-               }
-            }
-         }
-         task.regionID = BorderController.getInstance().getRegionID(task.dimension.toString(), task.pos);
-         task.setAreaRange(Math.max(range, 32));
-      }
-      else {
-         task.dimension = player.level().dimension().location();
-         task.pos = BlockPos.ZERO;
-         task.entityName = "";
-         task.regionID = BorderController.getInstance().getRegionID(task.dimension.toString(), player);
-         task.setAreaRange(5);
-      }
-      task.setTargetName(getTextField(0).getValue());
-      task.setMaxProgress(getTextField(1).getInteger());
-      init();
-   }
-
-   public void scrollDoubleClicked(GuiCustomScrollNop scroll) { }
 
    @Override
    public void resetDimension() { init(); }

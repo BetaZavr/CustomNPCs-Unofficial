@@ -13,6 +13,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.registries.ForgeRegistries;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.handler.data.IQuestObjective;
+import noppes.npcs.client.gui.model.GuiCreationEntities;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.util.quests.QuestObjective;
 import noppes.npcs.constants.EnumQuestCompletion;
@@ -76,18 +77,18 @@ public class QuestInfo {
                         Entity entity = null;
                         for (EntityType<? extends Entity> entityType : ForgeRegistries.ENTITY_TYPES.getValues()) {
                             Entity e = entityType.create(player.level());
-                            if (e instanceof LivingEntity && (e.getClass().getSimpleName().equals(target) || e.getScoreboardName().equals(target))) {
+                            if (e instanceof LivingEntity && (e.getClass().getSimpleName().equals(target) || e.getName().getString().equals(target))) {
                                 entity = e;
                                 break;
                             }
                         }
                         if (entity == null) {
                             IPos pos = allObj[i].getCompassPos();
-                            if (pos.getY() >= 0 && (pos.getX() != 0 || pos.getZ() != 0) && level.dimension().location().toString().equals(allObj[i].getCompassDimension())) {
+                            if (level.dimension().location().toString().equals(allObj[i].getCompassDimension())) {
                                 int r = allObj[i].getCompassRange();
                                 List<Entity> list = level.getEntities(null, new AABB(pos.getX() - r, pos.getY() - r, pos.getZ() - r, pos.getX() + r, pos.getY() + r, pos.getZ() + r));
                                 for (Entity en : list) {
-                                    if (en.getScoreboardName().equals(target)) {
+                                    if (en.getName().getString().equals(target)) {
                                         CompoundTag compound = new CompoundTag();
                                         en.save(compound);
                                         Optional<Entity> type = EntityType.create(compound, level);
@@ -98,7 +99,15 @@ public class QuestInfo {
                                     }
                                 }
                             }
-                        }
+                        } // found in dimension
+                        if (entity == null) {
+                            for (Map.Entry<Component, EntityType<? extends Entity>> entry : GuiCreationEntities.getAllEntities(level, true).entrySet()) {
+                                if (entry.getKey().getString().equals(target)) {
+                                    entity = entry.getValue().create(level);
+                                    break;
+                                }
+                            }
+                        } // is class set
                         entitys.put(entitys.size(), entity);
                     }
                 }

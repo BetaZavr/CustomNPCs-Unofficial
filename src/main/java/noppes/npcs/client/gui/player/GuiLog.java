@@ -957,23 +957,23 @@ public class GuiLog
                      line = preText + stackText + postText;
                   }
                   // entity
-                  if (line.indexOf(((char) 0xfffe)) != -1) {
+                  if (line.contains((char) 0xfffe + " ")) {
+                     String preText = line.substring(0, line.indexOf((char) 0xfffe + " "));
+                     String postText = line.substring(line.indexOf((char) 0xfffe + " ") + 1);
+                     String entityText = " ";
+                     while (ClientProxy.LogFont.width(entityText) < size + 1) { entityText += " "; }
                      if (activeQuest.entitys.containsKey(k)) {
-                        int pos = ClientProxy.LogFont.width(line.substring(0, line.indexOf("" + ((char) 0xfffe)) - 1)) + 1;
-                        float x = pos + (l == 1 ? 105.0f : 0.0f) * scaleW;
-                        float y = (page == 0 && l == 0 ? first : 0.0f) + h * fontHeight;
-                        if (isMouseHover(mouseX, mouseY, guiLLeft + (int) x, guiLTop + (int) y, 10, 10)) {
+                        int pos = ClientProxy.LogFont.width(preText) + 1;
+                        if (isMouseHover(mouseX, mouseY, guiLLeft + pos + xPos, guiLTop + yPos + scaleH, size, size)) {
                            if (!hoverMob(graphics, mouseX, mouseY, activeQuest.entitys.get(k))) { setHoverText("quest.hover.err.log.entity"); }
                         }
                         matrixStack.pushPose();
-                        matrixStack.translate(guiLLeft + x + 0.5f, guiLTop + y, 0.0f);
-                        matrixStack.scale(0.3f, 0.15f, 1.0f);
+                        matrixStack.translate(pos + xPos, yPos + scaleH, 0.0f);
+                        matrixStack.scale(scale * 0.45f, scale * 0.225f, scale);
                         graphics.blit(killIcon, 0, 0, 32, 64, 32, 64);
                         matrixStack.popPose();
                      }
-                     String space = " ";
-                     while (ClientProxy.LogFont.width(space) < fontHeight - 3) { space += " "; }
-                     line = line.replace("" + ((char) 0xfffe), space);
+                     line = preText + entityText + postText;
                      k++;
                   }
                   draw(graphics, line, xPos, yPos, questLogColor, (int) (98.0f * scaleW));
@@ -1658,8 +1658,8 @@ public class GuiLog
       matrixStack.translate((guiLeft + 22) * -1, guiTopLog * -1, 300.0d);
       matrixStack.translate(mouseX, mouseY, 0.0f);
 
-      if (mouseY > minecraft.getWindow().getGuiScaledHeight() / 2.0d) { matrixStack.translate(0.0f, -15.0f, 0.0f); }
-      else { matrixStack.translate(0.0f, 45.0f, 0.0f); }
+      int offsetX = mouseY > minecraft.getWindow().getGuiScaledHeight() / 2.0d ? 20 : 0;
+      int offsetY = mouseY > minecraft.getWindow().getGuiScaledHeight() / 2.0d ? 20 : 45;
 
       String modelName;
       if (entity instanceof EntityNPCInterface && ((EntityNPCInterface) entity).display.getModel() != null) { modelName = ((EntityNPCInterface) entity).display.getModel(); }
@@ -1671,7 +1671,7 @@ public class GuiLog
       matrixStack.scale(25.0f, 25.0f, 25.0f);
       entity.tickCount = 1;
       GuiLog.preDrawEntity(modelName, entity);
-      drawNpc(graphics, entity, mouseX - (guiLeft + 22), mouseY - guiTopLog, 1.0f, rot, 0, 1);
+      drawNpc(graphics, entity, mouseX - (guiLeft + 22) + offsetX, mouseY - guiTopLog + offsetY, 1.0f, rot, 0, 1);
       matrixStack.popPose();
       return true;
    }

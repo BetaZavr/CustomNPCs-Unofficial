@@ -20,17 +20,19 @@ import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 import noppes.npcs.shared.client.gui.components.GuiButtonYesNo;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
+import noppes.npcs.shared.common.util.ComponentOrderComparator;
 
 public class GuiCreationEntities extends GuiCreationScreenInterface implements ICustomScrollListener {
 
-   protected final List<EntityType<? extends Entity>> types;
+   protected final Map<Component, EntityType<? extends Entity>> types;
    protected GuiCustomScrollNop scroll;
    protected boolean resetToSelected = true;
 
    public GuiCreationEntities(EntityNPCInterface npc) {
       super(npc);
-      types = getAllEntities(npc.level());
-      types.sort(Comparator.comparing((t) -> t.getDescriptionId().toLowerCase()));
+
+      if (minecraft == null) { minecraft = Minecraft.getInstance(); }
+      types = getAllEntities(minecraft.level, false);
       active = 1;
       xOffset = 60;
    }
@@ -49,8 +51,8 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
       if (scroll == null) {
          List<Component> list = new ArrayList<>();
          LinkedHashMap<Integer, List<Component>> hts = new LinkedHashMap<>();
-         for (String line : types.stream().map(EntityType::getDescriptionId).toList()) {
-            list.add(Component.translatable(line));
+         for (Map.Entry<Component, EntityType<? extends Entity>> entry : types.entrySet()) {
+            String line = entry.getValue().getDescriptionId();
             List<Component> hover = new ArrayList<>();
             if (line.startsWith("entity.customnpcs.")) {
                hover.add(Component.translatable(line.replace("entity.customnpcs.", "entity.hover.customnpcs.")));
@@ -62,6 +64,7 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
                hover.add(Component.translatable("entity.hover.in.mod"));
                hover.add(Component.literal(line.substring(7, line.indexOf(".", 7))));
             }
+            list.add(entry.getKey());
             hts.put(hts.size(), hover);
          }
          scroll = addScroll(0)
@@ -69,12 +72,14 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
                  .setHoverTexts(hts);
       }
       int index = -1;
-      for(int i = 0; i < types.size(); ++i) {
-         EntityType<?> type = types.get(i);
+      int i = 0;
+      for(Component component : scroll.getNormalList()) {
+         EntityType<?> type = types.get(component);
          if ((entity == null && type == CustomEntities.entityCustomNpc) || (entity != null && type == entity.getType())) {
             index = i;
             break;
          }
+         i++;
       }
       if (index >= 0) { scroll.setSelected(index); }
       else { scroll.setSelected("entity." + CustomNpcs.MODID + ".customnpc"); }
@@ -96,7 +101,7 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
    public void scrollClicked(GuiCustomScrollNop scroll) {
       if (!scroll.hasSelected()) { playerdata.setEntity(null); }
       else {
-         playerdata.setEntity(ForgeRegistries.ENTITY_TYPES.getKey(types.get(scroll.getSelectedIndex())));
+         playerdata.setEntity(ForgeRegistries.ENTITY_TYPES.getKey(types.get(scroll.getNormalSelected())));
          if (scroll.getNormalSelected().getContents() instanceof TranslatableContents trComp && trComp.getKey().contains("geckoaddon")) {
             npc.display.setSkinTexture(CustomNpcs.MODID + ":textures/entity/humanmale/steve.png");
          }
@@ -122,15 +127,17 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
    @Override
    public void scrollDoubleClicked(GuiCustomScrollNop scroll) { }
 
-   private static List<EntityType<? extends Entity>> getAllEntities(Level level) {
-      List<EntityType<? extends Entity>> data = new ArrayList<>();
+   public static Map<Component, EntityType<? extends Entity>> getAllEntities(Level level, boolean addVanillaDragon) {
+      Map<Component, EntityType<? extends Entity>> data = new TreeMap<>(Comparator.comparing(
+              (c) -> c.getString().toLowerCase(), new ComponentOrderComparator()
+      ));
       for (EntityType<?> ent : ForgeRegistries.ENTITY_TYPES.getValues()) {
          try {
             Entity e = ent.create(level);
             if (e != null) {
                if (LivingEntity.class.isAssignableFrom(e.getClass()) &&
-                       !EnderDragon.class.isAssignableFrom(e.getClass())) {
-                  data.add(ent); }
+                       (addVanillaDragon || !EnderDragon.class.isAssignableFrom(e.getClass())))
+               { data.put(Component.translatable(ent.getDescriptionId()), ent); }
                e.discard();
             }
          } catch (Exception ignored) {}

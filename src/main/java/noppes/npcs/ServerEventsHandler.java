@@ -77,7 +77,7 @@ public class ServerEventsHandler {
             if (questObjective.getEnumType() != EnumQuestTask.KILL && questObjective.getEnumType() != EnumQuestTask.AREAKILL) { continue; }
             // get real name
             String objectiveName = null;
-            if (questObjective.getTargetName().equals(entity.getScoreboardName())) { objectiveName = entity.getScoreboardName(); } // entity name
+            if (questObjective.getTargetName().equals(entity.getName().getString())) { objectiveName = entity.getName().getString(); } // entity name
             else if (questObjective.getTargetName().equals(entityName)) { objectiveName = entityName; } // entity type
             else if (questObjective.isPartName() || questObjective.isAndTitle()) { // part or title -> name
                if (questObjective.isPartName()) {
