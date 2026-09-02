@@ -52,7 +52,6 @@ public class GuiNpcManageQuest
 		Instance = this;
 
 		backGui = EnumGuiType.MainMenuGlobal;
-		// all data getting in SyncController
 	}
 
 	@Override

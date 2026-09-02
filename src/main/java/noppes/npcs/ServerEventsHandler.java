@@ -74,9 +74,7 @@ public class ServerEventsHandler {
 			entityName = "Player";
 		}
 		for (QuestData data : new ArrayList<>(playerdata.activeQuests.values())) {
-			if (data.quest.step == 2 && data.quest.questInterface.isCompleted(player)) {
-				continue;
-			}
+			if (data.quest.step == 2 && data.quest.questInterface.isCompleted(player)) { continue; }
 			boolean bo = data.quest.step == 1;
 			for (IQuestObjective obj : data.quest.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 				if (data.quest.step == 1 && !bo) {
@@ -88,11 +86,15 @@ public class ServerEventsHandler {
 					continue;
 				}
 				String name = null;
-				if (obj.getTargetName().equals(entity.getName())) {
-					name = entity.getName();
-				} else if (obj.getTargetName().equals(entityName)) {
-					name = entityName;
-				} else if (obj.isPartName() || obj.isAndTitle()) {
+
+				LogWriter.info("[DEBUG] \""+obj.getTargetName()+"\"; \""+entity.getName()+"\" / \""+entityName+"\"; "+
+						obj.getTargetName().equals(entity.getName())+"; "+
+						obj.getTargetName().equals(entityName)+"; "+
+						(obj.isPartName() || obj.isAndTitle()));
+
+				if (obj.getTargetName().equals(entity.getName())) { name = entity.getName(); }
+				else if (obj.getTargetName().equals(entityName)) { name = entityName; }
+				else if (obj.isPartName() || obj.isAndTitle()) {
 					if (obj.isPartName()) {
 						if (entity.getName().contains(obj.getTargetName())) {
 							name = obj.getTargetName();
@@ -119,9 +121,8 @@ public class ServerEventsHandler {
 							}
 						}
 					}
-				} else {
-					continue;
 				}
+				else { continue; }
 				if (name == null) {
 					continue;
 				}

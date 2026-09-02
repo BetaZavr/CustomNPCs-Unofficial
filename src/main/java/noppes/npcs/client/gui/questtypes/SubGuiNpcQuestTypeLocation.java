@@ -113,7 +113,7 @@ public class SubGuiNpcQuestTypeLocation
 		// N
 		addLabel(lId, x + 44, y + 2, "N:")
 				.setSize(12, 10);
-		addTextField(15, x + 54, y, 175, 14, task.entityName)
+		addTextField(15, x + 54, y, 175, 14, task.compassEntityName)
 				.setHoverTexts(Component.translatable("quest.hover.compass.entity").append(compass));
 		addButton(9, x + 231, y, "")
 				.setSize(14, 14)
@@ -199,7 +199,7 @@ public class SubGuiNpcQuestTypeLocation
 			case 11: task.pos = new BlockPos(task.pos.getX(), textField.getInteger(), task.pos.getZ()); break;
 			case 12: task.pos = new BlockPos(task.pos.getX(), task.pos.getY(), textField.getInteger()); break;
 			case 14: task.rangeCompass = textField.getInteger(); break;
-			case 15: task.entityName = textField.getValue(); break;
+			case 15: task.compassEntityName = textField.getValue(); break;
 		}
 	}
 

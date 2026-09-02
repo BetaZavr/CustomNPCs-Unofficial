@@ -11,6 +11,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.CustomNpcs;
@@ -21,21 +22,18 @@ import noppes.npcs.shared.client.gui.components.GuiButtonYesNo;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.shared.common.util.ComponentOrderComparator;
 
 public class GuiCreationEntities extends GuiCreationScreenInterface
 		implements ICustomScrollListener {
 
-	protected final List<EntityEntry> types;
+	protected final Map<Component, EntityEntry> types;
 	protected GuiCustomScrollNop scroll;
 	protected boolean resetToSelected = true;
 
 	public GuiCreationEntities(EntityNPCInterface npc) {
 		super(npc);
-		types = getAllEntities();
-		types.sort(Comparator.comparing((t) -> {
-			if (t.getRegistryName() != null) { return t.getRegistryName().toString(); }
-			return t.getName().toLowerCase();
-		}));
+		types = getAllEntities(false);
 		active = 1;
 		xOffset = 60;
 	}
@@ -56,39 +54,38 @@ public class GuiCreationEntities extends GuiCreationScreenInterface
 		if (scroll == null) {
 			List<Component> list = new ArrayList<>();
 			LinkedHashMap<Integer, List<Component>> hts = new LinkedHashMap<>();
-			for (EntityEntry entry : types) {
-				ResourceLocation loc = entry.getRegistryName();
-				if (loc == null) { continue; }
-				Component name;
-				List<Component> hover = new ArrayList<>();
-				if (loc.getResourceDomain().equals(CustomNpcs.MODID)) {
-					name = Component.translatable("entity.customnpcs." + entry.getName());
-					hover.add(Component.translatable("entity.hover.customnpcs." + entry.getName()));
+			for (Map.Entry<Component, EntityEntry> entry : types.entrySet()) {
+				ResourceLocation loc = entry.getValue().getRegistryName();
+				if (loc != null) {
+					List<Component> hover = new ArrayList<>();
+					if (loc.getResourceDomain().equals(CustomNpcs.MODID)) {
+						hover.add(Component.translatable("entity.hover.customnpcs." + entry.getValue().getName()));
+					}
+					else if (loc.getResourceDomain().equals("minecraft")) {
+						hover.add(Component.translatable("entity.hover.minecraft"));
+					}
+					else {
+						hover.add(Component.translatable("entity.hover.in.mod"));
+						hover.add(Component.literal(loc.getResourceDomain()));
+					}
+					list.add(entry.getKey());
+					hts.put(hts.size(), hover);
 				}
-				else if (loc.getResourceDomain().equals("minecraft")) {
-					name = Component.translatable("entity." + entry.getName() + ".name");
-					hover.add(Component.translatable("entity.hover.minecraft"));
-				}
-				else {
-					name = Component.translatable("entity." + entry.getName() + ".name");
-					hover.add(Component.translatable("entity.hover.in.mod"));
-					hover.add(Component.literal(loc.getResourceDomain()));
-				}
-				list.add(name);
-				hts.put(hts.size(), hover);
 			}
 			scroll = addScroll(0)
 					.setUnsortedList(list)
 					.setHoverTexts(hts);
 		}
-
 		int index = -1;
-		for(int i = 0; i < types.size(); ++i) {
-			EntityEntry entry = types.get(i);
-			if ((entity == null && entry.getEntityClass() == EntityCustomNpc.class) || (entity != null && entry.getEntityClass() == entity.getClass())) {
+		int i = 0;
+		for(Component component : scroll.getNormalList()) {
+			EntityEntry type = types.get(component);
+			if ((entity == null && type.getEntityClass() == EntityCustomNpc.class) ||
+					(entity != null && type.getEntityClass() == entity.getClass())) {
 				index = i;
 				break;
 			}
+			i++;
 		}
 		if (index >= 0) { scroll.setSelected(index); }
 		else { scroll.setSelected("entity." + CustomNpcs.MODID + ".customnpc"); }
@@ -109,7 +106,13 @@ public class GuiCreationEntities extends GuiCreationScreenInterface
 	@Override
 	public void scrollClicked(GuiCustomScrollNop scroll) {
 		if (!scroll.hasSelected()) { playerdata.setEntity(null); }
-		else { playerdata.setEntity((Class<? extends EntityLivingBase>) types.get(scroll.getSelectedIndex()).getEntityClass()); }
+		else {
+			playerdata.setEntity((Class<? extends EntityLivingBase>) types.get(scroll.getNormalSelected()).getEntityClass());
+			if (scroll.getNormalSelected().getContents() instanceof TextComponentTranslation &&
+					((TextComponentTranslation) scroll.getNormalSelected().getContents()).getKey().contains("geckoaddon")) {
+				npc.display.setSkinTexture(CustomNpcs.MODID + ":textures/entity/humanmale/steve.png");
+			}
+		}
 
 		EntityLivingBase entity = playerdata.getEntity(npc);
 		if (entity != null) {
@@ -132,13 +135,15 @@ public class GuiCreationEntities extends GuiCreationScreenInterface
 	@Override
 	public void scrollDoubleClicked(GuiCustomScrollNop scroll) { }
 
-	private static List<EntityEntry> getAllEntities() {
-		List<EntityEntry> data = new ArrayList<>();
-        for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
+	public static Map<Component, EntityEntry> getAllEntities(boolean addVanillaDragon) {
+		Map<Component, EntityEntry> data = new TreeMap<>(Comparator.comparing(
+				(c) -> c.getString().toLowerCase(), new ComponentOrderComparator()
+		));
+        for (EntityEntry entry : ForgeRegistries.ENTITIES.getValuesCollection()) {
 			try {
-				Class<? extends Entity> cl = ent.getEntityClass();
+				Class<? extends Entity> cl = entry.getEntityClass();
 				if (EntityLivingBase.class.isAssignableFrom(cl) &&
-						!EntityDragon.class.isAssignableFrom(cl)) {
+						(addVanillaDragon ||!EntityDragon.class.isAssignableFrom(cl))) {
 					// old entities
 					if (EntityNPCHumanMale.class.isAssignableFrom(cl) ||
 							EntityNPCVillager.class.isAssignableFrom(cl) ||
@@ -157,9 +162,15 @@ public class GuiCreationEntities extends GuiCreationScreenInterface
 							EntityNpcEnderchibi.class.isAssignableFrom(cl) ||
 							EntityNpcNagaMale.class.isAssignableFrom(cl) ||
 							EntityNpcNagaFemale.class.isAssignableFrom(cl) ||
-							EntityNPCEnderman.class.isAssignableFrom(cl)
-					) { continue; }
-					data.add(ent);
+							EntityNPCEnderman.class.isAssignableFrom(cl))
+					{ continue; }
+					
+					ResourceLocation loc = entry.getRegistryName();
+					if (loc == null) { continue; }
+					Component name;
+					if (loc.getResourceDomain().equals(CustomNpcs.MODID)) { name = Component.translatable("entity.customnpcs." + entry.getName()); }
+					else { name = Component.translatable("entity." + entry.getName() + ".name"); }
+					data.put(name, entry);
 				}
 			} catch (Exception ignored) {}
 		}

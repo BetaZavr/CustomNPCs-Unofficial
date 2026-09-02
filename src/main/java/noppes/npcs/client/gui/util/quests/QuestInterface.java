@@ -136,8 +136,9 @@ public class QuestInterface {
 				case KILL:
 				case AREAKILL: {
 					name = Component.translatable("entity." + to.getTargetName() + ".name");
+					String lName = name.getString();
 					if (to.getTargetName().isEmpty()) { name = Component.translatable("quest.has.false"); }
-					else if (name.getFormattedText().startsWith("entity.") && name.getFormattedText().endsWith(".name")) { name = Component.literal(to.getTargetName()); }
+					else if (lName.startsWith("entity.") && lName.endsWith(".name")) { name = Component.literal(to.getTargetName()); }
 					key.append(Component.literal("["));
 					if (to.getEnumType() == EnumQuestTask.KILL) { key.append(Component.literal("K").withStyle(TextFormatting.RED)); }
 					else { key.append(Component.literal("AK").withStyle(TextFormatting.DARK_RED)); }

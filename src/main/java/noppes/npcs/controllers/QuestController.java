@@ -14,6 +14,8 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.quests.QuestObjective;
 import noppes.npcs.constants.EnumQuestRepeat;
 import noppes.npcs.constants.EnumQuestTask;
+import noppes.npcs.controllers.data.PlayerData;
+import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.data.DropSet;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketSyncRemove;
@@ -24,6 +26,7 @@ import noppes.npcs.api.handler.IQuestHandler;
 import noppes.npcs.api.handler.data.IQuestCategory;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.controllers.data.QuestCategory;
+import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.NBTJsonUtil;
 
@@ -222,15 +225,39 @@ public class QuestController implements IQuestHandler {
 	public void saveQuest(QuestCategory category, Quest quest) {
 		if (category != null) {
 			List<String> names = new ArrayList<>();
+			boolean found = false;
 			for (Quest q : new ArrayList<>(quest.category.quests.values())) {
-				if (!q.equals(quest) && q.id != quest.id) { names.add(q.title); }
+				if (q.equals(quest) || q.id == quest.id) {
+					q.load(quest.savePartial(new NBTTagCompound()));
+					quest = q;
+					found = true;
+					break;
+				} else { names.add(q.title); }
 			}
-			String name = quest.title;
-			while(names.contains(name)) { name = name + "_"; }
-			quest.title = name;
-			if (quest.id < 0) {
-				++lastUsedQuestID;
-				quest.id = lastUsedQuestID;
+			if (!found) {
+				String name = quest.title;
+				while(names.contains(name)) { name = name + "_"; }
+				quest.title = name;
+				if (quest.id < 0) {
+					++lastUsedQuestID;
+					quest.id = lastUsedQuestID;
+				}
+			}
+			else {
+				Quest finalQuest = quest;
+				CustomNPCsScheduler.runTack(() -> {
+					for (String name : PlayerDataController.instance.getPlayerNames()) {
+						PlayerData pData = PlayerDataController.instance.getDataFromUsername(CustomNpcs.Server, name);
+						if (pData != null) {
+							for (QuestData qd : pData.questData.activeQuests.values()) {
+								if (qd.quest.id == finalQuest.id) {
+									qd.reset(finalQuest);
+									break;
+								}
+							}
+						}
+					}
+				});
 			}
 			quests.put(quest.id, quest);
 			category.quests.put(quest.id, quest);

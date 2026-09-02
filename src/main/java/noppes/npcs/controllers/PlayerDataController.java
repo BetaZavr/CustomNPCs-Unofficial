@@ -116,7 +116,7 @@ public class PlayerDataController {
 	}
 
 	public void addPlayerMessage(MinecraftServer server, String username, PlayerMail mail) {
-		PlayerData data = this.getDataFromUsername(server, username);
+		PlayerData data = getDataFromUsername(server, username);
 		if (data != null) {
 			data.mailData.addMail(mail);
 			data.save(false);
@@ -211,7 +211,7 @@ public class PlayerDataController {
 		if (players.isEmpty()) {
 			MinecraftServer server = CustomNpcs.Server;
 			if (server == null) { server = sender.getServer(); }
-			PlayerData data = this.getDataFromUsername(Objects.requireNonNull(server), username);
+			PlayerData data = getDataFromUsername(Objects.requireNonNull(server), username);
 			if (data != null) {
 				list.add(data);
 			}

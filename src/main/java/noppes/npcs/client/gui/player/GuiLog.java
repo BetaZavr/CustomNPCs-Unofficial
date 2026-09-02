@@ -967,7 +967,7 @@ public class GuiLog extends GuiNPCInterface
 							String preText;
 							String postText;
 							String stackText = " ";
-							while (ClientProxy.LogFont.width(stackText) < fontHeight + 1) { stackText += " "; }
+							while (ClientProxy.LogFont.width(stackText) < size + 1) { stackText += " "; }
 							if (line.contains(" " + ((char) 0xffff) + " ")) {
 								preText = line.substring(0, line.indexOf(" " + ((char) 0xffff) + " "));
 								postText = line.substring(line.indexOf(" " + ((char) 0xffff) + " ") + 3);
@@ -1001,12 +1001,14 @@ public class GuiLog extends GuiNPCInterface
 							line = preText + stackText + postText;
 						}
 						// entity
-						if (line.indexOf(((char) 0xfffe)) != -1) {
+						if (line.contains((char) 0xfffe + " ")) {
+							String preText = line.substring(0, line.indexOf((char) 0xfffe + " "));
+							String postText = line.substring(line.indexOf((char) 0xfffe + " ") + 1);
+							String entityText = " ";
+							while (ClientProxy.LogFont.width(entityText) < size + 1) { entityText += " "; }
 							if (activeQuest.entitys.containsKey(k)) {
-								int pos = ClientProxy.LogFont.width(line.substring(0, line.indexOf("" + ((char) 0xfffe)) - 1));
-								float x = pos + (l == 1 ? 105.0f : 0.0f) * scaleW;
-								float y = (page == 0 && l == 0 ? first : 0.0f) + h * 12.0f;
-								if (isMouseHover(mouseX, mouseY, guiLLeft + (int) x, guiLTop + (int) y, 10, 10)) {
+								int pos = ClientProxy.LogFont.width(preText) + 1;
+								if (isMouseHover(mouseX, mouseY, guiLLeft + pos + xPos, guiLTop + yPos + 1.5f * scaleH, size, size)) {
 									if (!hoverMob(mouseX, mouseY, activeQuest.entitys.get(k))) {
 										setHoverText("quest.hover.err.log.entity");
 									}
@@ -1014,16 +1016,14 @@ public class GuiLog extends GuiNPCInterface
 								GlStateManager.pushMatrix();
 								GlStateManager.enableAlpha();
 								GlStateManager.enableBlend();
-								GlStateManager.translate(x + 0.5f, y, 0.0f);
-								GlStateManager.scale(0.3f, 0.15f, 1.0f);
-								GlStateManager.color(3.0f, 3.0f, 3.0f, 1.0f);
+								GlStateManager.translate(pos + xPos, yPos + 1.5f * scaleH, 0.0f);
+								GlStateManager.scale(scale * 0.45f, scale * 0.225f, scale);
+								GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 								mc.getTextureManager().bindTexture(killIcon);
 								drawTexturedModalRect(0, 0, 32, 64, 32, 64);
 								GlStateManager.popMatrix();
 							}
-							String space = " ";
-							while (ClientProxy.LogFont.width(space) < fontHeight - 3) { space += " "; }
-							line = line.replace("" + ((char) 0xfffe), space);
+							line = preText + entityText + postText;
 							k++;
 						}
 						draw(line, xPos, yPos, questLogColor, (int) (98.0f * scaleW));
@@ -1201,8 +1201,10 @@ public class GuiLog extends GuiNPCInterface
 				}
 				qName.getStyle().setColor(TextFormatting.RESET);
 				ClientProxy.LogFont.draw(name.toString(), 0, 0, questLogColor);
-				IQuestObjective[] objs = quest.getObjectives(player);
-				int j = 0;
+				IQuestObjective[] objs;
+				try { objs = quest.getObjectives(player); }
+				catch (Exception e) { objs = new IQuestObjective[0]; }
+                int j = 0;
 				for (IQuestObjective iqo : objs) {
 					if (iqo.isCompleted()) {
 						j++;
@@ -1787,14 +1789,14 @@ public class GuiLog extends GuiNPCInterface
 		GlStateManager.translate(mouseX, mouseY, 0.0f);
 		if (mouseY > sw.getScaledHeight_double() / 2.0d) { GlStateManager.translate(0.0f, -15.0f, 0.0f); }
 		else { GlStateManager.translate(0.0f, 45.0f, 0.0f); }
+
 		String modelName = "";
-		if (entity instanceof EntityNPCInterface && ((EntityNPCInterface) entity).display.getModel() != null) {
-			modelName = ((EntityNPCInterface) entity).display.getModel();
-		}
+		if (entity instanceof EntityNPCInterface && ((EntityNPCInterface) entity).display.getModel() != null) { modelName = ((EntityNPCInterface) entity).display.getModel(); }
 		else {
 			ResourceLocation location = EntityList.getKey(entity);
 			if (location != null) { modelName = location.toString(); }
 		}
+		GlStateManager.rotate(180, 1.0f, 0.0f, 0.0f);
 		GlStateManager.rotate((mc.world.getTotalWorldTime() % 360) * 5.0f, 0.0f, 1.0f, 0.0f);
 		GlStateManager.enableBlend();
 		GlStateManager.enableColorMaterial();

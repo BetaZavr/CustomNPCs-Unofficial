@@ -10,8 +10,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.handler.data.IQuestObjective;
+import noppes.npcs.client.gui.model.GuiCreationEntities;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.util.quests.QuestObjective;
 import noppes.npcs.constants.EnumQuestCompletion;
@@ -67,7 +69,8 @@ public class QuestInfo {
                     stacks.add(((QuestObjective) allObj[i]).getItemStack());
                     line += " " + ((char) 0xffff) + " ";
                 }
-                else if (((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.KILL || ((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.AREAKILL) {
+                else if (((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.KILL ||
+                        ((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.AREAKILL) {
                     line += " " + ((char) 0xfffe) + " ";
                     if (allObj[i].isNotShowLogEntity()) { entitys.put(entitys.size(), null); }
                     else {
@@ -75,7 +78,7 @@ public class QuestInfo {
                         Entity entity = EntityList.createEntityByIDFromName(new ResourceLocation(target), world);
                         if (entity == null) {
                             IPos pos = allObj[i].getCompassPos();
-                            if (pos.getY() >= 0 && (pos.getX() != 0 || pos.getZ() != 0) && world.provider.getDimension() == allObj[i].getCompassDimension()) {
+                            if (world.provider.getDimension() == allObj[i].getCompassDimension()) {
                                 int r = allObj[i].getCompassRange();
                                 List<Entity> list = new ArrayList<>();
                                 try {
@@ -96,7 +99,15 @@ public class QuestInfo {
                                     }
                                 }
                             }
-                        }
+                        } // found in dimension
+                        if (entity == null) {
+                            for (Map.Entry<Component, EntityEntry> entry : GuiCreationEntities.getAllEntities(true).entrySet()) {
+                                if (entry.getKey().getString().equals(target)) {
+                                    entity = entry.getValue().newInstance(world);
+                                    break;
+                                }
+                            }
+                        } // is class set
                         entitys.put(entitys.size(), entity);
                     }
                 }

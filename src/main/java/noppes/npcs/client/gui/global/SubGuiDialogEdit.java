@@ -221,8 +221,8 @@ public class SubGuiDialogEdit
 		else if (subgui instanceof SubGuiNpcDialogOption) { setSubGui(new SubGuiNpcDialogOptions(npc, dialog, this)); }
 		else if (subgui instanceof SubGuiNpcCommand) { dialog.command = ((SubGuiNpcCommand) subgui).command; }
 		else if (subgui instanceof SubGuiQuestSelection) {
-			if (((SubGuiQuestSelection) subgui).selectedQuest != null) {
-				dialog.quest = ((SubGuiQuestSelection) subgui).selectedQuest.id;
+			if (((SubGuiQuestSelection) subgui).getQuest() != null) {
+				dialog.quest = ((SubGuiQuestSelection) subgui).getQuest().id;
 				initGui();
 			}
 		}

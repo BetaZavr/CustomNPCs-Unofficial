@@ -47,6 +47,7 @@ public class PlayerQuestData implements IPlayerData {
 			Quest quest = QuestController.instance.quests.get(id);
 			if (quest != null) {
 				activeQuests.put(id, new QuestData(quest).load(nbt));
+				activeQuests.get(id).reset(quest);
 			}
 		}
 		list = compound.getTagList("CompletedQuests", 10);

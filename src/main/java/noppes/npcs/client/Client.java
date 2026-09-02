@@ -722,7 +722,7 @@ public class Client {
                 PlayerQuestData questData = PlayerData.get(msg.player).questData;
                 for (QuestData qd : new ArrayList<>(questData.activeQuests.values())) {
                     if (qd.quest.id == quest.id) {
-                        qd.quest = quest;
+                        qd.reset(quest);
                         break;
                     }
                 }
