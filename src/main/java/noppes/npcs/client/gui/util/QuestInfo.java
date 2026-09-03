@@ -12,7 +12,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.registries.ForgeRegistries;
 import noppes.npcs.api.IPos;
-import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.gui.model.GuiCreationEntities;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.util.quests.QuestObjective;
@@ -58,18 +57,18 @@ public class QuestInfo {
             preLines.add(Util.instance.getOldFormattedText(Component.translatable("quest.completewith", qData.quest.completer.getName())));
         }
         // all objectives
-        IQuestObjective[] allObj = qData.quest.getObjectives(player);
+        QuestObjective[] allObj = qData.quest.getObjectives(player);
         if (allObj.length > 0) {
             preLines.add("");
             preLines.add(ChatFormatting.BOLD + Util.instance.getOldFormattedText(Component.translatable("quest.objectives." + qData.quest.step)));
             String line;
             for (int i = 0; i < allObj.length; i++) {
                 line = (i + 1) + "-";
-                if (((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.ITEM || ((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.CRAFT) {
-                    stacks.add(((QuestObjective) allObj[i]).getItemStack());
+                if (allObj[i].getEnumType() == EnumQuestTask.ITEM || allObj[i].getEnumType() == EnumQuestTask.CRAFT) {
+                    stacks.add(allObj[i].getItemStack());
                     line += " " + ((char) 0xffff) + " ";
                 }
-                else if (((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.KILL || ((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.AREAKILL) {
+                else if (allObj[i].getEnumType() == EnumQuestTask.KILL || allObj[i].getEnumType() == EnumQuestTask.AREAKILL) {
                     line += " " + ((char) 0xfffe) + " ";
                     if (allObj[i].isNotShowLogEntity()) { entitys.put(entitys.size(), null); }
                     else {
@@ -77,7 +76,9 @@ public class QuestInfo {
                         Entity entity = null;
                         for (EntityType<? extends Entity> entityType : ForgeRegistries.ENTITY_TYPES.getValues()) {
                             Entity e = entityType.create(player.level());
-                            if (e instanceof LivingEntity && (e.getClass().getSimpleName().equals(target) || e.getName().getString().equals(target))) {
+                            if (e instanceof LivingEntity && (e.getClass().getSimpleName().equals(target) ||
+                                    e.getClass().getSimpleName().equals(allObj[i].entityClass) ||
+                                    e.getName().getString().equals(target))) {
                                 entity = e;
                                 break;
                             }
@@ -88,7 +89,8 @@ public class QuestInfo {
                                 int r = allObj[i].getCompassRange();
                                 List<Entity> list = level.getEntities(null, new AABB(pos.getX() - r, pos.getY() - r, pos.getZ() - r, pos.getX() + r, pos.getY() + r, pos.getZ() + r));
                                 for (Entity en : list) {
-                                    if (en.getName().getString().equals(target)) {
+                                    if (en.getName().getString().equals(target) ||
+                                            en.getClass().getSimpleName().equals(allObj[i].entityClass)) {
                                         CompoundTag compound = new CompoundTag();
                                         en.save(compound);
                                         Optional<Entity> type = EntityType.create(compound, level);
@@ -105,6 +107,13 @@ public class QuestInfo {
                                 if (entry.getKey().getString().equals(target)) {
                                     entity = entry.getValue().create(level);
                                     break;
+                                }
+                                else if (!allObj[i].entityClass.isEmpty()) {
+                                    Entity e = entry.getValue().create(level);
+                                    if (e != null && e.getClass().getSimpleName().equals(allObj[i].entityClass)) {
+                                        entity = e;
+                                        break;
+                                    }
                                 }
                             }
                         } // is class set

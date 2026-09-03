@@ -10,12 +10,13 @@ import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.gui.util.quests.QuestObjective;
 import noppes.npcs.containers.inventories.NpcMiscInventory;
 import noppes.npcs.controllers.data.Quest;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class ContainerNpcQuestTypeItem extends AbstractContainerMenu {
 
    public final int slotID;
-   public final QuestObjective task;
+   public final @Nonnull QuestObjective task;
    public final Slot slot;
 
    public ContainerNpcQuestTypeItem(int containerId, Inventory playerInventory, int slotIdIn) {
@@ -40,9 +41,9 @@ public class ContainerNpcQuestTypeItem extends AbstractContainerMenu {
    }
 
    @Override
-   public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int i) { return ItemStack.EMPTY; }
+   public @Nonnull ItemStack quickMoveStack(@Nonnull Player playerIn, int i) { return ItemStack.EMPTY; }
 
    @Override
-   public boolean stillValid(@NotNull Player playerIn) { return true; }
+   public boolean stillValid(@Nonnull Player playerIn) { return true; }
 
 }

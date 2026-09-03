@@ -8,6 +8,7 @@ import java.util.Map;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -83,7 +84,11 @@ public class SPacketPlayerDataGet extends PacketServerBasic {
             PlayerDialogData data = playerdata.dialogData;
             for (int dialogId : data.dialogsRead.keySet()) {
                Dialog dialog = DialogController.instance.dialogs.get(dialogId);
-               if (dialog != null) { map.put(dialog.category.title + ": " + dialog.title, dialogId); }
+               if (dialog != null) {
+                  map.put(dialog.category.title + ": "
+                       + Component.translatable(dialog.title).getString(), dialogId);
+               }
+               else { map.put(Component.translatable("gui.deleted").append("" + dialogId).getString(), dialogId); }
             }
             break;
          }
@@ -91,11 +96,22 @@ public class SPacketPlayerDataGet extends PacketServerBasic {
             PlayerQuestData data = playerdata.questData;
             for (int questId : data.activeQuests.keySet()) {
                Quest quest = QuestController.instance.quests.get(questId);
-               if (quest != null) { map.put(quest.category.title + ": " + quest.title + "(Active quest)", questId); }
+               if (quest != null) {
+                  map.put(quest.category.title + ": "
+                          + Component.translatable(quest.title).getString() + "(Active quest)", questId);
+               }
+               else { map.put(Component.translatable("gui.deleted").append(questId + "(Active quest)").getString(), questId); }
             }
             for (int questId : data.getFinishedQuest()) {
                Quest quest = QuestController.instance.quests.get(questId);
-               if (quest != null) { map.put(quest.category.title + ": " + quest.title + "("+data.getFinishedTime(questId)+")(Finished quest)", questId); }
+               if (quest != null) {
+                  map.put(quest.category.title + ": "
+                       + Component.translatable(quest.title).getString() + "("+data.getFinishedTime(questId)+")(Finished quest)", questId);
+               }
+               else {
+                  map.put(Component.translatable("gui.deleted").append(questId +
+                       "("+data.getFinishedTime(questId)+")(Finished quest)").getString(), questId);
+               }
             }
             break;
          }
@@ -104,6 +120,7 @@ public class SPacketPlayerDataGet extends PacketServerBasic {
             for (int transportId : data.transports) {
                TransportLocation location = TransportController.getInstance().getTransport(transportId);
                if (location != null) { map.put(location.category.title + ": " + location.name, transportId); }
+               else { map.put(Component.translatable("gui.deleted").append(" ID:" + transportId).getString(), transportId); }
             }
             break;
          }
@@ -112,6 +129,7 @@ public class SPacketPlayerDataGet extends PacketServerBasic {
             for (int factionId : data.factionData.keySet()) {
                Faction faction = FactionController.instance.factions.get(factionId);
                if (faction != null) { map.put(faction.name + ";" + data.getFactionPoints(player, factionId), factionId); }
+               else { map.put(Component.translatable("gui.deleted").append("" + factionId).getString(), factionId); }
             }
             break;
          }

@@ -8,7 +8,7 @@ import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(value = Entity.class, priority = 499)
+@Mixin(value = Entity.class, priority = 498)
 public interface IEntityMixin {
 
    @Accessor void setLevel(Level newLevel);

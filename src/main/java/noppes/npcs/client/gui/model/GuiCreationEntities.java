@@ -138,7 +138,6 @@ public class GuiCreationEntities extends GuiCreationScreenInterface implements I
                if (LivingEntity.class.isAssignableFrom(e.getClass()) &&
                        (addVanillaDragon || !EnderDragon.class.isAssignableFrom(e.getClass())))
                { data.put(Component.translatable(ent.getDescriptionId()), ent); }
-               e.discard();
             }
          } catch (Exception ignored) {}
       }

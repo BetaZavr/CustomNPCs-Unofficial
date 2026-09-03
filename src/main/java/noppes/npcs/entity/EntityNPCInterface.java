@@ -566,36 +566,36 @@ public abstract class EntityNPCInterface
 
    @Override
    protected @Nonnull InteractionResult mobInteract(@Nonnull Player player, @Nonnull InteractionHand hand) {
-      if (level().isClientSide) { return isAttacking() ? InteractionResult.FAIL : InteractionResult.PASS; }
+      if (level().isClientSide()) { return isAttacking() ? InteractionResult.FAIL : InteractionResult.PASS; }
       else if (hand != InteractionHand.MAIN_HAND) { return InteractionResult.PASS; }
-      else if (CustomNpcs.EnableInvisibleNpcs && CustomNpcs.InvisibilityAlgorithm == 2 && !display.isVisibleTo(player) && !player.isSpectator() && player.getMainHandItem().getItem() != CustomItems.wand) { return InteractionResult.PASS; }
-      else {
-         ItemStack stack = player.getItemInHand(hand);
-         Item item = stack.getItem();
-         if (item == CustomItems.cloner || item == CustomItems.wand || item == CustomItems.mount || item == CustomItems.scripter) {
-            if (getTarget() != null) { setTarget(null);}
-            setLastHurtByMob(null);
-            return InteractionResult.SUCCESS;
-         }
-         if (item == CustomItems.moving) {
-            if (getTarget() != null) { setTarget(null); }
-            ItemNpcMovingPath.register(this, stack, player);
-            return InteractionResult.SUCCESS;
-         }
-         if (!ais.aiDisabled && EventHooks.onNPCInteract(this, player)) { return InteractionResult.FAIL; }
-         if (!getFaction().isAggressiveToPlayer(player) && !isAttacking()) {
-            addInteract(player);
-            if (animateAi != null && (lookAi == null || !lookAi.fastRotation) && !isClientSide()) { animateAi.playInteractCustomAnimation(); }
-            Dialog dialog = getDialog(player);
-            QuestData data = PlayerData.get(player).questData.getQuestCompletion(player, this);
-            if (data != null) { Packets.send((ServerPlayer)player, new PacketQuestCompletion(data.quest.id)); }
-            else if (dialog != null) { NoppesUtilServer.openDialog(player, this, dialog); }
-            else if (!ais.aiDisabled && role.getType() != 0) { role.interact(player); }
-            else { say(player, advanced.getInteractLine()); }
-            return InteractionResult.PASS;
-         }
-         else { return InteractionResult.FAIL; }
+      else if (CustomNpcs.EnableInvisibleNpcs && CustomNpcs.InvisibilityAlgorithm == 2 &&
+              !display.isVisibleTo(player) && !player.isSpectator() &&
+              player.getItemInHand(hand).getItem() != CustomItems.wand) { return InteractionResult.PASS; }
+      ItemStack stack = player.getItemInHand(hand);
+      Item item = stack.getItem();
+      if (item == CustomItems.cloner || item == CustomItems.wand || item == CustomItems.mount || item == CustomItems.scripter) {
+         if (getTarget() != null) { setTarget(null);}
+         setLastHurtByMob(null);
+         return InteractionResult.SUCCESS;
       }
+      if (item == CustomItems.moving) {
+         if (getTarget() != null) { setTarget(null); }
+         ItemNpcMovingPath.register(this, stack, player);
+         return InteractionResult.SUCCESS;
+      }
+      if (!ais.aiDisabled && EventHooks.onNPCInteract(this, player)) { return InteractionResult.FAIL; }
+      if (!getFaction().isAggressiveToPlayer(player) && !isAttacking()) {
+         addInteract(player);
+         if (animateAi != null && (lookAi == null || !lookAi.fastRotation)) { animateAi.playInteractCustomAnimation(); }
+         Dialog dialog = getDialog(player);
+         QuestData data = PlayerData.get(player).questData.getQuestCompletion(player, this);
+         if (data != null) { Packets.send((ServerPlayer)player, new PacketQuestCompletion(data.quest.id)); }
+         else if (dialog != null) { NoppesUtilServer.openDialog(player, this, dialog); }
+         else if (!ais.aiDisabled && role.getType() != 0) { role.interact(player); }
+         else { say(player, advanced.getInteractLine()); }
+         return InteractionResult.PASS;
+      }
+      else { return InteractionResult.FAIL; }
    }
 
    public void addInteract(LivingEntity entity) {

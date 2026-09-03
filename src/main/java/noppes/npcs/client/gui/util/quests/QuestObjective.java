@@ -16,9 +16,12 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.ForgeRegistries;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
@@ -253,6 +256,18 @@ public class QuestObjective implements IQuestObjective {
         } // Dialog
         else if (type == EnumQuestTask.KILL || type == EnumQuestTask.AREAKILL) {
             text = Component.translatable("entity." + name + ".name");
+            Level level = CustomNpcs.proxy.getOverWorld();
+            if (!entityClass.isEmpty() && level != null) {
+                for (EntityType<?> entry : ForgeRegistries.ENTITY_TYPES.getValues()) {
+                    try {
+                        Entity e = entry.create(level);
+                        if (e != null && e.getClass().getSimpleName().equals(entityClass)) {
+                            text = Component.literal(e.getName().getString());
+                            break;
+                        }
+                    } catch (Exception ignored) {}
+                }
+            }
             if (text.getString().contains("entity.") && text.getString().indexOf(".name") > 0) {
                 text = Component.literal(name);
             }
@@ -331,11 +346,11 @@ public class QuestObjective implements IQuestObjective {
         if (nbtTask.contains("Progress", 3)) { setMaxProgress(nbtTask.getInt("Progress")); }
         if (nbtTask.contains("TargetID", 3)) { setTargetID(nbtTask.getInt("TargetID")); }
         if (nbtTask.contains("TargetName", 8)) {
+            entityClass = nbtTask.getString("EntityClass");
             setTargetName(nbtTask.getString("TargetName"));
             partName = nbtTask.getBoolean("TargetPart");
             andTitle = nbtTask.getBoolean("TargetTitle");
             notShowLogEntity = nbtTask.getBoolean("NotShowLogEntity");
-            entityClass = nbtTask.getString("EntityClass");
         }
         if (nbtTask.contains("Range", 3)) { setAreaRange(nbtTask.getInt("Range")); }
         if (nbtTask.contains("Item", 10)) {
@@ -623,7 +638,21 @@ public class QuestObjective implements IQuestObjective {
     }
 
     @Override
-    public void setTargetName(String nameIn) { name = nameIn == null ? "" : nameIn; }
+    public void setTargetName(String nameIn) {
+        name = nameIn == null ? "" : nameIn;
+        Level level = CustomNpcs.proxy.getOverWorld();
+        if (entityClass.isEmpty() && !name.isEmpty() && level != null) {
+            for (EntityType<?> entry : ForgeRegistries.ENTITY_TYPES.getValues()) {
+                try {
+                    Entity e = entry.create(level);
+                    if (e != null && e.getClass().getSimpleName().equals(name)) {
+                        entityClass = e.getClass().getSimpleName();
+                        break;
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+    }
 
     public void setType(EnumQuestTask typeIn) { type = typeIn; }
 

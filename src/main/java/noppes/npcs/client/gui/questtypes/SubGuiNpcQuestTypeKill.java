@@ -26,7 +26,6 @@ import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.quests.QuestObjective;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.BorderController;
-import noppes.npcs.controllers.DimensionController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketTeleportTo;
@@ -155,6 +154,17 @@ public class SubGuiNpcQuestTypeKill
               .setHoverTexts(hts)
       );
       scroll.setSelected(task.getTargetName());
+      if (!task.getTargetName().isEmpty() && !task.entityClass.isEmpty() && !scroll.hasSelected() && minecraft.level != null) {
+         for (Map.Entry<Component, EntityType<? extends Entity>> entry : types.entrySet()) {
+            try {
+               Entity e = entry.getValue().create(minecraft.level);
+               if (e != null && e.getClass().getSimpleName().equals(task.entityClass)) {
+                  scroll.setSelected(entry.getKey());
+                  break;
+               }
+            } catch (Exception ignored) {}
+         }
+      }
       // exit
       addButton(66, x0, guiTop + imageHeight - 21, "gui.back")
               .setSize(98, 16)
@@ -197,22 +207,15 @@ public class SubGuiNpcQuestTypeKill
       // dim ID
       addLabel(lId++, x0, (y += 17) + 2, "D:")
               .setSize(12, 10);
-      int p = 0;
-      i = 1;
-      dataDimIDs.clear();
-      List<String> dimMap = DimensionController.getLineKeys();
-      Object[] dimIDs = new Object[dimMap.size() + 1];
-      dimIDs[0] = "minecraft:any";
-      dataDimIDs.put(0, new ResourceLocation("minecraft:any"));
-      for (String line : dimMap) {
-         dimIDs[i] = line;
-         dataDimIDs.put(i, new ResourceLocation(line));
-         if (dimIDs[i].equals(task.dimension.toString())) { p = i; }
-         i++;
-      }
+      Object[] dimData = SubGuiNpcQuestTypeItem.setDimensionsTo(task.dimension.toString(), dataDimIDs);
+      int p = (int) dimData[0];
+      Object[] dimIDs = (Object[]) dimData[1];
+      String hover = dimIDs[p].equals("minecraft:any") ?
+              Component.translatable("minecraft:any").getString() :
+              (String) dimIDs[p];
       addButton(4, x0 + 10, y - 1, false, p, dimIDs)
               .setSize(w - 8, 16)
-              .setHoverTexts(Component.translatable("quest.hover.compass.dim", dimIDs[p]).append(compass));
+              .setHoverTexts(Component.translatable("quest.hover.compass.dim", hover).append(compass));
       // region ID
       addLabel(lId++, x0, (y += 17) + 2, "P:")
               .setSize(12, 10);
@@ -340,6 +343,10 @@ public class SubGuiNpcQuestTypeKill
             }
             task.regionID = BorderController.getInstance().getRegionID(task.dimension.toString(), task.pos);
             task.setAreaRange(Math.max(range, 32));
+         }
+         else {
+            task.entityClass = entity.getClass().getSimpleName();
+            getTextField(0).setValue(task.entityClass);
          }
       } // set point of entity
       task.setTargetName(getTextField(0).getValue());

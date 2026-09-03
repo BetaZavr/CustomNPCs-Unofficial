@@ -1454,6 +1454,7 @@
   "gui.region": "Region",
   "gui.regions": "Regions of the world:",
   "gui.remove": "Remove",
+  "gui.deleted": "Deleted",
   "gui.remove.all": "Deleted All",
   "gui.repeat": "Repeat",
   "gui.repeatable": "Repeat",

@@ -106,7 +106,7 @@ public class GuiQuestCompletion extends GuiNPCInterface implements ITopButtonLis
 
    private void drawQuestText(GuiGraphics graphics) {
       for (int i = currentPage * maxLine, j = 0; j < maxLine && i < textBlockClient.lines.size(); ++i, ++j) {
-         graphics.drawString(font, textBlockClient.lines.get(i), guiLeft + 4, guiTop + 16 + j * font.lineHeight, CustomNpcResourceListener.DefaultTextColor);
+         graphics.drawString(font, textBlockClient.lines.get(i), guiLeft + 4, guiTop + 16 + j * font.lineHeight, CustomNpcResourceListener.DefaultTextColor, false);
       }
    }
 

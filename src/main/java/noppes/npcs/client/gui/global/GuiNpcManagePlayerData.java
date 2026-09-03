@@ -336,8 +336,8 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
    public void setData(Vector<String> dataList, Map<String, Integer> dataMap) {
       if (selection == EnumPlayerData.Game) { return; }
       data.clear();
-
       data.putAll(Util.instance.convertStringMap(dataMap));
+
       setCurrentList();
       if (selection == EnumPlayerData.Players && selectedPlayer != null) {
          scroll.setSelected(selectedPlayer);

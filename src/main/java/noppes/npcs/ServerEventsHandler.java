@@ -11,6 +11,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -29,6 +30,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent.StopTracking;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.WrapperEntityData;
 import noppes.npcs.client.gui.util.quests.QuestObjective;
@@ -51,6 +53,7 @@ import noppes.npcs.packets.client.PacketGuiOpen;
 import noppes.npcs.packets.client.PacketMarkData;
 import noppes.npcs.shared.common.CommonUtil;
 import noppes.npcs.util.CustomNPCsScheduler;
+import org.jetbrains.annotations.Nullable;
 
 public class ServerEventsHandler {
 
@@ -60,71 +63,73 @@ public class ServerEventsHandler {
    private void doKillQuest(Player player, LivingEntity entity, boolean forAll) {
       PlayerData pdata = PlayerData.get(player);
       PlayerQuestData playerQuestData = pdata.questData;
-      String entityName = entity.getClass().getSimpleName();
-      if (entity instanceof Player) { entityName = "Player"; }
+      @Nullable ResourceLocation loc = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType());
+      String entityRegName = loc == null ? "" : loc.toString();
+      String entityClass = entity.getClass().getSimpleName();
+      if (entity instanceof Player) { entityClass = "Player"; }
       // found in quests
       for (QuestData questData : new ArrayList<>(playerQuestData.activeQuests.values())) {
          // check quest step
          if (questData.quest.step == 2 && questData.quest.questInterface.isCompleted(player)) { continue; }
          boolean bo = questData.quest.step == 1;
          // found tacks
-         for (QuestObjective questObjective : questData.quest.getObjectives(player)) {
+         for (QuestObjective obj : questData.quest.getObjectives(player)) {
             if (questData.quest.step == 1 && !bo) { break; }
-            bo = questObjective.isCompleted();
-            // dimension
-            if (!questObjective.dimension.toString().equals("minecraft:any") && !player.level().dimension().location().equals(questObjective.dimension)) { continue; }
+            bo = obj.isCompleted();
             // kill only
-            if (questObjective.getEnumType() != EnumQuestTask.KILL && questObjective.getEnumType() != EnumQuestTask.AREAKILL) { continue; }
-            // get real name
-            String objectiveName = null;
-            if (questObjective.getTargetName().equals(entity.getName().getString())) { objectiveName = entity.getName().getString(); } // entity name
-            else if (questObjective.getTargetName().equals(entityName)) { objectiveName = entityName; } // entity type
-            else if (questObjective.isPartName() || questObjective.isAndTitle()) { // part or title -> name
-               if (questObjective.isPartName()) {
-                  if (entity.getName().getString().contains(questObjective.getTargetName())) { objectiveName = questObjective.getTargetName(); } // part in entity name
-                  else if (entityName.contains(questObjective.getTargetName())) { objectiveName = questObjective.getTargetName(); } // part in entity type
+            if (obj.getTargetName().isEmpty() ||
+                    obj.getEnumType() != EnumQuestTask.KILL &&
+                            obj.getEnumType() != EnumQuestTask.AREAKILL) { continue; }
+            // dimension
+            if (!obj.dimension.toString().equals("minecraft:any") && !player.level().dimension().location().equals(obj.dimension)) { continue; }
+            // check target name
+            String objectiveName = obj.getTargetName();
+            boolean next = false;
+            if (objectiveName.equals(entity.getName().getString()) ||
+                    objectiveName.equals(entityRegName) ||
+                    objectiveName.equals(entityClass) ||
+                    (!obj.entityClass.isEmpty() && obj.entityClass.equals(entityClass))) {
+               next = true;
+            }
+            else if (obj.isPartName() || obj.isAndTitle()) {
+               if (obj.isPartName()) {
+                  next = entity.getName().getString().contains(objectiveName) || entityClass.contains(objectiveName);
                }
-               // part in npc title
-               if (objectiveName == null && questObjective.isAndTitle() && entity instanceof EntityNPCInterface npc) {
+               if (!next && obj.isAndTitle() && entity instanceof EntityNPCInterface npc) {
                   String title = npc.display.getTitle();
-                  if (title.equals(questObjective.getTargetName())) { objectiveName = entity.getName().getString(); }
-                  else if (title.equals(entityName)) { objectiveName = entityName; }
-                  if (objectiveName == null && questObjective.isPartName()) {
-                     if (title.contains(questObjective.getTargetName())) { objectiveName = questObjective.getTargetName(); }
-                     else if (title.contains(questObjective.getTargetName())) { objectiveName = questObjective.getTargetName(); }
-                  }
+                  next = title.equals(objectiveName) || title.equals(entityClass);
+                  if (!next && obj.isPartName()) { next = title.contains(objectiveName); }
                }
             }
-            else { continue; }
-            if (objectiveName == null) { continue; }
+            if (!next) { continue; }
             // search players around
-            if (questObjective.getType() == EnumQuestTask.AREAKILL.ordinal() && forAll) {
-               int range = questObjective.getAreaRange();
+            if (obj.getType() == EnumQuestTask.AREAKILL.ordinal() && forAll) {
+               int range = obj.getAreaRange();
                List<Player> list = player.level().getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(range, range, range));
                for (Player pl : list) {
                   if (pl != player && pl.isAlive()) { doKillQuest(pl, entity, false); }
                }
             }
-            HashMap<String, Integer> killed = questObjective.getKilled(questData); // in Data
-            if (killed.containsKey(objectiveName) && killed.get(objectiveName) >= questObjective.getMaxProgress()) { continue; } // is complete
+            HashMap<String, Integer> killed = obj.getKilled(questData); // in Data
+            if (killed.containsKey(objectiveName) && killed.get(objectiveName) >= obj.getMaxProgress()) { continue; } // is complete
             // add progress
             int amount = 0;
             if (killed.containsKey(objectiveName)) { amount = killed.get(objectiveName); }
             amount++;
             killed.put(objectiveName, amount);
-            questObjective.setKilled(questData, killed);
+            obj.setKilled(questData, killed);
             // sends message to player
             if (questData.quest.showProgressInWindow) {
                CompoundTag compound = new CompoundTag();
                compound.putInt("QuestID", questData.quest.id);
                compound.putString("Type", "kill");
-               compound.putIntArray("Progress", new int[] { amount, questObjective.getMaxProgress() });
+               compound.putIntArray("Progress", new int[] { amount, obj.getMaxProgress() });
                compound.putString("TargetName", Component.translatable("script.killed").getString() + ": \"" + entity.getName().getString() + "\"");
                Packets.send((ServerPlayer) player, new PacketAchievement(Component.empty(), Component.empty(), 0, compound));
             }
             if (questData.quest.showProgressInChat) {
-               if (amount >= questObjective.getMaxProgress()) { player.sendSystemMessage(Component.translatable("quest.message.kill.1", entity.getName().getString(), questData.quest.getTitle().getString())); }
-               else { player.sendSystemMessage(Component.translatable("quest.message.kill.0", entity.getName().getString(), "" + amount, "" + questObjective.getMaxProgress(), questData.quest.getTitle().getString())); }
+               if (amount >= obj.getMaxProgress()) { player.sendSystemMessage(Component.translatable("quest.message.kill.1", entity.getName().getString(), questData.quest.getTitle().getString())); }
+               else { player.sendSystemMessage(Component.translatable("quest.message.kill.0", entity.getName().getString(), "" + amount, "" + obj.getMaxProgress(), questData.quest.getTitle().getString())); }
             }
             playerQuestData.checkQuestCompletion(player, questData);
             playerQuestData.updateClient = true;

@@ -494,7 +494,7 @@ public class GuiLog
                }
                offset = (type == 1);
                matrixStack.translate(33.0f, 0.0f, offset ? 1.0f : 0.0f);
-               hover = isMouseHover(mouseX, mouseY, guiLeft + 43, guiTop, 28, 30);
+               hover = isMouseHover(mouseX, mouseY, guiLeft + 43, guiTop - 30, 28, 30);
                break;
             }
             case 2: {

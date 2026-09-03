@@ -25,7 +25,6 @@ import noppes.npcs.client.gui.util.quests.QuestObjective;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.DialogController;
-import noppes.npcs.controllers.DimensionController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketDimensionsGet;
@@ -121,22 +120,15 @@ public class SubGuiNpcQuestTypeDialog
       // dim ID
       addLabel(lId++, x, (y += 18) + 2, "D:")
               .setSize(12, 10);
-      int p = 0;
-      int i = 1;
-      dataDimIDs.clear();
-      List<String> dimMap = DimensionController.getLineKeys();
-      Object[] dimIDs = new Object[dimMap.size() + 1];
-      dimIDs[0] = "minecraft:any";
-      dataDimIDs.put(0, new ResourceLocation("minecraft:any"));
-      for (String line : dimMap) {
-         dimIDs[i] = line;
-         dataDimIDs.put(i, new ResourceLocation(line));
-         if (dimIDs[i].equals(task.dimension.toString())) { p = i; }
-         i++;
-      }
+      Object[] dimData = SubGuiNpcQuestTypeItem.setDimensionsTo(task.dimension.toString(), dataDimIDs);
+      int p = (int) dimData[0];
+      Object[] dimIDs = (Object[]) dimData[1];
+      String hover = dimIDs[p].equals("minecraft:any") ?
+              Component.translatable("minecraft:any").getString() :
+              (String) dimIDs[p];
       addButton(4, x + 9, y - 1, false, p, dimIDs)
               .setSize(180, 16)
-              .setHoverTexts(Component.translatable("quest.hover.compass.dim", dimIDs[p]).append(compass));
+              .setHoverTexts(Component.translatable("quest.hover.compass.dim", hover).append(compass));
       // region ID
       addLabel(lId++, x, (y += 17) + 2, "P:")
               .setSize(12, 10);
