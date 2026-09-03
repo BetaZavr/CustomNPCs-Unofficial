@@ -92,7 +92,7 @@ public class PlayerQuestData implements IPlayerData {
 	public QuestData getQuestCompletion(EntityPlayer player, EntityNPCInterface npc) {
 		for (QuestData data : activeQuests.values()) {
 			Quest quest = data.quest;
-			if (quest != null && quest.completion == EnumQuestCompletion.Npc && quest.completer.getName().equals(npc.getName()) && quest.questInterface.isCompleted(player)) {
+			if (quest != null && quest.completion == EnumQuestCompletion.Npc && quest.completer.isNpc(npc) && quest.questInterface.isCompleted(player)) {
 				return data;
 			}
 		}

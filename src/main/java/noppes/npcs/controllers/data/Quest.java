@@ -296,7 +296,7 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
 	}
 
 	@Override
-	public IQuestObjective[] getObjectives(IPlayer<?> player) {
+	public QuestObjective[] getObjectives(IPlayer<?> player) {
 		if (player == null) { throw new CustomNPCsException("Player is NULL"); }
 		if (!player.hasActiveQuest(id)) { throw new CustomNPCsException("Player doesnt have this quest active"); }
 		return questInterface.getObjectives(player.getMCEntity());

@@ -12,7 +12,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CustomNPCsException;
@@ -245,6 +249,15 @@ public class QuestObjective implements IQuestObjective {
 		} // Dialog
 		else if (type == EnumQuestTask.KILL || type == EnumQuestTask.AREAKILL) {
 			text = Component.translatable("entity." + name + ".name");
+			World world = CustomNpcs.proxy.getOverWorld();
+			if (!entityClass.isEmpty() && world != null) {
+				for (EntityEntry entry : ForgeRegistries.ENTITIES.getValuesCollection()) {
+					if (entry.getEntityClass().getSimpleName().equals(name)) {
+						text = Component.literal(entry.newInstance(world).getName());
+						break;
+					}
+				}
+			}
 			if (text.getFormattedText().contains("entity.") && text.getFormattedText().indexOf(".name") > 0) {
 				text = Component.literal(name);
 			}
@@ -321,11 +334,11 @@ public class QuestObjective implements IQuestObjective {
 		if (nbtTask.hasKey("Progress", 3)) { setMaxProgress(nbtTask.getInteger("Progress")); }
 		if (nbtTask.hasKey("TargetID", 3)) { setTargetID(nbtTask.getInteger("TargetID")); }
 		if (nbtTask.hasKey("TargetName", 8)) {
+			entityClass = nbtTask.getString("EntityClass");
 			setTargetName(nbtTask.getString("TargetName"));
 			partName = nbtTask.getBoolean("TargetPart");
 			andTitle = nbtTask.getBoolean("TargetTitle");
 			notShowLogEntity = nbtTask.getBoolean("NotShowLogEntity");
-			entityClass = nbtTask.getString("EntityClass");
 		}
 		if (nbtTask.hasKey("Range", 3)) { setAreaRange(nbtTask.getInteger("Range")); }
 		if (nbtTask.hasKey("Item", 10)) {
@@ -601,7 +614,17 @@ public class QuestObjective implements IQuestObjective {
 	}
 
 	@Override
-	public void setTargetName(String nameIn) { name = nameIn == null ? "" : nameIn; }
+	public void setTargetName(String nameIn) {
+		name = nameIn == null ? "" : nameIn;
+		if (entityClass.isEmpty() && !name.isEmpty()) {
+			for (EntityEntry entry : ForgeRegistries.ENTITIES.getValuesCollection()) {
+				if (entry.getEntityClass().getSimpleName().equals(name)) {
+					entityClass = entry.getEntityClass().getSimpleName();
+					break;
+				}
+			}
+		}
+	}
 
 	public void setType(EnumQuestTask typeIn) { type = typeIn; }
 

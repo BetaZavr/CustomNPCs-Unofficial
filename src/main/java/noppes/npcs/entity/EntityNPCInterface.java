@@ -98,14 +98,12 @@ import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.event.NpcEvent;
-import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.api.util.IRayTraceResults;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NPCWrapper;
-import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.api.wrapper.data.DataBlock;
 import noppes.npcs.client.EntityUtil;
 import noppes.npcs.client.SkinUtil;
@@ -1539,48 +1537,39 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	@Override
+	@SuppressWarnings("ConstantConditions")
 	public boolean processInteract(@Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
-		if (hand != EnumHand.MAIN_HAND) { return true; }
-		ItemStack stack = player.getHeldItem(hand);
-        Item item = stack.getItem();
-		if (!isServerWorld()) { return item == CustomItems.moving || item instanceof INPCToolItem || !isAttacking(); }
+		if (world.isRemote) { return !isAttacking(); }
+		else if (hand != EnumHand.MAIN_HAND) { return false; }
+		else if (CustomNpcs.EnableInvisibleNpcs && CustomNpcs.InvisibilityAlgorithm == 2 &&
+				!display.isVisibleTo((EntityPlayerMP) player) && !player.isSpectator() &&
+				player.getHeldItem(hand).getItem() != CustomItems.wand) { return false; }
 
-        if (item == CustomItems.moving) {
-            setAttackTarget(null);
+		ItemStack stack = player.getHeldItem(hand);
+		Item item = stack.getItem();
+		if (item == CustomItems.cloner || item == CustomItems.wand || item == CustomItems.mount || item == CustomItems.scripter) {
+			if (getAttackTarget() != null) { setAttackTarget(null);}
+			setLastAttackedEntity(null);
+			return true;
+		}
+		if (item == CustomItems.moving) {
+			if (getAttackTarget() != null) { setAttackTarget(null);}
 			ItemNpcMovingPath.register(this, stack, player);
-            return true;
-        }
-		else if (item instanceof INPCToolItem) {
-            setAttackTarget(null);
-            setRevengeTarget(null);
-			if (item == CustomItems.wand && player instanceof EntityPlayerMP
-					&& (!CustomNpcs.OpsOnly || Objects.requireNonNull(player.getServer()).getPlayerList().canSendCommands(player.getGameProfile()))
-					&& CustomNpcsPermissions.hasPermission((EntityPlayerMP) player, CustomNpcsPermissions.NPC_GUI)) {
-				NoppesUtilServer.sendOpenGui((EntityPlayerMP) player, EnumGuiType.MainMenuDisplay, this);
-			}
-            return true;
-        }
-        if (!ais.aiDisabled && EventHooks.onNPCInteract(this, player)) { return false; }
-		if (getFaction().isAggressiveToPlayer(player)) {
-			if (!isAttacking()) { setAttackTarget(player); }
-			return !isAttacking();
+			return true;
 		}
-		addInteract(player);
-		if (animateAi != null && (lookAi == null || !lookAi.fastRotation)) { animateAi.playInteractCustomAnimation(); }
-		Dialog dialog = getDialog(player);
-		PlayerData pd = PlayerData.get(player);
-		if (!faction.getIsHidden() && !pd.factionData.factionData.containsKey(faction.id)) {
-			PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent((PlayerWrapper<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player), faction, faction.defaultPoints, true);
-			EventHooks.onPlayerFactionChange(pd.scriptData, event);
-			pd.factionData.factionData.put(faction.id, event.points);
+		if (!ais.aiDisabled && EventHooks.onNPCInteract(this, player)) { return false; }
+		if (!getFaction().isAggressiveToPlayer(player) && !isAttacking()) {
+			addInteract(player);
+			if (animateAi != null && (lookAi == null || !lookAi.fastRotation)) { animateAi.playInteractCustomAnimation(); }
+			Dialog dialog = getDialog(player);
+			QuestData data = PlayerData.get(player).questData.getQuestCompletion(player, this);
+			if (data != null) { Packets.send((EntityPlayerMP)player, new PacketQuestCompletion(data.quest.id)); }
+			else if (dialog != null) { NoppesUtilServer.openDialog(player, this, dialog); }
+			else if (!ais.aiDisabled && role.getType() != 0) { role.interact(player); }
+			else { say(player, advanced.getInteractLine()); }
 		}
-		QuestData data = pd.questData.getQuestCompletion(player, this);
-		if (data != null) { Packets.send((EntityPlayerMP) player, new PacketQuestCompletion(data.quest.id)); }
-		else if (dialog != null) { NoppesUtilServer.openDialog(player, this, dialog); }
-		else if (!ais.aiDisabled && role.getType() > 0) { role.interact(player); }
-		else { say(player, advanced.getInteractLine()); }
-		return true;
-	}
+		return false;
+    }
 
 	@Override
 	public void readEntityFromNBT(@Nonnull NBTTagCompound compound) {

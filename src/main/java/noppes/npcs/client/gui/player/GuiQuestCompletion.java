@@ -104,7 +104,7 @@ public class GuiQuestCompletion extends GuiNPCInterface {
 	private void drawQuestText() {
 		for (int i = currentPage * maxLine, j = 0; j < maxLine && i < textBlockClient.lines.size(); ++i, ++j) {
 			fontRenderer.drawString(textBlockClient.lines.get(i).getFormattedText(),
-					guiLeft + 4, guiTop + 16 + j * fontRenderer.FONT_HEIGHT, CustomNpcResourceListener.DefaultTextColor);
+					guiLeft + 4, guiTop + 16 + j * fontRenderer.FONT_HEIGHT, CustomNpcResourceListener.DefaultTextColor, false);
 		}
 	}
 

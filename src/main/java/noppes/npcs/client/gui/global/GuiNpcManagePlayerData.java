@@ -52,7 +52,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 	public GuiNpcManagePlayerData(EntityNPCInterface npc) {
 		super(npc);
 		backGui = EnumGuiType.MainMenuGlobal;
-		Packets.sendServer(new SPacketPlayerDataGet(selection, selectedPlayer.getFormattedText()));
+		Packets.sendServer(new SPacketPlayerDataGet(selection, selectedPlayer.getString()));
 	}
 
 	@Override
@@ -249,7 +249,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 			data.clear();
 			selected = Component.empty();
 			initButtons();
-			Packets.sendServer(new SPacketPlayerDataGet(selection, selectedPlayer.getFormattedText()));
+			Packets.sendServer(new SPacketPlayerDataGet(selection, selectedPlayer.getString()));
 		}
 		else if (button.id == 7) {
 			String mes = Component.translatable("data.hover.wipe").getFormattedText().replace("<br>", "" + (char) 10);
@@ -540,6 +540,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 				Map<String, Component> mapH = new LinkedHashMap<>();
 				for (Component str : data.keySet()) {
 					String line = str.getFormattedText();
+					if (line.endsWith((char) 167 + "r")) { line = line.substring(0, line.length() - 2); }
 					String cat = line.substring(0, line.indexOf(": "));
 					String name = line.substring(line.indexOf(": ") + 2);
 					Map<String, Map<Integer, String>> map;

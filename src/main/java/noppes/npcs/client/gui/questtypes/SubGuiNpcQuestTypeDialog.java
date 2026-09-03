@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.DimensionManager;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.gui.IDimensionGetter;
 import noppes.npcs.api.handler.data.IDialog;
@@ -116,21 +115,15 @@ public class SubGuiNpcQuestTypeDialog
 		// dim ID
 		addLabel(lId++, x, (y += 18) + 2, "D:")
 				.setSize(12, 10);
-		int p = 0;
-		int i = 0;
-		List<Integer> ids = Arrays.asList(DimensionManager.getStaticDimensionIDs());
-		Collections.sort(ids);
-		Object[] dimIDs = new Object[ids.size()];
-		dataDimIDs.clear();
-		for (int id : ids) {
-			dimIDs[i] = id + "";
-			dataDimIDs.put(i, id);
-			if (id == task.dimension) { p = i; }
-			i++;
-		}
+		Object[] dimData = SubGuiNpcQuestTypeItem.setDimensionsTo(task.dimension, dataDimIDs);
+		int p = (int) dimData[0];
+		Object[] dimIDs = (Object[]) dimData[1];
+		String hover = dimIDs[p].equals("-2") ?
+				Component.translatable("minecraft:any").getString() :
+				(String) dimIDs[p];
 		addButton(4, x + 9, y - 1, false, p, dimIDs)
 				.setSize(180, 16)
-				.setHoverTexts(Component.translatable("quest.hover.compass.dim", dimIDs[p]).append(compass));
+				.setHoverTexts(Component.translatable("quest.hover.compass.dim", hover).append(compass));
 		// region ID
 		addLabel(lId++, x, (y += 17) + 2, "P:")
 				.setSize(12, 10);

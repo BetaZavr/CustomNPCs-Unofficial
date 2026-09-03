@@ -12,7 +12,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import noppes.npcs.api.IPos;
-import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.client.gui.model.GuiCreationEntities;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.util.quests.QuestObjective;
@@ -58,19 +57,19 @@ public class QuestInfo {
             preLines.add(Component.translatable("quest.completewith", qData.quest.completer.getName()).getFormattedText());
         }
         // all objectives
-        IQuestObjective[] allObj = qData.quest.getObjectives(player);
+        QuestObjective[] allObj = qData.quest.getObjectives(player);
         if (allObj.length > 0) {
             preLines.add("");
             preLines.add(TextFormatting.BOLD + Component.translatable("quest.objectives." + qData.quest.step).getFormattedText());
             String line;
             for (int i = 0; i < allObj.length; i++) {
                 line = (i + 1) + "-";
-                if (((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.ITEM || ((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.CRAFT) {
-                    stacks.add(((QuestObjective) allObj[i]).getItemStack());
+                if (allObj[i].getEnumType() == EnumQuestTask.ITEM || allObj[i].getEnumType() == EnumQuestTask.CRAFT) {
+                    stacks.add(allObj[i].getItemStack());
                     line += " " + ((char) 0xffff) + " ";
                 }
-                else if (((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.KILL ||
-                        ((QuestObjective) allObj[i]).getEnumType() == EnumQuestTask.AREAKILL) {
+                else if (allObj[i].getEnumType() == EnumQuestTask.KILL ||
+                        allObj[i].getEnumType() == EnumQuestTask.AREAKILL) {
                     line += " " + ((char) 0xfffe) + " ";
                     if (allObj[i].isNotShowLogEntity()) { entitys.put(entitys.size(), null); }
                     else {
@@ -88,7 +87,8 @@ public class QuestInfo {
                                 }
                                 catch (Exception ignored) { }
                                 for (Entity en : list) {
-                                    if (en.getName().equals(target)) {
+                                    if (en.getName().equals(target) ||
+                                            en.getClass().getSimpleName().equals(allObj[i].entityClass)) {
                                         NBTTagCompound compound = new NBTTagCompound();
                                         en.writeToNBTAtomically(compound);
                                         Entity e = EntityList.createEntityFromNBT(compound, world);
@@ -102,7 +102,8 @@ public class QuestInfo {
                         } // found in dimension
                         if (entity == null) {
                             for (Map.Entry<Component, EntityEntry> entry : GuiCreationEntities.getAllEntities(true).entrySet()) {
-                                if (entry.getKey().getString().equals(target)) {
+                                if (entry.getKey().getString().equals(target) ||
+                                        entry.getValue().getEntityClass().getSimpleName().equals(allObj[i].entityClass)) {
                                     entity = entry.getValue().newInstance(world);
                                     break;
                                 }

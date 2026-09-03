@@ -27,15 +27,35 @@ import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.components.*;
 import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
 
+import javax.annotation.Nonnull;
+
 public class SubGuiNpcQuestTypeItem
 		extends GuiContainerNPCInterface<ContainerNpcQuestTypeItem>
 		implements ITextfieldListener {
 
 	public static GuiScreen parent;
 	protected final Map<Integer, Integer> dataDimIDs = new HashMap<>();
-	protected final QuestObjective task;
+	protected final @Nonnull QuestObjective task;
 	protected final Slot slot;
 	protected GuiCustomScrollNop scroll;
+
+	public static Object[] setDimensionsTo(int currentDim, Map<Integer, Integer> dataDimIDs) {
+		int p = 0;
+		int i = 1;
+		dataDimIDs.clear();
+		List<Integer> ids = Arrays.asList(DimensionManager.getStaticDimensionIDs());
+		Collections.sort(ids);
+		Object[] dimIDs = new Object[ids.size() + 1];
+		dimIDs[0] = "-2";
+		dataDimIDs.put(0, -2);
+		for (int id : ids) {
+			dimIDs[i] = id + "";
+			dataDimIDs.put(i, id);
+			if (id == currentDim) { p = i; }
+			i++;
+		}
+		return new Object[] { p, dimIDs };
+	}
 
 	public SubGuiNpcQuestTypeItem(ContainerNpcQuestTypeItem container) {
 		super(NoppesUtilServer.getEditingNpc(Minecraft.getMinecraft().player), container, Component.empty());
@@ -58,44 +78,44 @@ public class SubGuiNpcQuestTypeItem
 		// take items
 		addLabel(lId++, x0, y + 2, "quest.takeitems")
 				.setSize(113, 10);
-		addYesNo(0, x1, y, task != null && task.isItemLeave())
+		addYesNo(0, x1, y, task.isItemLeave())
 				.setSize(50, 14)
 				.setHoverTexts("quest.hover.edit.item.leave");
 		// ignore damage
 		addLabel(lId++, x0, (y += 15) + 2, "gui.ignoreDamage")
 				.setSize(113, 10);
-		addYesNo(1, x1, y, task == null || task.isIgnoreDamage())
+		addYesNo(1, x1, y, task.isIgnoreDamage())
 				.setSize(50, 14)
 				.setHoverTexts("quest.hover.edit.item.ign.dam");
 		// ignore nbt
 		addLabel(lId++, x0, (y += 15) + 2, "gui.ignoreNBT")
 				.setSize(113, 10);
-		addYesNo(2, x1, y, task == null || task.isItemIgnoreNBT())
+		addYesNo(2, x1, y, task.isItemIgnoreNBT())
 				.setSize(50, 14)
 				.setHoverTexts("quest.hover.edit.item.ign.nbt");
 		// item amount
 		addLabel(lId++, x0, (y += 15) + 2, "quest.itemamount")
 				.setSize(113, 10);
-		addTextField(1, x1 + 1, y + 1, 48, 12, task != null ? task.getMaxProgress() : 0)
+		addTextField(1, x1 + 1, y + 1, 48, 12, task.getMaxProgress())
 				.setMinMaxDefault(0, 576, 1).setHoverTexts("quest.hover.edit.item.max", "576");
 		// X
 		Component compass = Component.translatable("quest.hover.compass");
 		addLabel(lId++, x0, (y += 16) + 2, "X:")
 				.setSize(12, 10);
-		addTextField(10, x0 + 10, y, 38, 12, task != null ? task.pos.getX() : 0)
-				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, task != null ? task.pos.getX() : 0)
+		addTextField(10, x0 + 10, y, 38, 12, task.pos.getX())
+				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, task.pos.getX())
 				.setHoverTexts(Component.translatable("quest.hover.compass.pos", "X").append(compass));
 		// Y
 		addLabel(lId++, x0 + 50, y + 2, "Y:")
 				.setSize(12, 10);
-		addTextField(11, x0 + 60, y, 38, 12, task != null ? task.pos.getY() : 0)
-				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, task != null ? task.pos.getY() : 0)
+		addTextField(11, x0 + 60, y, 38, 12, task.pos.getY())
+				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, task.pos.getY())
 				.setHoverTexts(Component.translatable("quest.hover.compass.pos", "Y").append(compass));
 		// Z
 		addLabel(lId++, x0 + 100, y + 2, "Z:")
 				.setSize(12, 10);
-		addTextField(12, x0 + 110, y, 38, 12, task != null ? task.pos.getZ() : 0)
-				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, task != null ? task.pos.getZ() : 0)
+		addTextField(12, x0 + 110, y, 38, 12, task.pos.getZ())
+				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, task.pos.getZ())
 				.setHoverTexts(Component.translatable("quest.hover.compass.pos", "Z").append(compass));
 		// tp
 		addButton(11, x0 + 150, y - 1, "tp")
@@ -104,13 +124,13 @@ public class SubGuiNpcQuestTypeItem
 		// R
 		addLabel(lId++, x0, (y += 14) + 2, "R:")
 				.setSize(12, 10);
-		addTextField(14, x0 + 10, y, 25, 12, task != null ? task.rangeCompass : 0)
-				.setMinMaxDefault(0, 64, task != null ? task.rangeCompass : 0)
+		addTextField(14, x0 + 10, y, 25, 12, task.rangeCompass)
+				.setMinMaxDefault(0, 64, task.rangeCompass)
 				.setHoverTexts(Component.translatable("quest.hover.compass.range").append(compass));
 		// N
 		addLabel(lId++, x0 + 37, y + 2, "N:")
 				.setSize(12, 10);
-		addTextField(15, x0 + 47, y, 101, 12, task != null ? task.compassEntityName : "")
+		addTextField(15, x0 + 47, y, 101, 12, task.compassEntityName)
 				.setHoverTexts(Component.translatable("quest.hover.compass.entity").append(compass));
 		addButton(9, x0 + 150, y - 1, "")
 				.setSize(14, 14)
@@ -118,31 +138,25 @@ public class SubGuiNpcQuestTypeItem
 				.setTexture(GuiBasic.ANIMATION_BUTTONS)
 				.setUV(220, 96, 36, 36)
 				.setHoverTexts("color.hover")
-				.layerColor = task != null ? task.colorCompass | 0xFF000000 : -1;
+				.layerColor = task.colorCompass | 0xFF000000;
 		// dim ID
 		addLabel(lId++, x0 + 21, (y += 16) + 2, "D:")
 				.setSize(12, 10);
-		int p = 0;
-		int i = 0;
-		List<Integer> ids = Arrays.asList(DimensionManager.getStaticDimensionIDs());
-		Collections.sort(ids);
-		Object[] dimIDs = new Object[ids.size()];
-		dataDimIDs.clear();
-		for (int id : ids) {
-			dimIDs[i] = id + "";
-			dataDimIDs.put(i, id);
-			if (task != null && id == task.dimension) { p = i; }
-			i++;
-		}
+		Object[] dimData = SubGuiNpcQuestTypeItem.setDimensionsTo(task.dimension, dataDimIDs);
+		int p = (int) dimData[0];
+		Object[] dimIDs = (Object[]) dimData[1];
+		String hover = dimIDs[p].equals("-2") ?
+				Component.translatable("minecraft:any").getString() :
+				(String) dimIDs[p];
 		addButton(4, x0 + 29, y - 1, false, p, dimIDs)
 				.setSize(74, 16)
-				.setHoverTexts(Component.translatable("quest.hover.compass.dim", dimIDs[p]).append(compass));
+				.setHoverTexts(Component.translatable("quest.hover.compass.dim", hover).append(compass));
 		// region ID
 		addLabel(lId, x0 + 105, y + 2, "P:")
 				.setSize(12, 10);
-		addTextField(9, x0 + 115, y, 30, 14, task != null ? task.regionID : "")
-				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, task != null ? task.regionID : 0)
-				.setHoverTexts(Component.translatable("quest.hover.compass.reg", task != null ? task.regionID : 0).append(compass));
+		addTextField(9, x0 + 115, y, 30, 14, task.regionID)
+				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, task.regionID)
+				.setHoverTexts(Component.translatable("quest.hover.compass.reg", task.regionID).append(compass));
 		// set player pos
 		addButton(10, x0 + 147, y - 1, "S")
 				.setSize(16, 16)
@@ -152,14 +166,13 @@ public class SubGuiNpcQuestTypeItem
 				.setSize(40, 20)
 				.setHoverTexts("hover.back");
 		// mini map point
-		addCheckBox(5, x0 + 42, y + 2, "quest.set.minimap.point", null, task != null && task.isSetPointOnMiniMap())
+		addCheckBox(5, x0 + 42, y + 2, "quest.set.minimap.point", null, task.isSetPointOnMiniMap())
 				.setSize(xSize - 52, 16)
 				.setHoverTexts("quest.hover.set.minimap.point");
 	}
 
 	@Override
 	public void buttonEvent(GuiButtonNop button) {
-		if (task == null) { return; }
 		switch (button.id) {
 			case 0: task.setItemLeave(button.getValue() == 0); break;
 			case 1: task.setItemIgnoreDamage(((GuiButtonYesNo) button).getBoolean()); break;
@@ -216,7 +229,6 @@ public class SubGuiNpcQuestTypeItem
 	}
 
 	public void unFocused(GuiTextFieldNop textField) {
-		if (task == null) { return; }
 		switch (textField.id) {
 			case 1: task.setMaxProgress(textField.getInteger()); break;
 			case 2: task.setAreaRange(textField.getInteger()); break;

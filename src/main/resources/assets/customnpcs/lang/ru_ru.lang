@@ -1479,6 +1479,7 @@ gui.recipebook.availability.3=§7Удерживайте§a Shift§7, чтобы 
 gui.region=Регион
 gui.regions=Регионы мира:
 gui.remove=Удалить
+gui.deleted=Удалено
 gui.remove.all=Удал. всё
 gui.repeat=Повторить
 gui.repeatable=Повторять

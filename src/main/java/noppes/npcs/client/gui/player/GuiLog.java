@@ -354,29 +354,31 @@ public class GuiLog extends GuiNPCInterface
 				return true;
 			} // inventory
 			case 1: {
-				if (type == 1) { return false; }
-				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-				setNextTick(15, false);
-				toPrePage = false;
-				step = type + 7;
-				page = 0;
-				type = 1;
-				Packets.sendServer(new SPacketPlayerFactionsGet());
-				initGui();
+				if (type != 1) {
+					mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+					setNextTick(15, false);
+					toPrePage = false;
+					step = type + 7;
+					page = 0;
+					type = 1;
+					Packets.sendServer(new SPacketPlayerFactionsGet());
+					initGui();
+				}
 				return true;
 			} // factions
 			case 2: {
-				if (type == 1) { return false; }
-				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-				setNextTick(15, false);
-				toPrePage = type == 1;
-				step = type + 7;
-				catRow = 0;
-				catSelect = 0;
-				page = 0;
-				activeQuest = null;
-				type = 0;
-				initGui();
+				if (type != 0) {
+					mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+					setNextTick(15, false);
+					toPrePage = type == 1;
+					step = type + 7;
+					catRow = 0;
+					catSelect = 0;
+					page = 0;
+					activeQuest = null;
+					type = 0;
+					initGui();
+				}
 				return true;
 			} // quests
 			case 3: {

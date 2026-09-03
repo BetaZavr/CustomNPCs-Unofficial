@@ -10,7 +10,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.gui.IDimensionGetter;
@@ -154,7 +153,17 @@ public class SubGuiNpcQuestTypeKill
 				.setUnsortedList(list)
 				.setHoverTexts(hts)
 		);
-		scroll.setSelected(task.getTargetName());
+		if (!task.getTargetName().isEmpty() && !task.entityClass.isEmpty() && !scroll.hasSelected()) {
+			for (Map.Entry<Component, EntityEntry> entry : types.entrySet()) {
+				try {
+					Class<? extends Entity> cl = entry.getValue().getEntityClass();
+					if (cl.getSimpleName().equals(task.entityClass)) {
+						scroll.setSelected(entry.getKey());
+						break;
+					}
+				} catch (Exception ignored) {}
+			}
+		}
 		// exit
 		addButton(66, x0, guiTop + imageHeight - 21, "gui.back")
 				.setSize(98, 16)
@@ -197,21 +206,15 @@ public class SubGuiNpcQuestTypeKill
 		// dim ID
 		addLabel(lId++, x0, (y += 17) + 2, "D:")
 				.setSize(12, 10);
-		int p = 0;
-		i = 0;
-		List<Integer> ids = Arrays.asList(DimensionManager.getStaticDimensionIDs());
-		Collections.sort(ids);
-		Object[] dimIDs = new Object[ids.size()];
-		dataDimIDs.clear();
-		for (int id : ids) {
-			dimIDs[i] = id + "";
-			dataDimIDs.put(i, id);
-			if (id == task.dimension) { p = i; }
-			i++;
-		}
+		Object[] dimData = SubGuiNpcQuestTypeItem.setDimensionsTo(task.dimension, dataDimIDs);
+		int p = (int) dimData[0];
+		Object[] dimIDs = (Object[]) dimData[1];
+		String hover = dimIDs[p].equals("-2") ?
+				Component.translatable("minecraft:any").getString() :
+				(String) dimIDs[p];
 		addButton(4, x0 + 10, y - 1, false, p, dimIDs)
 				.setSize(w - 8, 16)
-				.setHoverTexts(Component.translatable("quest.hover.compass.dim", dimIDs[p]).append(compass));
+				.setHoverTexts(Component.translatable("quest.hover.compass.dim", hover).append(compass));
 		// region ID
 		addLabel(lId++, x0, (y += 17) + 2, "P:")
 				.setSize(12, 10);
@@ -309,7 +312,6 @@ public class SubGuiNpcQuestTypeKill
 		task.setAreaRange(5);
 		if (dataEntities.containsKey(scroll.getNormalSelected())) {
 			Entity entity = dataEntities.get(scroll.getNormalSelected());
-			task.entityClass = entity.getClass().getSimpleName();
 			if (!entity.getPosition().equals(BlockPos.ORIGIN)) {
 				task.dimension = entity.world.provider.getDimension();
 				task.pos = entity.getPosition();
@@ -341,6 +343,10 @@ public class SubGuiNpcQuestTypeKill
 				}
 				task.regionID = BorderController.getInstance().getRegionID(task.dimension, task.pos);
 				task.setAreaRange(Math.max(range, 32));
+			}
+			else {
+				task.entityClass = entity.getClass().getSimpleName();
+				getTextField(0).setValue(task.entityClass);
 			}
 		} // set point of entity
 		task.setTargetName(getTextField(0).getValue());

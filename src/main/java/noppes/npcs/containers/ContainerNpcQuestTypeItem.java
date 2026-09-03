@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 public class ContainerNpcQuestTypeItem extends Container {
 
 	public final int slotID;
-	public final QuestObjective task;
+	public final @Nonnull QuestObjective task;
 	public final Slot slot;
 
 	public ContainerNpcQuestTypeItem(EntityPlayer player, int slotIDIn) { // Change
