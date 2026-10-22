@@ -137,6 +137,8 @@ public class CustomNpcs {
 	public static boolean SoulStoneAnimals = true;
 	@ConfigProp(info = "Normal players can use soulstone on all npcs", def = "false")
 	public static boolean SoulStoneNPCs = false;
+	@ConfigProp(info = "Maximum stack size of filled soulstones. Stones stack only when the stored entities are identical", def = "1", min = "1", max = "64")
+	public static int SoulStoneFilledStackSize = 1;
 	@ConfigProp(info = "Show Debug", def = "false")
 	public static boolean VerboseDebug = false;
 	@ConfigProp(info = "Enables Vine Growth", def = "true")

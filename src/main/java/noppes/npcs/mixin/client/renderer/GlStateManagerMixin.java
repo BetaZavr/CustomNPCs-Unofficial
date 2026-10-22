@@ -13,4 +13,10 @@ public class GlStateManagerMixin {
     @Inject(method = "deleteTexture", at = @At("HEAD"))
     private static void npcs$deleteTexture(int texture, CallbackInfo ci) { GlCache.forget(texture); }
 
+    @Inject(method = "bindTexture", at = @At("HEAD"))
+    private static void npcs$bindTexture(int texture, CallbackInfo ci) { GlCache.onBind(texture); }
+
+    @Inject(method = "setActiveTexture", at = @At("HEAD"))
+    private static void npcs$setActiveTexture(int texture, CallbackInfo ci) { GlCache.onActiveTexture(texture); }
+
 }
