@@ -111,13 +111,13 @@ public class NoppesStringUtils {
 	@SuppressWarnings("unused")
 	public static String cleanResource(String s) {
 		if (CustomNpcs.FastNpcLayers && isCleanResource(s)) { return s; }
-		return s.toLowerCase().replaceAll("[^a-z0-9_.\\-/:]", "");
+		return s.toLowerCase().replaceAll("[^a-z0-9_.\\-/: ()]", "");
 	}
 
 	private static boolean isCleanResource(String s) {
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
-			if (!(c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '_' || c == '.' || c == '-' || c == '/' || c == ':')) { return false; }
+			if (!(c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '_' || c == '.' || c == '-' || c == '/' || c == ':' || c == ' ' || c == '(' || c == ')')) { return false; }
 		}
 		return true;
 	}

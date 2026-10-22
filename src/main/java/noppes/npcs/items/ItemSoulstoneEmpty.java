@@ -45,6 +45,13 @@ public class ItemSoulstoneEmpty extends Item {
 					compound.setString("id", CustomNpcs.MODID + ":customnpc");
 				}
 				ServerCloneController.Instance.cleanTags(compound);
+				if (CustomNpcs.SoulStoneFilledStackSize > 1) {
+					for (String key : new String[] { "Motion", "Rotation", "FallDistance", "Fire", "Air", "OnGround", "PortalCooldown", "HurtTime", "HurtByTimestamp", "DeathTime" }) { compound.removeTag(key); }
+					if (entity instanceof EntityNPCInterface) { compound.removeTag("Health"); }
+					NBTTagCompound forgeData = compound.getCompoundTag("ForgeData");
+					if (forgeData.getCompoundTag("cnpcmarkdata").getTagList("marks", 10).hasNoTags()) { forgeData.removeTag("cnpcmarkdata"); }
+					if (forgeData.hasNoTags()) { compound.removeTag("ForgeData"); }
+				}
 				stone.setTagInfo("Entity", compound);
 				String name = EntityList.getEntityString(entity);
 				if (name == null) { name = "generic"; }

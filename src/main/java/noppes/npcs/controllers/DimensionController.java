@@ -3,6 +3,9 @@ package noppes.npcs.controllers;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -194,7 +197,11 @@ public class DimensionController extends WorldSavedData implements IDimensionHan
 		dimensionInfo.put(id, worldInfo);
 		providerInfo.put(id, new NBTTagCompound());
 		DimensionType dimensionType = getDimensionType(id, worldInfo.getDimensionName());
-		if (!DimensionManager.isDimensionRegistered(id)) { registerDimension(id, dimensionType); }
+		if (!DimensionManager.isDimensionRegistered(id) && !registerDimension(id, dimensionType)) {
+			dimensionInfo.remove(id);
+			providerInfo.remove(id);
+			return;
+		}
 		worldInfo.setDimensionName(dimensionType.getName());
 		if (player != null) {
 			player.sendMessage(Component.translatable("message.dimensions.created", id, name).getParent());
@@ -202,31 +209,73 @@ public class DimensionController extends WorldSavedData implements IDimensionHan
 		if (isUpdating) { syncWithClients(); }
 	}
 
-	private static void registerDimension(int id, DimensionType type) {
-		try { DimensionManager.registerDimension(id, type); }
+	private static boolean registerDimension(int id, DimensionType type) {
+		try {
+			DimensionManager.registerDimension(id, type);
+			return true;
+		}
 		catch (IllegalArgumentException e) {
-			if (ownTypes.get(type.getId()) != type || DimensionManager.isDimensionRegistered(id)) { throw e; }
+			if (ownTypes.get(type.getId()) != type || DimensionManager.isDimensionRegistered(id)) {
+				LogWriter.error("Cannot register dimension " + id, e);
+				return false;
+			}
 			LogWriter.error("Dimension type " + type.getId() + " is not visible to DimensionType.getById, registering dimension " + id + " directly");
-			registerDirect(id, type);
+			return registerDirect(id, type);
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private static void registerDirect(int id, DimensionType type) {
-		try {
-			Field dimensionsField = DimensionManager.class.getDeclaredField("dimensions");
-			dimensionsField.setAccessible(true);
-			Class<?> dimensionClass = Class.forName("net.minecraftforge.common.DimensionManager$Dimension");
-			Constructor<?> constructor = dimensionClass.getDeclaredConstructor(DimensionType.class);
-			constructor.setAccessible(true);
-			((Map<Integer, Object>) dimensionsField.get(null)).put(id, constructor.newInstance(type));
-			if (id >= 0) {
-				Field usedIdsField = DimensionManager.class.getDeclaredField("usedIds");
-				usedIdsField.setAccessible(true);
-				((Set<Integer>) usedIdsField.get(null)).add(id);
+	private static boolean reflectionReady;
+	private static Constructor<?> dimensionConstructor;
+	private static Field dimensionsField;
+	private static Field usedIdsField;
+
+	private static void initReflection() {
+		if (reflectionReady) { return; }
+		reflectionReady = true;
+		Class<?> dimensionClass = null;
+		for (Class<?> inner : DimensionManager.class.getDeclaredClasses()) {
+			for (Constructor<?> constructor : inner.getDeclaredConstructors()) {
+				Class<?>[] params = constructor.getParameterTypes();
+				if (params.length == 1 && params[0] == DimensionType.class && (dimensionConstructor == null || inner.getSimpleName().equals("Dimension"))) {
+					dimensionConstructor = constructor;
+					dimensionClass = inner;
+				}
 			}
 		}
-		catch (ReflectiveOperationException e) { throw new IllegalStateException("Cannot register dimension " + id, e); }
+		if (dimensionClass == null) { return; }
+		dimensionConstructor.setAccessible(true);
+		for (Field field : DimensionManager.class.getDeclaredFields()) {
+			if (!Modifier.isStatic(field.getModifiers())) { continue; }
+			if (Map.class.isAssignableFrom(field.getType()) && field.getGenericType() instanceof ParameterizedType) {
+				for (Type arg : ((ParameterizedType) field.getGenericType()).getActualTypeArguments()) {
+					if (arg == dimensionClass && (dimensionsField == null || field.getName().equals("dimensions"))) { dimensionsField = field; }
+				}
+			}
+			if (Set.class.isAssignableFrom(field.getType()) && field.getName().equals("usedIds")) { usedIdsField = field; }
+		}
+		if (dimensionsField != null) { dimensionsField.setAccessible(true); }
+		if (usedIdsField != null) { usedIdsField.setAccessible(true); }
+	}
+
+	@SuppressWarnings("unchecked")
+	private static boolean registerDirect(int id, DimensionType type) {
+		try {
+			initReflection();
+			if (dimensionConstructor == null || dimensionsField == null) {
+				LogWriter.error("Cannot register dimension " + id + ": DimensionManager structure is not recognized");
+				return false;
+			}
+			((Map<Integer, Object>) dimensionsField.get(null)).put(id, dimensionConstructor.newInstance(type));
+			if (id >= 0) {
+				if (usedIdsField != null) { ((Set<Integer>) usedIdsField.get(null)).add(id); }
+				else { LogWriter.warn("DimensionManager used ids are not found, dimension " + id + " is registered without reserving its id"); }
+			}
+			return true;
+		}
+		catch (Throwable e) {
+			LogWriter.error("Cannot register dimension " + id, e);
+			return false;
+		}
 	}
 
 	public DimensionType getDimensionType(int id, String name) {
@@ -486,7 +535,7 @@ public class DimensionController extends WorldSavedData implements IDimensionHan
 			}
 			return;
 		}
-		if (!DimensionManager.isDimensionRegistered(dimId)) { registerDimension(dimId, getDimensionType(dimId, null)); }
+		if (!DimensionManager.isDimensionRegistered(dimId) && !registerDimension(dimId, getDimensionType(dimId, null))) { return; }
 		IDimensionManagerMixin.getUnloadQueue().remove(dimId);
 		toBeDeleted.remove(dimId);
 		syncWithClients();

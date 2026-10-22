@@ -37,6 +37,9 @@ public class ItemSoulstoneFilled extends Item {
 	}
 
 	@Override
+	public int getItemStackLimit(@Nonnull ItemStack stack) { return Math.max(1, Math.min(64, CustomNpcs.SoulStoneFilledStackSize)); }
+
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(@Nonnull ItemStack stack, World world, @Nonnull List<String> list, @Nonnull ITooltipFlag flag) {
 		NBTTagCompound compound = stack.getTagCompound();
