@@ -29,7 +29,7 @@ public class MarkData implements ICapabilityProvider {
       public Availability availability = new Availability();
       public MarkType type = MarkType.NONE;
       public boolean rotate = false;
-      public boolean  is3d = false;
+      public boolean is3d = false;
       public int color = 0xFFED51;
 
       @Override
@@ -72,20 +72,23 @@ public class MarkData implements ICapabilityProvider {
 
    }
 
-   public static Capability<MarkData> CNPCS_MARKDATA_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
+   public static Capability<MarkData> MARKDATA_CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
    private static final ResourceLocation CNPCS_CAPKEY = new ResourceLocation(CustomNpcs.MODID, "markdata");
    private static final String NBT_KEY = "cnpcmarkdata";
+   protected static volatile boolean hasMarksInGame;
 
    public static void register(AttachCapabilitiesEvent<Entity> event) { event.addCapability(CNPCS_CAPKEY, new MarkData()); }
 
    public static MarkData get(LivingEntity entity) {
-      MarkData data = entity.getCapability(CNPCS_MARKDATA_CAPABILITY, null).orElse(new MarkData());
+      MarkData data = entity.getCapability(MARKDATA_CAPABILITY, null).orElse(new MarkData());
       if (data.entity == null) {
          data.entity = entity;
          data.setNBT(entity.getPersistentData().getCompound(NBT_KEY));
       }
       return data;
    }
+
+   public static  boolean hasMarksInGame() { return hasMarksInGame; }
 
    private final LazyOptional<MarkData> instance = LazyOptional.of(() -> this);
 
@@ -126,7 +129,7 @@ public class MarkData implements ICapabilityProvider {
 
    @Override
    public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> capability, Direction facing) {
-      return capability == CNPCS_MARKDATA_CAPABILITY ? instance.cast() : LazyOptional.empty();
+      return capability == MARKDATA_CAPABILITY ? instance.cast() : LazyOptional.empty();
    }
 
    public void save() { entity.getPersistentData().put(NBT_KEY, getNBT()); }
@@ -135,6 +138,7 @@ public class MarkData implements ICapabilityProvider {
       MarkData.Mark m = new MarkData.Mark();
       m.setType(type);
       marks.add(m);
+      hasMarksInGame = true;
       if (!entity.level().isClientSide) { syncClients(); }
       return m;
    }
@@ -144,6 +148,7 @@ public class MarkData implements ICapabilityProvider {
       m.setType(type);
       m.color = color;
       marks.add(m);
+      hasMarksInGame = true;
       if (!entity.level().isClientSide) { syncClients(); }
       return m;
    }

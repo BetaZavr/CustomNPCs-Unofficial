@@ -49,7 +49,7 @@ public class PacketSkin extends PacketBasic {
         buf.writeNbt(msg.data);
     }
 
-    public static PacketSkin decode(FriendlyByteBuf buf) { return new PacketSkin(buf.readInt(), buf.readAnySizeNbt()); }
+    public static PacketSkin decode(FriendlyByteBuf buf) { return new PacketSkin(buf.readInt(), buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

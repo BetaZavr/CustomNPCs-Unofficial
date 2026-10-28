@@ -20,11 +20,11 @@ public class SPacketQuestDropSetSave extends PacketServerBasic {
 
     protected static int channelId;
     private final int questId;
-    private final CompoundTag data;
+    private final CompoundTag compound;
 
     public SPacketQuestDropSetSave(int questIdIn, CompoundTag dataIn) {
         questId = questIdIn;
-        data = dataIn;
+        compound = dataIn;
     }
 
     @Override
@@ -38,11 +38,11 @@ public class SPacketQuestDropSetSave extends PacketServerBasic {
 
     public static void encode(SPacketQuestDropSetSave msg, FriendlyByteBuf buf) {
         buf.writeInt(msg.questId);
-        buf.writeNbt(msg.data);
+        buf.writeNbt(msg.compound);
     }
 
     public static SPacketQuestDropSetSave decode(FriendlyByteBuf buf) {
-        return new SPacketQuestDropSetSave(buf.readInt(), buf.readAnySizeNbt());
+        return new SPacketQuestDropSetSave(buf.readInt(), buf.readNbt());
     }
 
     @Override
@@ -53,14 +53,14 @@ public class SPacketQuestDropSetSave extends PacketServerBasic {
         CustomNpcs.debugData.start("Packets");
         Quest quest = QuestController.instance.get(questId);
         if (quest != null) {
-            int pos = data.getInt("Slot");
+            int pos = compound.getInt("Slot");
             if (pos < 0 || !quest.rewardItems.containsKey(pos)) {
                 pos = quest.rewardItems.size();
                 DropSet ds = new DropSet(quest);
                 ds.pos = pos;
                 quest.rewardItems.put(ds.pos, ds);
             }
-            quest.rewardItems.get(pos).load(data);
+            quest.rewardItems.get(pos).load(compound);
             Packets.send(player, new PacketGuiUpdate());
         }
         CustomNpcs.debugData.end("Packets");

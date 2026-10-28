@@ -31,6 +31,7 @@ import noppes.npcs.client.gui.util.GuiTooltipUtils;
 import noppes.npcs.shared.client.gui.components.*;
 import noppes.npcs.shared.client.gui.listeners.IComponentGui;
 import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
@@ -280,6 +281,7 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
    @Override
    public int getY() { return guiTop; }
 
+   @Override
    public GuiButtonNop getButton(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.BUTTON &&
@@ -290,6 +292,7 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
    }
 
    @SuppressWarnings("unused")
+   @Override
    public GuiMenuSideButton getSideButton(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.SIDE_BUTTON &&
@@ -300,6 +303,7 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
    }
 
    @SuppressWarnings("unused")
+   @Override
    public GuiMenuTopButton getTopButton(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.TOP_BUTTON &&
@@ -309,6 +313,7 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
       return null;
    }
 
+   @Override
    public GuiTextFieldNop getTextField(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.TEXT_FIELD &&
@@ -318,6 +323,7 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
       return null;
    }
 
+   @Override
    public GuiLabel getLabel(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.LABEL &&
@@ -328,6 +334,7 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
    }
 
    @SuppressWarnings("unused")
+   @Override
    public GuiSliderNop getSlider(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.SLIDER &&
@@ -338,6 +345,7 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
    }
 
    @SuppressWarnings("unused")
+   @Override
    public GuiCustomScrollNop getScroll(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.SCROLL &&
@@ -348,6 +356,7 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
    }
 
    @SuppressWarnings("unused")
+   @Override
    public IComponentGui getExtra(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.EXTRA && element.getId() == id) { return element; }
@@ -425,7 +434,7 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
       super.render(graphics, x, y, partialTicks);
       if (title != null && !title.getString().isEmpty()) {
          GuiButtonNop.renderString(graphics, title, guiLeft + 4, guiTop + 5, guiLeft + imageWidth - 8, guiTop + 15,
-                 CustomNpcs.LableColor.getRGB(), false, true, null);
+                 CustomNpcs.LableColor.getRGB(), false, EnumAlignText.LEFT, true, null);
       }
       for (IComponentGui component : new ArrayList<>(wrapper.components)) {
          if (component instanceof Renderable renderable) { renderable.render(graphics, x, y, partialTicks); }
@@ -526,11 +535,20 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
             heightTexture = 71;
             break;
          }
+         case "itemsetup.png": {
+            widthTexture = 176;
+            heightTexture = 202;
+            break;
+         }
          case "largebg.png": {
             widthTexture = 192;
             heightTexture = 231;
             break;
          }
+         case "npcinv.png":
+         case "npcdrop.png":
+         case "npcbanksetup.png":
+         case "followersetup.png":
          case "menubg.png": {
             widthTexture = 256;
             heightTexture = 217;

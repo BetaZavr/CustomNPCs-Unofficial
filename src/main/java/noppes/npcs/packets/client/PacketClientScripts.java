@@ -17,7 +17,7 @@ public class PacketClientScripts extends PacketBasic {
 
     public static void encode(PacketClientScripts msg, FriendlyByteBuf buf) { buf.writeNbt(msg.compound); }
 
-    public static PacketClientScripts decode(FriendlyByteBuf buf) { return new PacketClientScripts(buf.readAnySizeNbt()); }
+    public static PacketClientScripts decode(FriendlyByteBuf buf) { return new PacketClientScripts(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

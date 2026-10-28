@@ -174,16 +174,11 @@ public class GuiTransportSelection extends GuiNPCInterface
          TransportLocation select = TransportController.getInstance().getTransport(data.get(scroll.getNormalSelected()));
          if (select != null && !select.inventory.isEmpty()) {
             if (minecraft == null) { minecraft = Minecraft.getInstance(); }
-            PoseStack matrixStack = graphics.pose();
             int slot = 0;
             for (ItemStack stack : barterItems.keySet()) {
                int u = guiLeft + imageWidth + 5 + (slot % 3) * 18;
                int v = guiTop + 31 + (slot / 3) * 18;
-               matrixStack.pushPose();
-               matrixStack.translate(u, v, 50.0f);
-               graphics.renderItem(stack, 0, 0);
-               graphics.renderItemDecorations(font, stack, 0, 0);
-               matrixStack.popPose();
+               renderStackInGUI(graphics, stack, u + 1, v + 1, 50.0f, 1.0f, null);
                if (isMouseHover(mouseX, mouseY, u, v, 18, 18)) {
                   setHoverText(stack.getTooltipLines(player, minecraft.options.advancedItemTooltips ? TooltipFlag.ADVANCED : TooltipFlag.NORMAL));
                }

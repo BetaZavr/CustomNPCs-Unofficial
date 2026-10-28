@@ -770,11 +770,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
                graphics.blit(widgets, 0, 0, 0, 22, 24, 24);
                matrixStack.popPose();
                if (!menu.canEdit && !menu.canSend && mail.ransom > 0) {
-                  matrixStack.pushPose();
-                  matrixStack.translate(px + 4, py + 4, 0.0f);
-                  graphics.renderItem(slot.getItem(), 0, 0);
-                  graphics.renderItemDecorations(font, slot.getItem(), 0, 0);
-                  matrixStack.translate(0.0f, 0.0f, 200.0f);
+                  GuiBasic.renderStackInGUI(graphics, slot.getItem(), px + 4, py + 4, 0.0f, 1.0f, null);
                   if (isMouseHover(mouseX, mouseY, px, py, 18, 18)) {
                      List<Component> list = new ArrayList<>();
                      list.add(Component.translatable("mailbox.hover.ransom.sell"));
@@ -785,7 +781,9 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
                      getLabel(8).setBackColor(new Color(0x80FF0000).getRGB());
                      getButton(6).layerColor = new Color(0xFFF00000).getRGB();
                   }
-                  graphics.blit(GuiMailbox.icons, -2, -2, 0, 32, 20, 20);
+                  matrixStack.pushPose();
+                  matrixStack.translate(px + 2, py + 2, 200.0f);
+                  graphics.blit(GuiMailbox.icons, 0, 0, 0, 32, 20, 20);
                   matrixStack.popPose();
                }
             }

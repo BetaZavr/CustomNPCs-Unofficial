@@ -997,7 +997,7 @@ public class GuiYellowDialogEditor extends GuiBasic
     @Override
     public void mouseDragged(GuiSliderNop slider) {
         if (slider.id == 115 && rightTab.yde_scroll.availability != null) {
-            rightTab.yde_scroll.availability.health = (int) (slider.sliderValue * 100.0f);
+            rightTab.yde_scroll.availability.health = (int) (slider.getValue() * 100.0f);
             slider.setString(rightTab.yde_scroll.availability.health + "%");
         }
     }
@@ -1916,7 +1916,7 @@ public class GuiYellowDialogEditor extends GuiBasic
                 .setCustomFont(UtilYDE.FONT)
                 .setColor(YDEController.textColor)
                 .setSize(w - 2, h)
-                .setCentered(true);
+                .setAlignCenter();
         y += h + 4;
 
         // Dialog

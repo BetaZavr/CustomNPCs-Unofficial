@@ -39,7 +39,7 @@ public class SPacketGiveStack extends PacketServerBasic {
 
     public static void encode(SPacketGiveStack msg, FriendlyByteBuf buf) {buf.writeNbt(msg.data); }
 
-    public static SPacketGiveStack decode(FriendlyByteBuf buf) { return new SPacketGiveStack(buf.readAnySizeNbt()); }
+    public static SPacketGiveStack decode(FriendlyByteBuf buf) { return new SPacketGiveStack(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

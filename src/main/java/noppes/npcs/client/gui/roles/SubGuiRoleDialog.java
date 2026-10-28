@@ -14,12 +14,12 @@ import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 import noppes.npcs.shared.client.gui.components.GuiTextFieldNop;
 import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
 
-public class GuiRoleDialog extends GuiNPCInterface2 implements ITextfieldListener {
+public class SubGuiRoleDialog extends GuiNPCInterface2 implements ITextfieldListener {
 
    protected final RoleDialog role;
    protected int slot = 0;
 
-   public GuiRoleDialog(EntityNPCInterface npc) {
+   public SubGuiRoleDialog(EntityNPCInterface npc) {
       super(npc);
 
       backGui = EnumGuiType.MainMenuAdvanced;

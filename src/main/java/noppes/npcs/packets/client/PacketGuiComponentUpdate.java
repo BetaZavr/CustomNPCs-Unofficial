@@ -29,7 +29,7 @@ public class PacketGuiComponentUpdate extends PacketBasic {
    }
 
    public static PacketGuiComponentUpdate decode(FriendlyByteBuf buf) {
-      return new PacketGuiComponentUpdate(buf.readUUID(), buf.readAnySizeNbt());
+      return new PacketGuiComponentUpdate(buf.readUUID(), buf.readNbt());
    }
 
    @Override

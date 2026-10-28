@@ -11,6 +11,7 @@ import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.ICustomGuiComponent;
 import noppes.npcs.api.wrapper.gui.CustomGuiItemRendererWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
+import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.components.GuiLabel;
 import noppes.npcs.shared.client.gui.listeners.custom.IComponentCustomGui;
 
@@ -64,13 +65,7 @@ public class CustomGuiItemRenderer
       int b = (int) ((getY() + height)  / component.getScale());
       isHovered = mouseX >= x && mouseY >= y && mouseX < r && mouseY < b;
       if (!NoppesUtilServer.isItemStackNull(stack)) {
-         PoseStack matrixStack = graphics.pose();
-         matrixStack.pushPose();
-         matrixStack.scale(component.getScale(), component.getScale(), 1.0F);
-         matrixStack.translate(x, y, (float) id * 0.01F);
-         graphics.renderItem(stack, 0, 0);
-         graphics.renderItemDecorations(minecraft.font, stack, 0, 0);
-         matrixStack.popPose();
+         GuiBasic.renderStackInGUI(graphics, stack, x, y, (float) id * 0.01F, component.getScale(), null);
       }
    }
 

@@ -75,4 +75,5 @@ public abstract class RoleInterface implements INPCRole {
    public RoleType getEnumType() { return type; }
 
    public void interact(Player player) { }
+
 }

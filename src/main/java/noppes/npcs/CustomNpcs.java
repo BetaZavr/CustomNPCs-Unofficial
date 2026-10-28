@@ -129,8 +129,6 @@ public class CustomNpcs {
    public static boolean npcsAttackInPeaceful = false;
    @ConfigProp(info = "Enable new dialog and quest GUI which allow accepting and rejecting quests")
    public static boolean EnableNewDialogSystem = false;
-   @ConfigProp(info = "The range in which area kill quests work")
-   public static int AreaKillRange = 10;
    @ConfigProp(info = "Fuzzy match rules for CNPC trader. Format: modid:itemid|field1,field2,...;modid:itemid|field1,field2,...")
    public static String FuzzyMatchRules = "tacz:modern_kinetic_gun|GunId;slashblade:slashblade|";
 
@@ -359,9 +357,10 @@ public class CustomNpcs {
 
       // New from Unofficial (BetaZavr)
       PlayerSkinController.getInstance();
-      DropController.getInstance().loadFile();
-      KeyController.getInstance().loadKeys();
+      DropController.getInstance().load();
+      KeyController.getInstance().load();
       AnimationController.getInstance().loadAnimations();
+      AuctionController.getInstance().load();
       debugData.end("Mod");
    }
 

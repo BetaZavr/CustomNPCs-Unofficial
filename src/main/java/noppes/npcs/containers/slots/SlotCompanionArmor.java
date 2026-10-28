@@ -39,10 +39,7 @@ public class SlotCompanionArmor extends Slot {
       if (itemstack.getItem() instanceof ArmorItem && role.canWearArmor(itemstack)) {
          return ((ArmorItem)itemstack.getItem()).getEquipmentSlot() == armorType;
       }
-      if (itemstack.getItem() instanceof BlockItem) {
-         return armorType == EquipmentSlot.HEAD;
-      }
-      return false;
+      return itemstack.getItem() instanceof BlockItem && armorType == EquipmentSlot.HEAD;
    }
 
 }

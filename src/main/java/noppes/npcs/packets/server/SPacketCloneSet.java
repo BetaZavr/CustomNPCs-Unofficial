@@ -31,7 +31,7 @@ public class SPacketCloneSet extends PacketServerBasic {
 
     public static void encode(SPacketCloneSet msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static SPacketCloneSet decode(FriendlyByteBuf buf) { return new SPacketCloneSet(buf.readAnySizeNbt()); }
+    public static SPacketCloneSet decode(FriendlyByteBuf buf) { return new SPacketCloneSet(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

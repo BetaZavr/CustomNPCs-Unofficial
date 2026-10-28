@@ -108,8 +108,7 @@ public class GuiNpcFollower extends GuiContainerNPCInterface<ContainerNPCFollowe
                int yOffset = index * 16;
                int x = guiLeft + 68;
                int y = guiTop + yOffset + 4;
-               graphics.renderItem(itemstack, x + 11, y);
-               graphics.renderItemDecorations(font, itemstack, x + 11, y);
+               GuiBasic.renderStackInGUI(graphics, itemstack, x + 11, y, 0.0f, 1.0f, null);
 
                Component daysS = Component.empty()
                        .append(" = " + days + " ")

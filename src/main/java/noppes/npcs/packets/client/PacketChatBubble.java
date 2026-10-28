@@ -48,10 +48,12 @@ public class PacketChatBubble extends PacketBasic {
       ClientLevel level = Minecraft.getInstance().level;
       if (level != null) {
          Entity entity = level.getEntity(id);
-         if (CustomNpcs.EnableChatBubbles && entity instanceof EntityNPCInterface npc) {
-            if (npc.messages == null) { npc.messages = new ChatMessages(); }
+         if (entity instanceof EntityNPCInterface npc) {
             String text = NoppesStringUtils.formatText(message, player, npc);
-            npc.messages.addMessage(text, npc);
+            if (CustomNpcs.EnableChatBubbles) {
+               if (npc.messages == null) { npc.messages = new ChatMessages(); }
+               npc.messages.addMessage(text, npc);
+            }
             if (showMessage) {
                player.sendSystemMessage(Component.literal(npc.getName().getString() + ": ").append(Component.translatable(text)));
             }

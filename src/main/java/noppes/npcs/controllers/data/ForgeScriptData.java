@@ -10,7 +10,6 @@ import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.shared.common.util.LogWriter;
-import noppes.npcs.util.CustomNPCsScheduler;
 
 public class ForgeScriptData
 extends BaseScriptData {
@@ -24,17 +23,16 @@ extends BaseScriptData {
    @Override
    public void runScript(String type, Event event) {
       if (!isEnabled()) { return; }
-      CustomNPCsScheduler.runTack(() -> {
-         try {
-            if (ScriptController.Instance.lastLoaded > lastInited) {
-               lastInited = ScriptController.Instance.lastLoaded;
-               if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onForgeInit(this); }
-            }
-            for (ScriptContainer script : scripts) { script.run(type, event); }
-         } catch (Exception e) { LogWriter.error("Error:", e); }
-      });
+      try {
+         if (ScriptController.Instance.lastLoaded > lastInited) {
+            lastInited = ScriptController.Instance.lastLoaded;
+            if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onForgeInit(this); }
+         }
+         for (ScriptContainer script : scripts) { script.run(type, event); }
+      } catch (Exception e) { LogWriter.error("Error:", e); }
    }
 
+   @Override
    public void load(CompoundTag compound) {
       super.load(compound);
       EventHooks.onForgeInit(this);

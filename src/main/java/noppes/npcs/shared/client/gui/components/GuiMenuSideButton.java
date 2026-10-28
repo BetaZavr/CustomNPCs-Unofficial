@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 
 import javax.annotation.Nonnull;
 
@@ -22,6 +23,7 @@ public class GuiMenuSideButton extends GuiButtonNop {
    public GuiMenuSideButton(IGuiInterface gui, int id, Object label, int x, int y) {
       super(gui, id, label, x, y, clicked);
       setSize(70, 22);
+      alignText = EnumAlignText.CENTER;
    }
 
    @Override
@@ -61,7 +63,7 @@ public class GuiMenuSideButton extends GuiButtonNop {
       }
       // Title
       renderString(graphics, getMessage(), getX() + (isRight ? 0 : 5 - width), getY(), getX() + (isRight ? width - 4 : - 4), getY() + height,
-              getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, true, customFont);
+              getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, alignText, false, customFont);
    }
 
    // New from Unofficial (BetaZavr)

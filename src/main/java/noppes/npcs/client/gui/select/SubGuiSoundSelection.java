@@ -105,7 +105,7 @@ public class SubGuiSoundSelection extends ResourceSelection {
       time = new GuiLabel(this, 2, "", guiLeft + imageWidth - 85, guiTop + imageHeight - 36)
               .setSize(80, 10)
               .setColor(CustomNpcs.MainColor.getRGB())
-              .setCentered(true);
+              .setAlignCenter();
    }
 
    @Override

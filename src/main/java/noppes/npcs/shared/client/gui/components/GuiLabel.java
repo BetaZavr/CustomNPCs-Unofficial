@@ -14,6 +14,7 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.shared.client.gui.listeners.IComponentGui;
 import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 import noppes.npcs.util.Util;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +25,7 @@ import java.util.List;
 public class GuiLabel extends AbstractWidget implements GuiEventListener, IComponentGui {
 
    protected int textColor = CustomNpcResourceListener.DefaultTextColor;
-   protected boolean centered = false;
+   public EnumAlignText alignText = EnumAlignText.LEFT;
    protected boolean labelBgEnabled;
    protected int ulColor;
    protected int brColor;
@@ -84,8 +85,19 @@ public class GuiLabel extends AbstractWidget implements GuiEventListener, ICompo
       return this;
    }
 
-   public GuiLabel setCentered(boolean bo) {
-      centered = bo;
+   public GuiLabel setAlignCenter() {
+      alignText = EnumAlignText.CENTER;
+      return this;
+   }
+
+   public GuiLabel setAlignLeft() {
+      alignText = EnumAlignText.LEFT;
+      return this;
+   }
+
+   @SuppressWarnings("unused")
+   public GuiLabel setAlignRight() {
+      alignText = EnumAlignText.RIGHT;
       return this;
    }
 
@@ -114,7 +126,7 @@ public class GuiLabel extends AbstractWidget implements GuiEventListener, ICompo
       drawBox(graphics);
 
       GuiButtonNop.renderString(graphics, getMessage(), getX(), getY(), getX() + width, getY() + height,
-              textColor, showShadow, centered, customFont);
+              textColor, showShadow, alignText, false, customFont);
    }
 
    @Override
@@ -196,7 +208,7 @@ public class GuiLabel extends AbstractWidget implements GuiEventListener, ICompo
    public boolean isEnabled() { return enabled; }
 
    @Override
-   public boolean isVisible() { return visible; }
+   public boolean isVisible() { return enabled && visible; }
 
    @Override
    public boolean mouseDragged(double mouseX, double mouseY, int mouseButton, double dx, double dy) {
@@ -238,4 +250,5 @@ public class GuiLabel extends AbstractWidget implements GuiEventListener, ICompo
    public void setHeight(int value) {
       height = Minecraft.getInstance().font.lineHeight + 1;
    }
+
 }

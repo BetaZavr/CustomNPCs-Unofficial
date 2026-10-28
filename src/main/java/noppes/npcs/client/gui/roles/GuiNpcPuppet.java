@@ -139,21 +139,21 @@ public class GuiNpcPuppet extends GuiNPCInterface
               .setColor(CustomNpcs.MainColor.getRGB());
       GuiSliderNop slider = addSlider(10, x1, y, (config.rotationX + 1.0F) / 2.0F)
               .setSize(120, 16);
-      float percent = slider.sliderValue * 360.0F;
+      float percent = slider.getValue() * 360.0F;
       addTextField(10, x2, y + 1, 35, 14, Math.round(percent * 10.0f) / 10.0f);
       addLabel(11, x0, (y += 18) + 3, "Y:")
               .setSize(12, 10)
               .setColor(CustomNpcs.MainColor.getRGB());
       slider = addSlider(11, x1, y, (config.rotationY + 1.0F) / 2.0F)
               .setSize(120, 16);
-      percent = slider.sliderValue * 360.0F;
+      percent = slider.getValue() * 360.0F;
       addTextField(11, x2, y + 1, 35, 14, Math.round(percent * 10.0f) / 10.0f);
       addLabel(12, x0, (y += 18) + 3, "Z:")
               .setSize(12, 10)
               .setColor(CustomNpcs.MainColor.getRGB());
       slider = addSlider(12, x1, y, (config.rotationZ + 1.0F) / 2.0F)
               .setSize(120, 16);
-      percent = slider.sliderValue * 360.0F;
+      percent = slider.getValue() * 360.0F;
       addTextField(12, x2, y + 1, 35, 14, Math.round(percent * 10.0f) / 10.0f);
    }
 
@@ -174,14 +174,14 @@ public class GuiNpcPuppet extends GuiNPCInterface
 
    @Override
    public void mouseDragged(GuiSliderNop slider) {
-      float percent = slider.sliderValue * 360.0F;
+      float percent = slider.getValue() * 360.0F;
       slider.setString((int) percent + "°");
       if (getTextField(slider.id) != null) { getTextField(slider.id).setValue(Math.round(percent * 10.0f) / 10.0f); }
       JobPuppet.PartConfig part = data.get(selected);
       switch (slider.id) {
-         case 10: part.rotationX = (slider.sliderValue - 0.5F) * 2.0F; break;
-         case 11: part.rotationY = (slider.sliderValue - 0.5F) * 2.0F; break;
-         case 12: part.rotationZ = (slider.sliderValue - 0.5F) * 2.0F; break;
+         case 10: part.rotationX = (slider.getValue() - 0.5F) * 2.0F; break;
+         case 11: part.rotationY = (slider.getValue() - 0.5F) * 2.0F; break;
+         case 12: part.rotationZ = (slider.getValue() - 0.5F) * 2.0F; break;
       }
       npc.refreshDimensions();
    }
@@ -210,7 +210,7 @@ public class GuiNpcPuppet extends GuiNPCInterface
          case 11: part.rotationY = value; break;
          case 12: part.rotationZ = value; break;
       }
-      if (getSlider(textField.id) != null) { getSlider(textField.id).setSliderValue((value + 1.0F) / 2.0F); }
+      if (getSlider(textField.id) != null) { getSlider(textField.id).setValue((value + 1.0F) / 2.0F); }
       npc.refreshDimensions();
    }
 

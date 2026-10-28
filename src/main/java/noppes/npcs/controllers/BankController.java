@@ -42,20 +42,19 @@ public class BankController {
    private void loadBanksData() {
       CustomNpcs.debugData.start(null);
       File saveDir = CustomNpcs.getLevelSaveDirectory();
-      if (saveDir == null) {
-         CustomNpcs.debugData.end(null);
-         return;
-      }
-      try {
-         File file = new File(saveDir, "bank.dat");
-         if (file.exists()) { loadBanksData(file); }
-         else { save(); }
-      } catch (Exception e) {
+      if (saveDir != null) {
+         LogWriter.info("Loading Banks");
          try {
-            File file = new File(saveDir, "bank.dat_old");
+            File file = new File(saveDir, "bank.dat");
             if (file.exists()) { loadBanksData(file); }
             else { save(); }
-         } catch (Exception ex) { LogWriter.error(ex); }
+         } catch (Exception e) {
+            try {
+               File file = new File(saveDir, "bank.dat_old");
+               if (file.exists()) { loadBanksData(file); }
+               else { save(); }
+            } catch (Exception ex) { LogWriter.error(ex); }
+         }
       }
       CustomNpcs.debugData.end(null);
    }

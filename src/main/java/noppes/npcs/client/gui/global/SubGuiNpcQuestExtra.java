@@ -23,6 +23,7 @@ import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 
 import javax.annotation.Nonnull;
 
@@ -119,7 +120,8 @@ public class SubGuiNpcQuestExtra extends GuiNPCInterface implements ITextfieldLi
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
             matrixStack.translate(0.0f, 0.0f, 200.0f);
             GuiButtonNop.renderString(graphics, name, u, v, u + 63, v +10,
-                    CustomNpcs.QuestLogColor.getRGB(), false, true, null);
+                    CustomNpcs.QuestLogColor.getRGB(), false,
+                    EnumAlignText.CENTER, false, null);
             matrixStack.popPose();
         }
         // script button

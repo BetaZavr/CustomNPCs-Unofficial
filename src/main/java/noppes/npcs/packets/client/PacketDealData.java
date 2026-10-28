@@ -19,7 +19,7 @@ public class PacketDealData extends PacketBasic {
 
     public static void encode(PacketDealData msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static PacketDealData decode(FriendlyByteBuf buf) { return new PacketDealData(buf.readAnySizeNbt()); }
+    public static PacketDealData decode(FriendlyByteBuf buf) { return new PacketDealData(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

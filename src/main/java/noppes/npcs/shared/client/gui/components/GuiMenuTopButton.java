@@ -13,6 +13,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.mixin.client.IMouseHandlerMixin;
 import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 
 import javax.annotation.Nonnull;
 
@@ -26,6 +27,7 @@ public class GuiMenuTopButton extends GuiButtonNop {
       setFocused(false);
       height = 20;
       width = Minecraft.getInstance().font.width(getMessage()) + 12;
+      alignText = EnumAlignText.CENTER;
    }
 
    @Override
@@ -86,7 +88,7 @@ public class GuiMenuTopButton extends GuiButtonNop {
             }
          }
          renderString(graphics, getMessage(), getX() + 2, getY(), getX() + getWidth() - 2, getY() + getHeight(),
-                 getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, true, customFont);
+                 getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, alignText, false, customFont);
          matrixStack.popPose();
       }
    }

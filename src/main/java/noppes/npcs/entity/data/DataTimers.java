@@ -78,8 +78,8 @@ public class DataTimers implements ITimers {
    }
 
    public void update() {
-      for (Timer timer : new ArrayList<>(timers.values())) {
-         timer.update();
+      if (!timers.isEmpty()) {
+         for (Timer timer : new ArrayList<>(timers.values())) { timer.update(); }
       }
    }
 

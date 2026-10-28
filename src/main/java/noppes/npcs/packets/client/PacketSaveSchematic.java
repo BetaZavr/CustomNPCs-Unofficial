@@ -19,7 +19,7 @@ public class PacketSaveSchematic extends PacketBasic {
 
     public static void encode(PacketSaveSchematic msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static PacketSaveSchematic decode(FriendlyByteBuf buf) { return new PacketSaveSchematic(buf.readAnySizeNbt()); }
+    public static PacketSaveSchematic decode(FriendlyByteBuf buf) { return new PacketSaveSchematic(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

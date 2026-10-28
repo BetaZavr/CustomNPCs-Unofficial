@@ -48,7 +48,9 @@ public class SPacketPermissionGlobalGet extends PacketServerBasic {
                 CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.GLOBAL_AUCTIONS),
                 CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.GLOBAL_MAIL),
                 CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.GLOBAL_ELEMENTS),
-                CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.GLOBAL_DUNGEONS)
+                CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.GLOBAL_DUNGEONS),
+                CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.GLOBAL_PERMISSION),
+                CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.GLOBAL_DROP_TEMPLATE)
         ));
         CustomNpcs.debugData.end("Packets");
     }

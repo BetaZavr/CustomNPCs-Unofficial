@@ -108,7 +108,7 @@ public class GuiManageCustomElements extends GuiBasic implements ICustomScrollLi
         add(scrollSubtypes.setSize(120, 166)
                 .setUnsortedList(new ArrayList<>(subtypes.get(currentType)))
                 .setPos(x0, y));
-        if (!scrollSubtypes.hasSelected()) { scrollSubtypes.setSelectedIndex(0); }
+        if (!scrollSubtypes.hasSelected()) { scrollSubtypes.setSelected(0); }
         // Right scroll: existing elements
         if (scrollElements == null) {
             scrollElements = addScroll(1, false)
@@ -122,7 +122,7 @@ public class GuiManageCustomElements extends GuiBasic implements ICustomScrollLi
         }
         add(scrollElements.setSize(120, 166)
                 .setPos(x1, y));
-        if (!scrollElements.hasSelected()) {scrollElements.setSelectedIndex(0); }
+        if (!scrollElements.hasSelected()) {scrollElements.setSelected(0); }
         y += scrollSubtypes.height + 2;
         // Bottom buttons
         addButton(1, x1, y, "gui.add").setSize(59, 20);

@@ -48,7 +48,8 @@ public class CustomContainer {
    public static MenuType<ContainerBuilderSettings> container_builder;
    public static MenuType<ContainerChestCustom> container_custom_chest;
    public static MenuType<ContainerDead> container_npc_dead;
-
+   public static MenuType<ContainerAuctionCreateLot> container_auction_create_lot;
+   public static MenuType<ContainerAuctionForbiddenItem> container_auction_forbidden_item;
 
    @SubscribeEvent
    public static void registerContainer(RegisterEvent event) {
@@ -80,11 +81,11 @@ public class CustomContainer {
          event.getForgeRegistry().register(CustomNpcs.MODID + ":container_trader", container_trader = createContainer((containerId, inv, buffer) -> new ContainerNPCTrader(containerId, inv, NoppesUtilServer.getEditingNpc(inv.player), buffer.readInt())));
          event.getForgeRegistry().register(CustomNpcs.MODID + ":container_tradersetup", container_tradersetup = createContainer((containerId, inv, buffer) -> new ContainerNPCTraderSetup(containerId, inv, buffer.readInt(), buffer.readBlockPos())));
          event.getForgeRegistry().register(CustomNpcs.MODID + ":container_bank", container_bank = createContainer((containerId, inv, buffer) -> {
-            CompoundTag compound = buffer.readAnySizeNbt();
+            CompoundTag compound = buffer.readNbt();
             return new ContainerNPCBank(containerId, inv, compound != null ? compound : new CompoundTag());
          }));
          event.getForgeRegistry().register(CustomNpcs.MODID + ":container_dropsetup", container_dropsetup = createContainer((containerId, inv, buffer) -> {
-            CompoundTag compound = buffer.readAnySizeNbt();
+            CompoundTag compound = buffer.readNbt();
             return new ContainerNPCDropSetup(containerId, inv, compound != null ? compound : new CompoundTag());
          }));
          event.getForgeRegistry().register(CustomNpcs.MODID + ":container_builder", container_builder = createContainer((containerId, inv, buffer) -> {
@@ -135,6 +136,8 @@ public class CustomContainer {
             if (deadInventory == null) { deadInventory = new SimpleContainer(sizeInventory); }
             return new ContainerDead(containerId, inv, deadInventory, name, pos);
          }));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":container_auction_create_lot", container_auction_create_lot = createContainer((containerId, inv, buffer) -> new ContainerAuctionCreateLot(containerId, inv, buffer.readBlockPos())));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":container_auction_forbidden_item", container_auction_forbidden_item = createContainer((containerId, inv, buffer) -> new ContainerAuctionForbiddenItem(containerId, inv, buffer.readBlockPos())));
          CustomNpcs.debugData.end("Mod");
       }
    }

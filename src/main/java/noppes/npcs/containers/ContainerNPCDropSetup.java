@@ -28,7 +28,8 @@ public class ContainerNPCDropSetup extends AbstractContainerMenu {
     public final int dataType;
 
     public int dropType;
-    public int groupId;
+    public String templateId;
+    public String groupId;
     public int marcetID;
     public int dealID;
     public int questID;
@@ -45,7 +46,7 @@ public class ContainerNPCDropSetup extends AbstractContainerMenu {
             }
             if (npc != null) {
                 dropType = compound.getInt("DropType");
-                groupId = compound.getInt("GroupId");
+                groupId = compound.getString("GroupId");
                 int pos = compound.getInt("Pos");
                 if (dropType == 1) {
                     DropsTemplate template = DropController.getInstance().templates.get(npc.inventory.saveDropsName);
@@ -84,12 +85,20 @@ public class ContainerNPCDropSetup extends AbstractContainerMenu {
                 }
             }
         } // quest
+        else if (dataType == 3) {
+            groupId = compound.getString("GroupId");
+            templateId = compound.getString("TemplateId");
+            int pos = compound.getInt("Pos");
+            DropsTemplate template = DropController.getInstance().templates.get(templateId);
+            if (template != null && template.groups.containsKey(groupId) && template.groups.get(groupId).containsKey(pos)) {
+                inv = template.groups.get(groupId).get(pos);
+            }
+            if (inv == null) { inv = new DropSet(null); }
+        } // templates
 
         if (inv != null && playerInventory.player instanceof ServerPlayer) { inventoryDS = inv.copy(); }
         else { inventoryDS = inv; }
-        if (inventoryDS != null) {
-            addSlot(new Slot(inventoryDS, 0, 202, 135));
-        }
+        if (inventoryDS != null) { addSlot(new Slot(inventoryDS, 0, 202, 135)); }
         for (int i1 = 0; i1 < 3; ++i1) {
             for (int l2 = 0; l2 < 9; ++l2) { addSlot(new Slot(playerInventory, l2 + i1 * 9 + 9, l2 * 18 + 8, 135 + i1 * 18)); }
         }

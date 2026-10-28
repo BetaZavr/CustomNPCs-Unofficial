@@ -32,9 +32,7 @@ public class SPacketCustomNBT extends PacketServerBasic {
 
     public static void encode(SPacketCustomNBT msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static SPacketCustomNBT decode(FriendlyByteBuf buf) {
-        return new SPacketCustomNBT(buf.readAnySizeNbt());
-    }
+    public static SPacketCustomNBT decode(FriendlyByteBuf buf) { return new SPacketCustomNBT(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

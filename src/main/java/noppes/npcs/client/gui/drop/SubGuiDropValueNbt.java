@@ -1,6 +1,5 @@
 package noppes.npcs.client.gui.drop;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.entity.data.DropNbtSet;
@@ -14,8 +13,9 @@ import javax.annotation.Nonnull;
 public class SubGuiDropValueNbt  extends GuiNPCInterface implements ITextfieldListener, ITextChangeListener {
 
     protected static final Object[] tagIds = new Object[] { "tag.type.0", "tag.type.1", "tag.type.2", "tag.type.3", "tag.type.4",
-            "tag.type.5", "tag.type.6", "tag.type.7", "tag.type.8", "tag.type.9", "tag.type.11" };
-    protected static final Object[] tagListIds = new Object[] { "tag.type.3", "tag.type.5", "tag.type.6", "tag.type.8", "tag.type.11" };
+            "tag.type.5", "tag.type.6", "tag.type.7", "tag.type.8", "tag.type.9", "tag.type.11", "tag.type.12" };
+    protected static final Object[] tagListIds = new Object[] { "tag.type.0", "tag.type.1", "tag.type.2", "tag.type.3", "tag.type.4",
+            "tag.type.5", "tag.type.6", "tag.type.7", "tag.type.8", "tag.type.11", "tag.type.12" };
     protected GuiTextArea textarea;
     public DropNbtSet tag;
 
@@ -34,12 +34,16 @@ public class SubGuiDropValueNbt  extends GuiNPCInterface implements ITextfieldLi
         switch (button.id) {
             case 66: onClose(); break;
             case 90: {
-                tag.setType(Integer.parseInt(button.getVariants()[button.getValue()].getString().replace("tag.type.", "")));
+                int type = button.getValue();
+                if (type > 9) { type++; }
+                tag.setType(type);
                 init();
                 break;
             } // type
             case 92: {
-                tag.setTypeList(Integer.parseInt(button.getVariants()[button.getValue()].getString().replace("tag.type.", "")));
+                int type = button.getValue();
+                if (type > 8) { type += 2; }
+                tag.setTypeList(type);
                 init();
                 break;
             } // list type
@@ -52,35 +56,41 @@ public class SubGuiDropValueNbt  extends GuiNPCInterface implements ITextfieldLi
         int lId = 100;
         // type value
         int t = tag.getType();
-        int tl = tag.getTypeList();
+        int x = guiLeft + 5;
+        int y = guiTop + 15;
         // name / type
         String name = tag.getPath();
-        if (name.contains(".")) {
-            while (name.contains(".")) { name = name.substring(name.indexOf(".") + 1); }
-        }
-        addLabel(lId++, guiLeft + 4, guiTop + 5, Component.translatable("drop.tag.type", name, Component.translatable("tag.type." + t).getString()))
+        if (name.contains(".")) { name = name.substring(name.lastIndexOf(".") + 1); }
+        if (name.isEmpty()) { name = "null"; }
+        name = ((char) 167) + "2" + name;
+        addLabel(lId++, x, y - 10, Component.translatable("drop.tag.type",
+                name,
+                Component.translatable("tag.type." + t).getString()))
+                .setSize(162, 10)
                 .setHoverTexts("drop.hover.tag.name");
         // path
-        addTextField(93, guiLeft + 4, guiTop + 18, 163, 20, tag.getPath())
+        addTextField(93, x, y, 163, 14, tag.getPath())
                 .setHoverTexts("drop.hover.tag.path");
         // value
-        addLabel(lId++, guiLeft + 4, guiTop + 40, "type.value");
+        addLabel(lId++, x, (y += 26) - 10, "type.value");
         String[] textArr = tag.getValues();
         StringBuilder text = new StringBuilder();
         if (textArr.length > 0) { text = new StringBuilder(textArr[0]); }
         if (textArr.length > 1) {
             for (int i = 1; i < textArr.length; i++) { text.append("|").append(textArr[i]); }
         }
-        textarea = new GuiTextArea(94, guiLeft + 4, guiTop + 53, 163, 65, text.toString())
-                .setListener(this);
+        textarea = new GuiTextArea(94, x, y, 163, 84, text.toString())
+                .setListener(this)
+                .setHoverTexts(Component.translatable("drop.hover.tag.value", name)
+                        .append(Component.translatable("drop.hover.tag.value." + t)));
         textarea.active = true;
-        if (t == 7 || t == 11) { textarea.setHoverTexts("drop.hover.tag.value.array", name); }
-        else if (t == 9) { textarea.setHoverTexts("drop.hover.tag.value.list", name); }
-        else { textarea.setHoverTexts("drop.hover.tag.value.normal", name); }
+        y += textarea.getHeight() + 3;
+
         add(textarea);
         // chance
-        addLabel(lId, guiLeft + 56, guiTop + 125, "drop.chance");
-        addTextField(95, guiLeft + 4, guiTop + 120, 50, 20, String.valueOf(tag.getChance()))
+        addLabel(lId, x, y + 2, Component.translatable("drop.chance").append(":"))
+                .setSize(27, 10);
+        addTextField(95, x + 29, y + 1, 50, 14, String.valueOf(tag.getChance()))
                 .setMinMaxDefault(0.0001d, 100.0d, tag.getChance())
                 .setHoverTexts("drop.hover.tag.chance");
         // type
@@ -88,22 +98,21 @@ public class SubGuiDropValueNbt  extends GuiNPCInterface implements ITextfieldLi
         for (int i = 0; i < tagIds.length; i++) {
             if (tagIds[i].equals("tag.type." + tag.getType())) { posId = i; }
         }
-        name = ((char) 167) + "2" + name;
-        addButton(90, guiLeft + 87, guiTop + 120, true, posId, tagIds)
-                .setSize(80, 20)
-                .setHoverTexts("drop.hover.tag.type", name, getValuesData(t));
+        addButton(90, x + 82, y, true, posId, tagIds)
+                .setSize(80, 16)
+                .setHoverTexts(Component.translatable("drop.hover.tag.type", name));
         // list type
         int posListId = 0;
         for (int i = 0; i < tagListIds.length; i++) {
             if (tagListIds[i].equals("tag.type." + tag.getTypeList())) { posListId = i; }
         }
-        addButton(92, guiLeft + 87, guiTop + 142, true, posListId, tagListIds)
-                .setSize(80, 20)
+        addButton(92, x + 82, y += 18, true, posListId, tagListIds)
+                .setSize(80, 16)
                 .setIsVisible(t == 9)
-                .setHoverTexts("drop.hover.tag.listtype", name, getValuesData(tl));
+                .setHoverTexts(Component.translatable("drop.hover.tag.listtype", name));
         // done
-        addButton(66, guiLeft + 4, guiTop + 142, "gui.done")
-                .setSize(80, 20)
+        addButton(66, x, y, "gui.done")
+                .setSize(80, 16)
                 .setIsEnabled(check())
                 .setHoverTexts("hover.back");
     }
@@ -116,41 +125,6 @@ public class SubGuiDropValueNbt  extends GuiNPCInterface implements ITextfieldLi
         if (textField.id == 93) { tag.setPath(textField.getValue()); } // path
         else if (textField.id == 95) { tag.setChance(textField.getDouble()); } // chance
         init();
-    }
-
-    private Component getValuesData(int t) {
-        ChatFormatting gn = ChatFormatting.DARK_GREEN;
-        ChatFormatting r = ChatFormatting.RED;
-        ChatFormatting gr = ChatFormatting.GRAY;
-        return switch (t) {
-            case 1 -> Component.empty().append(Component.literal("" + Byte.MIN_VALUE).withStyle(gn))
-                    .append(Component.literal("<->").withStyle(gr))
-                    .append(Component.literal("" + Byte.MAX_VALUE).withStyle(r));
-            case 2 -> Component.empty().append(Component.literal("" + Short.MIN_VALUE).withStyle(gn))
-                    .append(Component.literal("<->").withStyle(gr))
-                    .append(Component.literal("" + Short.MAX_VALUE).withStyle(r));
-            case 3 -> Component.empty().append(Component.literal("" + Integer.MIN_VALUE).withStyle(gn))
-                    .append(Component.literal("<->").withStyle(gr))
-                    .append(Component.literal("" + Integer.MAX_VALUE).withStyle(r));
-            case 4 -> Component.empty().append(Component.literal("" + Long.MIN_VALUE).withStyle(gn))
-                    .append(Component.literal("<->").withStyle(gr))
-                    .append(Component.literal("" + Long.MAX_VALUE).withStyle(r));
-            case 5 -> Component.translatable("type.double", "77");
-            case 6 -> Component.translatable("type.double", "308");
-            case 7 -> Component.empty().append(Component.literal("array [v0, v1, ... vn] v_ = "))
-                    .append(Component.literal("" + Byte.MIN_VALUE).withStyle(gn))
-                    .append(Component.literal("<->").withStyle(gr))
-                    .append(Component.literal("" + Byte.MAX_VALUE).withStyle(r));
-            case 8 -> Component.translatable("type.string");
-            case 9 -> Component.translatable("type.list");
-            case 11 -> Component.empty().append(Component.literal("array [v0, v1, ... vn] v_ = "))
-                    .append(Component.literal("" + Integer.MIN_VALUE).withStyle(gn))
-                    .append(Component.literal("<->").withStyle(gr))
-                    .append(Component.literal("" + Integer.MAX_VALUE).withStyle(r));
-            default -> Component.empty().append(Component.literal("true").withStyle(gn))
-                    .append(Component.literal(", ").withStyle(gr))
-                    .append(Component.literal("false").withStyle(r));
-        };
     }
 
     private boolean check() {

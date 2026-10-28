@@ -24,14 +24,14 @@ import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
 
 import javax.annotation.Nonnull;
 
-public class GuiNpcTransporter extends GuiNPCInterface2
+public class SubGuiNpcTransporter extends GuiNPCInterface2
         implements IGuiData, ICustomScrollListener, ITextfieldListener {
 
    protected final Map<Component, TransportCategory> dataCat = new HashMap<>();
    protected @Nonnull TransportLocation location = new TransportLocation();
    protected GuiCustomScrollNop scroll;
 
-   public GuiNpcTransporter(EntityNPCInterface npc) {
+   public SubGuiNpcTransporter(EntityNPCInterface npc) {
       super(npc);
 
       backGui = EnumGuiType.MainMenuAdvanced;

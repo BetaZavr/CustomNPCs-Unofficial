@@ -20,7 +20,7 @@ public class PacketDropTemplateSave extends PacketBasic {
 
     public static void encode(PacketDropTemplateSave msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static PacketDropTemplateSave decode(FriendlyByteBuf buf) { return new PacketDropTemplateSave(buf.readAnySizeNbt()); }
+    public static PacketDropTemplateSave decode(FriendlyByteBuf buf) { return new PacketDropTemplateSave(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

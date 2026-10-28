@@ -23,14 +23,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.controllers.AuctionController;
+import noppes.npcs.controllers.data.AuctionHouse;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.mixin.mojang.blaze3d.vertex.IPoseStackMixin;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketNpcRarityTitleGet;
+import noppes.npcs.roles.RoleAuctioneer;
 import noppes.npcs.shared.client.util.ImageDownloadAlt;
 import noppes.npcs.shared.client.util.ResourceDownloader;
 import noppes.npcs.shared.common.util.LogWriter;
+import noppes.npcs.util.Util;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
@@ -44,29 +48,32 @@ public class RenderNPCInterface<T extends EntityNPCInterface, M extends EntityMo
 	}
 
 	@Override
-	public void renderNameTag(@Nonnull T npc, @Nonnull Component text, @Nonnull PoseStack matrixStack, @Nonnull MultiBufferSource buffer, int light) {
-		if (shouldShowName(npc)) {
-			double d0 = entityRenderDispatcher.distanceToSqr(npc);
-			if (!(d0 > 512.0D)) {
-				matrixStack.pushPose();
-				Vec3 renderOffset = getRenderOffset(npc, 0.0F);
-				matrixStack.translate(-renderOffset.x(), -renderOffset.y(), -renderOffset.z());
-				if (npc.messages != null) {
-					float height = npc.baseSize.height / 5.0F * npc.display.getSize();
-					float offset = npc.getBbHeight() * (1.2F + (!npc.display.showName() ? 0.0F : (npc.display.getTitle().isEmpty() ? 0.15F : 0.25F)));
-					matrixStack.translate(0.0F, offset, 0.0F);
-					npc.messages.renderMessages(matrixStack, buffer, 0.666667F * height, npc.isInRange(entityRenderDispatcher.camera.getEntity(), 4.0D), light, false);
-					matrixStack.translate(0.0F, -offset, 0.0F);
-				}
-				if (npc.display.showName()) {
-					renderLivingLabel(npc, matrixStack, buffer, light);
-				}
-				matrixStack.popPose();
-			}
+	public void renderNameTag(@Nonnull T npc, @Nonnull Component text, @Nonnull PoseStack matrixStack,
+							  @Nonnull MultiBufferSource buffer, int light) {
+		if (!shouldShowName(npc) || entityRenderDispatcher.distanceToSqr(npc) > 512.0d) { return; }
+		matrixStack.pushPose();
+		Vec3 renderOffset = getRenderOffset(npc, 0.0F);
+		matrixStack.translate(-renderOffset.x(), -renderOffset.y(), -renderOffset.z());
+
+		String title = npc.display.getTitle();
+		if (title.isEmpty() && npc.role instanceof RoleAuctioneer) {
+			AuctionHouse auction = AuctionController.getInstance().getAuction(((RoleAuctioneer) npc.role).getAuctionId());
+			if (auction != null) { title = Util.instance.getOldFormattedText(Component.translatable(auction.getName())); }
 		}
+		if (npc.messages != null) {
+			float height = npc.baseSize.height / 5.0F * npc.display.getSize();
+			float offset = npc.getBbHeight() * (1.2F + (npc.display.showName() ? (title.isEmpty() ? 0.15f : 0.25f) : 0.0f));
+			matrixStack.translate(0.0F, offset, 0.0F);
+			npc.messages.renderMessages(matrixStack, buffer, 0.666667F * height, npc.isInRange(entityRenderDispatcher.camera.getEntity(), 4.0D), light, false);
+			matrixStack.translate(0.0F, -offset, 0.0F);
+		}
+		if (npc.display.showName()) {
+			renderLivingLabel(npc, matrixStack, buffer, light, title);
+		}
+		matrixStack.popPose();
 	}
 
-	protected void renderLivingLabel(T npc, PoseStack matrixStack, MultiBufferSource buffer, int light) {
+	protected void renderLivingLabel(T npc, PoseStack matrixStack, MultiBufferSource buffer, int light, String title) {
 		float scale = npc.baseSize.height / 5.0F * npc.display.getSize();
 		float height = npc.getBbHeight() - 0.06F * scale;
 		matrixStack.pushPose();
@@ -88,7 +95,6 @@ public class RenderNPCInterface<T extends EntityNPCInterface, M extends EntityMo
 		boolean nearby = npc.isInRange(entityRenderDispatcher.camera.getEntity(), 8.0D);
 		boolean showLR = CustomNpcs.ShowLR;
 		if (showLR) { Packets.sendServerDelayed(new SPacketNpcRarityTitleGet(npc.getId()), npc, 5000); }
-		String title = npc.display.getTitle();
 		String rarityTitle = npc.stats.getRarityTitle();
 		if ((!title.isEmpty() || (showLR && !rarityTitle.isEmpty())) && nearby) {
 			Component component;

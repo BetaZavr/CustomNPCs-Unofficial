@@ -1,11 +1,11 @@
 package noppes.npcs.client.overlay;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 import noppes.npcs.api.constants.AlignmentType;
 import noppes.npcs.api.overlay.IRenderItemOverlay;
+import noppes.npcs.shared.client.gui.GuiBasic;
 
 import javax.annotation.Nonnull;
 
@@ -39,13 +39,7 @@ public class OverlayRenderItemComponent implements IOverlayRenderComponent {
          xPos += alignment.getOffsetX(widthWin / 2);
          yPos += alignment.getOffsetY(heightWin / 2);
       }
-      PoseStack matrixStack = graphics.pose();
-      matrixStack.pushPose();
-      matrixStack.translate(xPos, yPos, (float) id * 0.01F);
-      matrixStack.scale(scale, scale, scale);
-      graphics.renderItem(item, 0, 0);
-      graphics.renderItemDecorations(minecraft.font, item, 0, 0);
-      matrixStack.popPose();
+      GuiBasic.renderStackInGUI(graphics, item, xPos, yPos, (float) id * 0.01F, scale, null);
    }
 
 }

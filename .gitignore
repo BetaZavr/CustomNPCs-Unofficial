@@ -17,11 +17,13 @@ out
 # gradle
 build
 .gradle
+libs.lnk
+npcs.lnk
+libs
+lang
 
 # other
 CreaterAPITypeJS.java
-HprofAnalyzer.java
-dumps
 eclipse
 run
 libs.ink
@@ -31,3 +33,6 @@ libs.ink
 
 # Files from Forge MDK
 forge*changelog.txt
+
+# AI
+.gigacode

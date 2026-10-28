@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
 
 import javax.annotation.Nonnull;
@@ -45,15 +46,12 @@ public class GuiMenuTopIconButton extends GuiMenuTopButton {
    public void renderWidget(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
       if (visible) {
          isHovered = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + getWidth() && mouseY < getY() + height;
-         Minecraft mc = Minecraft.getInstance();
          RenderSystem.setShader(GameRenderer::getPositionTexShader);
          RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
          RenderSystem.setShaderTexture(0, resource);
          graphics.pose().pushPose();
          graphics.blit(resource, getX(), getY() + (active ? 2 : 0), 0, active ? 32 : 0, 28, 28);
-         graphics.pose().translate(0.0F, 0.0F, 100.0F);
-         graphics.renderItem(item, getX() + 6, getY() + 10);
-         graphics.renderItemDecorations(mc.font, item, getX() + 6, getY() + 10);
+         GuiBasic.renderStackInGUI(graphics, item, getX() + 6, getY() + 10, 100.0f, 1.0f, null);
          RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
          graphics.pose().popPose();
       }

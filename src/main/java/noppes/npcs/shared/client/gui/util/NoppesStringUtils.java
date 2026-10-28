@@ -50,7 +50,18 @@ public class NoppesStringUtils {
 
    public static String stripSpecialCharacters(String in) { return NON_ALPHANUMERIC.matcher(in).replaceAll(""); }
 
-   public static String cleanResource(String s) { return s.toLowerCase().replaceAll("[^a-z0-9_.\\-/:]", ""); }
+   public static String cleanResource(String s) {
+      if (isCleanResource(s)) { return s; }
+      return s.toLowerCase().replaceAll("[^a-z0-9_.\\-/:]", "");
+   }
+
+   private static boolean isCleanResource(String s) {
+      for (int i = 0; i < s.length(); i++) {
+         char c = s.charAt(i);
+         if (!(c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '_' || c == '.' || c == '-' || c == '/' || c == ':')) { return false; }
+      }
+      return true;
+   }
 
    public static String[] splitLines(String s) { return s.split("\r\n|\r|\n"); }
 

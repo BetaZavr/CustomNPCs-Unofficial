@@ -50,7 +50,7 @@ public class SPacketPlayerDataSet extends PacketServerBasic {
     }
 
     public static SPacketPlayerDataSet decode(FriendlyByteBuf buf) {
-        return new SPacketPlayerDataSet(buf.readEnum(EnumPlayerData.class), buf.readUtf(), buf.readInt(), buf.readAnySizeNbt());
+        return new SPacketPlayerDataSet(buf.readEnum(EnumPlayerData.class), buf.readUtf(), buf.readInt(), buf.readNbt());
     }
 
     @Override

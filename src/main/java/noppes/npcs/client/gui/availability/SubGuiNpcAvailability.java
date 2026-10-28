@@ -173,7 +173,7 @@ public class SubGuiNpcAvailability
    // New from Unofficial (BetaZavr)
    @Override
    public void mouseDragged(GuiSliderNop slider) {
-      availability.health = (int) (slider.sliderValue * 100.0f);
+      availability.health = (int) (slider.getValue() * 100.0f);
       slider.setString(availability.health + "%");
    }
 

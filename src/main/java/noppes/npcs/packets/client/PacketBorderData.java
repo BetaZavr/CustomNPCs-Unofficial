@@ -15,7 +15,7 @@ public class PacketBorderData extends PacketBasic {
 
     public static void encode(PacketBorderData msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static PacketBorderData decode(FriendlyByteBuf buf) { return new PacketBorderData(buf.readAnySizeNbt()); }
+    public static PacketBorderData decode(FriendlyByteBuf buf) { return new PacketBorderData(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

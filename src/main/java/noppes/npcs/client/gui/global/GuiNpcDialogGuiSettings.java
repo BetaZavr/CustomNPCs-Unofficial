@@ -503,36 +503,36 @@ public class GuiNpcDialogGuiSettings
     public void mouseDragged(GuiSliderNop slider) {
         switch (slider.id) {
             case 0: {
-                guiSettings.setWidth(Math.ceil((0.5f * slider.sliderValue + 0.4f) * 100.0f) / 100.0f);
+                guiSettings.setWidth(Math.ceil((0.5f * slider.getValue() + 0.4f) * 100.0f) / 100.0f);
                 if (getTextField(0) != null) { getTextField(0).setValue("" + Math.round(guiSettings.getWidth() * 100.0d)); }
                 break;
             } // width
             case 1: {
-                guiSettings.setOptionHeight(Math.round((0.6f * slider.sliderValue + 0.15f) * 100.0d) / 100.0d);
+                guiSettings.setOptionHeight(Math.round((0.6f * slider.getValue() + 0.15f) * 100.0d) / 100.0d);
                 if (getTextField(1) != null) { getTextField(1).setValue("" + Math.round(guiSettings.getOptionHeight() * 100.0d)); }
                 break;
             } // option height
             case 2: {
                 float[] pos = guiSettings.getNpcPos();
-                pos[0] = Math.round((slider.sliderValue - 0.5f) * 100.0f) / 100.0f;
+                pos[0] = Math.round((slider.getValue() - 0.5f) * 100.0f) / 100.0f;
                 guiSettings.setNpcPos(pos[0], pos[1]);
                 if (getTextField(2) != null) { getTextField(2).setValue("" + Math.round(100.0f * pos[0])); }
                 break;
             } // npc pos x
             case 3: {
                 float[] pos = guiSettings.getNpcPos();
-                pos[1] = Math.round((0.5f * slider.sliderValue - 0.25f) * 100.0f) / 100.0f;
+                pos[1] = Math.round((0.5f * slider.getValue() - 0.25f) * 100.0f) / 100.0f;
                 guiSettings.setNpcPos(pos[0], pos[1]);
                 if (getTextField(3) != null) { getTextField(3).setValue("" + Math.round(100.0f * pos[1])); }
                 break;
             } // npc pos y
             case 4: {
-                guiSettings.setNpcScale(4.85f * slider.sliderValue + 0.15f);
+                guiSettings.setNpcScale(4.85f * slider.getValue() + 0.15f);
                 if (getTextField(4) != null) { getTextField(4).setValue("" + Math.round(100.0f * guiSettings.getNpcScale())); }
                 break;
             } // npc scale
             case 5: {
-                guiSettings.setBlurringLine(slider.sliderValue / 4.0f);
+                guiSettings.setBlurringLine(slider.getValue() / 4.0f);
                 if (getTextField(5) != null) { getTextField(5).setValue("" + Math.round(100.0f * guiSettings.getBlurringLine())); }
                 break;
             } // blurring line
@@ -546,38 +546,38 @@ public class GuiNpcDialogGuiSettings
         switch (textField.id) {
             case 0: {
                 guiSettings.setWidth(textField.getInteger() / 100.0d);
-                if (getSlider(0) != null) { getSlider(0).setSliderValue(2.0f * (float) guiSettings.getWidth() - 0.8f); }
+                if (getSlider(0) != null) { getSlider(0).setValue(2.0f * (float) guiSettings.getWidth() - 0.8f); }
                 break;
             } // width
             case 1: {
                 float[] pos = guiSettings.getNpcPos();
                 pos[1] = 0.5f * textField.getInteger() - 0.25f;
                 guiSettings.setOptionHeight(textField.getInteger() / 100.0f);
-                if (getSlider(1) != null) { getSlider(1).setSliderValue(1.666667f * (float) guiSettings.getOptionHeight() - 0.25f); }
+                if (getSlider(1) != null) { getSlider(1).setValue(1.666667f * (float) guiSettings.getOptionHeight() - 0.25f); }
                 break;
             } // option height
             case 2: {
                 float[] pos = guiSettings.getNpcPos();
                 pos[0] = 0.01f * textField.getInteger();
                 guiSettings.setNpcPos(pos[0], pos[1]);
-                if (getSlider(2) != null) { getSlider(2).setSliderValue(pos[0] + 0.5f); }
+                if (getSlider(2) != null) { getSlider(2).setValue(pos[0] + 0.5f); }
                 break;
             } // npc pos x
             case 3: {
                 float[] pos = guiSettings.getNpcPos();
                 pos[1] = 0.01f * (float) textField.getInteger();
                 guiSettings.setNpcPos(pos[0], pos[1]);
-                if (getSlider(3) != null) { getSlider(3).setSliderValue(2.0f * pos[1] + 0.5f); }
+                if (getSlider(3) != null) { getSlider(3).setValue(2.0f * pos[1] + 0.5f); }
                 break;
             } // npc pos y
             case 4: {
                 guiSettings.setNpcScale((float) textField.getInteger() / 100.0f);
-                if (getSlider(4) != null) { getSlider(4).setSliderValue(0.206186f * guiSettings.getNpcScale() - 0.030928f); }
+                if (getSlider(4) != null) { getSlider(4).setValue(0.206186f * guiSettings.getNpcScale() - 0.030928f); }
                 break;
             } // npc scale
             case 5: {
                 guiSettings.setBlurringLine((float) textField.getInteger() / 100.0f);
-                if (getSlider(5) != null) { getSlider(5).setSliderValue(4.0f * guiSettings.getBlurringLine()); }
+                if (getSlider(5) != null) { getSlider(5).setValue(4.0f * guiSettings.getBlurringLine()); }
                 break;
             } // blurring line
             case 6: {

@@ -5,12 +5,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.data.Marcet;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketMarcetsGet;
+import noppes.npcs.roles.RoleTrader;
 import noppes.npcs.shared.client.gui.components.*;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
 import noppes.npcs.shared.client.gui.listeners.IGuiData;
@@ -25,17 +26,17 @@ import java.util.Map;
 public class SubGuiNpcSelectTrader extends GuiNPCInterface implements IGuiData, ICustomScrollListener {
 
    protected final Map<Component, Integer> data = new HashMap<>();
-   protected GuiCustomScrollNop scrollMarkets;
+   protected GuiCustomScrollNop scroll;
    protected Component select = Component.empty();
    public int id;
 
-   public SubGuiNpcSelectTrader(int idIn) {
-      super(NoppesUtilServer.getEditingNpc(Minecraft.getInstance().player));
+   public SubGuiNpcSelectTrader(EntityNPCInterface npc) {
+      super(npc);
       setBackground("menubg.png");
       imageWidth = 190;
       imageHeight = 217;
 
-      id = idIn;
+      id = ((RoleTrader) npc.role).getMarketID();
       Packets.sendServer(new SPacketMarcetsGet(-1));
    }
 
@@ -51,11 +52,11 @@ public class SubGuiNpcSelectTrader extends GuiNPCInterface implements IGuiData, 
          data.put(name, m.getId());
          if (id == m.getId()) { select = name; }
       }
-      if (scrollMarkets == null) { scrollMarkets = addScroll(0).setSize(170, 157); }
+      if (scroll == null) { scroll = addScroll(0).setSize(170, 157); }
       int x = guiLeft + 12, y = guiTop + 14;
-      scrollMarkets.setNormalList(list);
-      if (data.containsValue(id) && !select.getString().isEmpty()) { scrollMarkets.setSelected(select); }
-      add(scrollMarkets.setPos(x, y));
+      scroll.setNormalList(list);
+      if (data.containsValue(id) && !select.getString().isEmpty()) { scroll.setSelected(select); }
+      add(scroll.setPos(x, y));
       addLabel(0, x + 2, y - 10, "market.select")
               .setSize(170, 12)
               .setHoverTexts("market.hover.role.list");

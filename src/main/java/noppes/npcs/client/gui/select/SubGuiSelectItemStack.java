@@ -50,12 +50,7 @@ public class SubGuiSelectItemStack extends GuiBasic {
             }
         }
         if (stack != null && !stack.isEmpty()) {
-            matrixStack.pushPose();
-            matrixStack.translate(x + 1.0f, y + 1.0f, 0.0f);
-            graphics.renderItem(stack, 0, 0);
-            graphics.renderItemDecorations(font, stack, 0, 0);
-            matrixStack.translate(0.0f, 0.0f, 200.0f);
-            matrixStack.popPose();
+            renderStackInGUI(graphics, stack, x + 1.0f, y + 1.0f, 0.0f, 1.0f, null);
         }
 
         for (int i = 0; i < player.getInventory().items.size(); i ++) {
@@ -71,12 +66,7 @@ public class SubGuiSelectItemStack extends GuiBasic {
                 }
             }
             if (st.isEmpty()) { continue; }
-            matrixStack.pushPose();
-            matrixStack.translate(x + 1.0f, y + 1.0f, 0.0f);
-            graphics.renderItem(st, 0, 0);
-            graphics.renderItemDecorations(font, st, 0, 0);
-            matrixStack.translate(0.0f, 0.0f, 200.0f);
-            matrixStack.popPose();
+            renderStackInGUI(graphics, st, x + 1.0f, y + 1.0f, 0.0f, 1.0f, null);
         }
         matrixStack.popPose();
         if (list != null && !list.isEmpty()) {

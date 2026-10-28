@@ -5,7 +5,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.server.permission.nodes.PermissionNode;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerFactionData;
 import noppes.npcs.shared.common.PacketServerBasic;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketGuiData;
@@ -35,8 +34,7 @@ public class SPacketPlayerFactionsGet extends PacketServerBasic {
     @Override
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
-        PlayerFactionData data = PlayerData.get(player).factionData;
-        Packets.send(player, new PacketGuiData(data.getPlayerGuiData(player)));
+        Packets.send(player, new PacketGuiData(PlayerData.get(player).factionData.getPlayerGuiData(player)));
         CustomNpcs.debugData.end("Packets");
     }
 

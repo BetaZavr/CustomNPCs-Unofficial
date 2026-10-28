@@ -1,6 +1,5 @@
 package noppes.npcs.api.wrapper;
 
-import jdk.dynalink.beans.StaticClass;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.handler.data.IDataElement;
@@ -16,6 +15,7 @@ import java.util.*;
 public class DataObject implements IDataObject {
 
     private static final Map<String, String> obfuscated = new HashMap<>();
+    private static boolean hasStaticClass = true;
 
     public static void load() {
         CustomNPCsScheduler.runTack(() -> {
@@ -127,7 +127,13 @@ public class DataObject implements IDataObject {
 
     public DataObject(Object objectIn) {
         if (objectIn == null) { throw new CustomNPCsException("NULL is nothing and is not allowed for DUMP"); }
-        if (objectIn.getClass() == StaticClass.class) { objectIn = ((StaticClass) objectIn).getRepresentedClass(); }
+        if (hasStaticClass && objectIn.getClass().getSimpleName().equals("StaticClass")) {
+            try { objectIn = objectIn.getClass().getDeclaredMethod("getRepresentedClass").invoke(objectIn); }
+            catch (Exception e) {
+                hasStaticClass = false;
+                LogWriter.error(e);
+            }
+        }
         object = objectIn;
         Class<?> parent;
         try { parent = (Class<?>) objectIn; }
@@ -510,10 +516,20 @@ public class DataObject implements IDataObject {
         }
         Class<?>[] implementers = object.getClass().getInterfaces();
         if (implementers.length > 0) {
-            builder.append(" implements ");
+            boolean first = true;
             for (int i = 0; i < implementers.length; i++) {
-                builder.append(DataObject.getAgrName(implementers[i], implementers[i].getGenericSuperclass(), null));
-                if (i < implementers.length - 1) { builder.append(", "); }
+                String iName = implementers[i].getName();
+                if (!iName.endsWith("java.io.Serializable") &&
+                        !iName.endsWith("java.lang.reflect.GenericDeclaration") &&
+                        !iName.endsWith("java.lang.reflect.Type") &&
+                        !iName.endsWith("java.lang.reflect.AnnotatedElement")) {
+                    if (first) {
+                        builder.append(" implements ");
+                        first = false;
+                    }
+                    builder.append(DataObject.getAgrName(implementers[i], implementers[i].getGenericSuperclass(), null));
+                    if (i < implementers.length - 1) { builder.append(", "); }
+                }
             }
         }
         builder.append(":").append((char) 10).append("As an object: ").append(object).append((char) 10);
@@ -549,10 +565,20 @@ public class DataObject implements IDataObject {
         }
         Class<?>[] implementers = object.getClass().getInterfaces();
         if (implementers.length > 0) {
-            builder.append(" implements ");
+            boolean first = true;
             for (int i = 0; i < implementers.length; i++) {
-                builder.append(DataObject.getAgrName(implementers[i], implementers[i].getGenericSuperclass(), null));
-                if (i < implementers.length - 1) { builder.append(", "); }
+                String iName = implementers[i].getName();
+                if (!iName.endsWith("java.io.Serializable") &&
+                        !iName.endsWith("java.lang.reflect.GenericDeclaration") &&
+                        !iName.endsWith("java.lang.reflect.Type") &&
+                        !iName.endsWith("java.lang.reflect.AnnotatedElement")) {
+                    if (first) {
+                        builder.append(" implements ");
+                        first = false;
+                    }
+                    builder.append(DataObject.getAgrName(implementers[i], implementers[i].getGenericSuperclass(), null));
+                    if (i < implementers.length - 1) { builder.append(", "); }
+                }
             }
         }
         builder.append(":").append((char) 10).append("As an object: ").append(object).append((char) 10);

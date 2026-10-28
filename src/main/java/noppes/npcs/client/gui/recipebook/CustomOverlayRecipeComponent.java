@@ -24,6 +24,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.crafting.IShapedRecipe;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.data.RecipeCarpentry;
+import noppes.npcs.shared.client.gui.GuiBasic;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -208,8 +209,8 @@ public class CustomOverlayRecipeComponent extends OverlayRecipeComponent {
                     matrixStack.pushPose();
                     matrixStack.translate(recipeButtonPos.x, recipeButtonPos.y, 0.0D);
                     matrixStack.scale(ITEM_RENDER_SCALE, ITEM_RENDER_SCALE, 1.0F);
-                    matrixStack.translate(-8.0D, -8.0D, 0.0D);
-                    graphics.renderItem(recipeButtonPos.ingredients[Mth.floor(time / 30.0F) % recipeButtonPos.ingredients.length], 0, 0);
+                    GuiBasic.renderStackInGUI(graphics, recipeButtonPos.ingredients[Mth.floor(time / 30.0F) % recipeButtonPos.ingredients.length],
+                            -8.0D, -8.0D, 0.0f, 1.0f, "");
                     matrixStack.popPose();
                 }
             }

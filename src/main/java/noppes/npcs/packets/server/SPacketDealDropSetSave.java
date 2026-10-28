@@ -46,7 +46,7 @@ public class SPacketDealDropSetSave extends PacketServerBasic {
     }
 
     public static SPacketDealDropSetSave decode(FriendlyByteBuf buf) {
-        return new SPacketDealDropSetSave(buf.readInt(), buf.readInt(), buf.readAnySizeNbt());
+        return new SPacketDealDropSetSave(buf.readInt(), buf.readInt(), buf.readNbt());
     }
 
     @Override

@@ -1,6 +1,5 @@
 package noppes.npcs.shared.client.gui.components.custom;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,6 +9,7 @@ import noppes.npcs.api.wrapper.gui.CustomGuiButtonWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketCustomGuiButton;
+import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 import noppes.npcs.shared.client.gui.listeners.custom.IComponentCustomGui;
 import org.jetbrains.annotations.NotNull;
@@ -81,7 +81,6 @@ public class CustomGuiButton extends GuiButtonNop implements IComponentCustomGui
       PoseStack matrixStack = graphics.pose();
       matrixStack.pushPose();
       matrixStack.translate((float)getX(), (float)getY(), (float) id * 0.01F);
-      Minecraft mc = Minecraft.getInstance();
       int i;
       if (component.getTexture().equals("textures/gui/widgets.png")) { i = !active ? 0 : (isHovered ? 2 : 1); }
       else { i = isHovered ? 1 : 0; }
@@ -89,19 +88,10 @@ public class CustomGuiButton extends GuiButtonNop implements IComponentCustomGui
       background.render(graphics, mouseX - getX(), mouseY - getY(), partialTicks);
       renderLabel(graphics);
       if (!component.getDisplayItem().isEmpty()) {
-         graphics.pose().pushPose();
-         graphics.pose().translate(0.0F, 0.0F, -90.0F);
-         PoseStack posestack = RenderSystem.getModelViewStack();
-         posestack.pushPose();
-         posestack.translate((float)getX() + ((float)width - 16.0F) / 2.0F,
-                 (float)getY() + ((float)height - 16.0F) / 2.0F + 1.0F,
-                 -90.0F);
-         RenderSystem.applyModelViewMatrix();
-         graphics.renderItem(component.getDisplayItem().getMCItemStack(), 0, 0);
-         graphics.renderItemDecorations(mc.font, component.getDisplayItem().getMCItemStack(), 0, 0);
-         posestack.popPose();
-         graphics.pose().popPose();
-         RenderSystem.applyModelViewMatrix();
+         GuiBasic.renderStackInGUI(graphics, component.getDisplayItem().getMCItemStack(),
+                 (float) getX() + ((float)width - 16.0F) / 2.0F,
+                 (float) getY() + ((float)height - 16.0F) / 2.0F + 1.0F,
+                 -180.0F, 1.0f, null);
       }
       matrixStack.popPose();
    }

@@ -3,7 +3,6 @@ package noppes.npcs.controllers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.server.level.ServerPlayer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.handler.IKeyBinding;
 import noppes.npcs.api.handler.data.IKeySetting;
@@ -106,22 +105,22 @@ public class KeyController implements IKeyBinding {
         keybindings.get(id);
     }
 
-    public void loadKeys() {
+    public void load() {
         CustomNpcs.debugData.start(null);
         File saveDir = CustomNpcs.Dir;
         if (saveDir == null) { return; }
         try {
             File file = new File(saveDir, "keys.dat");
-            if (file.exists()) { loadKeys(file); }
+            if (file.exists()) { load(file); }
             else { loadDefaultKeys(); }
         }
         catch (Exception e) { loadDefaultKeys(); }
         CustomNpcs.debugData.end(null);
     }
 
-    private void loadKeys(File file) throws IOException { loadKeys(NbtIo.readCompressed(file)); }
+    private void load(File file) throws IOException { load(NbtIo.readCompressed(file)); }
 
-    public void loadKeys(CompoundTag compound) {
+    public void load(CompoundTag compound) {
         keybindings.clear();
         if (compound != null) {
             if (compound.contains("Data", 9)) {

@@ -19,7 +19,7 @@ public class PacketBankSave extends PacketBasic {
 
     public static void encode(PacketBankSave msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static PacketBankSave decode(FriendlyByteBuf buf) { return new PacketBankSave(buf.readAnySizeNbt()); }
+    public static PacketBankSave decode(FriendlyByteBuf buf) { return new PacketBankSave(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

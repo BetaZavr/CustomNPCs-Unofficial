@@ -31,7 +31,7 @@ public class SPacketTransportCategorySave extends PacketServerBasic {
 
    public static void encode(SPacketTransportCategorySave msg, FriendlyByteBuf buf) { buf.writeNbt(msg.compound); }
 
-   public static SPacketTransportCategorySave decode(FriendlyByteBuf buf) { return new SPacketTransportCategorySave(buf.readAnySizeNbt()); }
+   public static SPacketTransportCategorySave decode(FriendlyByteBuf buf) { return new SPacketTransportCategorySave(buf.readNbt()); }
 
    @Override
    public int getChannelId() { return channelId; }

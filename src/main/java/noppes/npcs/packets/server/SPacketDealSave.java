@@ -34,7 +34,7 @@ public class SPacketDealSave extends PacketServerBasic {
 
     public static void encode(SPacketDealSave msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static SPacketDealSave decode(FriendlyByteBuf buf) { return new SPacketDealSave(buf.readAnySizeNbt()); }
+    public static SPacketDealSave decode(FriendlyByteBuf buf) { return new SPacketDealSave(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

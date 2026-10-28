@@ -73,8 +73,7 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface<ContainerNPCFol
             int x = guiLeft + 89;
             int y = guiTop + yOffset + 10;
             graphics.blit(GuiBasic.RESOURCE_SLOT, x - 1, y - 1, 0, 0, 18, 18);
-            graphics.renderItem(itemstack, x, y);
-            graphics.renderItemDecorations(font, itemstack, x, y);
+            GuiBasic.renderStackInGUI(graphics, itemstack, x, y, 0.0f, 1.0f, null);
             Component daysS = Component.empty()
                     .append(" = " + days + " ")
                     .append(Component.translatable(days == 1 ? "follower.day": "follower.days"));

@@ -107,9 +107,16 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
       addButton(2, guiLeft + 189, guiTop + 166, "gui.fast")
               .setSize(59, 20)
               .setIsEnabled(compound != null && !compound.isEmpty());
-      addLabel(0, guiLeft + 4, guiTop + 167, "");
-      addLabel(1, guiLeft + 4, guiTop + 177, "");
-      addButton(66, guiLeft + 128, guiTop + 190, "gui.close").setSize(120, 20);
+      addLabel(0, guiLeft + 4, guiTop + 167, "")
+              .setSize(58, 12)
+              .setAlignLeft()
+              .setColor(0xFFA00000);
+      addLabel(1, guiLeft + 4, guiTop + 177, "")
+              .setSize(imageWidth - 8, 12)
+              .setAlignLeft()
+              .setColor(0xFFA00000);
+      addButton(66, guiLeft + 128, guiTop + 190, "gui.close")
+              .setSize(120, 20);
       GuiButtonNop button = addButton(67, guiLeft + 4, guiTop + 190, "gui.save")
               .setSize(120, 20)
               .setIsEnabled(!onlyClient);
@@ -196,13 +203,7 @@ public class GuiNbtBook extends GuiNPCInterface implements IGuiData {
             graphics.fill(guiLeft + 4, guiTop + 4, guiLeft + 54, guiTop + 54, 0xFF000000);
             matrixStack.popPose();
             // object
-            matrixStack.pushPose();
-            matrixStack.translate((float) guiLeft + 5.0f, (float) guiTop + 5.0f, 0.0f);
-            matrixStack.scale(3.0F, 3.0F, 3.0F);
-            ItemStack item = stack != null ? stack : blockStack;
-            graphics.renderItem(item, 0, 0);
-            graphics.renderItemDecorations(font, item, 0, 0);
-            matrixStack.popPose();
+            renderStackInGUI(graphics, stack != null ? stack : blockStack, guiLeft + 5.0f, guiTop + 5.0f, 0.0f, 3.0f, null);
          }
          else if (entity != null) {
             matrixStack.pushPose();

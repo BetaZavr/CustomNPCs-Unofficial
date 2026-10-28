@@ -20,6 +20,7 @@ import noppes.npcs.client.gui.util.GuiTooltipUtils;
 import noppes.npcs.mixin.client.IMouseHandlerMixin;
 import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.listeners.*;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 import org.joml.Matrix4f;
@@ -146,7 +147,7 @@ public class GuiCustomWindowNop extends GuiBasic
                 if (title != null && !title.getString().isEmpty()) {
                     GuiButtonNop.renderString(graphics, title, guiLeft + 3, guiTop + 1,
                             guiLeft + imageWidth - 10, guiTop + 11,
-                            YDEController.textColor, false, false, customFont);
+                            YDEController.textColor, false, EnumAlignText.LEFT, false, customFont);
                 }
             }
             else {
@@ -188,7 +189,7 @@ public class GuiCustomWindowNop extends GuiBasic
                 if (title != null && !title.getString().isEmpty()) {
                     GuiButtonNop.renderString(graphics, title, guiLeft + 4, guiTop + 2,
                             guiLeft + imageWidth - 20, guiTop + 11,
-                            CustomNpcs.MainColor.getRGB() | 255 << 24, false, false, null);
+                            CustomNpcs.MainColor.getRGB() | 255 << 24, false, EnumAlignText.LEFT, false, null);
                 }
             }
         }

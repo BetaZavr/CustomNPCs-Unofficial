@@ -1,5 +1,6 @@
 package noppes.npcs.containers;
 
+import moe.plushie.armourers_workshop.api.ArmourersWorkshopApi;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -9,7 +10,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.*;
 import noppes.npcs.CustomContainer;
+import noppes.npcs.containers.slots.AWSlotOutfit;
+import noppes.npcs.containers.slots.AWSlotWings;
 import noppes.npcs.containers.slots.SlotNPCArmor;
+import noppes.npcs.containers.slots.SlotNPCHand;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataInventory;
 import org.jetbrains.annotations.NotNull;
@@ -24,16 +28,14 @@ public class ContainerNPCInv extends AbstractContainerMenu {
       addSlot(new SlotNPCArmor(inv, 1, 9, 40, EquipmentSlot.CHEST));
       addSlot(new SlotNPCArmor(inv, 2, 9, 58, EquipmentSlot.LEGS));
       addSlot(new SlotNPCArmor(inv, 3, 9, 76, EquipmentSlot.FEET));
-      addSlot(new Slot(inv, 4, 81, 22));
-      addSlot(new Slot(inv, 5, 81, 40));
-      addSlot(new Slot(inv, 6, 81, 58));
-      /*
+      addSlot(new SlotNPCHand(inv, 4, 81, 22, "weapon"));
+      addSlot(new SlotNPCHand(inv, 5, 81, 40, "arrow"));
+      addSlot(new SlotNPCHand(inv, 6, 81, 58, "shield"));
       // AW mod
       if (ArmourersWorkshopApi.isAvailable()) {
          addSlot(new AWSlotOutfit(inv, 7, 27, 4));
          addSlot(new AWSlotWings(inv, 8, 45, 4));
       }
-      /**/
       // player inventory
       for(int x = 0; x < 3; ++x) {
          for(int y = 0; y < 9; ++y) { addSlot(new Slot(playerInventory, y + x * 9 + 9, y * 18 + 8, 113 + x * 18)); }

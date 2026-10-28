@@ -42,7 +42,7 @@ public class SPacketAnimationChange extends PacketServerBasic {
         buf.writeNbt(msg.data);
     }
 
-    public static SPacketAnimationChange decode(FriendlyByteBuf buf) { return new SPacketAnimationChange(buf.readInt(), buf.readAnySizeNbt()); }
+    public static SPacketAnimationChange decode(FriendlyByteBuf buf) { return new SPacketAnimationChange(buf.readInt(), buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

@@ -18,8 +18,8 @@ public class SubGuiDropAttribute extends GuiNPCInterface implements ITextfieldLi
         super();
         setBackground("companion_empty.png");
         closeOnEsc = true;
-        imageWidth = 172;
-        imageHeight = 167;
+        imageWidth = 130;
+        imageHeight = 122;
 
         attribute = attributeIn;
     }
@@ -36,36 +36,48 @@ public class SubGuiDropAttribute extends GuiNPCInterface implements ITextfieldLi
     public void init() {
         super.init();
         int lId = 80;
+        int x = guiLeft + 5;
+        int y = guiTop + 15;
         // name
-        addTextField(72, guiLeft + 4, guiTop + 5, 163, 20, attribute.getAttribute())
-                .setHoverTexts("drop.hover.attribute.name", Component.translatable("attribute.name." + attribute.getAttribute()).getString());
+        addLabel(lId++, x, y - 10, Component.translatable("gui.name").append(":"));
+        addTextField(72, x + 1, y, 118, 14, attribute.getAttribute())
+                .setHoverTexts(Component.translatable("drop.hover.attribute.name",
+                        Component.translatable("attribute.name." + attribute.getAttribute()).getString()));
         // values
         values = new double[] { attribute.getMinValue(), attribute.getMaxValue() };
-        addLabel(lId++, guiLeft + 56, guiTop + 36, "type.value");
+        addLabel(lId++, x, (y += 18) + 8, "type.value")
+                .setSize(33, 10);
+        addLabel(lId++, x + 35, y + 2, Component.translatable("gui.min").append(":"))
+                .setSize(31, 10);
+        addLabel(lId++, x + 35, y + 16, Component.translatable("gui.max").append(":"))
+                .setSize(31, 10);
+
         String tied = Component.translatable("drop.tied.random").getString();
         if (attribute.parent.tiedToLevel) { tied = Component.translatable("drop.tied.level").getString(); }
         // min
-        addTextField(73, guiLeft + 4, guiTop + 27, 50, 14, "" + values[0])
+        addTextField(73, x + 69, y, 50, 14, "" + values[0])
                 .setMinMaxDefault(-4096.0d, 4096.0d, attribute.getMinValue())
                 .setHoverTexts("drop.hover.attribute.values", tied);
         // max
-        addTextField(74, guiLeft + 4, guiTop + 41, 50, 14, "" + values[1])
+        addTextField(74, x + 69, y += 15, 50, 14, "" + values[1])
                 .setMinMaxDefault(-4096.0d, 4096.0d, attribute.getMaxValue())
                 .setHoverTexts("drop.hover.attribute.values", tied);
         // slot
         Object[] slots = new String[7];
         for (int i = 0; i < 7; i++) { slots[i] = "attribute.slot." + i; }
-        addButton(70, guiLeft + 4, guiTop + 57, false, attribute.slot + 1, slots)
-                .setSize(87, 20)
+        addLabel(lId++, x + 35, (y += 17) + 2, Component.translatable("drop.slot").append(":"))
+                .setSize(31, 10);
+        addButton(70, x + 68, y, false, attribute.slot + 1, slots)
+                .setSize(52, 16)
                 .setHoverTexts("drop.hover.attribute.slot");
         // chance
-        addLabel(lId, guiLeft + 56, guiTop + 84, "drop.chance");
-        addTextField(75, guiLeft + 4, guiTop + 79, 50, 20, String.valueOf(attribute.getChance()))
+        addLabel(lId, x + 35, (y += 19) + 2, Component.translatable("drop.chance").append(":"));
+        addTextField(75, x + 69, y, 50, 14, String.valueOf(attribute.getChance()))
                 .setMinMaxDefault(0.0001d, 100.0d, attribute.getChance())
                 .setHoverTexts("drop.hover.attribute.chance");
         // done
-        addButton(66, guiLeft + 4, guiTop + 142, "gui.done")
-                .setSize(80, 20)
+        addButton(66, x + 19, y + 17, "gui.done")
+                .setSize(80, 16)
                 .setIsEnabled(check())
                 .setHoverTexts("hover.back");
     }

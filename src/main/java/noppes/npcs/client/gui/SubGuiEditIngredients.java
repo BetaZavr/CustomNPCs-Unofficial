@@ -45,18 +45,13 @@ public class SubGuiEditIngredients extends GuiBasic {
 
         for (int i = 0 ; i < stacks.length; i++) {
             if (stacks[i] == null || stacks[i].isEmpty()) { continue; }
-            matrixStack.pushPose();
             int x = (int) (guiLeft + 8.0d + (i % 9) * 18.0d);
             int y = (int) (guiTop + 17.0d + Math.floor(i / 9.0d) * 18.0d);
-            matrixStack.translate(x, y, 0.0f);
-            graphics.renderItem(stacks[i], 0, 0);
-            graphics.renderItemDecorations(font, stacks[i], 0, 0);
+            renderStackInGUI(graphics, stacks[i], x + 1, y + 1, 0.0f, 1.0f, null);
             if (isMouseHover(mouseX, mouseY, x, y, 18, 18)) {
-                matrixStack.translate(-x, -y + 32.0f, 0.0f);
-                GuiTooltipUtils.renderTooltip(graphics, font, stacks[i], mouseX, mouseY);
+                GuiTooltipUtils.renderTooltip(graphics, font, stacks[i], mouseX, mouseY + 32);
                 hover = i;
             }
-            matrixStack.popPose();
         }
     }
 

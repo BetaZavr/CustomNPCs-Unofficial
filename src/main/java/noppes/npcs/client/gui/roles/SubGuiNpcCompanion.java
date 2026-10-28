@@ -21,13 +21,13 @@ import noppes.npcs.shared.client.gui.components.*;
 import noppes.npcs.shared.client.gui.listeners.ISliderListener;
 import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
 
-public class GuiNpcCompanion extends GuiNPCInterface2
+public class SubGuiNpcCompanion extends GuiNPCInterface2
         implements ITextfieldListener, ISliderListener {
 
    protected final List<GuiNpcCompanionTalents.GuiTalent> talents = new ArrayList<>();
    protected final RoleCompanion role;
 
-   public GuiNpcCompanion(EntityNPCInterface npc) {
+   public SubGuiNpcCompanion(EntityNPCInterface npc) {
       super(npc);
 
       backGui = EnumGuiType.MainMenuAdvanced;
@@ -100,13 +100,13 @@ public class GuiNpcCompanion extends GuiNPCInterface2
 
    @Override
    public void mouseDragged(GuiSliderNop slider) {
-      if (slider.sliderValue <= 0.0F) {
+      if (slider.getValue() <= 0.0F) {
          slider.setMessage(Component.translatable("gui.disabled"));
          role.talents.remove(EnumCompanionTalent.values()[slider.id - 10]);
       }
       else {
-         slider.setMessage(Component.translatable((int)(slider.sliderValue * 5000.0F) + " exp"));
-         role.setExp(EnumCompanionTalent.values()[slider.id - 10], (int)(slider.sliderValue * 50.0F) * 100);
+         slider.setMessage(Component.translatable((int)(slider.getValue() * 5000.0F) + " exp"));
+         role.setExp(EnumCompanionTalent.values()[slider.id - 10], (int)(slider.getValue() * 50.0F) * 100);
       }
    }
 

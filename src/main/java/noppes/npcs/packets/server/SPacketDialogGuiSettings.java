@@ -32,9 +32,7 @@ public class SPacketDialogGuiSettings extends PacketServerBasic {
 
     public static void encode(SPacketDialogGuiSettings msg, FriendlyByteBuf buf) {buf.writeNbt(msg.compound); }
 
-    public static SPacketDialogGuiSettings decode(FriendlyByteBuf buf) {
-        return new SPacketDialogGuiSettings(buf.readAnySizeNbt());
-    }
+    public static SPacketDialogGuiSettings decode(FriendlyByteBuf buf) { return new SPacketDialogGuiSettings(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

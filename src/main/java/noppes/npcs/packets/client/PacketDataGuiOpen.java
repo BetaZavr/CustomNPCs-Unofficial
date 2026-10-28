@@ -30,7 +30,7 @@ public class PacketDataGuiOpen extends PacketBasic {
     }
 
     public static PacketDataGuiOpen decode(FriendlyByteBuf buf) {
-        return new PacketDataGuiOpen(buf.readEnum(EnumGuiType.class),buf.readAnySizeNbt());
+        return new PacketDataGuiOpen(buf.readEnum(EnumGuiType.class),buf.readNbt());
     }
 
     @Override

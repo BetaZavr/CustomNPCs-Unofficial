@@ -42,6 +42,7 @@ import noppes.npcs.shared.client.gui.listeners.IComponentGui;
 import noppes.npcs.shared.client.gui.listeners.IGuiData;
 import noppes.npcs.shared.client.gui.listeners.ITextChangeListener;
 import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 import org.joml.Matrix4f;
@@ -967,8 +968,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
          if (renderStack != null && !renderStack.isEmpty()) {
             graphics.blit(ICONS, x + 6, y + 2, 0, getState(true) * 24, 24, 24);
             if (!inTrade) { RenderSystem.setShaderColor(0.4F, 0.4F, 0.4F, 1.0F); }
-            graphics.renderItem(renderStack, x + 10, y + 6);
-            graphics.renderItemDecorations(mc.font, renderStack, x + 10, y + 6, null);
+            GuiBasic.renderStackInGUI(graphics, renderStack, x + 10, y + 6, 0.0f, 1.0f, null);
             if (!inTrade) { RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F); }
             if (isHovered && isMouseHover(mouseX, mouseY, x + 6, y + parent.scrollY + 3, 22, 22)) {
                hoverText.clear();
@@ -1050,7 +1050,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
                int i = 0;
                List<Component> hovers;
                for (ItemStack stack : dm.buyItems.keySet()) {
-                  graphics.renderItem(stack, i * 18, 0);
+                  GuiBasic.renderStackInGUI(graphics, stack, i * 18, 0, 0.0f, 1.0f, "");
 
                   matrixStack.pushPose();
                   String sCount = Util.instance.getTextReducedNumber(dm.buyItems.get(stack), true, true, false);
@@ -1079,7 +1079,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
          x = getX() + 36;
          y = getY() + 2 + parent.scrollY;
          renderString(graphics, getMessage(), x, y, x + width - 39 - mw, y + 10,
-                 CustomNpcs.MainColor.getRGB() | 0xFF000000, true, false, customFont);
+                 CustomNpcs.MainColor.getRGB() | 0xFF000000, true, EnumAlignText.LEFT, false, customFont);
          matrixStack.popPose();
 
          graphics.disableScissor();
@@ -1200,7 +1200,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
          Component mes = getMessage();
          if (isHovered) { mes = MutableComponent.create(mes.getContents()).withStyle(ChatFormatting.UNDERLINE); }
          renderString(graphics, mes, getX() + 11, getY(), getX() + getWidth() - 11, getY() + getHeight(),
-                 getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, true, customFont);
+                 getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, EnumAlignText.CENTER, false, customFont);
          if (isHovered && !hoverText.isEmpty()) {
             if (listener != null) { listener.setHoverText(hoverText); }
             else { GuiTooltipUtils.renderTooltip(graphics, Minecraft.getInstance().font, hoverText, Optional.empty(), mouseX, mouseY); }

@@ -21,7 +21,7 @@ public class PacketCustomNBT extends PacketBasic {
 
     public static void encode(PacketCustomNBT msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static PacketCustomNBT decode(FriendlyByteBuf buf) { return new PacketCustomNBT(buf.readAnySizeNbt()); }
+    public static PacketCustomNBT decode(FriendlyByteBuf buf) { return new PacketCustomNBT(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

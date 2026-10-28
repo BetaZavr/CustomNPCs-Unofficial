@@ -35,6 +35,7 @@ import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.*;
 import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 import org.jetbrains.annotations.NotNull;
@@ -406,8 +407,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface<ContainerNPCBank> 
             xs += 1;
             ys += 1;
             // item
-            graphics.renderItem(stack, xs, ys);
-            graphics.renderItemDecorations(font, stack, xs, ys);
+            GuiBasic.renderStackInGUI(graphics, stack, xs, ys, 0.0f, 1.0f, null);
             // info
             if (isMouseHover(mouseX, mouseY, xs, ys, 16, 16)) {
                List<Component> hover = new ArrayList<>();
@@ -718,8 +718,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface<ContainerNPCBank> 
       }
       if (!flag1) {
          if (hovering) { graphics.fill(xPos, yPos, xPos + 16, yPos + 16, 0x80FFFFFF); }
-         graphics.renderItem(itemstack, xPos, yPos, slotIn.x + slotIn.y * imageWidth);
-         graphics.renderItemDecorations(font, itemstack, xPos, yPos, s);
+         GuiBasic.renderStackInGUI(graphics, itemstack, xPos, yPos, 0.0f, 1.0f, s);
       }
       graphics.pose().popPose();
    }
@@ -805,7 +804,7 @@ public class GuiNPCBankChest extends GuiContainerNPCInterface<ContainerNPCBank> 
          Component mes = getMessage();
          renderString(graphics, getMessage(), getX() + (isCeil ? - mc.font.width(mes) : 2), getY(),
                  getX() + (isCeil ? 0 : getWidth() - 2), getY() + getHeight(),
-                 getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, true, customFont);
+                 getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, EnumAlignText.CENTER, false, customFont);
          matrixStack.popPose();
       }
 

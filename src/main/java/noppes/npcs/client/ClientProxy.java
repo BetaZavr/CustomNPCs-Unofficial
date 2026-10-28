@@ -85,10 +85,10 @@ import noppes.npcs.client.gui.player.companion.GuiNpcCompanionInv;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionStats;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionTalents;
 import noppes.npcs.client.gui.questtypes.SubGuiNpcQuestTypeItem;
-import noppes.npcs.client.gui.roles.GuiNpcBankSetup;
+import noppes.npcs.client.gui.roles.SubGuiNpcBankSetup;
 import noppes.npcs.client.gui.roles.GuiNpcFollowerSetup;
 import noppes.npcs.client.gui.roles.GuiNpcItemGiver;
-import noppes.npcs.client.gui.roles.GuiNpcTransporter;
+import noppes.npcs.client.gui.roles.SubGuiNpcTransporter;
 import noppes.npcs.client.gui.script.*;
 import noppes.npcs.client.gui.select.ResourceSelection;
 import noppes.npcs.client.gui.yellow_de.GuiYellowDialogEditor;
@@ -218,6 +218,8 @@ public class ClientProxy extends CommonProxy {
          MenuScreens.register(CustomContainer.container_custom_chest, GuiCustomContainer::new);
          MenuScreens.register(CustomContainer.container_dropsetup, SubGuiDropEdit::new);
          MenuScreens.register(CustomContainer.container_npc_dead, GuiNPCDeadInventory::new);
+         MenuScreens.register(CustomContainer.container_auction_create_lot, SubGuiNpcAuctionCreateLot::new);
+         MenuScreens.register(CustomContainer.container_auction_forbidden_item, SubGuiNpcAuctionForbiddenItem::new);
 
          Optional<? extends ModContainer> cont = ModList.get().getModContainerById(CustomNpcs.MODID);
          cont.ifPresent(modContainer -> modContainer.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, CustomNpcsGuiFactory.FACTORY));
@@ -348,8 +350,8 @@ public class ClientProxy extends CommonProxy {
          case ScriptItem: returnGui = new GuiScriptItem(); break;
          case ScriptDoor: returnGui = new GuiScriptDoor(preEvent.buffer.readBlockPos()); break;
          case ScriptPlayers: returnGui = new GuiScriptGlobal(); break;
-         case SetupTransporter: returnGui = new GuiNpcTransporter(preEvent.npc); break;
-         case SetupBank: returnGui = new GuiNpcBankSetup(preEvent.npc); break;
+         case SetupTransporter: returnGui = new SubGuiNpcTransporter(preEvent.npc); break;
+         case SetupBank: returnGui = new SubGuiNpcBankSetup(preEvent.npc); break;
          case NpcRemote: {
             if (mc.screen == null) { returnGui = new GuiNpcRemoteEditor(); }
             break;
@@ -400,6 +402,13 @@ public class ClientProxy extends CommonProxy {
             break;
          }
          case ManageCustomElements: returnGui = new GuiManageCustomElements(); break;
+         case ManageDropTemplates: returnGui = new GuiNpcManageDropTemplates(preEvent.npc); break;
+         case ManageAuctions: returnGui = new GuiNpcManageAuctions(preEvent.npc); break;
+         case PlayerAuction: {
+            AuctionHouse auction = AuctionController.getInstance().getAuction(preEvent.buffer.readBlockPos().getX());
+            if (auction != null) { returnGui = new GuiNpcAuction(auction); }
+            break;
+         }
       }
       ClientEvent.PostGetGuiCustomNpcs postEvent = new ClientEvent.PostGetGuiCustomNpcs(preEvent.npc, preEvent.guiType, preEvent.buffer, returnGui);
       MinecraftForge.EVENT_BUS.post(postEvent);

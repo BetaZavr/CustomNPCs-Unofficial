@@ -47,7 +47,7 @@ public class SPacketNpcJobSpawnerAdd extends PacketServerBasic {
     }
 
     public static SPacketNpcJobSpawnerAdd decode(FriendlyByteBuf buf) {
-        return new SPacketNpcJobSpawnerAdd(buf.readBoolean(), buf.readUtf(), buf.readInt(), buf.readAnySizeNbt());
+        return new SPacketNpcJobSpawnerAdd(buf.readBoolean(), buf.readUtf(), buf.readInt(), buf.readNbt());
     }
 
     @Override

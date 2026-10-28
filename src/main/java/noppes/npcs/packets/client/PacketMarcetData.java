@@ -19,7 +19,7 @@ public class PacketMarcetData extends PacketBasic {
 
     public static void encode(PacketMarcetData msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static PacketMarcetData decode(FriendlyByteBuf buf) { return new PacketMarcetData(buf.readAnySizeNbt()); }
+    public static PacketMarcetData decode(FriendlyByteBuf buf) { return new PacketMarcetData(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

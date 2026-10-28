@@ -32,7 +32,7 @@ public class SPacketNpcPuppetSave extends PacketServerBasic {
 
     public static void encode(SPacketNpcPuppetSave msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static SPacketNpcPuppetSave decode(FriendlyByteBuf buf) { return new SPacketNpcPuppetSave(buf.readAnySizeNbt()); }
+    public static SPacketNpcPuppetSave decode(FriendlyByteBuf buf) { return new SPacketNpcPuppetSave(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

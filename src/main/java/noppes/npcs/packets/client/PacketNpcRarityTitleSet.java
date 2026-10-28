@@ -23,7 +23,7 @@ public class PacketNpcRarityTitleSet extends PacketBasic {
         buf.writeNbt(msg.compound);
     }
 
-    public static PacketNpcRarityTitleSet decode(FriendlyByteBuf buf) { return new PacketNpcRarityTitleSet(buf.readInt(), buf.readAnySizeNbt()); }
+    public static PacketNpcRarityTitleSet decode(FriendlyByteBuf buf) { return new PacketNpcRarityTitleSet(buf.readInt(), buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

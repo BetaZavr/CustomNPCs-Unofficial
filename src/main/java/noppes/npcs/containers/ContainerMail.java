@@ -6,11 +6,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import noppes.npcs.CustomContainer;
-import noppes.npcs.containers.slots.SlotValid;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.controllers.data.PlayerMailData;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class ContainerMail extends ContainerNpcInterface {
 
@@ -28,7 +28,12 @@ public class ContainerMail extends ContainerNpcInterface {
       canSend = canSendIn;
       playerInventory.startOpen(player);
       for (int k = 0; k < 4; ++k) {
-         addSlot(new SlotValid(mail, k, 199 + (k % 2) * 18, 190 + (k / 2) * 18, canEdit));
+         addSlot(new Slot(mail, k, 199 + (k % 2) * 18, 190 + (k / 2) * 18) {
+            @Override
+            public boolean mayPlace(@Nonnull ItemStack itemstack) {
+               return canEdit && this.container.canPlaceItem(0, itemstack);
+            }
+         });
       }
       for (int j = 0; j < 3; ++j) {
          for (int k = 0; k < 9; ++k) {
@@ -41,7 +46,7 @@ public class ContainerMail extends ContainerNpcInterface {
    }
 
    @Override
-   public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int slotId) {
+   public @Nonnull ItemStack quickMoveStack(@Nonnull Player playerIn, int slotId) {
       ItemStack itemstack = ItemStack.EMPTY;
       Slot slot = slots.get(slotId);
       if (slot.hasItem()) {
@@ -58,7 +63,7 @@ public class ContainerMail extends ContainerNpcInterface {
    }
 
    @Override
-   public void removed(@NotNull Player playerIn) {
+   public void removed(@Nonnull Player playerIn) {
       super.removed(player);
       if (playerIn instanceof ServerPlayer) {
          if (!canEdit) {

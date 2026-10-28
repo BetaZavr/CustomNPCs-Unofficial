@@ -31,7 +31,7 @@ public class SPacketRegionSave extends PacketServerBasic {
 
     public static void encode(SPacketRegionSave msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static SPacketRegionSave decode(FriendlyByteBuf buf) { return new SPacketRegionSave(buf.readAnySizeNbt()); }
+    public static SPacketRegionSave decode(FriendlyByteBuf buf) { return new SPacketRegionSave(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

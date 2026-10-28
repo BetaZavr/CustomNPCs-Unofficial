@@ -60,7 +60,7 @@ public class GuiButtonBiDirectional extends GuiButtonNop {
          mes = tempMes;
       }
       renderString(graphics, mes, getX() + 11, getY(), getX() + getWidth() - 11, getY() + getHeight(),
-              getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, true, customFont);
+              getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, alignText, false, customFont);
       if (isHovered && !hoverText.isEmpty()) {
          if (listener != null) { listener.setHoverText(hoverText); }
          else { GuiTooltipUtils.renderTooltip(graphics, Minecraft.getInstance().font, hoverText, Optional.empty(), mouseX, mouseY); }
@@ -73,10 +73,13 @@ public class GuiButtonBiDirectional extends GuiButtonNop {
       if (active && visible) {
          if (clicked(mouseX, mouseY)) {
             if (isValidClickButton(mouseButton) && display != null) {
-               if (hoverR) { displayValue = (displayValue + 1) % display.length; }
+               if (hoverR) {
+                  displayValue++;
+                  if (displayValue >= display.length) { displayValue = 0; }
+               }
                if (hoverL) {
-                  if (displayValue <= 0) { displayValue = display.length; }
                   --displayValue;
+                  if (displayValue < 0) { displayValue = display.length - 1; }
                }
                setDisplay(displayValue);
             }

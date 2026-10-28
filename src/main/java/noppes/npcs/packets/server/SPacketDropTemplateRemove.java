@@ -37,7 +37,12 @@ public class SPacketDropTemplateRemove extends PacketServerBasic {
     @Override
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
-        if (!name.isEmpty()) { DropController.getInstance().templates.remove(name); }
+        if (!name.isEmpty()) {
+            DropController dData = DropController.getInstance();
+            dData.templates.remove(name);
+            dData.save();
+            dData.sendTo(player);
+        }
         CustomNpcs.debugData.end("Packets");
     }
 

@@ -15,6 +15,7 @@ import noppes.npcs.mixin.client.IMouseHandlerMixin;
 import noppes.npcs.shared.client.gui.listeners.IComponentGui;
 import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
 import noppes.npcs.shared.client.gui.listeners.ISliderListener;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 
@@ -26,8 +27,9 @@ public class GuiSliderNop extends AbstractWidget implements IComponentGui {
 
    protected final IGuiInterface listener;
    public int id;
-   public float sliderValue;
-   public float startValue;
+   /** 0.0 ... 1.0 */
+   protected float sliderValue;
+   protected float startValue;
 
    // New from Unofficial (BetaZavr)
    protected List<Component> hoverText = new ArrayList<>();
@@ -41,8 +43,8 @@ public class GuiSliderNop extends AbstractWidget implements IComponentGui {
       super(x, y, 150, 20, Component.empty());
       id = idIn;
       isVertical = height > width;
-      sliderValue = sliderValueIn;
-      startValue = sliderValueIn;
+      sliderValue = ValueUtil.correctFloat(sliderValueIn, 0.0f, 1.0f);
+      startValue = sliderValue;
       listener = parent;
       visible = true;
       if (listener instanceof ISliderListener gui) { gui.mouseDragged(this); }
@@ -54,7 +56,17 @@ public class GuiSliderNop extends AbstractWidget implements IComponentGui {
       return this;
    }
 
-   public void setSliderValue(float value) {
+   @SuppressWarnings("unused")
+   public float getStartValue() { return startValue; }
+
+   public float getValue() { return sliderValue; }
+
+   public void setValue(float value) {
+      value = ValueUtil.correctFloat(value, 0.0f, 1.0f);
+      if (value != sliderValue) { sliderValue = value; }
+   }
+
+   protected void setSliderValue(float value) {
       value = ValueUtil.correctFloat(value, 0.0f, 1.0f);
       if (value != sliderValue) {
          sliderValue = value;
@@ -112,7 +124,7 @@ public class GuiSliderNop extends AbstractWidget implements IComponentGui {
       // scroll
       renderBg(graphics);
       GuiButtonNop.renderString(graphics, getMessage(), getX(), getY(), getX() + getWidth(), getY() + getHeight(),
-              getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, true, customFont);
+              getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, EnumAlignText.CENTER, false, customFont);
    }
 
    @Override

@@ -43,7 +43,7 @@ public class SPacketScriptEncrypt extends PacketServerBasic {
         buf.writeNbt(msg.compound);
     }
 
-    public static SPacketScriptEncrypt decode(FriendlyByteBuf buf) { return new SPacketScriptEncrypt(buf.readInt(), buf.readAnySizeNbt()); }
+    public static SPacketScriptEncrypt decode(FriendlyByteBuf buf) { return new SPacketScriptEncrypt(buf.readInt(), buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nonnull;
@@ -25,6 +26,7 @@ public class GuiCheckBoxNop extends GuiButtonNop {
         super(gui, id, x, y, 120, 14, Component.empty());
         textColor = CustomNpcs.LableColor.getRGB();
         showShadow = false;
+        alignText = EnumAlignText.LEFT;
         selected = select;
         setText(trueLabel, falseLabel);
     }
@@ -56,7 +58,7 @@ public class GuiCheckBoxNop extends GuiButtonNop {
         matrixStack.popPose();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         renderString(graphics, getMessage(), getX() + height + 1, getY(), getX() + width - 1, getY() + height,
-                getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, false, customFont);
+                getFGColor() | Mth.ceil(alpha * 255.0F) << 24, showShadow, alignText, false, customFont);
     }
 
     @Override

@@ -16,7 +16,8 @@ public enum RoleType {
    TRANSPORTER("transporter", 4, true),
    MAILMAN("mailman", 5, false),
    COMPANION("companion", 6, true),
-   DIALOG("dialog", 7, true);
+   DIALOG("dialog", 7, true),
+   AUCTIONEER("auctioneer", 8, true);
 
    public static RoleType get(int id) {
       for (RoleType er : RoleType.values()) {
@@ -55,6 +56,7 @@ public enum RoleType {
          case MAILMAN -> new RolePostman(npc);
          case COMPANION -> new RoleCompanion(npc);
          case DIALOG -> new RoleDialog(npc);
+         case AUCTIONEER -> new RoleAuctioneer(npc);
          default -> RoleInterface.NONE;
       };
    }

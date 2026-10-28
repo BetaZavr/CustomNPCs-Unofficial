@@ -62,7 +62,7 @@ public class PlayerFactionData implements IPlayerData {
             EventHooks.onPlayerFactionChange(handler, event);
             if (!event.isCanceled() && event.faction != null) {
                int value = ValueUtil.correctInt(event.points, 0, Integer.MAX_VALUE);
-               if (value > 0) { factionData.put(event.faction.getId(), value); }
+               if (value >= 0) { factionData.put(event.faction.getId(), value); }
                else { factionData.remove(event.faction.getId()); }
                Packets.send((ServerPlayer) player, new PacketSyncUpdate(0, 13, save(new CompoundTag())));
             }

@@ -33,7 +33,7 @@ public class SPacketSetBuildData extends PacketServerBasic {
 
     public static void encode(SPacketSetBuildData msg, FriendlyByteBuf buf) { buf.writeNbt(msg.compound); }
 
-    public static SPacketSetBuildData decode(FriendlyByteBuf buf) { return new SPacketSetBuildData(buf.readAnySizeNbt()); }
+    public static SPacketSetBuildData decode(FriendlyByteBuf buf) { return new SPacketSetBuildData(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

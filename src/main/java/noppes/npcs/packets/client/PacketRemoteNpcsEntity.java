@@ -26,7 +26,7 @@ public class PacketRemoteNpcsEntity extends PacketBasic {
 
     public static void encode(PacketRemoteNpcsEntity msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static PacketRemoteNpcsEntity decode(FriendlyByteBuf buf) { return new PacketRemoteNpcsEntity(buf.readAnySizeNbt()); }
+    public static PacketRemoteNpcsEntity decode(FriendlyByteBuf buf) { return new PacketRemoteNpcsEntity(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

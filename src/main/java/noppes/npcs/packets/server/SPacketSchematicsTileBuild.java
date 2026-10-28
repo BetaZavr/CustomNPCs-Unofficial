@@ -47,7 +47,7 @@ public class SPacketSchematicsTileBuild extends PacketServerBasic {
    }
 
    public static SPacketSchematicsTileBuild decode(FriendlyByteBuf buf) {
-      return new SPacketSchematicsTileBuild(buf.readBlockPos(), buf.readInt(), buf.readAnySizeNbt());
+      return new SPacketSchematicsTileBuild(buf.readBlockPos(), buf.readInt(), buf.readNbt());
    }
 
    @Override

@@ -179,7 +179,7 @@ public class PacketSync extends PacketBasic {
          } // overlayData
          case 16: break; // ItemScriptedModels
          case 17: {
-            KeyController.getInstance().loadKeys(data);
+            KeyController.getInstance().load(data);
             CustomNpcs.proxy.updateKeys();
             break;
          } // custom keys

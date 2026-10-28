@@ -22,7 +22,7 @@ import noppes.npcs.api.entity.data.IDropNbtSet;
 import noppes.npcs.api.entity.data.IEnchantSet;
 import noppes.npcs.api.handler.data.IDropSetData;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.wrapper.NBTWrapper;
+import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.constants.EnumAvailabilityQuest;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.util.ValueUtil;
@@ -179,10 +179,10 @@ public class DropSet implements Container, ICustomDrop {
         }
         // Tags
         if (!tags.isEmpty()) {
-            CompoundTag tag = dItem.getOrCreateTag();
             for (DropNbtSet dns : tags) {
-                if (dns.values.length > 0 && (dns.chance >= 1.0d || dns.chance * addChance / 100.0d < Math.random())) {
-                    tag = dns.getConstructorTag(new NBTWrapper(tag)).getMCNBT();
+                if (dns.getValues().length > 0 && (dns.getChance() >= 1.0d || dns.getChance() * addChance / 100.0d < Math.random())) {
+                    ItemStackWrapper iStack = dItem.getCapability(ItemStackWrapper.ITEMSCRIPTEDDATA_CAPABILITY, null).orElse(ItemStackWrapper.AIR);
+                    if (iStack != ItemStackWrapper.AIR) { dns.createAndPut(iStack); }
                 }
             }
         }
@@ -517,10 +517,10 @@ public class DropSet implements Container, ICustomDrop {
             boolean start = false;
             for (DropNbtSet ns : tags) {
                 if (start) { nbtKey.append(Component.literal(", ").withStyle(ChatFormatting.GRAY)); }
-                if (ns.path == null) { nbtKey.append(Component.literal("null").withStyle(ChatFormatting.GRAY)); }
+                if (ns.getPath() == null) { nbtKey.append(Component.literal("null").withStyle(ChatFormatting.GRAY)); }
                 else {
                     nbtKey.append(Component.literal("id: ").withStyle(ChatFormatting.GRAY))
-                            .append(Component.literal(ns.path).withStyle(ChatFormatting.BLUE));
+                            .append(Component.literal(ns.getPath()).withStyle(ChatFormatting.BLUE));
                 }
                 start = true;
             }

@@ -11,6 +11,7 @@ import noppes.npcs.api.interfaces.ParamName;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.overlay.IOverlay;
 
+@SuppressWarnings("unused")
 public interface IPlayer<T extends Player> extends IEntityLiving<T> {
 
    String getDisplayName();
@@ -208,6 +209,8 @@ public interface IPlayer<T extends Player> extends IEntityLiving<T> {
    double getBlockReachDistance();
 
    void showMarket(@ParamName("marcetID") int marcetID);
+
+   void showAuction(int auctionId);
 
    IScreenSize getScreenSize();
 

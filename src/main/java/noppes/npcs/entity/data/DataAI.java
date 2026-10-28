@@ -517,4 +517,6 @@ public class DataAI implements INPCAi {
       npc.updateAI = true;
    }
 
+   public boolean noHasStartPos() { return startPos == null; }
+
 }

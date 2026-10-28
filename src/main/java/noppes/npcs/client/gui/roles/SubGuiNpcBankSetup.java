@@ -16,13 +16,13 @@ import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
 import noppes.npcs.shared.client.gui.listeners.IScrollData;
 
-public class GuiNpcBankSetup extends GuiNPCInterface2 implements IScrollData, ICustomScrollListener {
+public class SubGuiNpcBankSetup extends GuiNPCInterface2 implements IScrollData, ICustomScrollListener {
 
    protected GuiCustomScrollNop scroll;
    protected final Map<Component, Integer> data = new HashMap<>();
    protected final RoleBank role;
 
-   public GuiNpcBankSetup(EntityNPCInterface npc) {
+   public SubGuiNpcBankSetup(EntityNPCInterface npc) {
       super(npc);
 
       role = (RoleBank) npc.role;

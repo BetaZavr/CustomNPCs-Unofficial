@@ -26,6 +26,8 @@ import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.renderer.obj.ModelBuffer;
 import noppes.npcs.mixin.client.IMouseHandlerMixin;
+import noppes.npcs.shared.client.gui.GuiBasic;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 import noppes.npcs.shared.client.gui.util.ResourceData;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
 import noppes.npcs.shared.client.gui.listeners.IComponentGui;
@@ -41,8 +43,8 @@ public class GuiCustomScrollNop extends Screen implements IComponentGui {
 
    public static final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/misc.png");
    // standard
-   protected int x = 0;
-   protected int y = 0;
+   public int x = 0;
+   public int y = 0;
    // main
    public int id;
    protected int hover = -1;
@@ -126,16 +128,16 @@ public class GuiCustomScrollNop extends Screen implements IComponentGui {
       return this;
    }
 
-   private int textFieldHeight() { return hasSearch ? 22 : 0; }
+   protected int textFieldHeight() { return hasSearch ? 22 : 0; }
 
-   private void reset() {
+   protected void reset() {
       if (searchWords.length == 0) { listSize = list.size(); }
       else { listSize = (int)list.stream().filter((line) -> isSearched(line.getString())).count(); }
       setSize(width, height + textFieldHeight());
       if (selected >= 0 && selected >= list.size()) { selected = -1; }
    }
 
-   private boolean isSearched(String s) {
+   protected boolean isSearched(String s) {
       String line = s.toLowerCase();
       for (String k : searchWords) {
          if (!line.contains(k)) { return false; }
@@ -298,7 +300,8 @@ public class GuiCustomScrollNop extends Screen implements IComponentGui {
             int w = 1 + (customFont != null ? customFont.width(suffixes.get(i).getString()) : font.width(suffixes.get(i).getString()));
             right -= w;
             GuiButtonNop.renderString(graphics, suffixes.get(i), right, top, right + w, top + 10,
-                    (i == hover ? CustomNpcs.HoverColor.getRGB() : CustomNpcs.MainColor.getRGB()), true, false, customFont);
+                    (i == hover ? CustomNpcs.HoverColor.getRGB() : CustomNpcs.MainColor.getRGB()),
+                    true, EnumAlignText.LEFT, false, customFont);
          }
          if (multipleSelection && selectedList.contains(i) ||
                  isSimpleSelect && hover == i ||
@@ -324,15 +327,15 @@ public class GuiCustomScrollNop extends Screen implements IComponentGui {
             }
             matrixStack.popPose();
             GuiButtonNop.renderString(graphics, displayString, left, top, right, top + 10,
-                    CustomNpcs.MainColor.getRGB() | alpha, true, false, customFont);
+                    CustomNpcs.MainColor.getRGB() | alpha, true, EnumAlignText.LEFT, false, customFont);
          }
          else if (i == hover) {
             GuiButtonNop.renderString(graphics, displayString, left, top, right, top + 10,
-                    CustomNpcs.HoverColor.getRGB() | alpha, true, false, customFont);
+                    CustomNpcs.HoverColor.getRGB() | alpha, true, EnumAlignText.LEFT, false, customFont);
          }
          else {
             GuiButtonNop.renderString(graphics, displayString, left, top, right, top + 10,
-                    CustomNpcs.MainColor.getRGB() | alpha, true, false, customFont);
+                    CustomNpcs.MainColor.getRGB() | alpha, true, EnumAlignText.LEFT, false, customFont);
          }
       }
    }
@@ -345,7 +348,7 @@ public class GuiCustomScrollNop extends Screen implements IComponentGui {
       return selected >= 0 && selected < list.size() ? list.get(selected) : Component.empty();
    }
 
-   private int getMouseOver(int mouseX, int mouseY) {
+   protected int getMouseOver(int mouseX, int mouseY) {
       mouseX -= x;
       mouseY -= y;
       if (mouseX >= 4 && mouseX < width - 4 && mouseY >= 1 && mouseY < height - 2) {
@@ -459,17 +462,15 @@ public class GuiCustomScrollNop extends Screen implements IComponentGui {
          if (isScrolling) { return true; }
       }
       if (mouseButton != 0 || hover < 0) { return false; }
-      boolean clicked = true;
       if (multipleSelection) {
          if (selectedList.contains(hover)) { selectedList.removeIf(value -> value == hover); }
          else { selectedList.add(hover); }
       }
       else {
-         clicked = selected != hover;
          selected = hover;
          hover = -1;
       }
-      if (clicked && listener instanceof ICustomScrollListener gui) {
+      if (listener instanceof ICustomScrollListener gui) {
          if (isSimpleSelect) { gui.scrollDoubleClicked(this); }
          else { gui.scrollClicked(this); }
       }
@@ -696,10 +697,6 @@ public class GuiCustomScrollNop extends Screen implements IComponentGui {
 
    public int getSelectedIndex() { return selected; }
 
-   public void setSelectedIndex(int i) {
-      selected = i < 0 ? -1 : i >= list.size() ? list.size() - 1 : i;
-   }
-
    // New fields from Unofficial (BetaZavr)
    public GuiCustomScrollNop setSelected(int index) {
       selected = index < 0 ? -1 : index >= list.size() ? list.size() - 1 : index;
@@ -724,25 +721,19 @@ public class GuiCustomScrollNop extends Screen implements IComponentGui {
    @SuppressWarnings("all")
    public GuiCustomScrollNop setPrefixes(List<ResourceData> newPrefixes) { prefixes = newPrefixes; return this; }
 
-   private void drawStacks(@Nonnull GuiGraphics graphics) {
+   protected void drawStacks(@Nonnull GuiGraphics graphics) {
       if (stacks == null || minecraft == null) { return; }
       int displayIndex = 0;
-      PoseStack matrixStack = graphics.pose();
       for (int i = 0; i < list.size() && i < stacks.size(); ++i) {
          if (!isSearched(list.get(i).getString())) { continue; }
          int k = lineHeight * displayIndex + 4 - scrollY;
          displayIndex++;
          if (k < 4 || k + 10 > height) { continue; }
-         matrixStack.pushPose();
-         matrixStack.translate(x, y, 0.0f);
-         matrixStack.translate(0, k - 2.5f, 300.0f);
-         matrixStack.scale(0.75f, 0.75f, 0.75f);
-         graphics.renderItem(stacks.get(i), 0, 0);
-         matrixStack.popPose();
+         GuiBasic.renderStackInGUI(graphics, stacks.get(i), x, y + k - 2.5f, 300.0f, 0.75f, "");
       }
    }
 
-   private void drawPrefixes(@Nonnull GuiGraphics graphics) {
+   protected void drawPrefixes(@Nonnull GuiGraphics graphics) {
       if (prefixes == null || minecraft == null) { return; }
       int size = Math.min(list.size(), prefixes.size());
       if (size == 0) { return; }

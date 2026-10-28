@@ -28,7 +28,7 @@ public class PacketGuiParts extends PacketBasic {
       buf.writeNbt(msg.data);
    }
 
-   public static PacketGuiParts decode(FriendlyByteBuf buf) { return new PacketGuiParts(buf.readInt(), buf.readAnySizeNbt()); }
+   public static PacketGuiParts decode(FriendlyByteBuf buf) { return new PacketGuiParts(buf.readInt(), buf.readNbt()); }
 
    @Override
    public int getChannelId() { return channelId; }

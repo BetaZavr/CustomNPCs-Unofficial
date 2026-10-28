@@ -30,7 +30,7 @@ public class SPacketAnimationSave extends PacketServerBasic {
 
     public static void encode(SPacketAnimationSave msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static SPacketAnimationSave decode(FriendlyByteBuf buf) { return new SPacketAnimationSave(buf.readAnySizeNbt()); }
+    public static SPacketAnimationSave decode(FriendlyByteBuf buf) { return new SPacketAnimationSave(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

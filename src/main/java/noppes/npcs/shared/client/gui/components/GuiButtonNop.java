@@ -21,10 +21,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.client.ClientProxy;
+import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.gui.util.GuiTooltipUtils;
 import noppes.npcs.mixin.client.IMouseHandlerMixin;
 import noppes.npcs.shared.client.gui.listeners.IComponentGui;
 import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 import noppes.npcs.util.ValueUtil;
 
 import javax.annotation.Nonnull;
@@ -70,6 +72,8 @@ public class GuiButtonNop extends Button implements IComponentGui {
    public int offsetHoverY = 0;
 
    public int layerColor;
+   public int bookTextureType = 0;
+   public EnumAlignText alignText = EnumAlignText.CENTER;
    public boolean dropShadow = true;
    public boolean hasDefBack;
    public boolean isSimple = false;
@@ -80,37 +84,37 @@ public class GuiButtonNop extends Button implements IComponentGui {
 
    public static void renderString(@Nonnull GuiGraphics graphics, @Nonnull Component message,
                                    int left, int top, int right, int bottom, int color, boolean showShadow,
-                                   boolean centered, ClientProxy.FontContainer customFont) {
+                                   EnumAlignText alignText, boolean isMoved, ClientProxy.FontContainer customFont) {
       Font font = Minecraft.getInstance().font;
       int textWidth = customFont != null ? customFont.width(message) : font.width(message);
-      int height = (top + bottom - 9) / 2 + 1;
+      int yPos = (top + bottom - 9) / 2 + 1;
       if (customFont != null) {
          textWidth++;
-         height--;
+         yPos--;
       }
       int width = right - left;
-      if (textWidth > width) { // moved
+      if (textWidth > width || isMoved) { // moved
          graphics.enableScissor(left, top, right, bottom);
          int centerX = textWidth - width;
          double d0 = (double) Util.getMillis() / 1000.0;
          double d1 = Math.max((double) centerX * 0.5, 3.0);
          double d2 = Math.sin(Math.PI / 2.0d * Math.cos(Math.PI * 2.0d * d0 / d1)) / 2.0 + 0.5;
          double d3 = Mth.lerp(d2, 0.0, centerX);
-         if (customFont != null) { customFont.draw(graphics, message, left - (int) d3, height, color); }
-         else { graphics.drawString(font, message, left - (int) d3, height, color, showShadow); }
+         if (customFont != null) { customFont.draw(graphics, message, left - (int) d3, yPos, color); }
+         else { graphics.drawString(font, message, left - (int) d3, yPos, color, showShadow); }
          graphics.disableScissor();
-      }
+      } // moved
       else {
-         if (centered) {
-            width = (left + right) / 2;
-            if (customFont != null) { customFont.draw(graphics, message, width - textWidth / 2.0f, height, color); }
-            else { graphics.drawString(font, message, width - textWidth / 2, height, color, showShadow); }
-         }
-         else {
-            if (customFont != null) { customFont.draw(graphics, message, left, height, color); }
-            else { graphics.drawString(font, message, left, height, color, showShadow); }
-         }
-      }
+         int xPos = switch (alignText) {
+             case LEFT -> left;
+             case RIGHT -> right - textWidth;
+             default -> (int) ((float) (left + right - textWidth) / 2.0f); // CENTER
+         };
+         // draw
+         if (customFont != null) { customFont.draw(graphics, message, xPos, yPos, color); }
+         else { graphics.drawString(font, message, xPos, yPos, color, showShadow); }
+      } // in round
+
    }
 
    public GuiButtonNop(IGuiInterface gui, int buttonId, Object label, int x, int y, OnPress onPress) {
@@ -213,7 +217,10 @@ public class GuiButtonNop extends Button implements IComponentGui {
          }
          else {
             matrixStack.pushPose();
-            if (isSimple) {
+            if (bookTextureType != 0) {
+               graphics.blit(texture, x, y, 3 + state * 23, 194 + (bookTextureType - 1) * 13, width, height);
+            }
+            else if (isSimple) {
                int w0 = width / 2;
                int w1 = width - w0;
                graphics.blit(texture, x, y, txrX, txrY + state * height, w0, height);
@@ -242,7 +249,8 @@ public class GuiButtonNop extends Button implements IComponentGui {
 
       matrixStack.pushPose();
       @Nonnull Component label = getMessage();
-      if (active && (label.getString().equals("<") || label.getString().equals(">") || label.getString().equals("<<") || label.getString().equals("<<<") || label.getString().equals(">>") || label.getString().equals(">>>"))) {
+      boolean isMoved = label.getString().equals("<") || label.getString().equals(">") || label.getString().equals("<<") || label.getString().equals("<<<") || label.getString().equals(">>") || label.getString().equals(">>>");
+      if (active && isMoved) {
          int w = mc.font.width(label);
          float wm = width - 4 + 2 * w;
          float ox = (float) (System.currentTimeMillis() % 2000L) / 2000.0f * wm;
@@ -253,7 +261,7 @@ public class GuiButtonNop extends Button implements IComponentGui {
       int color = getFGColor() | Mth.ceil(alpha * 255.0F) << 24;
       if (isScissor) {
          renderString(graphics, label, getX() + 2, getY(), getX() + getWidth() - 2, getY() + getHeight(),
-                 color, showShadow, true, customFont);
+                 color, showShadow, EnumAlignText.LEFT, isMoved, customFont);
       } else {
          if (customFont != null) { customFont.draw(graphics, label, getX() + 2, getY(), color); }
          else { graphics.drawString(mc.font, label, getX() + 2 - mc.font.width(label) / 2, getY(), color, showShadow); }
@@ -306,7 +314,9 @@ public class GuiButtonNop extends Button implements IComponentGui {
    }
 
    public GuiButtonNop setDisplay(int value) {
-      displayValue = ValueUtil.onlyPositiveInt(value, display.length);
+      if (display == null || display.length == 0) { return this; }
+      if (value < 0) { value *= -1; }
+      displayValue = value % display.length;
       setDisplayText(display[displayValue]);
       return this;
    }
@@ -339,6 +349,40 @@ public class GuiButtonNop extends Button implements IComponentGui {
    }
 
    // New from Unofficial (BetaZavr)
+   /**
+    * @param bookTextureTypeIn 0 - not; 1 - right; 2 - left
+    */
+   public GuiButtonNop setIsBookTexture(int bookTextureTypeIn) {
+      bookTextureType = ValueUtil.correctInt(bookTextureTypeIn, 0, 2);
+      if (bookTextureType != 0) {
+         texture = GuiLog.BOOK_TEXTURE;
+         width = 18;
+         height = 10;
+      } else {
+         texture = null;
+         width = 50;
+         height = 20;
+      }
+      return this;
+   }
+
+   @SuppressWarnings("unused")
+   public GuiButtonNop setAlignCenter() {
+      alignText = EnumAlignText.CENTER;
+      return this;
+   }
+
+   public GuiButtonNop setAlignLeft() {
+      alignText = EnumAlignText.LEFT;
+      return this;
+   }
+
+   @SuppressWarnings("unused")
+   public GuiButtonNop setAlignRight() {
+      alignText = EnumAlignText.RIGHT;
+      return this;
+   }
+
    @OnlyIn(Dist.CLIENT)
    public interface OnRender {
       void onRender(GuiButtonNop button, GuiGraphics graphics, int mouseX, int mouseY, float partialTicks);
@@ -471,6 +515,7 @@ public class GuiButtonNop extends Button implements IComponentGui {
          else if (isHoveredOrFocused() && (listener == null || !listener.hasSubGui())) { i = lbm ? 0 : 2; }
          return 46 + i * 20;
       }
+      else if (bookTextureType != 0) { return isHovered ? 1 : 0; }
       if (isAnim) {
          if (!active) { return 1; }
          return isHoveredOrFocused() && (listener == null || !listener.hasSubGui()) ? lbm ? 3 : 2 : 0;

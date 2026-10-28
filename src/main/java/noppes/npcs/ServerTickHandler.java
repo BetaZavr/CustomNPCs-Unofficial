@@ -153,6 +153,7 @@ public class ServerTickHandler {
       if (ticks % 20 == 0) {
          SchematicController.Instance.updateBuilding();
          MarcetController.getInstance().update();
+         AuctionController.getInstance().update();
          MassBlockController.Update();
          for (DataScenes.SceneState state : DataScenes.StartedScenes.values()) {
             if (!state.paused) { ++state.ticks; }

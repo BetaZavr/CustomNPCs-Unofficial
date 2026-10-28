@@ -86,9 +86,6 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface<ContainerNPCTr
             case 4: deal.setIsCase(button.getValue() == 1); init(); break;
             case 5: {
                 if (!deal.isCase()) { return; }
-                SubGuiDropEdit.parent = null;
-                SubGuiDropEdit.parentContainer = EnumGuiType.SetupTraderDeal;
-                SubGuiDropEdit.parentData = new BlockPos(menu.marcet.getId(), deal.getId(), 0);
                 CompoundTag compound = new CompoundTag();
                 compound.putInt("InventoryType", 1);
                 compound.putInt("Marcet", menu.marcet.getId());
@@ -105,9 +102,6 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface<ContainerNPCTr
             } // del
             case 7: {
                 if (!deal.isCase() || !scroll.hasSelected()) { return; }
-                SubGuiDropEdit.parent = null;
-                SubGuiDropEdit.parentContainer = EnumGuiType.SetupTraderDeal;
-                SubGuiDropEdit.parentData = new BlockPos(menu.marcet.getId(), deal.getId(), 0);
                 CompoundTag compound = new CompoundTag();
                 compound.putInt("InventoryType", 1);
                 compound.putInt("Marcet", menu.marcet.getId());
@@ -370,6 +364,9 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface<ContainerNPCTr
         CHEST_FULL = ModelBuffer.getParameterizedModel(objCase, null, materialTextures, true, 0);
         CHEST_BODY = ModelBuffer.getParameterizedModel(objCase, List.of("body"), materialTextures, true, 0);
         CHEST_TOP = ModelBuffer.getParameterizedModel(objCase, List.of("top"), materialTextures, true, 0);
+        SubGuiDropEdit.parent = null;
+        SubGuiDropEdit.parentContainer = EnumGuiType.SetupTraderDeal;
+        SubGuiDropEdit.parentData = new BlockPos(menu.marcet.getId(), deal.getId(), 0);
     }
 
     @Override
@@ -397,9 +394,6 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface<ContainerNPCTr
     @Override
     public void scrollDoubleClicked(GuiCustomScrollNop scroll) {
         if (!deal.isCase() || !scroll.hasSelected()) { return; }
-        SubGuiDropEdit.parent = null;
-        SubGuiDropEdit.parentContainer = EnumGuiType.SetupTraderDeal;
-        SubGuiDropEdit.parentData = new BlockPos(menu.marcet.getId(), deal.getId(), 0);
         CompoundTag compound = new CompoundTag();
         compound.putInt("InventoryType", 1);
         compound.putInt("Marcet", menu.marcet.getId());

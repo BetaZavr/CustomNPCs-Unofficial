@@ -142,7 +142,7 @@ public abstract class GuiCreationScreenInterface extends GuiNPCInterface impleme
    @Override
    public void mouseDragged(GuiSliderNop slider) {
       if (slider.id == 500) {
-         rotation = slider.sliderValue;
+         rotation = slider.getValue();
          slider.setString((int)(rotation * 360.0F));
       }
    }

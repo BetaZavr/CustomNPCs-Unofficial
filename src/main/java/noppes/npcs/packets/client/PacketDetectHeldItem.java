@@ -25,7 +25,7 @@ public class PacketDetectHeldItem extends PacketBasic {
         buf.writeNbt(msg.data);
     }
 
-    public static PacketDetectHeldItem decode(FriendlyByteBuf buf) { return new PacketDetectHeldItem(buf.readInt(), buf.readAnySizeNbt()); }
+    public static PacketDetectHeldItem decode(FriendlyByteBuf buf) { return new PacketDetectHeldItem(buf.readInt(), buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

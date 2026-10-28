@@ -103,10 +103,10 @@ public class CustomNpcsPermissions {
            (player, id, context) -> inData(CustomNpcs.MODID + ".tool.builders", player));
    public static final PermissionNode<Boolean> TOOL_TELEPORTER = new PermissionNode<>(CustomNpcs.MODID, "tool.teleporter", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".tool.teleporter", player));
-   public static final PermissionNode<Boolean> EDIT_PERMISSION = new PermissionNode<>(CustomNpcs.MODID, "edit.permission", PermissionTypes.BOOLEAN,
-           (player, id, context) -> inData(CustomNpcs.MODID + ".edit.permission", player));
    public static final PermissionNode<Boolean> EDIT_CLIENT_SCRIPT = new PermissionNode<>(CustomNpcs.MODID, "edit.client.script", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".edit.client.script", player));
+   public static final PermissionNode<Boolean> GLOBAL_PERMISSION = new PermissionNode<>(CustomNpcs.MODID, "edit.permission", PermissionTypes.BOOLEAN,
+           (player, id, context) -> inData(CustomNpcs.MODID + ".edit.permission", player));
    public static final PermissionNode<Boolean> GLOBAL_MARKETS = new PermissionNode<>(CustomNpcs.MODID, "global.markets", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".global.markets", player));
    public static final PermissionNode<Boolean> GLOBAL_AUCTIONS = new PermissionNode<>(CustomNpcs.MODID, "global.auctions", PermissionTypes.BOOLEAN,
@@ -117,6 +117,8 @@ public class CustomNpcsPermissions {
            (player, id, context) -> inData(CustomNpcs.MODID + ".global.elements", player));
    public static final PermissionNode<Boolean> GLOBAL_DUNGEONS = new PermissionNode<>(CustomNpcs.MODID, "global.dungeons", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".global.dungeons", player));
+   public static final PermissionNode<Boolean> GLOBAL_DROP_TEMPLATE = new PermissionNode<>(CustomNpcs.MODID, "global.drop_template", PermissionTypes.BOOLEAN,
+           (player, id, context) -> inData(CustomNpcs.MODID + ".global.drop_template", player));
    public static final PermissionNode<Boolean> MONEY_MANAGER = new PermissionNode<>(CustomNpcs.MODID, "money.manager", PermissionTypes.BOOLEAN,
            (player, id, context) -> inData(CustomNpcs.MODID + ".money.manager", player));
    public static final PermissionNode<Boolean> DONAT_MANAGER = new PermissionNode<>(CustomNpcs.MODID, "donat.manager", PermissionTypes.BOOLEAN,
@@ -222,7 +224,7 @@ public class CustomNpcsPermissions {
       Map<PermissionNode<Boolean>, List<String>> map = new LinkedHashMap<>();
       for (PermissionNode<Boolean> node : list) {
          map.put(node, new ArrayList<>());
-         if (node != EDIT_PERMISSION &&
+         if (node != GLOBAL_PERMISSION &&
                  node != EDIT_CLIENT_SCRIPT &&
                  node != GLOBAL_ELEMENTS &&
                  node != DONAT_MANAGER &&
@@ -288,7 +290,7 @@ public class CustomNpcsPermissions {
    }
 
    public static void add(String nodeName, String playerName, ServerPlayer player) {
-      if (!hasPermission(player, EDIT_PERMISSION)) {
+      if (!hasPermission(player, GLOBAL_PERMISSION)) {
          Packets.send(player, new PacketGuiClose());
          return;
       }
@@ -307,7 +309,7 @@ public class CustomNpcsPermissions {
    }
 
    public static void remove(String nodeName, String playerName, ServerPlayer player) {
-      if (!hasPermission(player, EDIT_PERMISSION)) {
+      if (!hasPermission(player, GLOBAL_PERMISSION)) {
          Packets.send(player, new PacketGuiClose());
          return;
       }
@@ -327,7 +329,7 @@ public class CustomNpcsPermissions {
 
    public static void sendTo(ServerPlayer player) {
       if (player == null) { return; }
-      if (!hasPermission(player, EDIT_PERMISSION)) { Packets.send(player, new PacketGuiClose()); }
+      if (!hasPermission(player, GLOBAL_PERMISSION)) { Packets.send(player, new PacketGuiClose()); }
       else { Packets.send(player, new PacketSync(14, getNBT(), true)); }
    }
 

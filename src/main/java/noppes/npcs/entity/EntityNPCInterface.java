@@ -82,7 +82,6 @@ import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.server.ServerLifecycleHooks;
 import noppes.npcs.*;
 import noppes.npcs.ai.CombatHandler;
 import noppes.npcs.ai.EntityAIAnimation;
@@ -336,8 +335,10 @@ public abstract class EntityNPCInterface
             }
          }
          // fell out of the world
-         startYPos = calculateStartYPos(ais.startPos()) + 1.0D;
-         if (startYPos < (double) level().getMinBuildHeight() && !isClientSide()) { discard(); }
+         if (!isClientSide() && ais.noHasStartPos()) {
+            startYPos = calculateStartYPos(ais.startPos());
+            if (startYPos < (double) level().getMinBuildHeight() && !isClientSide()) { discard(); }
+         }
          // to script event
          EventHooks.onNPCTick(this);
       }
@@ -571,6 +572,7 @@ public abstract class EntityNPCInterface
       else if (CustomNpcs.EnableInvisibleNpcs && CustomNpcs.InvisibilityAlgorithm == 2 &&
               !display.isVisibleTo(player) && !player.isSpectator() &&
               player.getItemInHand(hand).getItem() != CustomItems.wand) { return InteractionResult.PASS; }
+      PlayerData.get(player).factionData.getFactionPoints(player, faction.id);
       ItemStack stack = player.getItemInHand(hand);
       Item item = stack.getItem();
       if (item == CustomItems.cloner || item == CustomItems.wand || item == CustomItems.mount || item == CustomItems.scripter) {
@@ -1283,7 +1285,7 @@ public abstract class EntityNPCInterface
       EventHooks.onNPCInit(this);
       if (needsSync) {
          List<DataValue<?>> data = getEntityData().getNonDefaultValues();
-         for(ServerPlayer player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
+         for(ServerPlayer player : CustomNpcs.Server.getPlayerList().getPlayers()) {
             if (display.isVisibleTo(player) || player.isSpectator() || player.getMainHandItem().getItem() == CustomItems.wand) {
                Packets.send(player, new PacketUpdatePhysics(this));
                if (data != null) { player.connection.send(new ClientboundSetEntityDataPacket(getId(), data)); }
@@ -1998,7 +2000,7 @@ public abstract class EntityNPCInterface
                  ais.directLOS == EnumSeeTarget.REALISTIC;
          if (isDirect && isSleeping()) { return false; }
          if (ais.directLOS != EnumSeeTarget.BLIND) {
-            IRayTraceResults rtrs = Util.instance.rayTraceBlocksAndEntitys(this, rtr.getYaw(), rtr.getPitch(), rtr.getDistance());
+            IRayTraceResults rtrs = Util.instance.rayTraceBlocks(this, rtr.getYaw(), rtr.getPitch(), rtr.getDistance());
             if (rtrs != null) {
                for (DataBlock db : rtrs.getMCBlocks()) {
                   if (!db.state.isPathfindable(level(), db.pos, PathComputationType.LAND) ||

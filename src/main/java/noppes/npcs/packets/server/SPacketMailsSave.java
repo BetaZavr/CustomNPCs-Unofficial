@@ -33,7 +33,7 @@ public class SPacketMailsSave extends PacketServerBasic {
 
     public static void encode(SPacketMailsSave msg, FriendlyByteBuf buf) { buf.writeNbt(msg.compound); }
 
-    public static SPacketMailsSave decode(FriendlyByteBuf buf) { return new SPacketMailsSave(buf.readAnySizeNbt()); }
+    public static SPacketMailsSave decode(FriendlyByteBuf buf) { return new SPacketMailsSave(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

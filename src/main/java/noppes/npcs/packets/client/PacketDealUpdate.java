@@ -28,7 +28,7 @@ public class PacketDealUpdate extends PacketBasic {
         buf.writeNbt(msg.dealData);
     }
 
-    public static PacketDealUpdate decode(FriendlyByteBuf buf) { return new PacketDealUpdate(buf.readInt(), buf.readAnySizeNbt()); }
+    public static PacketDealUpdate decode(FriendlyByteBuf buf) { return new PacketDealUpdate(buf.readInt(), buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

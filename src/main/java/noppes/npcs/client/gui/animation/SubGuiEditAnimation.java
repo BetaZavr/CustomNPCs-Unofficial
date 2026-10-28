@@ -1912,20 +1912,20 @@ public class SubGuiEditAnimation extends GuiNPCInterface
             if (hitbox == null || toolType == 0) { return; }
             if (toolType == 1) {
                 if (slider.id == 0) {
-                    hitbox.offset[0] = 10.0f * slider.sliderValue;
+                    hitbox.offset[0] = 10.0f * slider.getValue();
                     value = Math.round(hitbox.offset[0] * 1000.0f) / 1000.0f;
                 }
                 else if (slider.id == 1) {
-                    hitbox.offset[1] = 20.0f * slider.sliderValue - 10.0f;
+                    hitbox.offset[1] = 20.0f * slider.getValue() - 10.0f;
                     value = Math.round(hitbox.offset[1] * 1000.0f) / 1000.0f;
                 }
                 else if (slider.id == 2) {
-                    hitbox.offset[2] = 2.0f * pi * slider.sliderValue - pi;
-                    value = Math.round(360.0f * slider.sliderValue - 180.0f);
+                    hitbox.offset[2] = 2.0f * pi * slider.getValue() - pi;
+                    value = Math.round(360.0f * slider.getValue() - 180.0f);
                 }
             }
             else {
-                value = Math.round(5000.0f * slider.sliderValue) / 1000.0f;
+                value = Math.round(5000.0f * slider.getValue()) / 1000.0f;
                 hitbox.scale[slider.id] = value;
             }
             if (tools.getTextField(5 + slider.id) != null) { tools.getTextField(5 + slider.id).setValue("" + value); }
@@ -1934,14 +1934,14 @@ public class SubGuiEditAnimation extends GuiNPCInterface
         if (isMotion) {
             if (toolType != 1) { return; }
             if (slider.id == 0) {
-                value = Math.round(slider.sliderValue * 1500.0f) / 1000.0f;
+                value = Math.round(slider.getValue() * 1500.0f) / 1000.0f;
                 frame.motions[0] = value;
             } else if (slider.id == 1) {
-                value = Math.round((slider.sliderValue * 3.0f - 1.5f) * 1000.0f) / 1000.0f;
+                value = Math.round((slider.getValue() * 3.0f - 1.5f) * 1000.0f) / 1000.0f;
                 frame.motions[1] = value;
             } else if (slider.id == 2) {
-                value = Math.round(360.0f * slider.sliderValue - 180.0f);
-                frame.motions[2] = 2.0f * pi * slider.sliderValue - pi;
+                value = Math.round(360.0f * slider.getValue() - 180.0f);
+                frame.motions[2] = 2.0f * pi * slider.getValue() - pi;
             }
             if (tools.getTextField(5 + slider.id) != null) { tools.getTextField(5 + slider.id).setValue("" + value); }
             return;
@@ -1949,22 +1949,22 @@ public class SubGuiEditAnimation extends GuiNPCInterface
         if (part == null) { return; }
         if (slider.id == 3 || slider.id == 4) {
             if (toolType != 0) { return; }
-            part.rotation[slider.id] = (2.0f * pi * slider.sliderValue - pi) / (slider.id == 4 ? 2.0f : 1.0f);
-            value = Math.round(360.0f * slider.sliderValue - 180.0f) / (slider.id == 4 ? 2.0f : 1.0f);
+            part.rotation[slider.id] = (2.0f * pi * slider.getValue() - pi) / (slider.id == 4 ? 2.0f : 1.0f);
+            value = Math.round(360.0f * slider.getValue() - 180.0f) / (slider.id == 4 ? 2.0f : 1.0f);
         } else {
             switch (toolType) {
                 case 0: { // r
-                    part.rotation[slider.id] = 2.0f * pi * slider.sliderValue - pi;
-                    value = Math.round(360.0f * slider.sliderValue - 180.0f);
+                    part.rotation[slider.id] = 2.0f * pi * slider.getValue() - pi;
+                    value = Math.round(360.0f * slider.getValue() - 180.0f);
                     break;
                 }
                 case 1: { // o
-                    part.offset[slider.id] = slider.sliderValue * 10.0f - 5.0f;
+                    part.offset[slider.id] = slider.getValue() * 10.0f - 5.0f;
                     value = Math.round(part.offset[slider.id] * 1000.0f) / 1000.0f;
                     break;
                 }
                 case 2: { // s
-                    part.scale[slider.id] = slider.sliderValue * 5.0f;
+                    part.scale[slider.id] = slider.getValue() * 5.0f;
                     value = Math.round(part.scale[slider.id] * 1000.0f) / 1000.0f;
                     break;
                 }
@@ -2153,7 +2153,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                         sliderValue = (float) textField.getDouble() * 0.2f; // 0 -> 5
                     }
                     textField.setValue("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
-                    if (tools.getSlider(0) != null) { tools.getSlider(0).setSliderValue(sliderValue); }
+                    if (tools.getSlider(0) != null) { tools.getSlider(0).setValue(sliderValue); }
                     init();
                     return;
                 }
@@ -2162,7 +2162,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                     frame.motions[0] = (float) textField.getDouble();
                     sliderValue = (float) textField.getDouble() * 2.0f / 3.0f; // 0 -> 1.5
                     textField.setValue("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
-                    if (tools.getSlider(0) != null) { tools.getSlider(0).setSliderValue(sliderValue); }
+                    if (tools.getSlider(0) != null) { tools.getSlider(0).setValue(sliderValue); }
                     init();
                     return;
                 }
@@ -2187,7 +2187,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                     }
                 }
                 textField.setValue("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
-                if (tools.getSlider(0) != null) { tools.getSlider(0).setSliderValue(sliderValue); }
+                if (tools.getSlider(0) != null) { tools.getSlider(0).setValue(sliderValue); }
                 resetAnimation();
                 break;
             } // X
@@ -2204,7 +2204,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                         sliderValue = (float) textField.getDouble() * 0.2f; // 0.0 -> 5.0
                     }
                     textField.setValue("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
-                    if (tools.getSlider(1) != null) { tools.getSlider(1).setSliderValue(sliderValue); }
+                    if (tools.getSlider(1) != null) { tools.getSlider(1).setValue(sliderValue); }
                     return;
                 }
                 if (isMotion) {
@@ -2212,7 +2212,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                     frame.motions[1] = (float) textField.getDouble();
                     sliderValue = (float) textField.getDouble() / 3.0f + 0.5f; // -1.5 -> 1.5
                     textField.setValue("" + (float) Math.round(frame.motions[1] * 1000.0d) / 1000.0f);
-                    if (tools.getSlider(1) != null) { tools.getSlider(1).setSliderValue(sliderValue); }
+                    if (tools.getSlider(1) != null) { tools.getSlider(1).setValue(sliderValue); }
                     init();
                     return;
                 }
@@ -2237,7 +2237,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                     }
                 }
                 textField.setValue("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
-                if (tools.getSlider(1) != null) { tools.getSlider(1).setSliderValue(sliderValue); }
+                if (tools.getSlider(1) != null) { tools.getSlider(1).setValue(sliderValue); }
                 resetAnimation();
                 break;
             } // Y
@@ -2255,7 +2255,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                         sliderValue = (float) textField.getDouble() * 0.2f;
                     }
                     textField.setValue("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
-                    if (tools.getSlider(2) != null) { tools.getSlider(2).setSliderValue(sliderValue); }
+                    if (tools.getSlider(2) != null) { tools.getSlider(2).setValue(sliderValue); }
                     return;
                 }
                 if (isMotion) {
@@ -2263,7 +2263,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                     frame.motions[2] = (float) Math.toRadians(textField.getDouble());
                     float sliderValue = (float) textField.getDouble() * 0.002778f + 0.5f;
                     textField.setValue("" + (float) Math.round(textField.getDouble() * 1000.0d) / 1000.0f);
-                    if (tools.getSlider(2) != null) { tools.getSlider(2).setSliderValue(sliderValue); }
+                    if (tools.getSlider(2) != null) { tools.getSlider(2).setValue(sliderValue); }
                     init();
                     return;
                 }
@@ -2289,7 +2289,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                     }
                 }
                 textField.setValue("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
-                if (tools.getSlider(2) != null) { tools.getSlider(2).setSliderValue(value); }
+                if (tools.getSlider(2) != null) { tools.getSlider(2).setValue(value); }
                 resetAnimation();
                 break;
             } // Z
@@ -2302,7 +2302,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                 p.rotation[3] = (float) Math.toRadians(textField.getDouble());
                 float value = (float) textField.getDouble() * 0.002778f + 0.5f;
                 textField.setValue("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
-                if (tools.getSlider(3) != null) { tools.getSlider(3).setSliderValue(value); }
+                if (tools.getSlider(3) != null) { tools.getSlider(3).setValue(value); }
                 resetAnimation();
                 break;
             } // X1
@@ -2315,7 +2315,7 @@ public class SubGuiEditAnimation extends GuiNPCInterface
                 p.rotation[4] = (float) Math.toRadians(textField.getDouble());
                 float value = (float) textField.getDouble() * 0.005556f + 0.5f;
                 textField.setValue("" + (float) (Math.round(textField.getDouble() * 1000.0d) / 1000.0d));
-                if (tools.getSlider(4) != null) { tools.getSlider(4).setSliderValue(value); }
+                if (tools.getSlider(4) != null) { tools.getSlider(4).setValue(value); }
                 resetAnimation();
                 break;
             } // Y1

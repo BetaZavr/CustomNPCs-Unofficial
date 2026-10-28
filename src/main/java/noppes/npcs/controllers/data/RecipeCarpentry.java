@@ -577,7 +577,7 @@ public class RecipeCarpentry implements CraftingRecipe, INpcRecipe {
          npcRecipe.ignoreNBT = buf.readBoolean(); // ignoreNBT
          npcRecipe.isKnown = buf.readBoolean(); // isKnown
          npcRecipe.name = buf.readUtf(); // name
-         npcRecipe.availability.load(Objects.requireNonNull(buf.readAnySizeNbt())); // availability
+         npcRecipe.availability.load(Objects.requireNonNull(buf.readNbt())); // availability
          return npcRecipe;
       }
 

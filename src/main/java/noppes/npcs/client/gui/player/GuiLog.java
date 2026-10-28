@@ -63,13 +63,13 @@ public class GuiLog
         implements ISliderListener, ITextfieldListener, IGuiData {
 
    protected static final Map<Integer, ResourceLocation> ql = new TreeMap<>();
-   protected static final ResourceLocation bookGuiTextures = new ResourceLocation("textures/gui/book.png");
    protected static final ResourceLocation killIcon = new ResourceLocation("textures/entity/skeleton/skeleton.png");
+   public static final ResourceLocation BOOK_TEXTURE = new ResourceLocation("textures/gui/book.png");
 
    static {
-      GuiLog.ql.clear();
+      ql.clear();
       for (int i = 0; i < 6; i++) {
-         GuiLog.ql.put(i, new ResourceLocation(CustomNpcs.MODID, "textures/quest/log/q_log_" + i + ".png"));
+         ql.put(i, new ResourceLocation(CustomNpcs.MODID, "textures/quest/log/q_log_" + i + ".png"));
       }
    }
 
@@ -522,7 +522,7 @@ public class GuiLog
          }
          if (hover) { hoverButton = i; }
          // tabs
-         graphics.blit(GuiLog.ql.get(4), 0, 0, 0, hover || offset ? 30 : 60, 28, 30);
+         graphics.blit(ql.get(4), 0, 0, 0, hover || offset ? 30 : 60, 28, 30);
 
          matrixStack.pushPose();
          matrixStack.translate(6.0f, 8.0f, 0.0f);
@@ -532,7 +532,7 @@ public class GuiLog
             case 3 -> new ItemStack(Items.COMPASS);
             default -> new ItemStack(Blocks.CRAFTING_TABLE);
          };
-         graphics.renderItem(stack, 0, 0);
+         renderStackInGUI(graphics, stack, 0, 0, 0.0f, 1.0f, null);
          matrixStack.popPose();
       }
       matrixStack.popPose();
@@ -544,9 +544,9 @@ public class GuiLog
       matrixStack.translate(guiLeft, guiTopLog, 0.0f);
       matrixStack.scale(scaleW, scaleH, 1.0f);
       // book cover
-      graphics.blit(GuiLog.ql.get(0), 0, 0, 0, 0, 256, 175);
+      graphics.blit(ql.get(0), 0, 0, 0, 0, 256, 175);
       // sheets
-      graphics.blit(GuiLog.ql.get(1), 0, 0, 0, 0, 256, 175);
+      graphics.blit(ql.get(1), 0, 0, 0, 0, 256, 175);
       matrixStack.popPose();
 
       if (step == -1 && (type == 0 || type == 1)) {
@@ -680,7 +680,7 @@ public class GuiLog
             if (isMouseHover(mouseX, mouseY, (int) (guiLLeft - 5.0f * scaleW), (int) (guiLTop + 160.0f * scaleH), 18, 10)) {
                hoverButton = 5;
             } // pre cat list;
-            graphics.blit(GuiLog.bookGuiTextures, 0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
+            graphics.blit(BOOK_TEXTURE, 0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
             matrixStack.popPose();
          }
          if (Math.floor(playerFactions.size() / 16.d) > page) { // right
@@ -689,7 +689,7 @@ public class GuiLog
             if (isMouseHover(mouseX, mouseY, (int) (guiLeft + 230.0f * scaleW), (int) (guiLTop + 160.0f * scaleH), 18, 10)) {
                hoverButton = 4;
             } // next cat list;
-            graphics.blit(GuiLog.bookGuiTextures, 0, 0, hoverButton == 4 ? 26 : 3, 194, 18, 10);
+            graphics.blit(BOOK_TEXTURE, 0, 0, hoverButton == 4 ? 26 : 3, 194, 18, 10);
             matrixStack.popPose();
          }
       }
@@ -715,7 +715,7 @@ public class GuiLog
 
          matrixStack.pushPose();
          matrixStack.scale(scaleW, scaleH, 1.0f);
-         graphics.blit(GuiLog.ql.get(4), 0, 0, 158, 74, 98, 16);
+         graphics.blit(ql.get(4), 0, 0, 158, 74, 98, 16);
          matrixStack.popPose();
 
          float w;
@@ -746,14 +746,14 @@ public class GuiLog
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 0.65f);
             matrixStack.pushPose();
             matrixStack.scale(scaleW, scaleH, 1.0f);
-            graphics.blit(GuiLog.ql.get(4), 90 - em, 12, 256 - em, 71, em, 3);
+            graphics.blit(ql.get(4), 90 - em, 12, 256 - em, 71, em, 3);
             matrixStack.popPose();
          }
          if (ew > 0) {
             RenderSystem.setShaderColor(h.getRed() / 255.0f, h.getGreen() / 255.0f, h.getBlue() / 255.0f, 0.65f);
             matrixStack.pushPose();
             matrixStack.scale(scaleW, scaleH, 1.0f);
-            graphics.blit(GuiLog.ql.get(4), 1, 12, 167, 71, ew, 3);
+            graphics.blit(ql.get(4), 1, 12, 167, 71, ew, 3);
             matrixStack.popPose();
          }
          draw(graphics, f.getName(), (int) (3.0f * scaleW), (int) (2.0f * scaleH), questLogColor, (int) (87.0f * scaleW));
@@ -820,7 +820,7 @@ public class GuiLog
          matrixStack.pushPose();
          matrixStack.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
          matrixStack.scale(scaleW, scaleH, 1.0f);
-         graphics.blit(GuiLog.ql.get(4), -17, -16, 111, hoverButton == 16 ? 30 : 46, 18, 16);
+         graphics.blit(ql.get(4), -17, -16, 111, hoverButton == 16 ? 30 : 46, 18, 16);
          matrixStack.popPose();
       } // pre Cats
       if (categories.size() - (catRow + 1) * 8 > 0) {
@@ -830,7 +830,7 @@ public class GuiLog
          matrixStack.pushPose();
          matrixStack.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
          matrixStack.scale(scaleW, scaleH, 1.0f);
-         graphics.blit(GuiLog.ql.get(4), -17, 128, 129, hoverButton == 17 ? 30 : 46, 18, 16);
+         graphics.blit(ql.get(4), -17, 128, 129, hoverButton == 17 ? 30 : 46, 18, 16);
          matrixStack.popPose();
       } // next Cats
       int i = 0, p = 0, st = catRow * 8;
@@ -850,14 +850,14 @@ public class GuiLog
          matrixStack.pushPose();
          matrixStack.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
          matrixStack.scale(scaleW, scaleH, 1.0f);
-         graphics.blit(GuiLog.ql.get(4), 4 - (int) (catW / scaleW) + i, i * 16, 0, 90 + (catSelect == p || hoverButton == 7 + i ? 0 : 16), (int) (catW / scaleW), 16);
+         graphics.blit(ql.get(4), 4 - (int) (catW / scaleW) + i, i * 16, 0, 90 + (catSelect == p || hoverButton == 7 + i ? 0 : 16), (int) (catW / scaleW), 16);
          matrixStack.popPose();
          if (catSelect == p && step < 0 && activeQuest == null) {
             selectCat = catName;
             matrixStack.pushPose();
             matrixStack.translate(guiLeft, guiTopLog + 23.5f * scaleH, 0.0f);
             matrixStack.scale(scaleW, scaleH, 1.0f);
-            graphics.blit(GuiLog.ql.get(4), 3 + i, i * 16, 234 + i, 90, 22 - i, 16);
+            graphics.blit(ql.get(4), 3 + i, i * 16, 234 + i, 90, 22 - i, 16);
             matrixStack.popPose();
          }
          draw(graphics, catName, guiLeft + 4 - catW + 7 + i, (int) (guiTopLog + 23.5f * scaleH + (16.0f * scaleH - 10.0f) / 2.0f + (i * 16.0f) * scaleH), questLogColor, 90 + i);
@@ -888,7 +888,7 @@ public class GuiLog
                String modelName;
                if (activeQuest.npc.display.getModel() != null) { modelName = activeQuest.npc.display.getModel(); }
                else { modelName = EntityType.getKey(activeQuest.npc.getType()).toString(); }
-               float[] offsets = GuiLog.preDrawEntity(modelName, activeQuest.npc);
+               float[] offsets = preDrawEntity(modelName, activeQuest.npc);
                drawNpc(graphics, activeQuest.npc, (int) (74.0f * scaleW + offsets[0]),
                        70 + (int) (41.0f * scaleH + offsets[1]),
                        offsets[2], 30, 0, 1);
@@ -901,7 +901,7 @@ public class GuiLog
                matrixStack.pushPose();
                matrixStack.translate(guiLLeft + 16.5f * scaleW, guiLTop - 4.0f * scaleH, 2.0f);
                matrixStack.scale(scaleW, scaleH, 1.0f);
-               graphics.blit(GuiLog.ql.get(4), 0, 0, 193, 0, 63, 52);
+               graphics.blit(ql.get(4), 0, 0, 193, 0, 63, 52);
                RenderSystem.enableDepthTest();
                matrixStack.popPose();
             }
@@ -947,11 +947,7 @@ public class GuiLog
                            hover = stack.getTooltipLines(player, minecraft.options.advancedItemTooltips ? TooltipFlag.ADVANCED : TooltipFlag.NORMAL);
                            setHoverText(hover);
                         }
-                        matrixStack.pushPose();
-                        matrixStack.translate(pos + xPos, yPos, 0.0f);
-                        matrixStack.scale(scale, scale, scale);
-                        graphics.renderItem(stack, 0, 0);
-                        matrixStack.popPose();
+                        renderStackInGUI(graphics, stack, pos + xPos, yPos, 0.0f, scale, "");
                         j++;
                      }
                      line = preText + stackText + postText;
@@ -988,14 +984,14 @@ public class GuiLog
             matrixStack.pushPose();
             matrixStack.translate(guiLLeft - 5.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
             if (isMouseHover(mouseX, mouseY, (int) (guiLLeft - 5.0f * scaleW), (int) (guiLTop + 160.0f * scaleH), 18, 10)) { hoverButton = 5; } // pre cat list;
-            graphics.blit(bookGuiTextures, 0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
+            graphics.blit(BOOK_TEXTURE, 0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
             matrixStack.popPose();
          }
          if (page + 2 != activeQuest.size() && page * 2 < activeQuest.size()) {
             matrixStack.pushPose();
             matrixStack.translate(guiLeft + 230.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
             if (isMouseHover(mouseX, mouseY, (int) (guiLeft + 230.0f * scaleW), (int) (guiLTop + 160.0f * scaleH), 18, 10)) { hoverButton = 4; } // next cat list;
-            graphics.blit(bookGuiTextures, 0, 0, hoverButton == 4 ? 26 : 3, 194, 18, 10);
+            graphics.blit(BOOK_TEXTURE, 0, 0, hoverButton == 4 ? 26 : 3, 194, 18, 10);
             matrixStack.popPose();
          }
       }
@@ -1004,14 +1000,14 @@ public class GuiLog
             matrixStack.pushPose();
             matrixStack.translate(guiLLeft - 5.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
             if (isMouseHover(mouseX, mouseY, (int) (guiLLeft - 5.0f * scaleW), (int) (guiLTop + 160.0f * scaleH), 18, 10)) { hoverButton = 5; } // pre cat list;
-            graphics.blit(bookGuiTextures, 0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
+            graphics.blit(BOOK_TEXTURE, 0, 0, hoverButton == 5 ? 26 : 3, 207, 18, 10);
             matrixStack.popPose();
          }
          if (Math.floor(quests.size() / 10.d) > page) {
             matrixStack.pushPose();
             matrixStack.translate(guiLeft + 230.0f * scaleW, guiLTop + 160.0f * scaleH, 0.0f);
             if (isMouseHover(mouseX, mouseY, (int) (guiLeft + 230.0f * scaleW), (int) (guiLTop + 160.0f * scaleH), 18, 10)) { hoverButton = 4; } // next cat list;
-            graphics.blit(bookGuiTextures, 0, 0, hoverButton == 4 ? 26 : 3, 194, 18, 10);
+            graphics.blit(BOOK_TEXTURE, 0, 0, hoverButton == 4 ? 26 : 3, 194, 18, 10);
             matrixStack.popPose();
          }
          i = 0;
@@ -1033,7 +1029,7 @@ public class GuiLog
             RenderSystem.setShaderColor(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, 1.0f);
             matrixStack.pushPose();
             matrixStack.scale(scaleW, scaleH, 1.0f);
-            graphics.blit(GuiLog.ql.get(4), 0, 0, 0, 0, 98, 30);
+            graphics.blit(ql.get(4), 0, 0, 0, 0, 98, 30);
             matrixStack.popPose();
             QuestData qd = quests.get(selectCat).get(id);
             Quest quest = qd.quest;
@@ -1064,7 +1060,7 @@ public class GuiLog
                   hoverButton = 30;
                   hoverQuestId = id;
                }
-               graphics.blit(GuiLog.ql.get(4), 0, 0, 116 + xo, hoverButton == 30 && hoverQuestId == id ? 9 : 0, 9, 9);
+               graphics.blit(ql.get(4), 0, 0, 116 + xo, hoverButton == 30 && hoverQuestId == id ? 9 : 0, 9, 9);
                matrixStack.popPose();
             }
 
@@ -1081,7 +1077,7 @@ public class GuiLog
                   hoverButton = 31;
                   hoverQuestId = id;
                }
-               graphics.blit(GuiLog.ql.get(4), 0, 0, 107 + (compassData.questID == quest.id ? 0 : 9), hoverButton == 31 && hoverQuestId == id ? 9 : 0, 9, 9);
+               graphics.blit(ql.get(4), 0, 0, 107 + (compassData.questID == quest.id ? 0 : 9), hoverButton == 31 && hoverQuestId == id ? 9 : 0, 9, 9);
                matrixStack.popPose();
             }
 
@@ -1103,7 +1099,7 @@ public class GuiLog
                   hoverButton = 32;
                   hoverQuestId = id;
                }
-               graphics.blit(GuiLog.ql.get(4), 0, 0, 98, hoverButton == 32 && hoverQuestId == id ? 9 : 0, 9, 9);
+               graphics.blit(ql.get(4), 0, 0, 98, hoverButton == 32 && hoverQuestId == id ? 9 : 0, 9, 9);
                matrixStack.popPose();
             }
 
@@ -1211,7 +1207,7 @@ public class GuiLog
                matrixStack.pushPose();
                matrixStack.translate(guiCenter + (1.0f - cos) * (guiCenter + 50.0f), guiTopLog + (1.0f - cos) * 250.0f, 0.0f);
                matrixStack.scale(scaleW, scaleH, 1.0f);
-               graphics.blit(GuiLog.ql.get(2), 0, 0, 0, 0, 128, 175);
+               graphics.blit(ql.get(2), 0, 0, 0, 0, 128, 175);
                matrixStack.popPose();
                if (tick == 0) {
                   step = 1;
@@ -1225,7 +1221,7 @@ public class GuiLog
                matrixStack.pushPose();
                matrixStack.translate(guiCenter, guiTopLog, 0.0f);
                matrixStack.scale(scaleW, scaleH, 1.0f);
-               graphics.blit(GuiLog.ql.get(0), 0, 0, 128, 0, 128, 175);
+               graphics.blit(ql.get(0), 0, 0, 128, 0, 128, 175);
                matrixStack.popPose();
                // left
                boolean up = tick >= milliTick / 2;
@@ -1241,7 +1237,7 @@ public class GuiLog
                   matrixStack.translate(guiCenter, guiTopLog, 0.0f);
                   matrixStack.scale(1.0f - cos, 1.0f, 1.0f);
                   matrixStack.scale(scaleW, scaleH, 1.0f);
-                  graphics.blit(GuiLog.ql.get(2), 0, 0, 0, 0, 128, 175);
+                  graphics.blit(ql.get(2), 0, 0, 0, 0, 128, 175);
                } else {
                   part = (float) tick + partialTicks;
                   cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
@@ -1253,7 +1249,7 @@ public class GuiLog
                   matrixStack.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
                   matrixStack.scale(cos, 1.0f, 1.0f);
                   matrixStack.scale(scaleW, scaleH, 1.0f);
-                  graphics.blit(GuiLog.ql.get(0), 0, 0, 0, 0, 128, 175);
+                  graphics.blit(ql.get(0), 0, 0, 0, 0, 128, 175);
                }
                matrixStack.popPose();
                if (tick == 0) {
@@ -1267,8 +1263,8 @@ public class GuiLog
                matrixStack.pushPose();
                matrixStack.translate(guiLeft, guiTopLog, 0.0f);
                matrixStack.scale(scaleW, scaleH, 1.0f);
-               graphics.blit(GuiLog.ql.get(0), 0, 0, 0, 0, 256, 175);
-               if (temp > 0) { graphics.blit(GuiLog.ql.get(1), 0, 0, 0, 0, 256, 175); }
+               graphics.blit(ql.get(0), 0, 0, 0, 0, 256, 175);
+               if (temp > 0) { graphics.blit(ql.get(1), 0, 0, 0, 0, 256, 175); }
                matrixStack.popPose();
 
                // left
@@ -1285,7 +1281,7 @@ public class GuiLog
                   matrixStack.translate(guiCenter, guiTopLog, 0.0f);
                   matrixStack.scale(1.0f - cos, 1.0f, 1.0f);
                   matrixStack.scale(scaleW, scaleH, 1.0f);
-                  graphics.blit(GuiLog.ql.get(3), 0, 0, 128, 0, 128, 175);
+                  graphics.blit(ql.get(3), 0, 0, 128, 0, 128, 175);
                } else {
                   part = (float) tick + partialTicks;
                   cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
@@ -1297,7 +1293,7 @@ public class GuiLog
                   matrixStack.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
                   matrixStack.scale(cos, 1.0f, 1.0f);
                   matrixStack.scale(scaleW, scaleH, 1.0f);
-                  graphics.blit(GuiLog.ql.get(3), 0, 0, 0, 0, 128, 175);
+                  graphics.blit(ql.get(3), 0, 0, 0, 0, 128, 175);
                }
                matrixStack.popPose();
 
@@ -1324,22 +1320,22 @@ public class GuiLog
                // Tabs
                matrixStack.pushPose();
                matrixStack.translate(guiLeft + 10, guiTop + (1.0f - cos) * 28.0f, 0.0f);
-               graphics.blit(GuiLog.ql.get(4), 0, 0, 0, 30, 28, 30);
+               graphics.blit(ql.get(4), 0, 0, 0, 30, 28, 30);
                matrixStack.translate(33.0f, 0.0f, 0.0f);
-               graphics.blit(GuiLog.ql.get(4), 0, 0, 0, 30, 28, 30);
+               graphics.blit(ql.get(4), 0, 0, 0, 30, 28, 30);
                matrixStack.translate(33.0f, 0.0f, 0.0f);
-               graphics.blit(GuiLog.ql.get(4), 0, 0, 0, 30, 28, 30);
+               graphics.blit(ql.get(4), 0, 0, 0, 30, 28, 30);
                if (CustomNpcs.TypeShowQuestCompass != 4 || player.isCreative()) {
                   matrixStack.translate(-114.0f + 256.0f * scaleW, 0.0f, 0.0f);
-                  graphics.blit(GuiLog.ql.get(4), 0, 0, 0, 30, 28, 30);
+                  graphics.blit(ql.get(4), 0, 0, 0, 30, 28, 30);
                }
                matrixStack.popPose();
                // place
                matrixStack.pushPose();
                matrixStack.translate(guiLeft, guiTopLog, 0.0f);
                matrixStack.scale(scaleW, scaleH, 1.0f);
-               graphics.blit(GuiLog.ql.get(0), 0, 0, 0, 0, 256, 175);
-               graphics.blit(GuiLog.ql.get(1), 0, 0, 0, 0, 256, 175);
+               graphics.blit(ql.get(0), 0, 0, 0, 0, 256, 175);
+               graphics.blit(ql.get(1), 0, 0, 0, 0, 256, 175);
                matrixStack.popPose();
 
                if (tick == 0) {
@@ -1363,7 +1359,7 @@ public class GuiLog
                      } // 7/15-tab categories;
                      matrixStack.pushPose();
                      matrixStack.scale(scaleW, scaleH, 1.0f);
-                     graphics.blit(GuiLog.ql.get(4), 4 - (int) (catW / scaleW) + i, i * 16, 0, 90 + (catSelect == p || hoverButton == 7 + i ? 0 : 16), (int) (catW / scaleW), 16);
+                     graphics.blit(ql.get(4), 4 - (int) (catW / scaleW) + i, i * 16, 0, 90 + (catSelect == p || hoverButton == 7 + i ? 0 : 16), (int) (catW / scaleW), 16);
                      matrixStack.popPose();
                      StringBuilder name = new StringBuilder();
                      for (int j = 0; j < catName.length(); j++) {
@@ -1415,7 +1411,7 @@ public class GuiLog
                         continue;
                      }
                      int catW = (int) ((ClientProxy.LogFont.width(catName) + 10) * (1.0f - cos));
-                     graphics.blit(GuiLog.ql.get(4), 5 - catW, i * 16, 0, 90 + (catSelect == p ? 0 : 16), catW, 16);
+                     graphics.blit(ql.get(4), 5 - catW, i * 16, 0, 90 + (catSelect == p ? 0 : 16), catW, 16);
                      StringBuilder name = new StringBuilder();
                      for (int j = 0; j < catName.length(); j++) {
                         if (ClientProxy.LogFont.width(name.toString() + catName.charAt(j)) > catW - 5) {
@@ -1479,7 +1475,7 @@ public class GuiLog
                   matrixStack.translate(guiCenter, guiTopLog, 0.0f);
                   matrixStack.scale(1.0f - cos, 1.0f, 1.0f);
                   matrixStack.scale(scaleW, scaleH, 1.0f);
-                  graphics.blit(GuiLog.ql.get(3), 0, 0, 128, 0, 128, 175);
+                  graphics.blit(ql.get(3), 0, 0, 128, 0, 128, 175);
                } else {
                   part = (float) tick + partialTicks;
                   cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
@@ -1488,7 +1484,7 @@ public class GuiLog
                   matrixStack.translate(guiCenter - cos * width / 2.0f, guiTopLog, 0.0f);
                   matrixStack.scale(cos, 1.0f, 1.0f);
                   matrixStack.scale(scaleW, scaleH, 1.0f);
-                  graphics.blit(GuiLog.ql.get(3), 0, 0, 0, 0, 128, 175);
+                  graphics.blit(ql.get(3), 0, 0, 0, 0, 128, 175);
                }
                matrixStack.popPose();
 
@@ -1516,7 +1512,7 @@ public class GuiLog
                   matrixStack.translate(guiCenter - (1.0f - cos) * width / 2.0f, guiTopLog, 0.0f);
                   matrixStack.scale((1.0f - cos), 1.0f, 1.0f);
                   matrixStack.scale(scaleW, scaleH, 1.0f);
-                  graphics.blit(GuiLog.ql.get(3), 0, 0, 0, 0, 128, 175);
+                  graphics.blit(ql.get(3), 0, 0, 0, 0, 128, 175);
                } else {
                   part = (float) tick + partialTicks;
                   cos = (float) Math.cos(90.0d * part / ((double) milliTick / 2.0d) * Math.PI / 180.0d);
@@ -1528,7 +1524,7 @@ public class GuiLog
                   matrixStack.translate(guiCenter, guiTopLog, 0.0f);
                   matrixStack.scale(cos, 1.0f, 1.0f);
                   matrixStack.scale(scaleW, scaleH, 1.0f);
-                  graphics.blit(GuiLog.ql.get(3), 0, 0, 128, 0, 128, 175);
+                  graphics.blit(ql.get(3), 0, 0, 128, 0, 128, 175);
                }
                matrixStack.popPose();
 
@@ -1545,14 +1541,14 @@ public class GuiLog
                // Tabs
                matrixStack.pushPose();
                matrixStack.translate(guiLeft + 10, guiTop + cos * 28.0f, 0.0f);
-               graphics.blit(GuiLog.ql.get(4), 0, 0, 0, 30, 28, 30);
+               graphics.blit(ql.get(4), 0, 0, 0, 30, 28, 30);
                matrixStack.translate(33.0f, 0.0f, 0.0f);
-               graphics.blit(GuiLog.ql.get(4), 0, 0, 0, 30, 28, 30);
+               graphics.blit(ql.get(4), 0, 0, 0, 30, 28, 30);
                matrixStack.translate(33.0f, 0.0f, 0.0f);
-               graphics.blit(GuiLog.ql.get(4), 0, 0, 0, 30, 28, 30);
+               graphics.blit(ql.get(4), 0, 0, 0, 30, 28, 30);
                if (CustomNpcs.TypeShowQuestCompass != 4 || player.isCreative()) {
                   matrixStack.translate(-114.0f + 256.0f * scaleW, 0.0f, 0.0f);
-                  graphics.blit(GuiLog.ql.get(4), 0, 0, 0, 30, 28, 30);
+                  graphics.blit(ql.get(4), 0, 0, 0, 30, 28, 30);
                }
                matrixStack.popPose();
 
@@ -1560,8 +1556,8 @@ public class GuiLog
                matrixStack.pushPose();
                matrixStack.translate(guiLeft, guiTopLog, 0.0f);
                matrixStack.scale(scaleW, scaleH, 1.0f);
-               graphics.blit(GuiLog.ql.get(0), 0, 0, 0, 0, 256, 175);
-               graphics.blit(GuiLog.ql.get(1), 0, 0, 0, 0, 256, 175);
+               graphics.blit(ql.get(0), 0, 0, 0, 0, 256, 175);
+               graphics.blit(ql.get(1), 0, 0, 0, 0, 256, 175);
                matrixStack.popPose();
                if (tick == 0) {
                   step = 13;
@@ -1574,7 +1570,7 @@ public class GuiLog
                matrixStack.pushPose();
                matrixStack.translate(guiCenter - 64.0f * cos, guiTopLog, 0.0f);
                matrixStack.scale(scaleW, scaleH, 1.0f);
-               graphics.blit(GuiLog.ql.get(0), 0, 0, 128, 0, 128, 175);
+               graphics.blit(ql.get(0), 0, 0, 128, 0, 128, 175);
                matrixStack.popPose();
 
                // right
@@ -1592,9 +1588,9 @@ public class GuiLog
                   matrixStack.translate(-128.0f * (1.0d - cos), 0.0f, 0.0f);
                   matrixStack.scale(1.0f - cos, 1.0f, 1.0f);
                   matrixStack.scale(scaleW, scaleH, 1.0f);
-                  graphics.blit(GuiLog.ql.get(0), 0, 0, 0, 0, 128, 175);
+                  graphics.blit(ql.get(0), 0, 0, 0, 0, 128, 175);
                   if (temp > 0) {
-                     graphics.blit(GuiLog.ql.get(1), 0, 0, 0, 0, 128, 175);
+                     graphics.blit(ql.get(1), 0, 0, 0, 0, 128, 175);
                   }
                }
                else {
@@ -1607,7 +1603,7 @@ public class GuiLog
                   }
                   matrixStack.scale(cos, 1.0f, 1.0f);
                   matrixStack.scale(scaleW, scaleH, 1.0f);
-                  graphics.blit(GuiLog.ql.get(2), 0, 0, 0, 0, 128, 175);
+                  graphics.blit(ql.get(2), 0, 0, 0, 0, 128, 175);
                }
                matrixStack.popPose();
 
@@ -1622,7 +1618,7 @@ public class GuiLog
                matrixStack.pushPose();
                matrixStack.translate(guiCenter - 64.0f + cos * (guiCenter + 50.0f), guiTopLog + cos * 250.0f, 0.0f);
                matrixStack.scale(scaleW, scaleH, 1.0f);
-               graphics.blit(GuiLog.ql.get(2), 0, 0, 0, 0, 128, 175);
+               graphics.blit(ql.get(2), 0, 0, 0, 0, 128, 175);
                matrixStack.popPose();
                if (tick == 0) {
                   save();
@@ -1670,7 +1666,7 @@ public class GuiLog
       }
       matrixStack.scale(25.0f, 25.0f, 25.0f);
       entity.tickCount = 1;
-      GuiLog.preDrawEntity(modelName, entity);
+      preDrawEntity(modelName, entity);
       drawNpc(graphics, entity, mouseX - (guiLeft + 22) + offsetX, mouseY - guiTopLog + offsetY, 1.0f, rot, 0, 1);
       matrixStack.popPose();
       return true;
@@ -1856,17 +1852,17 @@ public class GuiLog
       if (type != 2) { return; }
       switch (slider.id) {
          case 0: {
-            compassData.scale = Math.round((slider.sliderValue + 0.5f) * 100.0f) / 100.0f;
+            compassData.scale = Math.round((slider.getValue() + 0.5f) * 100.0f) / 100.0f;
             slider.setString(("" + compassData.scale).replace(".", ","));
             break;
          }
          case 1: {
-            compassData.incline = Math.round((-45.0f * slider.sliderValue + 22.5f) * 100.0f) / 100.0f;
+            compassData.incline = Math.round((-45.0f * slider.getValue() + 22.5f) * 100.0f) / 100.0f;
             slider.setString(("" + (45.0f + compassData.incline * -1.0f)).replace(".", ","));
             break;
          }
          case 2: {
-            compassData.rot = Math.round((60.0f * slider.sliderValue - 30.0f) * 100.0f) / 100.0f;
+            compassData.rot = Math.round((60.0f * slider.getValue() - 30.0f) * 100.0f) / 100.0f;
             slider.setString(("" + compassData.rot).replace(".", ","));
             break;
          }
@@ -1958,7 +1954,7 @@ public class GuiLog
             String[] words = text.split(" ");
             String line = "";
             String color = ((char) 167) + "r";
-            float width = 98.0f * GuiLog.scaleW;
+            float width = 98.0f * scaleW;
             for (String word : words) {
                Label_0236: {
                   if (!word.isEmpty()) {

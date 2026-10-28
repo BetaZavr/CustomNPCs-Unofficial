@@ -172,11 +172,8 @@ public class GuiQuestModern
         for (int i = 0; i < quest.rewardItems.size(); ++i) {
             ItemStack rewardStack = quest.rewardItems.get(i).item;
             if (rewardStack == null || rewardStack.isEmpty()) continue;
-
             graphics.blit(GuiDialogModern.DECOMPOSED, 690 + 26 * i, topToObjectivesBottom + 16, 0, 27, 24, 24);
-            graphics.renderItem(rewardStack, 694 + 26 * i, topToObjectivesBottom + 20);
-            graphics.renderItemDecorations(font, rewardStack, 694 + 26 * i, topToObjectivesBottom + 20, "" + rewardStack.getCount());
-
+            renderStackInGUI(graphics, rewardStack, 694 + 26 * i, topToObjectivesBottom + 20, 0.0f, 1.0f, "" + rewardStack.getCount());
         }
 
         if (quest.rewardExp != 0) {

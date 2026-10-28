@@ -257,25 +257,25 @@ public class GuiNpcNaturalSpawns
       String value;
       switch (guiNpcSlider.id) {
          case 2: {
-            spawn.setWeight((int)(guiNpcSlider.sliderValue * 100.0F));
+            spawn.setWeight((int)(guiNpcSlider.getValue() * 100.0F));
             value = "" + spawn.getWeight().asInt();
             guiNpcSlider.setMessage(Component.literal(value + "%"));
             break;
          } // chance
          case 3: {
-            spawn.group = ValueUtil.correctInt((int) (guiNpcSlider.sliderValue * 8.0f), 1, 8);
+            spawn.group = ValueUtil.correctInt((int) (guiNpcSlider.getValue() * 8.0f), 1, 8);
             value = "" + spawn.group;
             guiNpcSlider.setMessage(Component.literal(value));
             break;
          } // group
          case 4: {
-            spawn.range = ValueUtil.correctInt((int) (guiNpcSlider.sliderValue * 16.0f), 1, 16);
+            spawn.range = ValueUtil.correctInt((int) (guiNpcSlider.getValue() * 16.0f), 1, 16);
             value = "" + spawn.range;
             guiNpcSlider.setMessage(Component.literal(value));
             break;
          } // range
          case 5: {
-            spawn.maxNearPlayer = ValueUtil.correctInt((int) (guiNpcSlider.sliderValue * (float) maxSize), 1, maxSize);
+            spawn.maxNearPlayer = ValueUtil.correctInt((int) (guiNpcSlider.getValue() * (float) maxSize), 1, maxSize);
             value = "" + spawn.maxNearPlayer;
             guiNpcSlider.setMessage(Component.literal(value));
             break;
@@ -289,7 +289,7 @@ public class GuiNpcNaturalSpawns
    public void mousePressed(GuiSliderNop guiNpcSlider) { }
 
    @Override
-   public void mouseReleased(GuiSliderNop guiNpcSlider) { spawn.setWeight((int)(guiNpcSlider.sliderValue * 100.0F)); }
+   public void mouseReleased(GuiSliderNop guiNpcSlider) { spawn.setWeight((int)(guiNpcSlider.getValue() * 100.0F)); }
 
    @Override
    public void save() {

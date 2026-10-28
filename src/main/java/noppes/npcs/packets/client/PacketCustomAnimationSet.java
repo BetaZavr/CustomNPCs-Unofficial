@@ -39,7 +39,7 @@ public class PacketCustomAnimationSet extends PacketBasic {
     }
 
     public static PacketCustomAnimationSet decode(FriendlyByteBuf buf) {
-        return new PacketCustomAnimationSet(buf.readBoolean(), buf.readResourceKey(Registries.DIMENSION), buf.readInt(), buf.readUUID(), buf.readAnySizeNbt());
+        return new PacketCustomAnimationSet(buf.readBoolean(), buf.readResourceKey(Registries.DIMENSION), buf.readInt(), buf.readUUID(), buf.readNbt());
     }
 
     @Override

@@ -570,12 +570,14 @@ public class ClientEventHandler {
     @SubscribeEvent
     public <T extends LivingEntity, M extends EntityModel<T>> void cnpcPostLivingEvent(Post<T, M> event) {
         CustomNpcs.debugData.start("Players");
-        MarkData data = MarkData.get(event.getEntity());
         Player player = Minecraft.getInstance().player;
-        for (MarkData.Mark m : data.marks) {
-            if (m.getType() != 0 && m.availability.isAvailable(player)) {
-                MarkRenderer.render(event, m);
-                break;
+        if (MarkData.hasMarksInGame() && event.getEntity().isAlive()) {
+            MarkData data = MarkData.get(event.getEntity());
+            for (MarkData.Mark m : data.marks) {
+                if (m.getType() != 0 && m.availability.isAvailable(player)) {
+                    MarkRenderer.render(event, m);
+                    break;
+                }
             }
         }
         if (player != null && event.getEntity() instanceof Player pl && ClientEventHandler.chatMessages.containsKey(pl)) {
@@ -2915,13 +2917,8 @@ public class ClientEventHandler {
                     st = new ItemStack(state.getBlock().asItem(), 1);
                 }
                 if (st != null) {
-                    matrixStack.pushPose();
-                    matrixStack.translate(playerData.overlay.getWindowSize().getWidth() / 2.0d,
-                            playerData.overlay.getWindowSize().getHeight() - 45.0d - 4.5d * lH,
-                            0.0d);
-                    graphics.renderItem(st, 0, 0);
-                    graphics.renderItemDecorations(mc.font, st, 0, 0);
-                    matrixStack.popPose();
+                    GuiBasic.renderStackInGUI(graphics, st, playerData.overlay.getWindowSize().getWidth() / 2.0d,
+                            playerData.overlay.getWindowSize().getHeight() - 45.0d - 4.5d * lH, 0.0f, 1.0f, null);
                 }
                 matrixStack.translate(
                         (playerData.overlay.getWindowSize().getWidth() - (double) mc.font.width(rayName)) / 2.0d,

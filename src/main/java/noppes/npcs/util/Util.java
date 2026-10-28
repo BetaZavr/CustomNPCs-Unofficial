@@ -860,7 +860,7 @@ public class Util implements IMethods {
         }
         if (negatively) { // negative or zero
             if (color) {
-                sufc = chr + "c";
+                sufc = ChatFormatting.RED.toString();
             }
             if (corr != 0.0d) {
                 sufc += "-";
@@ -868,7 +868,7 @@ public class Util implements IMethods {
         }
         String end = "";
         if (color) {
-            end = chr + "r";
+            end = ChatFormatting.RESET.toString();
         }
         if (notPfx) {
             sufc = "";
@@ -941,6 +941,14 @@ public class Util implements IMethods {
     }
 
     public IRayTraceResults rayTraceBlocksAndEntitys(Entity entity, double yaw, double pitch, double distance) {
+        return rayTrace(entity, yaw, pitch, distance, true);
+    }
+
+    public IRayTraceResults rayTraceBlocks(Entity entity, double yaw, double pitch, double distance) {
+        return rayTrace(entity, yaw, pitch, distance, false);
+    }
+
+    private IRayTraceResults rayTrace(Entity entity, double yaw, double pitch, double distance, boolean withEntities) {
         if (entity == null || distance <= 0.0d) { return RayTraceResults.EMPTY; }
         RayTraceResults rtrs = new RayTraceResults();
 
@@ -952,6 +960,7 @@ public class Util implements IMethods {
         double f3 = Math.sin(-pitch * rad);
         Vec3 vecLook = new Vec3(f1 * f2, f3, f * f2);
         Vec3 vecEnd = vecStart.add(vecLook.x * distance, vecLook.y * distance, vecLook.z * distance);
+        if (withEntities) { rtrs.add(entity, distance, vecStart, vecEnd); }
         rtrs.add(entity, distance, vecStart, vecEnd);
 
         int x0 = (int) Math.floor(vecStart.x);

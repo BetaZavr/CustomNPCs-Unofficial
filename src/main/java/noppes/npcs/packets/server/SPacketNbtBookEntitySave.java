@@ -39,7 +39,7 @@ public class SPacketNbtBookEntitySave extends PacketServerBasic {
       buf.writeNbt(msg.data);
    }
 
-   public static SPacketNbtBookEntitySave decode(FriendlyByteBuf buf) { return new SPacketNbtBookEntitySave(buf.readInt(), buf.readAnySizeNbt()); }
+   public static SPacketNbtBookEntitySave decode(FriendlyByteBuf buf) { return new SPacketNbtBookEntitySave(buf.readInt(), buf.readNbt()); }
 
    @Override
    public int getChannelId() { return channelId; }

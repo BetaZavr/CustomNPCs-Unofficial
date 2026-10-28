@@ -36,6 +36,7 @@ import noppes.npcs.client.gui.util.GuiTooltipUtils;
 import noppes.npcs.shared.client.gui.components.*;
 import noppes.npcs.shared.client.gui.listeners.IComponentGui;
 import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
+import noppes.npcs.shared.client.gui.util.EnumAlignText;
 import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
@@ -115,6 +116,19 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
       font = minecraft.font;
    }
 
+   public static void renderStackInGUI(@Nonnull GuiGraphics graphics, ItemStack stack, double x, double y, double z, float scale, @Nullable String count) {
+      if (NoppesUtilServer.isItemStackNull(stack)) { return; }
+      PoseStack matrixStack = graphics.pose();
+      matrixStack.pushPose();
+      RenderSystem.applyModelViewMatrix();
+      matrixStack.translate(x, y, z);
+      matrixStack.scale(scale, scale, scale);
+      graphics.renderItem(stack, 0, 0);
+      if (count == null) { graphics.renderItemDecorations(Minecraft.getInstance().font, stack, 0, 0); }
+      else if (!count.isEmpty()) { graphics.renderItemDecorations(Minecraft.getInstance().font, stack, 0, 0, count); }
+      matrixStack.popPose();
+   }
+
    public void setBackground(String texture) {
       background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture);
       switch (texture) {
@@ -133,11 +147,20 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
             heightTexture = 71;
             break;
          }
+         case "itemsetup.png": {
+            widthTexture = 176;
+            heightTexture = 202;
+            break;
+         }
          case "largebg.png": {
             widthTexture = 192;
             heightTexture = 231;
             break;
          }
+         case "npcinv.png":
+         case "npcdrop.png":
+         case "npcbanksetup.png":
+         case "followersetup.png":
          case "menubg.png": {
             widthTexture = 256;
             heightTexture = 217;
@@ -364,6 +387,7 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
    @Override
    public int getY() { return guiTop; }
 
+   @Override
    public GuiButtonNop getButton(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.BUTTON &&
@@ -373,6 +397,7 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
       return null;
    }
 
+   @Override
    public GuiMenuSideButton getSideButton(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.SIDE_BUTTON &&
@@ -382,6 +407,7 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
       return null;
    }
 
+   @Override
    public GuiMenuTopButton getTopButton(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.TOP_BUTTON &&
@@ -391,6 +417,7 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
       return null;
    }
 
+   @Override
    public GuiTextFieldNop getTextField(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.TEXT_FIELD &&
@@ -400,6 +427,7 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
       return null;
    }
 
+   @Override
    public GuiLabel getLabel(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.LABEL &&
@@ -409,6 +437,7 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
       return null;
    }
 
+   @Override
    public GuiSliderNop getSlider(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.SLIDER &&
@@ -418,6 +447,7 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
       return null;
    }
 
+   @Override
    public GuiCustomScrollNop getScroll(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.SCROLL &&
@@ -427,6 +457,7 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
       return null;
    }
 
+   @Override
    public IComponentGui getExtra(int id) {
       for (IComponentGui element : new ArrayList<>(wrapper.components)) {
          if (element.getElementType() == GuiComponentType.EXTRA && element.getId() == id) { return element; }
@@ -493,7 +524,7 @@ public abstract class GuiBasic extends Screen implements IGuiInterface {
       renderBackground(graphics);
       if (title != null && !title.getString().isEmpty()) {
          GuiButtonNop.renderString(graphics, title, guiLeft + 4, guiTop + 5, guiLeft + imageWidth - 8, guiTop + 15,
-                 CustomNpcs.LableColor.getRGB(), false, true, null);
+                 CustomNpcs.LableColor.getRGB(), false, EnumAlignText.LEFT, true, null);
       }
       for (IComponentGui component : new ArrayList<>(wrapper.components)) {
          if (component instanceof Renderable renderable) { renderable.render(graphics, x, y, partialTicks); }

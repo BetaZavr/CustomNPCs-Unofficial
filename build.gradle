@@ -111,6 +111,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 repositories {
     mavenLocal()
     mavenCentral()
+    flatDir { dir 'libs' }
 }
 
 // Project dependencies (required libraries)

@@ -32,7 +32,7 @@ public class PacketSyncUpdate extends PacketBasic {
       buf.writeNbt(msg.data);
    }
 
-   public static PacketSyncUpdate decode(FriendlyByteBuf buf) { return new PacketSyncUpdate(buf.readInt(), buf.readInt(), buf.readAnySizeNbt()); }
+   public static PacketSyncUpdate decode(FriendlyByteBuf buf) { return new PacketSyncUpdate(buf.readInt(), buf.readInt(), buf.readNbt()); }
 
    @Override
    public int getChannelId() { return channelId; }

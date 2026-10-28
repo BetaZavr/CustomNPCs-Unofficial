@@ -29,6 +29,10 @@ public interface IPlayerMail {
    // New from Unofficial (BetaZavr)
    int getMoney();
 
+   int getDonat();
+
+   void setDonat(@ParamName("money") int money);
+
    int getRansom();
 
    void setMoney(@ParamName("money") int money);

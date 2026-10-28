@@ -87,19 +87,19 @@ public class GuiCreationScale extends GuiCreationScreenInterface implements ISli
    public void mouseDragged(GuiSliderNop slider) {
       super.mouseDragged(slider);
       if (slider.id >= 10 && slider.id <= 12) {
-         int percent = (int)(50.0F + slider.sliderValue * 100.0F);
+         int percent = (int)(50.0F + slider.getValue() * 100.0F);
          slider.setString(percent + "%");
          ModelPartConfig config = playerdata.getPartConfig(selected);
          if (slider.id == 10) {
-            config.scaleX = slider.sliderValue + 0.5F;
+            config.scaleX = slider.getValue() + 0.5F;
          }
 
          if (slider.id == 11) {
-            config.scaleY = slider.sliderValue + 0.5F;
+            config.scaleY = slider.getValue() + 0.5F;
          }
 
          if (slider.id == 12) {
-            config.scaleZ = slider.sliderValue + 0.5F;
+            config.scaleZ = slider.getValue() + 0.5F;
          }
          updateTranslate();
       }

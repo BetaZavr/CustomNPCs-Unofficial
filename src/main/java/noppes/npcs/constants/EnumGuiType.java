@@ -79,7 +79,12 @@ public enum EnumGuiType {
    CreationParts,
    CustomChest(true),
    ManageCustomElements,
-   ManageDungeons;
+   ManageDungeons,
+   ManageDropTemplates,
+   ManageAuctions,
+   PlayerAuction,
+   PlayerAuctionCreateLot(true),
+   ManageAuctionForbiddenItem(true);
 
    public boolean hasContainer;
    public final ResourceLocation resource;

@@ -24,7 +24,7 @@ public class PacketNpcInitData extends PacketBasic {
     }
 
     public static PacketNpcInitData decode(FriendlyByteBuf buf) {
-        return new PacketNpcInitData(buf.readInt(), buf.readAnySizeNbt());
+        return new PacketNpcInitData(buf.readInt(), buf.readNbt());
     }
 
     @Override

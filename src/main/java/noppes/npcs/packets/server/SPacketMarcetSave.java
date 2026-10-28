@@ -30,7 +30,7 @@ public class SPacketMarcetSave extends PacketServerBasic {
 
     public static void encode(SPacketMarcetSave msg, FriendlyByteBuf buf) { buf.writeNbt(msg.data); }
 
-    public static SPacketMarcetSave decode(FriendlyByteBuf buf) { return new SPacketMarcetSave(buf.readAnySizeNbt()); }
+    public static SPacketMarcetSave decode(FriendlyByteBuf buf) { return new SPacketMarcetSave(buf.readNbt()); }
 
     @Override
     public int getChannelId() { return channelId; }

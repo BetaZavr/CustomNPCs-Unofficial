@@ -34,8 +34,8 @@ public class SPacketPermissionsGet extends PacketServerBasic {
     @Override
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
-        if (!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_PERMISSION)) {
-            permission(CustomNpcsPermissions.EDIT_PERMISSION.getNodeName());
+        if (!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.GLOBAL_PERMISSION)) {
+            permission(CustomNpcsPermissions.GLOBAL_PERMISSION.getNodeName());
             Packets.send(player, new PacketGuiClose());
         }
         else { CustomNpcsPermissions.sendTo(player); }

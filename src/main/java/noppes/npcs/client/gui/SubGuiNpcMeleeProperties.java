@@ -48,7 +48,7 @@ public class SubGuiNpcMeleeProperties extends GuiBasic implements ITextfieldList
       // range
       addLabel(2, guiLeft + 5, guiTop + 45, "stats.meleerange");
       addTextField(2, guiLeft + 105, guiTop + 40, 100, 18, stats.getRange())
-              .setMinMaxDefault(1, 30, 2)
+              .setMinMaxDefault(1.0d, 30.0d, 2.0d)
               .setHoverTexts("stats.hover.attack.range");
       // speed
       addLabel(3, guiLeft + 5, guiTop + 75, "stats.meleespeed");

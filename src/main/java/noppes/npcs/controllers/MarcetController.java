@@ -150,12 +150,9 @@ public class MarcetController implements IMarcetHandler {
     }
 
     private void load() {
-        CustomNpcs.debugData.start(null);
         File saveDir = CustomNpcs.getLevelSaveDirectory();
-        if (saveDir == null || saveDir.toString().equals(".")) {
-            CustomNpcs.debugData.end(null);
-            return;
-        }
+        if (saveDir == null || saveDir.toString().equals(".")) { return; }
+        CustomNpcs.debugData.start(null);
         filePath = saveDir.getAbsolutePath();
         try {
             File file = new File(saveDir, "marcet.dat");
