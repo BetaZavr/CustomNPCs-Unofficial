@@ -27,19 +27,22 @@ import noppes.npcs.entity.EntityProjectile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WrapperEntityData implements IWrapperEntityDataHandler, ICapabilityProvider {
 
 	@CapabilityInject(IWrapperEntityDataHandler.class)
 	public static Capability<IWrapperEntityDataHandler> ENTITYDATA_CAPABILITY;
 	private static final ResourceLocation CNPCS_CAPKEY = new ResourceLocation(CustomNpcs.MODID, "entitydata");
+	private static final Set<Class<?>> WARNED = ConcurrentHashMap.newKeySet();
 
 	public static IEntity<?> get(Entity entity) {
 		if (entity == null || entity.world == null) { return null; }
 		try {
 			WrapperEntityData data = (WrapperEntityData) entity.getCapability(ENTITYDATA_CAPABILITY, null);
 			if (data == null || data.base == null) {
-				LogWriter.warn("Unable to get EntityData for " + entity);
+				if (CustomNpcs.EnableScripting && WARNED.add(entity.getClass())) { LogWriter.warn("Unable to get EntityData for " + entity); }
 				data = getData(entity);
 			}
 			return data.base;
@@ -89,7 +92,7 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 	}
 
 	public static void register(AttachCapabilitiesEvent<Entity> event) {
-		if (CustomNpcs.EnableScripting) { event.addCapability(CNPCS_CAPKEY, getData(event.getObject())); }
+		if (CustomNpcs.EnableScripting || event.getObject() instanceof EntityPlayer) { event.addCapability(CNPCS_CAPKEY, getData(event.getObject())); }
 	}
 
 	public IEntity<?> base;
