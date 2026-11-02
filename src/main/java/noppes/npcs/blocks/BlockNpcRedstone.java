@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -24,10 +25,12 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import noppes.npcs.CustomBlocks;
 import noppes.npcs.CustomItems;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.blocks.tiles.TileRedstoneBlock;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.packets.server.SPacketGuiOpen;
+import noppes.npcs.shared.common.CommonUtil;
 
 public class BlockNpcRedstone extends BlockInterface {
    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
@@ -40,12 +43,15 @@ public class BlockNpcRedstone extends BlockInterface {
    @SuppressWarnings("deprecation")
    public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player playerIn,
                                          @Nonnull InteractionHand hand, @Nonnull BlockHitResult ray) {
-      if (!level.isClientSide && playerIn instanceof ServerPlayer player) {
-         if (player.getInventory().getSelected().getItem() == CustomItems.wand &&
-                 CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_BLOCKS)) {
-            SPacketGuiOpen.sendOpenGui(player, EnumGuiType.RedstoneBlock, null, pos);
-            return InteractionResult.SUCCESS;
+      if (!level.isClientSide() && playerIn instanceof ServerPlayer player &&
+              (player.getInventory().getSelected().getItem() == CustomItems.wand ||
+                      player.getInventory().getSelected().getItem() == CustomBlocks.waypoint_item)) {
+         if ((CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+                 !CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_BLOCKS)) {
+            player.sendSystemMessage(Component.translatable("availability.permission"));
+            return InteractionResult.FAIL;
          }
+         SPacketGuiOpen.sendOpenGui(player, EnumGuiType.RedstoneBlock, null, pos);
       }
       return InteractionResult.PASS;
    }

@@ -95,13 +95,17 @@ public class GuiButtonNop extends Button implements IComponentGui {
       int width = right - left;
       if (textWidth > width || isMoved) { // moved
          graphics.enableScissor(left, top, right, bottom);
-         int centerX = textWidth - width;
-         double d0 = (double) Util.getMillis() / 1000.0;
-         double d1 = Math.max((double) centerX * 0.5, 3.0);
-         double d2 = Math.sin(Math.PI / 2.0d * Math.cos(Math.PI * 2.0d * d0 / d1)) / 2.0 + 0.5;
-         double d3 = Mth.lerp(d2, 0.0, centerX);
-         if (customFont != null) { customFont.draw(graphics, message, left - (int) d3, yPos, color); }
-         else { graphics.drawString(font, message, left - (int) d3, yPos, color, showShadow); }
+         int leftIn = left;
+         if (textWidth > width) {
+            int centerX = textWidth - width;
+            double d0 = (double) Util.getMillis() / 1000.0;
+            double d1 = Math.max((double) centerX * 0.5, 3.0);
+            double d2 = Math.sin(Math.PI / 2.0d * Math.cos(Math.PI * 2.0d * d0 / d1)) / 2.0 + 0.5;
+            double d3 = Mth.lerp(d2, 0.0, centerX);
+            leftIn -= (int) d3;
+         }
+         if (customFont != null) { customFont.draw(graphics, message, leftIn, yPos, color); }
+         else { graphics.drawString(font, message, leftIn, yPos, color, showShadow); }
          graphics.disableScissor();
       } // moved
       else {
@@ -249,19 +253,21 @@ public class GuiButtonNop extends Button implements IComponentGui {
 
       matrixStack.pushPose();
       @Nonnull Component label = getMessage();
-      boolean isMoved = label.getString().equals("<") || label.getString().equals(">") || label.getString().equals("<<") || label.getString().equals("<<<") || label.getString().equals(">>") || label.getString().equals(">>>");
-      if (active && isMoved) {
+      boolean isMoved = active &&
+              (label.getString().equals("<") || label.getString().equals("<<") || label.getString().equals("<<<") ||
+              label.getString().equals(">") || label.getString().equals(">>") || label.getString().equals(">>>"));
+      if (isMoved) {
          int w = mc.font.width(label);
          float wm = width - 4 + 2 * w;
          float ox = (float) (System.currentTimeMillis() % 2000L) / 2000.0f * wm;
-         if (label.getString().equals("<") || label.getString().equals("<<") || label.getString().equals("<<") || label.getString().equals("<<<")) { matrixStack.translate((width + w) / 2.0f - ox, 0.0f, 0.0f); }
-         else { matrixStack.translate((width + w) / -2.0f + ox, 0.0f, 0.0f); }
+         if (label.getString().contains("<")) { matrixStack.translate(width + w - 2 - ox, 0.0f, 0.0f); }
+         else { matrixStack.translate(- w + 2 + ox, 0.0f, 0.0f); }
       }
       if (!active) { RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.5F); }
       int color = getFGColor() | Mth.ceil(alpha * 255.0F) << 24;
       if (isScissor) {
          renderString(graphics, label, getX() + 2, getY(), getX() + getWidth() - 2, getY() + getHeight(),
-                 color, showShadow, EnumAlignText.LEFT, isMoved, customFont);
+                 color, showShadow, alignText, isMoved, customFont);
       } else {
          if (customFont != null) { customFont.draw(graphics, label, getX() + 2, getY(), color); }
          else { graphics.drawString(mc.font, label, getX() + 2 - mc.font.width(label) / 2, getY(), color, showShadow); }

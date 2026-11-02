@@ -6,34 +6,28 @@ import java.util.Map.Entry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.*;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.Event;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
-import noppes.npcs.api.NpcAPI;
-import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
 
-import javax.annotation.Nullable;
-
 public class PlayerScriptData extends BaseScriptData {
 
-   private static final TreeMap<Long, String> console = new TreeMap<>();
-   private static final List<Integer> errored = new ArrayList<>();
-
-   private final @Nullable Player player;
-   private IPlayer<?> playerAPI;
-   private long lastPlayerUpdate = 0L;
-
-   public PlayerScriptData(@Nullable Player playerIn) { player = playerIn; }
+   protected static final Map<ServerPlayer, List<ScriptContainer>> PLAYER_CASH = new HashMap<>();
+   protected static final TreeMap<Long, String> console = new TreeMap<>();
+   protected static final List<Integer> errored = new ArrayList<>();
 
    @Override
    public void clear() {
       console.clear();
       errored.clear();
       scripts.clear();
+      PLAYER_CASH.clear();
    }
 
    @Override
@@ -52,26 +46,37 @@ public class PlayerScriptData extends BaseScriptData {
 
    @Override
    public void runScript(String type, Event event) {
-      if (isEnabled()) {
-         ScriptContainer script;
-         if (ScriptController.Instance.lastLoaded > lastInited || ScriptController.Instance.lastPlayerUpdate > lastPlayerUpdate) {
-            lastInited = ScriptController.Instance.lastLoaded;
-            errored.clear();
-            if (player != null) {
-               scripts.clear();
-               for (ScriptContainer scriptContainer : ScriptController.Instance.playerScripts.scripts) {
-                  script = scriptContainer;
-                  ScriptContainer s = new ScriptContainer(this);
-                  s.load(script.save(new CompoundTag()));
-                  scripts.add(s);
-               }
+      if (!isEnabled() ||
+              !(event instanceof PlayerEvent playerEvent) ||
+              playerEvent.player == null ||
+              !(playerEvent.player.getMCEntity() instanceof ServerPlayer player)) { return; }
+      if (ScriptController.Instance.lastLoaded > lastInited) {
+         errored.clear();
+         lastInited = ScriptController.Instance.lastLoaded;
+         if (!type.equals(EnumScriptType.INIT.function)) {
+            for (ServerPlayer pl : PLAYER_CASH.keySet()) {
+               PLAYER_CASH.get(pl).clear();
+               EventHooks.onPlayerInit(new PlayerEvent.InitEvent(PlayerData.get(pl).getIPlayer()));
             }
-            lastPlayerUpdate = ScriptController.Instance.lastPlayerUpdate;
-            if (!type.equals(EnumScriptType.INIT.function)) { EventHooks.onPlayerInit(this); }
          }
-         for(int i = 0; i < scripts.size(); ++i) {
-            script = scripts.get(i);
+      } // init event
+      if (!PLAYER_CASH.containsKey(player)) {
+         ArrayList<ScriptContainer> list = new ArrayList<>();
+         for (ScriptContainer scriptContainer : scripts) {
+            ScriptContainer s = new ScriptContainer(this);
+            s.load(scriptContainer.save(new CompoundTag()));
+            list.add(s);
+         }
+         PLAYER_CASH.put(player, list);
+         if (!type.equals(EnumScriptType.INIT.function)) {
+            EventHooks.onPlayerInit(new PlayerEvent.InitEvent(PlayerData.get(player).getIPlayer()));
+         }
+      } // create cash to player
+      if (PLAYER_CASH.containsKey(player)) {
+         ScriptContainer script;
+         for(int i = 0; i < PLAYER_CASH.get(player).size(); ++i) {
             if (!errored.contains(i)) {
+               script = scripts.get(i);
                script.run(type, event);
                if (script.isErrored()) { errored.add(i); }
                for (Entry<Long, String> entry : script.console.entrySet()) {
@@ -80,12 +85,9 @@ public class PlayerScriptData extends BaseScriptData {
                script.console.clear();
             }
          }
-         while (console.size() > 40) { console.remove(console.firstKey()); }
-      }
+      } // run
+      while (console.size() > 40) { console.remove(console.firstKey()); }
    }
-
-   @Override
-   public boolean isClient() { return player == null || player.level().isClientSide(); }
 
    @Override
    public String getLanguage() {
@@ -97,7 +99,7 @@ public class PlayerScriptData extends BaseScriptData {
 
    @Override
    public MutableComponent noticeString(String type, Object event) {
-      MutableComponent message = Component.literal((player == null ? "Global p" : "P") + "layers script")
+      MutableComponent message = Component.literal("Players script")
               .withStyle(ChatFormatting.DARK_GRAY);
       if (type != null) {
          message.append(Component.literal(" hook \"").withStyle(ChatFormatting.DARK_GRAY))
@@ -105,7 +107,7 @@ public class PlayerScriptData extends BaseScriptData {
                  .append(Component.literal("\"; ").withStyle(ChatFormatting.DARK_GRAY));
       }
       else { message.append(Component.literal("; ").withStyle(ChatFormatting.DARK_GRAY)); }
-      if (player != null) {
+      if (event instanceof PlayerEvent && ((PlayerEvent) event).player instanceof Player player) {
          String dimID = player.level().dimensionTypeId().location().toString();
          double x = Math.round(player.getX() * 100.0d) / 100.0d;
          double y = Math.round(player.getY() * 100.0d) / 100.0d;
@@ -132,9 +134,8 @@ public class PlayerScriptData extends BaseScriptData {
    @Override
    public void clearConsole() { console.clear(); }
 
-   public IPlayer<?> getPlayer() {
-      if (playerAPI == null) { playerAPI = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player); }
-      return playerAPI;
+   public static void removePlayer(ServerPlayer player) {
+      if (player != null) { PLAYER_CASH.remove(player); }
    }
 
 }

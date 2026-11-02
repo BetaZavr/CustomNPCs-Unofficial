@@ -16,6 +16,7 @@ import noppes.npcs.client.ClientTickHandler;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
+import noppes.npcs.controllers.data.PlayerCompassData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.packets.Packets;
@@ -46,6 +47,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
    protected int tick;
    protected int milliTick;
    protected final Random rnd = new Random();
+   protected PlayerCompassData compassData;
 
    public GuiMailbox() {
       super();
@@ -57,6 +59,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
       setNextTick(30);
       step = 0;
       closeType = 0;
+      compassData = PlayerData.get(player).compass;
       Packets.sendServer(new SPacketPlayerMailGet());
    }
 
@@ -81,7 +84,7 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
          case 2: {
             if (selected == null) { return; }
             ConfirmScreen guiYesNo = new ConfirmScreen((agree) -> {
-               if (agree && selected != null) {
+               if (agree) {
                   Packets.sendServer(new SPacketPlayerMailDelete(0, selected.timeWhenReceived, selected.sender));
                   selected = null;
                   MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":mail.delete",
@@ -98,8 +101,8 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
          case 3: {
             if (PlayerData.get(player).mailData.playerMails.isEmpty()) { return; }
             ConfirmScreen guiYesNo = new ConfirmScreen((agree) -> {
-               if (agree && selected != null) {
-                  Packets.sendServer(new SPacketPlayerMailDelete(1, selected.timeWhenReceived, selected.sender));
+               if (agree) {
+                  Packets.sendServer(new SPacketPlayerMailDelete(1, -1, ""));
                   selected = null;
                   MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":mail.delete",
                           player.getX(), player.getY(), player.getZ(), 1.0f,
@@ -115,8 +118,8 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
          case 4: {
             if (PlayerData.get(player).mailData.playerMails.isEmpty()) { return; }
             ConfirmScreen guiYesNo = new ConfirmScreen((agree) -> {
-               if (agree && selected != null) {
-                  Packets.sendServer(new SPacketPlayerMailDelete(2, selected.timeWhenReceived, selected.sender));
+               if (agree) {
+                  Packets.sendServer(new SPacketPlayerMailDelete(2, -1, ""));
                   selected = null;
                   MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":mail.delete",
                           player.getX(), player.getY(), player.getZ(), 1.0f,
@@ -517,7 +520,8 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
    }
 
    private void setNextTick(int time) {
-      tick = (int) (time / (CustomNpcs.IsFastAnimationGUI ? 3.0f : 1.0f));
+      if (compassData == null) { compassData = PlayerData.get(player).compass; }
+      tick = (int) (time / (compassData.questLogIsFast ? 3.0f : 1.0f));
       milliTick = tick;
    }
 

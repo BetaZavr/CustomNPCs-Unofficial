@@ -15,7 +15,6 @@ import java.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Font.DisplayMode;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -28,7 +27,6 @@ import net.minecraft.client.renderer.RenderType.CompositeState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.IChatMessages;
 import org.joml.Matrix4f;
@@ -100,22 +98,31 @@ public class ChatMessages implements IChatMessages {
 
       Pose entry = poseStack.last();
       Matrix4f matrix = entry.pose();
+      // calculate max text width
+      int w = 0;
+      for (TextBlockClient block2 : messages.values()) {
+         for (Component chat : block2.lines) {
+            int g = font.width(chat) / 3;
+            if (g > w) { w = g; }
+         }
+      }
+      if (w > boxLength) { w = boxLength; }
       // place
-      drawRect(iVertex, matrix, lightMapUV, (float)(-boxLength - 1), -2.0F, (float)(boxLength + 1), (float)(textYSize + 1), place, 0.11F); // main center
-      drawRect(iVertex, matrix, lightMapUV, (float)(-boxLength - 2), -1.0F, (float)(-boxLength - 1), (float)(textYSize), place, 0.11F); // main left
-      drawRect(iVertex, matrix, lightMapUV, (float)(boxLength + 1), -1.0F, (float)(boxLength + 2), (float)(textYSize), place, 0.11F); // main right
+      drawRect(iVertex, matrix, lightMapUV, (float)(-w - 1), -2.0F, (float)(w + 1), (float)(textYSize + 1), place, 0.11F); // main center
+      drawRect(iVertex, matrix, lightMapUV, (float)(-w - 2), -1.0F, (float)(-w - 1), (float)(textYSize), place, 0.11F); // main left
+      drawRect(iVertex, matrix, lightMapUV, (float)(w + 1), -1.0F, (float)(w + 2), (float)(textYSize), place, 0.11F); // main right
       drawRect(iVertex, matrix, lightMapUV, 0.0F, (float)(textYSize + 1), 3.0F, (float)(textYSize + 4), place, 0.11F); // arrow up
       drawRect(iVertex, matrix, lightMapUV, -1.0F, (float)(textYSize + 4), 1.0F, (float)(textYSize + 5), place, 0.11F); // arrow down
       // border
-      drawRect(iVertex, matrix, lightMapUV, (float)(-boxLength - 1), -3.0F, (float)(boxLength + 1), -2.0F, border, 0.1F); // main up
-      drawRect(iVertex, matrix, lightMapUV, (float)(-boxLength - 1), (float)(textYSize + 2), -1.0F, (float)(textYSize + 1), border, 0.1F); // main down left
-      drawRect(iVertex, matrix, lightMapUV, 3.0F, (float)(textYSize + 2), (float)(boxLength + 1), (float)(textYSize + 1), border, 0.1F); // main down right
-      drawRect(iVertex, matrix, lightMapUV, (float)(-boxLength - 3), -1.0F, (float)(-boxLength - 2), (float)textYSize, border, 0.1F); // main left
-      drawRect(iVertex, matrix, lightMapUV, (float)(boxLength + 3), -1.0F, (float)(boxLength + 2), (float)textYSize, border, 0.1F); // main right
-      drawRect(iVertex, matrix, lightMapUV, (float)(-boxLength - 2), -2.0F, (float)(-boxLength - 1), -1.0F, border, 0.1F); // main up left
-      drawRect(iVertex, matrix, lightMapUV, (float)(boxLength + 2), -2.0F, (float)(boxLength + 1), -1.0F, border, 0.1F); // main up right
-      drawRect(iVertex, matrix, lightMapUV, (float)(-boxLength - 2), (float)(textYSize + 1), (float)(-boxLength - 1), (float)textYSize, border, 0.1F); // main down left
-      drawRect(iVertex, matrix, lightMapUV, (float)(boxLength + 2), (float)(textYSize + 1), (float)(boxLength + 1), (float)textYSize, border, 0.1F); // main down right
+      drawRect(iVertex, matrix, lightMapUV, (float)(-w - 1), -3.0F, (float)(w + 1), -2.0F, border, 0.1F); // main up
+      drawRect(iVertex, matrix, lightMapUV, (float)(-w - 1), (float)(textYSize + 2), -1.0F, (float)(textYSize + 1), border, 0.1F); // main down left
+      drawRect(iVertex, matrix, lightMapUV, 3.0F, (float)(textYSize + 2), (float)(w + 1), (float)(textYSize + 1), border, 0.1F); // main down right
+      drawRect(iVertex, matrix, lightMapUV, (float)(-w - 3), -1.0F, (float)(-w - 2), (float)textYSize, border, 0.1F); // main left
+      drawRect(iVertex, matrix, lightMapUV, (float)(w + 3), -1.0F, (float)(w + 2), (float)textYSize, border, 0.1F); // main right
+      drawRect(iVertex, matrix, lightMapUV, (float)(-w - 2), -2.0F, (float)(-w - 1), -1.0F, border, 0.1F); // main up left
+      drawRect(iVertex, matrix, lightMapUV, (float)(w + 2), -2.0F, (float)(w + 1), -1.0F, border, 0.1F); // main up right
+      drawRect(iVertex, matrix, lightMapUV, (float)(-w - 2), (float)(textYSize + 1), (float)(-w - 1), (float)textYSize, border, 0.1F); // main down left
+      drawRect(iVertex, matrix, lightMapUV, (float)(w + 2), (float)(textYSize + 1), (float)(w + 1), (float)textYSize, border, 0.1F); // main down right
       drawRect(iVertex, matrix, lightMapUV, -1.0F, (float)(textYSize + 1), 0.0F, (float)(textYSize + 4), border, 0.1F); // arrow up left
       drawRect(iVertex, matrix, lightMapUV, 3.0F, (float)(textYSize + 1), 4.0F, (float)(textYSize + 3), border, 0.1F); // arrow up right
       drawRect(iVertex, matrix, lightMapUV, 2.0F, (float)(textYSize + 3), 3.0F, (float)(textYSize + 4), border, 0.1F); // arrow center right 0
@@ -161,6 +168,7 @@ public class ChatMessages implements IChatMessages {
       iVertex.vertex(v.x(), v.y(), v.z()).color(red, green, blue, 1.0F).uv2(lightMapUV).endVertex();
    }
 
+   @SuppressWarnings("unused")
    public static ChatMessages getChatMessages(String username) {
       if (users.containsKey(username)) { return users.get(username); }
       else {
@@ -168,19 +176,6 @@ public class ChatMessages implements IChatMessages {
          users.put(username, chat);
          return chat;
       }
-   }
-
-   private static boolean validPlayer(String username) {
-      if (Minecraft.getInstance().level == null) { return false; }
-      Iterator<AbstractClientPlayer> var1 = Minecraft.getInstance().level.players().iterator();
-      Player player;
-      do {
-         if (!var1.hasNext()) {
-            return false;
-         }
-         player = var1.next();
-      } while(!username.equals(player.getDisplayName().getString()));
-      return true;
    }
 
    private Map<Long, TextBlockClient> getMessages() {

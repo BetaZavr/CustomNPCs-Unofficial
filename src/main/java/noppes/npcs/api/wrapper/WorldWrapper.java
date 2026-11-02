@@ -73,6 +73,7 @@ public class WorldWrapper implements IWorld {
 
    private static final Data storeddata = new Data();
    private static final Data tempdata = new Data();
+   @SuppressWarnings("deprecation")
    private final RandomSource rnd = RandomSource.createThreadSafe();
 
    private WorldWrapper(Level levelIn) {
@@ -426,11 +427,12 @@ public class WorldWrapper implements IWorld {
    @SuppressWarnings("unchecked")
    public void broadcast(String message) {
       Component text = Component.literal(message);
-      if (level instanceof ServerLevel) {
-         for (ServerPlayer serverPlayer : ((ServerLevel) level).getPlayers((e) -> true)) {
+      if (level instanceof ServerLevel serverLevel) {
+         for (ServerPlayer serverPlayer : serverLevel.getPlayers((e) -> true)) {
             serverPlayer.sendSystemMessage(text);
          }
-      } else { // ClientLevel
+      }
+      else { // ClientLevel
          Field players = null;
          try { players = level.getClass().getDeclaredField("f_104566_"); } catch (Exception ignored) {}
          if (players == null) {
@@ -493,6 +495,7 @@ public class WorldWrapper implements IWorld {
       return Collections.emptyIterator();
    }
 
+   @SuppressWarnings("unchecked")
    private @Nullable Entity getEntityInLevel(UUID uuid) {
       if (level instanceof ServerLevel) {
          return ((ServerLevel) level).getEntity(uuid);

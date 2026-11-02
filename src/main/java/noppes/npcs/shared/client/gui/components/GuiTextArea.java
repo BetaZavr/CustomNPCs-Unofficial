@@ -175,7 +175,7 @@ public class GuiTextArea
                      posX = font.width(line.substring(0, m.start()));
                      e = font.width(line.substring(0, m.end())) + 1;
                      int posY = getY() + 1 + (i - scrolledLine) * container.lineHeight;
-                     graphics.fill(getX() + 1 + posX, posY, getX() + 1 + e, posY + container.lineHeight + 1, 0x99004C00);
+                     graphics.fill(getX() + 1 + posX, posY + 1, getX() + 1 + e, posY + container.lineHeight + 1, 0x99004C00);
                   }
                }
             }
@@ -183,13 +183,13 @@ public class GuiTextArea
                yPos = font.width(line.substring(0, Math.max(startSelection - data.start, 0)));
                posX = font.width(line.substring(0, Math.min(endSelection - data.start, w))) + 1;
                e = getY() + 1 + (i - scrolledLine) * container.lineHeight;
-               graphics.fill(getX() + 1 + yPos, e, getX() + 1 + posX, e + container.lineHeight + 1, 0x990000FF);
+               graphics.fill(getX() + 1 + yPos, e + 1, getX() + 1 + posX, e + container.lineHeight + 1, 0x990000FF);
             }
             yPos = getY() + (i - scrolledLine) * container.lineHeight + 1;
             font.draw(graphics.pose(), data.getFormattedString(container.makeup), (float)(getX() + 1), (float) yPos, getFGColor());
             if (activeArea == this && isEnabled() && cursorCounter / 8 % 2 == 0 && cursorPosition >= data.start && cursorPosition < data.end) {
                posX = getX() + font.width(line.substring(0, cursorPosition - data.start));
-               graphics.fill(posX + 1, yPos, posX + 2, yPos + 1 + container.lineHeight, 0xFFD0D0D0);
+               graphics.fill(posX + 1, yPos + 1, posX + 2, yPos + 1 + container.lineHeight, 0xFFD0D0D0);
             }
          }
       }
@@ -202,11 +202,16 @@ public class GuiTextArea
          int posY3 = (int) ((getY() + 1.0f * scrolledLine / container.linesCount * (height - 4)) + 1);
          graphics.fill(posX2, posY3, posX2 + 5, posY3 + sbSize, 0xFFE0E0E0);
       }
-      String tr = Component.translatable(text).getString();
-      if (isYDE && isHovered && !Util.instance.equalsDeleteColor(text, tr, false)) {
-         if (tr.length() > 200) { tr = tr.substring(0, 200) + "..."; }
-         hoverText.clear();
-         for (String line : tr.split("\n")) { hoverText.add(Component.literal(line)); }
+      if (isYDE && isHovered && text != null && !text.isEmpty()) {
+         try {
+            String tr = Component.translatable(text).getString();
+            if (!Util.instance.equalsDeleteColor(text, tr, false)) {
+               if (tr.length() > 200) { tr = tr.substring(0, 200) + "..."; }
+               hoverText.clear();
+               for (String line : tr.split("\n")) { hoverText.add(Component.literal(line)); }
+            }
+         }
+         catch (Exception ignored) {}
       }
       if (listener != null && isHovered && !hoverText.isEmpty()) { listener.setHoverText(hoverText); }
    }

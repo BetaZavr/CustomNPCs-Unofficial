@@ -33,6 +33,9 @@ public class ClientScriptData
     public boolean isClient() { return true; }
 
     @Override
+    public boolean isEnabled() { return super.isEnabled() && CustomNpcs.EnableClientScripting; }
+
+    @Override
     public MutableComponent noticeString(String type, Object event) {
         return Component.literal("Client Scripts ").withStyle(ChatFormatting.DARK_GRAY)
                 .append(super.noticeString(type, event));

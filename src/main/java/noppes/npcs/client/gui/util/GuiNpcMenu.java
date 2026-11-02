@@ -44,6 +44,7 @@ public class GuiNpcMenu {
    public void init(int guiLeft, int guiTop, int width) {
       if (npc != null) {
          GuiMenuTopButton display = new GuiMenuTopButton(parent, 1, "menu.display", guiLeft + 4, guiTop - 17) {
+            @Override
             public void onClick(double x, double y) {
                save();
                activeMenu = 1;
@@ -69,6 +70,7 @@ public class GuiNpcMenu {
                          .append(Component.literal("" + npc.display.getSize()).withStyle(ChatFormatting.RESET))
                          .append(Component.literal(";").withStyle(ChatFormatting.GRAY)));
          GuiMenuTopButton stats = new GuiMenuTopButton(parent, 2, "menu.stats", display.getX() + display.getWidth(), guiTop - 17) {
+            @Override
             public void onClick(double x, double y) {
                save();
                activeMenu = 2;
@@ -113,6 +115,7 @@ public class GuiNpcMenu {
                          .append(Component.translatable("" + npc.stats.ranged.getStrength()).withStyle(ChatFormatting.RESET))
                          .append(Component.literal(";").withStyle(ChatFormatting.GRAY)));
          GuiMenuTopButton ai = new GuiMenuTopButton(parent, 3, "menu.ai", stats.getX() + stats.getWidth(), guiTop - 17) {
+            @Override
             public void onClick(double x, double y) {
                save();
                activeMenu = 3;
@@ -147,6 +150,7 @@ public class GuiNpcMenu {
                          .append(Component.literal("" + npc.ais.getWalkingSpeed()).withStyle(ChatFormatting.RESET))
                          .append(Component.literal(";").withStyle(ChatFormatting.GRAY)));
          GuiMenuTopButton inv = new GuiMenuTopButton(parent, 4, "menu.inventory", ai.getX() + ai.getWidth(), guiTop - 17) {
+            @Override
             public void onClick(double x, double y) {
                save();
                activeMenu = 4;
@@ -166,6 +170,7 @@ public class GuiNpcMenu {
                          .append(Component.literal("" + npc.inventory.drops.size()).withStyle(ChatFormatting.RESET))
                          .append(Component.literal(";").withStyle(ChatFormatting.GRAY)));
          GuiMenuTopButton advanced = new GuiMenuTopButton(parent, 5, "menu.advanced", inv.getX() + inv.getWidth(), guiTop - 17) {
+            @Override
             public void onClick(double x, double y) {
                save();
                activeMenu = 5;
@@ -189,6 +194,7 @@ public class GuiNpcMenu {
                          .append(Component.translatable(npc.getFaction().name).withStyle(ChatFormatting.RESET))
                          .append(Component.literal(";").withStyle(ChatFormatting.GRAY)));
          GuiMenuTopButton global = new GuiMenuTopButton(parent, 6, "menu.global", advanced.getX() + advanced.getWidth(), guiTop - 17) {
+            @Override
             public void onClick(double x, double y) {
                save();
                activeMenu = 6;
@@ -197,9 +203,11 @@ public class GuiNpcMenu {
             }
          };
          GuiMenuTopButton close = new GuiMenuTopButton(parent, 0, "X", guiLeft + width - 22, guiTop - 17) {
+            @Override
             public void onClick(double x, double y) { close(); }
          };
-         GuiMenuTopButton delete = new GuiMenuTopButton(parent, 66, Component.translatable("selectServer.delete"), guiLeft + width - 72, guiTop - 17) {
+         GuiMenuTopButton delete = new GuiMenuTopButton(parent, 66, "gui.remove", guiLeft + width - 72, guiTop - 17) {
+            @Override
             public void onClick(double x, double y) {
                ConfirmScreen guiYesNo = new ConfirmScreen(GuiNpcMenu.this::accept, Component.empty(), Component.translatable("message.delete", npc.getDisplayName().getString()));
                mc.setScreen(guiYesNo);
@@ -211,6 +219,7 @@ public class GuiNpcMenu {
       }
       else {
          GuiMenuTopButton close = new GuiMenuTopButton(parent, 0, "X", guiLeft + width - 22, guiTop - 17) {
+            @Override
             public void onClick(double x, double y) { close(); }
          };
          topButtons = new GuiMenuTopButton[] { close };

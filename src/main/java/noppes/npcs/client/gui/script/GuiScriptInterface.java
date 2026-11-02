@@ -403,8 +403,12 @@ public class GuiScriptInterface
 
    @Override
    public void textUpdate(IComponentGui component, String text) {
-      ScriptContainer container = handler.getScripts().get(activeTab - 1);
-      if (container != null) { container.script = text; }
+      List<ScriptContainer> scripts = handler.getScripts();
+      int tab = activeTab - 1;
+      if (tab >= 0 && tab < scripts.size()) {
+         ScriptContainer container = handler.getScripts().get(tab);
+         if (container != null) { container.script = text; }
+      }
    }
 
    @Override
@@ -583,7 +587,7 @@ public class GuiScriptInterface
          List<String> scriptStrings = mapScripts.get(tab);
          int i = 0;
          for (String part : scriptStrings) {
-            Packets.sendServer(new SPacketScriptText(type, tab, i++, scriptStrings.size(), part));
+            Packets.sendServer(new SPacketScriptText(type, tab, mapScripts.size() - 1, i++, scriptStrings.size(), part));
          }
       }
       for (int tab : mapConsoles.keySet()) {

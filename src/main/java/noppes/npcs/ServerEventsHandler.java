@@ -52,6 +52,7 @@ import noppes.npcs.packets.client.PacketGuiCloneOpen;
 import noppes.npcs.packets.client.PacketGuiOpen;
 import noppes.npcs.packets.client.PacketMarkData;
 import noppes.npcs.shared.common.CommonUtil;
+import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.CustomNPCsScheduler;
 import org.jetbrains.annotations.Nullable;
 
@@ -141,52 +142,61 @@ public class ServerEventsHandler {
    public void cnpcEntityInteract(EntityInteract event) {
       CustomNpcs.debugData.start(event.getEntity());
       ItemStack item = event.getEntity().getMainHandItem();
-      if (!item.isEmpty() && event.getHand() == InteractionHand.MAIN_HAND && !event.getEntity().level().isClientSide()) {
-         ServerPlayer player = (ServerPlayer) event.getEntity();
+      if (!item.isEmpty() &&
+              event.getHand() == InteractionHand.MAIN_HAND &&
+              event.getEntity() instanceof ServerPlayer player) {
+         if (item.getItem() == CustomItems.soulstoneEmpty && event.getTarget() instanceof LivingEntity) {
+            event.setCanceled(true);
+            ((ItemSoulstoneEmpty) item.getItem()).store((LivingEntity) event.getTarget(), item, player);
+         }
          if (!CustomNpcs.OpsOnly || CommonUtil.isOp(player)) {
-            if (item.getItem() == CustomItems.soulstoneEmpty && event.getTarget() instanceof LivingEntity) {
-               ((ItemSoulstoneEmpty) item.getItem()).store((LivingEntity) event.getTarget(), item, player);
-               event.setCanceled(true);
-            }
-            else if (item.getItem() == CustomItems.wand) {
+            if (item.getItem() == CustomItems.wand) {
                if (event.getTarget() instanceof Villager) {
+                  event.setCanceled(true);
                   if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_VILLAGER)) {
-                     event.setCanceled(true);
                      NoppesUtilServer.setEditingNpc(player, null);
                      NoppesUtilServer.openContainerGui(player, EnumGuiType.MerchantAdd, (buffer) -> buffer.writeInt(event.getTarget().getId()));
                   }
+                  else { player.sendSystemMessage(Component.translatable("availability.permission")); }
                }
                else if (event.getTarget() instanceof EntityNPCInterface npc) {
+                  event.setCanceled(true);
                   if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_GUI)) {
-                     event.setCanceled(true);
                      NoppesUtilServer.setEditingNpc(player, npc);
                      NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, npc);
                   }
+                  else { player.sendSystemMessage(Component.translatable("availability.permission")); }
                }
             }
             else if (item.getItem() == CustomItems.cloner && !(event.getTarget() instanceof Player)) {
-               CompoundTag compound = new CompoundTag();
-               if (event.getTarget().saveAsPassenger(compound)) {
-                  PlayerData data = PlayerData.get(player);
-                  ServerCloneController.Instance.cleanTags(compound);
-                  Packets.send(player, new PacketGuiCloneOpen(compound));
-                  data.cloned = compound;
-                  event.setCanceled(true);
+               if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_CLONE)) {
+                  CompoundTag compound = new CompoundTag();
+                  if (event.getTarget().saveAsPassenger(compound)) {
+                     event.setCanceled(true);
+                     PlayerData data = PlayerData.get(player);
+                     ServerCloneController.Instance.cleanTags(compound);
+                     Packets.send(player, new PacketGuiCloneOpen(compound));
+                     data.cloned = compound;
+                  }
                }
+               else { player.sendSystemMessage(Component.translatable("availability.permission")); }
             }
             else if (item.getItem() == CustomItems.scripter && event.getTarget() instanceof EntityNPCInterface npc) {
-               if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_GUI)) {
-                  event.setCanceled(true);
+               event.setCanceled(true);
+               LogWriter.info("[DEBUG] ");
+               if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_SCRIPTER)) {
                   NoppesUtilServer.setEditingNpc(player, npc);
                   Packets.send(player, new PacketGuiOpen(EnumGuiType.Script, BlockPos.ZERO));
                }
+               else { player.sendSystemMessage(Component.translatable("availability.permission")); }
             }
             else if (item.getItem() == CustomItems.mount) {
+               event.setCanceled(true);
                if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_MOUNTER)) {
-                  event.setCanceled(true);
                   PlayerData.get(player).mounted = event.getTarget();
                   Packets.send(player, new PacketGuiOpen(EnumGuiType.MobSpawnerMounter, BlockPos.ZERO));
                }
+               else { player.sendSystemMessage(Component.translatable("availability.permission")); }
             }
          }
       }
@@ -286,13 +296,11 @@ public class ServerEventsHandler {
          String[] parts = command.split("\\s+", 2);
          String rawParams = parts.length > 1 ? parts[1].trim() : "";
          String[] parameters = rawParams.isEmpty() ? new String[0] : rawParams.split("\\s+");
-         noppes.npcs.api.event.PlayerEvent.CommandEvent ev = new noppes.npcs.api.event.PlayerEvent.CommandEvent(
-                 data.scriptData.getPlayer(),
+         if (EventHooks.onEvent(EventHooks.getPlayerHandler(), EnumScriptType.SEND_COMMAND, new noppes.npcs.api.event.PlayerEvent.CommandEvent(
+                 data.getIPlayer(),
                  command,
                  parameters
-         );
-         EventHooks.onEvent(PlayerData.get(player).scriptData, EnumScriptType.SEND_COMMAND, ev);
-         if (ev.isCanceled()) {
+         ))) {
             event.setCanceled(true);
             CustomNpcs.debugData.end(event.getParseResults().getContext().getSource());
             return;

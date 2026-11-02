@@ -228,6 +228,7 @@ public class MusicController {
       return isPlaying(soundIn) || (isStreamer ? song != null && isPlaying(song) : music != null && isPlaying(music));
    }
 
+   @SuppressWarnings("unused")
    public void checkBards(Player player) {
       if (music == null) {
          if (musicBard != null) { musicBard = null; }
@@ -276,7 +277,7 @@ public class MusicController {
                      y = job.maxPos[1];
                      z = job.maxPos[2];
                   }
-                  int xD = (int) Math.abs(player.getX() - musicBard.getX());
+                  int xD = (int) Math.abs(player.getX() - songBard.getX());
                   int yD = (int) Math.abs(player.getY() - songBard.getY());
                   int zD = (int) Math.abs(player.getZ() - songBard.getZ());
                   if (xD > x || yD > y || zD > z) { stopSound(song, SoundSource.AMBIENT); }
@@ -293,6 +294,7 @@ public class MusicController {
       playingMusic = null;
    }
 
+   @SuppressWarnings("unused")
    public void checkBards(LocalPlayer player) { }
 
    public void setNewPosSong(ResourceLocation resource, double x, double y, double z) {

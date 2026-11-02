@@ -30,7 +30,6 @@ import noppes.npcs.client.model.animation.PartConfig;
 import noppes.npcs.controllers.AnimationController;
 import noppes.npcs.controllers.scripts.IScriptHandler;
 import noppes.npcs.controllers.ScriptController;
-import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
@@ -536,7 +535,7 @@ public class CustomAnimationHandler {
         IScriptHandler handler = null;
         if (entity.level().isClientSide()) { handler = ScriptController.Instance.clientScripts; }
         else if (entity instanceof EntityNPCInterface npc) { handler = npc.script; }
-        else if (entity instanceof Player player) { handler = PlayerData.get(player).scriptData; }
+        else if (entity instanceof Player) { handler = EventHooks.getPlayerHandler(); }
         if (handler != null) { EventHooks.onEvent(handler, event.nameEvent, event); }
     }
 

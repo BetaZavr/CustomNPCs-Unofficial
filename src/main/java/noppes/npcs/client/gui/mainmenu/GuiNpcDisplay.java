@@ -269,7 +269,7 @@ public class GuiNpcDisplay
             textField.setValue(display.getName());
             break;
          }
-         case 2: display.setSize(textField.getInteger()); break;
+         case 2: display.setSize(textField.getFloat()); break;
          case 3: {
             if (display.skinType == 2) { display.setSkinUrl(textField.getValue()); }
             else if (display.skinType == 1) { display.setSkinPlayer(textField.getValue()); }

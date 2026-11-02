@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.availability;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import noppes.npcs.client.gui.select.SubGuiDialogSelection;
 import noppes.npcs.client.gui.select.SubGuiQuestSelection;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.constants.EnumAvailabilityQuest;
@@ -63,7 +62,7 @@ public class SubGuiNpcAvailabilityQuest
             key.append(Component.translatable("quest.notfound").withStyle(ChatFormatting.DARK_RED));
          } else {
             key.append(Component.translatable(quest.getCategory().getName() + "/").withStyle(ChatFormatting.GRAY))
-                    .append(Component.literal(quest.getName()).withStyle(ChatFormatting.RESET))
+                    .append(Component.translatable(quest.getName()).withStyle(ChatFormatting.RESET))
                     .append(Component.literal(" (").withStyle(ChatFormatting.GRAY))
                     .append(Component.translatable("availability." + availability.quests.get(id).name().toLowerCase()).withStyle(ChatFormatting.BLUE))
                     .append(Component.literal(")").withStyle(ChatFormatting.GRAY));
@@ -139,7 +138,7 @@ public class SubGuiNpcAvailabilityQuest
                ((MutableComponent) select).append(Component.translatable("quest.notfound").withStyle(ChatFormatting.DARK_RED));
             } else {
                ((MutableComponent) select).append(Component.translatable(quest.getCategory().getName() + "/").withStyle(ChatFormatting.GRAY))
-                       .append(Component.literal(quest.getName()).withStyle(ChatFormatting.RESET))
+                       .append(Component.translatable(quest.getName()).withStyle(ChatFormatting.RESET))
                        .append(Component.literal(" (").withStyle(ChatFormatting.GRAY))
                        .append(Component.translatable("availability." + ead.name().toLowerCase()).withStyle(ChatFormatting.BLUE))
                        .append(Component.literal(")").withStyle(ChatFormatting.GRAY));
@@ -168,12 +167,12 @@ public class SubGuiNpcAvailabilityQuest
 
    @Override
    public void selected(int id, String name) {
-      if (id <= 0) { return; }
-      if (dataIDs.containsKey(select)) { availability.quests.remove(dataIDs.get(select)); }
       Quest quest = QuestController.instance.quests.get(id);
+      if (quest == null) { return; }
+      if (dataIDs.containsKey(select)) { availability.quests.remove(dataIDs.get(select)); }
       select = Component.literal("ID:" + id + " - ")
               .append(Component.translatable(quest.category.getName() + "/").withStyle(ChatFormatting.GRAY))
-              .append(Component.literal(quest.getName()).withStyle(ChatFormatting.RESET))
+              .append(Component.translatable(quest.getName()).withStyle(ChatFormatting.RESET))
               .append(Component.literal(" (").withStyle(ChatFormatting.GRAY))
               .append(Component.translatable("availability.after").withStyle(ChatFormatting.BLUE))
               .append(Component.literal(")").withStyle(ChatFormatting.GRAY));
@@ -190,7 +189,7 @@ public class SubGuiNpcAvailabilityQuest
 
    @Override
    public void scrollDoubleClicked(GuiCustomScrollNop scroll) {
-      setSubGui(new SubGuiDialogSelection(dataIDs.get(select)));
+      setSubGui(new SubGuiQuestSelection(dataIDs.get(select)));
    }
 
    @Override

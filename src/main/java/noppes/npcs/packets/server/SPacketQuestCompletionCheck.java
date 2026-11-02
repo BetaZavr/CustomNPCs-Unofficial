@@ -110,12 +110,12 @@ public class SPacketQuestCompletionCheck extends PacketServerBasic {
                }
                createRewardItems.clear();
             }
-            QuestEvent.QuestTurnedInEvent event = new QuestEvent.QuestTurnedInEvent(data.scriptData.getPlayer(), quest);
+            QuestEvent.QuestTurnedInEvent event = new QuestEvent.QuestTurnedInEvent(data.getIPlayer(), quest);
             event.itemRewards = itemRewards;
             event.expReward = quest.rewardExp;
             event.moneyReward = quest.rewardMoney;
             event.factionOptions = quest.factionOptions;
-            EventHooks.onQuestTurnedIn(data.scriptData, event);
+            EventHooks.onQuestTurnedIn(event);
             quest.questInterface.handleComplete(player); // take away items according to the tasks of the quest
             // Give out rewards:
             if (event.expReward > 0) {

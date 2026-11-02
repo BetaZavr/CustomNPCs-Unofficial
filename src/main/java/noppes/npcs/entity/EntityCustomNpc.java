@@ -103,10 +103,10 @@ public class EntityCustomNpc extends EntityNPCFlying {
          } else {
             EntityDimensions size = entity.getDimensions(pos);
             if (entity instanceof EntityNPCInterface) {
-               return size.scale((float)display.getSize() * 0.2F);
+               return size.scale(display.getSize() * 0.2F);
             } else {
-               float width = size.width / 5.0F * (float)display.getSize();
-               float height = size.height / 5.0F * (float)display.getSize();
+               float width = size.width / 5.0F * display.getSize();
+               float height = size.height / 5.0F * display.getSize();
                if (width < 0.1F) {
                   width = 0.1F;
                }

@@ -33,6 +33,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketMenuSave;
 import noppes.npcs.packets.server.SPacketResetItemMoving;
+import noppes.npcs.shared.common.CommonUtil;
 import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
@@ -87,57 +88,65 @@ public class ItemNpcMovingPath extends Item implements INPCToolItem {
       return null;
    }
 
-   public @Nonnull InteractionResultHolder<ItemStack> use(Level level, Player player, @Nonnull InteractionHand hand) {
-      ItemStack itemstack = player.getItemInHand(hand);
-      if (!level.isClientSide && player instanceof ServerPlayer sPlayer &&
-              CustomNpcsPermissions.hasPermission(sPlayer, CustomNpcsPermissions.TOOL_PATHER) &&
-              hand == InteractionHand.MAIN_HAND) {
-         EntityNPCInterface npc = getNpc(itemstack, level);
-         if (npc != null && (player.isCrouching() || npc.ais.getMovingType() == 2)) { NoppesUtilServer.sendOpenGui((ServerPlayer) player, EnumGuiType.MovingPath, npc); }
-         return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemstack);
+   public @Nonnull InteractionResultHolder<ItemStack> use(Level level, Player playerIn, @Nonnull InteractionHand hand) {
+      ItemStack stack = playerIn.getItemInHand(hand);
+      if (!level.isClientSide() && playerIn instanceof ServerPlayer player && hand == InteractionHand.MAIN_HAND) {
+         EntityNPCInterface npc = getNpc(stack, level);
+         if (npc != null && (player.isCrouching() || npc.ais.getMovingType() == 2)) {
+            if ((CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+                    !CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_PATHER)) {
+               player.sendSystemMessage(Component.translatable("availability.permission"));
+               return new InteractionResultHolder<>(InteractionResult.FAIL, stack);
+            }
+            NoppesUtilServer.sendOpenGui(player, EnumGuiType.MovingPath, npc);
+         }
       }
-      return new InteractionResultHolder<>(InteractionResult.PASS, itemstack);
+      return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
    }
 
    public @Nonnull InteractionResult useOn(UseOnContext context) {
-      if (context.getLevel().isClientSide() || !(context.getPlayer() instanceof ServerPlayer player) ||
-              !CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_MOUNTER) || context.getHand() != InteractionHand.MAIN_HAND) {
-         if (context.getLevel().isClientSide()) { ClientEventHandler.movingPath.clear(); }
-         return InteractionResult.FAIL;
-      }
-      ItemStack stack = context.getItemInHand();
-      EntityNPCInterface npc = getNpc(stack, context.getLevel());
-      if (npc != null) {
-         List<int[]> list = npc.ais.getMovingPath();
-         int[] pos = list.get(list.size() - 1);
-         int x = context.getClickedPos().getX();
-         int y = context.getClickedPos().getY();
-         int z = context.getClickedPos().getZ();
-         if (npc.ais.getMovingType() != 2) {
-            npc.ais.setStartPos(new BlockPos(x, y, z));
-            player.sendSystemMessage(Component.translatable("message.pather.home",
-                    ((char) 167) + "6" + x, ((char) 167) + "6" + y, ((char) 167) + "6" + z,
-                    npc.getName()));
+      if (context.getLevel().isClientSide()) { ClientEventHandler.movingPath.clear(); }
+      else if (context.getPlayer() instanceof ServerPlayer player &&
+              context.getHand() == InteractionHand.MAIN_HAND) {
+         if ((CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+                 !CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_PATHER)) {
+            player.sendSystemMessage(Component.translatable("availability.permission"));
+            return InteractionResult.FAIL;
          }
-         else {
-            boolean added = true;
-            if (!list.isEmpty()) {
-               int[] p = list.get(list.size() - 1);
-               added = !(p[0] == x && p[1] == y && p[2] == z);
-            }
-            if (added) {
-               list.add(new int[] { x, y, z });
-               player.sendSystemMessage(Component.translatable("message.pather.added",
+         ItemStack stack = context.getItemInHand();
+         EntityNPCInterface npc = getNpc(stack, context.getLevel());
+         if (npc != null) {
+            List<int[]> list = npc.ais.getMovingPath();
+            int[] pos = list.get(list.size() - 1);
+            int x = context.getClickedPos().getX();
+            int y = context.getClickedPos().getY();
+            int z = context.getClickedPos().getZ();
+            if (npc.ais.getMovingType() != 2) {
+               npc.ais.setStartPos(new BlockPos(x, y, z));
+               player.sendSystemMessage(Component.translatable("message.pather.home",
                        ((char) 167) + "6" + x, ((char) 167) + "6" + y, ((char) 167) + "6" + z,
                        npc.getName()));
-               double d0 = x - pos[0];
-               double d1 = y - pos[1];
-               double d2 = z - pos[2];
-               double distance = Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
-               if (distance > CustomNpcs.NpcNavRange) {
-                  player.sendSystemMessage(Component.translatable("message.pather.warn.added", ((char) 167) + "6" + CustomNpcs.NpcNavRange));
+            }
+            else {
+               boolean added = true;
+               if (!list.isEmpty()) {
+                  int[] p = list.get(list.size() - 1);
+                  added = !(p[0] == x && p[1] == y && p[2] == z);
                }
-               Packets.send(player, new PacketMenuSave(npc, EnumMenuType.AI));
+               if (added) {
+                  list.add(new int[] { x, y, z });
+                  player.sendSystemMessage(Component.translatable("message.pather.added",
+                          ((char) 167) + "6" + x, ((char) 167) + "6" + y, ((char) 167) + "6" + z,
+                          npc.getName()));
+                  double d0 = x - pos[0];
+                  double d1 = y - pos[1];
+                  double d2 = z - pos[2];
+                  double distance = Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+                  if (distance > CustomNpcs.NpcNavRange) {
+                     player.sendSystemMessage(Component.translatable("message.pather.warn.added", ((char) 167) + "6" + CustomNpcs.NpcNavRange));
+                  }
+                  Packets.send(player, new PacketMenuSave(npc, EnumMenuType.AI));
+               }
             }
          }
       }

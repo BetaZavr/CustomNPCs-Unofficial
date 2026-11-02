@@ -26,7 +26,7 @@ public class PacketClientScripts extends PacketBasic {
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
         ScriptController.HasStart = true;
-        ScriptController.Instance.setClientScripts(compound);
+        ScriptController.Instance.clientScripts.load(compound);
         CustomNpcs.debugData.end("Packets");
     }
 

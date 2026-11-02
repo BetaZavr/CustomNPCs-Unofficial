@@ -122,7 +122,7 @@ public class NoppesUtilServer {
       // New from Unofficial (BetaZavr)
       CustomNPCsScheduler.runTack(() -> {
          for (QuestData qData : playerdata.questData.activeQuests.values()) {
-            for (IQuestObjective obj : qData.quest.getObjectives(playerdata.scriptData.getPlayer())) {
+            for (IQuestObjective obj : qData.quest.getObjectives(playerdata.getIPlayer())) {
                if (obj.getType() != EnumQuestTask.DIALOG.ordinal()) { continue; }
                playerdata.questData.checkQuestCompletion(player, qData);
             }

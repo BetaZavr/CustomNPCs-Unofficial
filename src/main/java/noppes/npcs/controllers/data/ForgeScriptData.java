@@ -1,18 +1,20 @@
 package noppes.npcs.controllers.data;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.eventbus.api.Event;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.controllers.ScriptController;
-import noppes.npcs.shared.common.util.LogWriter;
 
 public class ForgeScriptData
 extends BaseScriptData {
+
+   @Override
+   public boolean isEnabled() { return super.isEnabled() && CustomNpcs.EnableForgeScripting; }
 
    @Override
    public MutableComponent noticeString(String type, Object event) {
@@ -23,19 +25,11 @@ extends BaseScriptData {
    @Override
    public void runScript(String type, Event event) {
       if (!isEnabled()) { return; }
-      try {
-         if (ScriptController.Instance.lastLoaded > lastInited) {
-            lastInited = ScriptController.Instance.lastLoaded;
-            if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onForgeInit(this); }
-         }
-         for (ScriptContainer script : scripts) { script.run(type, event); }
-      } catch (Exception e) { LogWriter.error("Error:", e); }
-   }
-
-   @Override
-   public void load(CompoundTag compound) {
-      super.load(compound);
-      EventHooks.onForgeInit(this);
+      if (ScriptController.Instance.lastLoaded > lastInited) {
+         lastInited = ScriptController.Instance.lastLoaded;
+         if (!type.equalsIgnoreCase(EnumScriptType.INIT.function)) { EventHooks.onForgeInit(this); }
+      }
+      for (ScriptContainer script : scripts) { script.run(type, event); }
    }
 
 }

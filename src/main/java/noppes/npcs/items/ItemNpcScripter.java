@@ -16,11 +16,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.api.item.INPCToolItem;
+import noppes.npcs.api.util.IRayTraceResults;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.controllers.data.PlayerData;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketGuiOpen;
 import noppes.npcs.shared.common.CommonUtil;
-import org.jetbrains.annotations.NotNull;
+import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,14 +43,16 @@ public class ItemNpcScripter extends Item implements INPCToolItem {
    }
 
    @Override
-   public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player playerIn, @NotNull InteractionHand hand) {
+   public @Nonnull InteractionResultHolder<ItemStack> use(Level level, Player playerIn, @Nonnull InteractionHand hand) {
       ItemStack itemstack = playerIn.getItemInHand(hand);
       if (!level.isClientSide() && hand == InteractionHand.MAIN_HAND && playerIn instanceof ServerPlayer player) {
-         if (!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_SCRIPTER) ||
-                 (CustomNpcs.OpsOnly && !CommonUtil.isOp(player))) {
+         if ((CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+                 !CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_SCRIPTER)) {
             player.sendSystemMessage(Component.translatable("availability.permission"));
             return new InteractionResultHolder<>(InteractionResult.FAIL, itemstack);
-         } else {
+         }
+         IRayTraceResults rayTrace = Util.instance.rayTraceBlocksAndEntitys(player, player.getYRot(), player.getXRot(), PlayerData.get(player).game.blockReachDistance);
+         if (rayTrace.getEntitys().length == 0 || !(rayTrace.getEntitys()[0].getMCEntity() instanceof EntityNPCInterface)) {
             Packets.send(player, new PacketGuiOpen(EnumGuiType.ScriptPlayers, BlockPos.ZERO));
          }
       }

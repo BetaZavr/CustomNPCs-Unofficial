@@ -8,6 +8,7 @@ import net.minecraft.nbt.ListTag;
 import noppes.npcs.EventHooks;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.ITimers;
+import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.controllers.scripts.IScriptBlockHandler;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -107,13 +108,9 @@ public class DataTimers implements ITimers {
             if (repeat) { ticks = timerTicks; }
             else { stop(id); }
             Object ob = parent;
-            if (ob instanceof EntityNPCInterface) {
-               EventHooks.onNPCTimer((EntityNPCInterface)ob, id);
-            } else if (ob instanceof PlayerData) {
-               EventHooks.onPlayerTimer((PlayerData)ob, id);
-            } else {
-               EventHooks.onScriptBlockTimer((IScriptBlockHandler)ob, id);
-            }
+            if (ob instanceof EntityNPCInterface) { EventHooks.onNPCTimer((EntityNPCInterface)ob, id); }
+            else if (ob instanceof PlayerData data) { EventHooks.onPlayerTimer(new PlayerEvent.TimerEvent(data.getIPlayer(), id)); }
+            else { EventHooks.onScriptBlockTimer((IScriptBlockHandler)ob, id); }
          }
       }
    }

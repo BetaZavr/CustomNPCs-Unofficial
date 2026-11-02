@@ -1145,6 +1145,7 @@ public abstract class EntityNPCInterface
       stats.load(compound);
       ais.load(compound);
       script.load(compound);
+      script.init();
       timers.load(compound);
       advanced.load(compound);
       role.load(compound);

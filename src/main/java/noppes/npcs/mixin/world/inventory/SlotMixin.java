@@ -9,7 +9,6 @@ import noppes.npcs.EventHooks;
 import noppes.npcs.api.event.*;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerScriptData;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,16 +21,14 @@ public abstract class SlotMixin {
 
     @Shadow public int index;
     @Shadow @Final public Container container;
-    @Shadow public abstract ItemStack getItem();
     @Shadow public abstract void set(ItemStack stack);
 
     @Inject(method = {"onTake"}, at = {@At("HEAD")})
     public void onTake(Player playerIn, ItemStack stack, CallbackInfo ci) {
         if (playerIn instanceof ServerPlayer player) {
-            PlayerScriptData handler = PlayerData.get(player).scriptData;
-            PlayerEvent.SlotChangedItemStackEvent event = new PlayerEvent.SlotChangedItemStackEvent(handler.getPlayer(),
+            PlayerEvent.SlotChangedItemStackEvent event = new PlayerEvent.SlotChangedItemStackEvent(PlayerData.get(player).getIPlayer(),
                     index, stack, player.inventoryMenu.getCarried(), container);
-            EventHooks.onEvent(handler, EnumScriptType.GUI_SLOT_CHANGED, event);
+            EventHooks.onEvent(EventHooks.getPlayerHandler(), EnumScriptType.GUI_SLOT_CHANGED, event);
             if (!ItemStack.isSameItem(stack, event.slotStack.getMCItemStack())) { set(event.slotStack.getMCItemStack()); }
         }
     }

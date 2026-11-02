@@ -121,14 +121,11 @@ public abstract class BaseScriptData implements IScriptHandler {
         else { message.append(Component.literal("; ").withStyle(ChatFormatting.DARK_GRAY)); }
         IEntity<?> iEntity = null;
         IBlock iBlock = null;
-        if (event instanceof Event && !(event instanceof CustomNPCsEvent)) { event = new ForgeEvent((Event) event); }
-        if (event instanceof ForgeEvent) { iEntity = ((ForgeEvent) event).entity; }
-        if (event instanceof PlayerEvent) {
-            if (((PlayerEvent) event).player != null) { iEntity =  ((PlayerEvent) event).player; }
-            else { message.append(Component.literal("Global players script").withStyle(ChatFormatting.DARK_GRAY)); }
-            if (((PlayerEvent) event).player != null) { iEntity =  ((PlayerEvent) event).player; }
+        if (event instanceof PlayerEvent playerEvent) {
+            iEntity =  playerEvent.player;
+            if (iEntity == null) { message.append(Component.literal("Global players script").withStyle(ChatFormatting.DARK_GRAY)); }
         }
-        else if (event instanceof NpcEvent && ((NpcEvent) event).npc != null) { iEntity = ((NpcEvent) event).npc; }
+        else if (event instanceof NpcEvent npcEvent && npcEvent.npc != null) { iEntity = npcEvent.npc; }
         if (iEntity != null) {
             MutableComponent mesEntity;
             if (iEntity.getMCEntity() instanceof Player) { mesEntity = Component.literal("Player \""); }

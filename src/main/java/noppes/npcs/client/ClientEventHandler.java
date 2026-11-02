@@ -76,7 +76,6 @@ import net.minecraftforge.client.event.sound.PlayStreamingSourceEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -597,14 +596,14 @@ public class ClientEventHandler {
     @SubscribeEvent
     public void cnpcPlaySoundSource(PlaySoundSourceEvent event) {
         CustomNpcs.debugData.start("Players");
-        processSoundPlay(event, event.getName(), event.getSound(), event.getChannel());
+        processSoundPlay(event.getName(), event.getSound(), event.getChannel());
         CustomNpcs.debugData.end("Players");
     }
 
     @SubscribeEvent
     public void cnpcPlayStreamingSource(PlayStreamingSourceEvent event) {
         CustomNpcs.debugData.start("Players");
-        processSoundPlay(event, event.getName(), event.getSound(), event.getChannel());
+        processSoundPlay(event.getName(), event.getSound(), event.getChannel());
         CustomNpcs.debugData.end("Players");
     }
 
@@ -617,7 +616,7 @@ public class ClientEventHandler {
             event.addListener((new InventoryTabQuests()).init(screen));
         }
         else if (event.getScreen() instanceof TitleScreen) {
-            CustomNpcs.resetChars(CustomNpcs.CharCurrencies, CustomNpcs.CharDonation);
+            CustomNpcs.resetChars();
             if (CustomNpcs.ReplaceCustomBackground && CustomNpcs.ShowButtonsInGuiMenu) {
                 try {
                     String name = "cnpc$variant";
@@ -790,7 +789,7 @@ public class ClientEventHandler {
             miniMapLoaded = false;
             updateMiniMaps(true);
             YDEController.getInstance().getLevelData(ScriptController.getLevelKey());
-            EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGIN, new PlayerEvent.LoginEvent(data.scriptData.getPlayer()));
+            EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGIN, new PlayerEvent.LoginEvent(data.getIPlayer()));
             CustomNpcsLangPack.check();
             LogWriter.debug("Client Player: Start game");
         }
@@ -1010,12 +1009,12 @@ public class ClientEventHandler {
         return x <= 8.0 && z <= 8.0;
     }
 
-    private void processSoundPlay(Event event, String name, SoundInstance sound, Channel channel) {
+    private void processSoundPlay(String name, SoundInstance sound, Channel channel) {
         if (sound == null || channel.stopped()) { return; }
         Minecraft mc = Minecraft.getInstance();
         MusicData md = new MusicData(name, sound, channel, mc.level);
         ClientTickHandler.musics.add(md);
-        md.createClientEvent(event, mc.player, 0);
+        md.createClientEvent(mc.player, 0);
         if (mc.level != null && mc.getConnection() != null) { Packets.sendServer(new SPacketPlayerSound(true, md)); }
     }
 

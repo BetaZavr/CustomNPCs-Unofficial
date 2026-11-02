@@ -9,7 +9,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.eventbus.api.Event;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
@@ -102,7 +102,9 @@ public class MusicData {
      * @param player player in game
      * @param type 0:start; 1:tick; 2:stop
      */
-    public void createClientEvent(Event eventIn, Player player, int type) {
+    public void createClientEvent(Player player, int type) {
+        if (!CustomNpcs.EnableClientScripting || channel == null) { return; }
+        long time = getCurrentTime();
         IPlayer<?> iPlayer = null;
         NpcAPI api = NpcAPI.Instance();
         IPos pos = BlockPosWrapper.ZERO;
@@ -116,17 +118,20 @@ public class MusicData {
         switch (type) {
             case 1: {
                 sType = EnumScriptType.SOUND_TICK_EVENT;
-                ev = new ForgeEvent.ClientSoundTickEvent(eventIn, iPlayer, name, resource.toString(), pos, sound.getVolume(), sound.getPitch(), getCurrentTime(), duration);
+                ev = new ForgeEvent.ClientSoundTickEvent(iPlayer, name, resource.toString(), pos,
+                        sound.getVolume(), sound.getPitch(), time, duration, channel);
                 break;
             }
             case 2: {
                 sType = EnumScriptType.STOP_SOUND;
-                ev = new ForgeEvent.ClientSoundStopEvent(eventIn, iPlayer, name, resource.toString(), pos, sound.getVolume(), sound.getPitch(), getCurrentTime(), duration);
+                ev = new ForgeEvent.ClientSoundStopEvent(iPlayer, name, resource.toString(), pos,
+                        sound.getVolume(), sound.getPitch(), time, duration, channel);
                 break;
             }
             default: {
                 sType = EnumScriptType.PLAY_SOUND;
-                ev = new ForgeEvent.ClientSoundPlayEvent(eventIn, iPlayer, name, resource.toString(), pos, sound.getVolume(), sound.getPitch(), getCurrentTime(), duration);
+                ev = new ForgeEvent.ClientSoundPlayEvent(iPlayer, name, resource.toString(), pos,
+                        sound.getVolume(), sound.getPitch(), time, duration, channel);
                 break;
             }
         }

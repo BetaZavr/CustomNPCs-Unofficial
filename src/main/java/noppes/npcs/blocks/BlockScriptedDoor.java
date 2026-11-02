@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -26,9 +27,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
-import noppes.npcs.CustomBlocks;
-import noppes.npcs.CustomItems;
-import noppes.npcs.EventHooks;
+import noppes.npcs.*;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.event.BlockEvent;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
@@ -37,6 +36,7 @@ import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.packets.server.SPacketGuiOpen;
+import noppes.npcs.shared.common.CommonUtil;
 
 import java.util.Objects;
 
@@ -60,36 +60,42 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
    public @Nonnull RenderShape getRenderShape(@Nonnull BlockState state) { return RenderShape.INVISIBLE; }
 
    @Override
-   public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player,
+   public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player playerIn,
                                          @Nonnull InteractionHand hand, @Nonnull BlockHitResult ray) {
-      if (level.isClientSide) {
+      if (level.isClientSide()) {
          BlockEvent.DoorToggleEvent event = new BlockEvent.DoorToggleEvent(Objects.requireNonNull(NpcAPI.Instance()).getIBlock(level, pos));
          EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.DOOR_TOGGLE, event);
          return event.isCanceled() ? InteractionResult.FAIL : InteractionResult.SUCCESS;
       }
-      BlockPos blockpos1 = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
-      BlockState iblockstate1 = pos.equals(blockpos1) ? state : level.getBlockState(blockpos1);
-      if (iblockstate1.getBlock() == this) {
-         ItemStack currentItem = player.getInventory().getSelected();
-         if (currentItem.getItem() == CustomItems.wand ||
-                 currentItem.getItem() == CustomItems.scripter ||
-                 currentItem.getItem() == CustomBlocks.scripted_door_item) {
+      else if (playerIn instanceof ServerPlayer player) {
+         BlockPos blockpos1 = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
+         BlockState iblockstate1 = pos.equals(blockpos1) ? state : level.getBlockState(blockpos1);
+         if (iblockstate1.getBlock() != this) { return InteractionResult.FAIL; }
+         ItemStack heldItem = player.getInventory().getSelected();
+         if (heldItem.getItem() == CustomItems.wand ||
+                 heldItem.getItem() == CustomItems.scripter ||
+                 heldItem.getItem() == CustomBlocks.scripted_door_item) {
+            if ((CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+                    !CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_SCRIPTER)) {
+               player.sendSystemMessage(Component.translatable("availability.permission"));
+               return InteractionResult.FAIL;
+            }
             PlayerData.get(player).scriptBlockPos = blockpos1;
-            SPacketGuiOpen.sendOpenGui((ServerPlayer) player, EnumGuiType.ScriptDoor, null, blockpos1);
-            return InteractionResult.SUCCESS;
+            SPacketGuiOpen.sendOpenGui(player, EnumGuiType.ScriptDoor, null, blockpos1);
          }
-         TileScriptedDoor tile = (TileScriptedDoor)level.getBlockEntity(blockpos1);
-         if (tile != null) {
+         else {
             Vec3 vec = ray.getLocation();
             float x = (float)(vec.x - (double)pos.getX());
             float y = (float)(vec.y - (double)pos.getY());
             float z = (float)(vec.z - (double)pos.getZ());
-            if (EventHooks.onScriptBlockInteract(tile, player, ray.getDirection().get3DDataValue(), x, y, z)) { return InteractionResult.FAIL; }
-            this.setOpen(player, level, iblockstate1, blockpos1, iblockstate1.getValue(DoorBlock.OPEN).equals(false));
-            return InteractionResult.SUCCESS;
+            TileScriptedDoor tile = (TileScriptedDoor) level.getBlockEntity(blockpos1);
+            if (tile == null ||
+                    EventHooks.onScriptBlockInteract(tile, player, ray.getDirection().get3DDataValue(), x, y, z))
+            { return InteractionResult.FAIL; }
+            setOpen(player, level, iblockstate1, blockpos1, iblockstate1.getValue(DoorBlock.OPEN).equals(false));
          }
       }
-      return InteractionResult.FAIL;
+      return InteractionResult.SUCCESS;
    }
 
    @Override
@@ -103,7 +109,7 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
          if (iblockstate2.getBlock() != this) {
             worldIn.removeBlock(pos, false);
          } else if (neighborBlock != this) {
-            this.neighborChanged(iblockstate2, worldIn, blockpos2, neighborBlock, blockpos2, isMoving);
+            neighborChanged(iblockstate2, worldIn, blockpos2, neighborBlock, blockpos2, isMoving);
          }
       } else {
          blockpos2 = pos.above();
@@ -120,7 +126,7 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
             if ((flag || neighborBlock.defaultBlockState().isSignalSource()) && neighborBlock != this && flag != iblockstate2.getValue(POWERED)) {
                worldIn.setBlock(blockpos2, iblockstate2.setValue(POWERED, flag), 2);
                if (flag != state.getValue(OPEN)) {
-                  this.setOpen(null, worldIn, state, pos, flag);
+                  setOpen(null, worldIn, state, pos, flag);
                }
             }
 

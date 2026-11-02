@@ -80,10 +80,7 @@ public class SPacketScriptConsole extends PacketServerBasic {
                 }
                 if (done) {
                     ScriptContainer container = handler.getScripts().get(tab);
-                    if (container != null) {
-                        container.console.put(time, total.toString());
-                        handler.init();
-                    }
+                    if (container != null) { container.console.put(time, total.toString()); }
                     data.get(tab).remove(time);
                     if (data.get(tab).isEmpty()) { data.remove(tab); }
                 }

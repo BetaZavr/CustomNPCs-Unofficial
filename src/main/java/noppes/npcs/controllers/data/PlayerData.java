@@ -3,6 +3,7 @@ package noppes.npcs.controllers.data;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,7 +22,9 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import noppes.npcs.CustomEntities;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.RoleType;
+import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.ICustomPlayerData;
 import noppes.npcs.api.mixin.world.entity.IEntityIMixin;
 import noppes.npcs.client.ClientProxy;
@@ -56,7 +59,6 @@ implements ICapabilityProvider, ICustomPlayerData {
    public final PlayerItemGiverData itemgiverData = new PlayerItemGiverData();
    public final PlayerMailData mailData = new PlayerMailData();
 
-   public PlayerScriptData scriptData;
    public BlockPos scriptBlockPos = BlockPos.ZERO;
    public ItemStack prevHeldItem = ItemStack.EMPTY;
    public EntityNPCInterface editingNpc;
@@ -72,6 +74,7 @@ implements ICapabilityProvider, ICustomPlayerData {
    public int dialogId = -1;
 
    // New data from Unofficial (BetaZavr)
+   protected IPlayer<?> playerAPI;
    public DataAnimation animation;
    public PlayerGameData game = new PlayerGameData();
    public PlayerCompassData compass = new PlayerCompassData();
@@ -276,10 +279,13 @@ implements ICapabilityProvider, ICustomPlayerData {
          data.player = player;
          data.playerLevel = player.experienceLevel;
          data.animation = new DataAnimation(player);
-         data.scriptData = new PlayerScriptData(player);
          data.setNBT(loadPlayerData(player.getUUID().toString(), player.getName().getString()));
       }
       return data;
    }
 
+   public IPlayer<?> getIPlayer() {
+      if (playerAPI == null) { playerAPI = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player); }
+      return playerAPI;
+   }
 }

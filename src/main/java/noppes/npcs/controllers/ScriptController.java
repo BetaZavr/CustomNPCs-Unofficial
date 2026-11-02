@@ -49,10 +49,9 @@ public class ScriptController {
    public Map<String, String> languages = new HashMap<>();
    public Map<String, ScriptEngineFactory> factories = new HashMap<>();
    public Map<String, String> scripts = new HashMap<>();
-   public PlayerScriptData playerScripts = new PlayerScriptData(null);
+   public PlayerScriptData playerScripts = new PlayerScriptData();
    public ForgeScriptData forgeScripts = new ForgeScriptData();
    public long lastLoaded = 0L;
-   public long lastPlayerUpdate = 0L;
    public File dir;
    public File localDir;
    public CompoundTag compound = new CompoundTag();
@@ -85,7 +84,7 @@ public class ScriptController {
    @SuppressWarnings("unchecked")
    public ScriptController() {
       Instance = this;
-      if (!CustomNpcs.NashorArguments.isEmpty()) { System.setProperty("nashorn.args", CustomNpcs.NashorArguments); }
+      if (!CustomNpcs.NashornArguments.isEmpty()) { System.setProperty("nashorn.args", CustomNpcs.NashornArguments); }
       LogWriter.info("Script Engines Available:");
       ScriptEngineManager manager = new ScriptEngineManager();
       Class<?> c;
@@ -305,17 +304,6 @@ public class ScriptController {
       return false;
    }
 
-   public void setPlayerScripts(CompoundTag compound) {
-      playerScripts.load(compound);
-      File file = playerScriptsFile();
-      try {
-         NBTJsonUtil.SaveFile(file, compound);
-         lastPlayerUpdate = System.currentTimeMillis();
-      } catch (Exception e) {
-         LogWriter.error(e);
-      }
-   }
-
    public boolean loadForgeScripts() {
       forgeScripts.clear();
       File file = forgeScriptsFile();
@@ -327,15 +315,6 @@ public class ScriptController {
       }
       catch (Exception e) { LogWriter.error("Error loading: " + file.getAbsolutePath(), e); }
       return false;
-   }
-
-   public void setForgeScripts(CompoundTag compound) {
-      forgeScripts.load(compound);
-      File file = forgeScriptsFile();
-      try {
-         NBTJsonUtil.SaveFile(file, compound);
-         forgeScripts.lastInited = -1L;
-      } catch (Exception e) { LogWriter.error(e); }
    }
 
    public ScriptEngine getEngineByName(String language) {
@@ -484,13 +463,52 @@ public class ScriptController {
       return false;
    }
 
-   public void setNPCsScripts(CompoundTag compound) {
-      npcsScripts.load(compound);
-      File file = npcsScriptsFile();
+   public void saveNPCsScripts() {
+      CompoundTag compound = new CompoundTag();
+      npcsScripts.save(compound);
+      npcsScripts.init();
       try {
-         NBTJsonUtil.SaveFile(file, compound.copy());
-         npcsScripts.lastInited = -1L;
-      } catch (Exception e) { LogWriter.error("Error:", e); }
+         NBTJsonUtil.SaveFile(npcsScriptsFile(), compound.copy());
+      } catch (Exception e) { LogWriter.error(e); }
+   }
+
+   public void saveForgeScripts() {
+      CompoundTag compound = new CompoundTag();
+      forgeScripts.save(compound);
+      forgeScripts.init();
+      try {
+         Util.instance.saveFile(forgeScriptsFile(), compound);
+         forgeScripts.lastInited = -1L;
+      } catch (Exception e) { LogWriter.error(e); }
+   }
+
+   public void savePlayerScripts() {
+      CompoundTag compound = new CompoundTag();
+      playerScripts.save(compound);
+      playerScripts.init();
+      try {
+         Util.instance.saveFile(playerScriptsFile(), compound);
+      }
+      catch (Exception e) { LogWriter.error(e); }
+   }
+
+   public void saveClientScripts() {
+      CompoundTag compound = new CompoundTag();
+      clientScripts.save(compound);
+      clientScripts.init();
+      try {
+         Util.instance.saveFile(clientScriptsFile(), compound);
+      }
+      catch (Exception e) { LogWriter.error(e); }
+   }
+
+   public void savePotionScripts() {
+      CompoundTag compound = new CompoundTag();
+      potionScripts.save(compound);
+      potionScripts.init();
+      try {
+         Util.instance.saveFile(potionScriptsFile(), compound);
+      } catch (Exception e) { LogWriter.error(e); }
    }
 
    private File npcsScriptsFile() { return new File(dir, "npc_scripts.json"); }
@@ -508,15 +526,6 @@ public class ScriptController {
       return false;
    }
 
-   public void setPotionScripts(CompoundTag compound) {
-      potionScripts.load(compound);
-      File file = potionScriptsFile();
-      try {
-         NBTJsonUtil.SaveFile(file, compound.copy());
-         potionScripts.lastInited = -1L;
-      } catch (Exception e) { LogWriter.error("Error:", e); }
-   }
-
    private File potionScriptsFile() { return new File(dir, "potion_scripts.json"); }
 
    public boolean loadClientScripts() {
@@ -531,8 +540,6 @@ public class ScriptController {
       catch (Exception e) { LogWriter.error("Error loading: " + file.getAbsolutePath(), e); }
       return false;
    }
-
-   public void setClientScripts(CompoundTag compound) { clientScripts.load(compound); }
 
    public File clientScriptsFile() {
       if (isClient && clientDir == null) {

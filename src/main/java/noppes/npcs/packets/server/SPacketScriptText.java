@@ -5,6 +5,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.server.permission.nodes.PermissionNode;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.scripts.IScriptHandler;
 import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.shared.common.PacketServerBasic;
@@ -22,13 +23,15 @@ public class SPacketScriptText extends PacketServerBasic {
 
     private final int type;
     private final int tab;
+    private final int maxTab;
     private final int id;
     private final int maxIDs;
     private final String part;
 
-    public SPacketScriptText(int typeIn, int tabIn, int idIn, int maxIDsIn, String partIn) {
+    public SPacketScriptText(int typeIn, int tabIn, int maxTabIn, int idIn, int maxIDsIn, String partIn) {
         type = typeIn;
         tab = tabIn;
+        maxTab = maxTabIn;
         id = idIn;
         maxIDs = maxIDsIn;
         part = partIn;
@@ -46,13 +49,14 @@ public class SPacketScriptText extends PacketServerBasic {
     public static void encode(SPacketScriptText msg, FriendlyByteBuf buf) {
         buf.writeInt(msg.type);
         buf.writeInt(msg.tab);
+        buf.writeInt(msg.maxTab);
         buf.writeInt(msg.id);
         buf.writeInt(msg.maxIDs);
         buf.writeUtf(msg.part);
     }
 
     public static SPacketScriptText decode(FriendlyByteBuf buf) {
-        return new SPacketScriptText(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readUtf());
+        return new SPacketScriptText(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readUtf());
     }
 
     @Override
@@ -83,6 +87,17 @@ public class SPacketScriptText extends PacketServerBasic {
                     if (container != null) {
                         container.script = total.toString();
                         handler.init();
+                    }
+                    if (tab == maxTab) {
+                        if (handler == ScriptController.Instance.forgeScripts) { ScriptController.Instance.saveForgeScripts(); }
+                        else if (handler == ScriptController.Instance.playerScripts) { ScriptController.Instance.savePlayerScripts(); }
+                        else if (handler == ScriptController.Instance.npcsScripts) { ScriptController.Instance.saveNPCsScripts(); }
+                        else if (handler == ScriptController.Instance.potionScripts) { ScriptController.Instance.savePotionScripts(); }
+                        else if (handler== ScriptController.Instance.clientScripts) {
+                            if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_CLIENT_SCRIPT)) {
+                                ScriptController.Instance.saveClientScripts();
+                            }
+                        }
                     }
                     data.remove(tab);
                 }

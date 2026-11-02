@@ -138,17 +138,18 @@ public class WrapperNpcAPI extends NpcAPI {
    @Override
    public IWorld getIWorld(Level level) {
       WorldWrapper w = worldCache.get(level.dimension());
-      if (w != null) {
-         w.level = level;
-      } else {
-         worldCache.put(level.dimension(), w = WorldWrapper.createNew(level));
-      }
+      if (w != null) { w.level = level; }
+      else { worldCache.put(level.dimension(), w = WorldWrapper.createNew(level)); }
       return w;
    }
 
    @Override
    public IWorld getIWorld(DimensionType dimensionTypeMC) {
-      if (CustomNpcs.Server != null && levels.isEmpty()) {
+      if (CustomNpcs.Server == null) {
+         Player player = CustomNpcs.proxy.getPlayer();
+         if (player != null && !levels.contains(player.level())) { levels.add(player.level()); }
+      }
+      else if (levels.isEmpty()) {
          for (Level level : CustomNpcs.Server.getAllLevels()) { levels.add(level); }
       }
       for (Level level : levels) {
@@ -163,13 +164,37 @@ public class WrapperNpcAPI extends NpcAPI {
          Player player = CustomNpcs.proxy.getPlayer();
          if (player != null && !levels.contains(player.level())) { levels.add(player.level()); }
       }
-      else if (levels.isEmpty()) { for (Level level : CustomNpcs.Server.getAllLevels()) { levels.add(level); } }
+      else if (levels.isEmpty()) {
+         for (Level level : CustomNpcs.Server.getAllLevels()) { levels.add(level); }
+      }
       ResourceLocation loc = ResourceLocation.tryParse(dimensionName);
       for (Level level : levels) {
          if (level.dimension().location().equals(loc)) { return getIWorld(level); }
       }
       throw new CustomNPCsException((Thread.currentThread().getName().toLowerCase().contains("client") ? "Not found" : "Unknown") + " dimension: \"" + loc + "\"");
    }
+
+   public IWorld getIWorld(int dimensionID) {
+      if (CustomNpcs.Server == null) {
+         Player player = CustomNpcs.proxy.getPlayer();
+         if (player != null && !levels.contains(player.level())) { levels.add(player.level()); }
+      }
+      else if (levels.isEmpty()) {
+         for (Level level : CustomNpcs.Server.getAllLevels()) { levels.add(level); }
+      }
+      ResourceKey<Level> resourceKey = switch (dimensionID) {
+         case -1 -> Level.NETHER;
+         case 0 -> Level.OVERWORLD;
+         case 1 -> Level.END;
+         default -> throw new CustomNPCsException((Thread.currentThread().getName().toLowerCase().contains("client") ? "Not found" : "Unknown") + " dimension: \"" + dimensionID + "\"");
+      };
+      for (Level level : levels) {
+         if (level.dimension().equals(resourceKey)) {
+            return getIWorld(level);
+         }
+      }
+      throw new CustomNPCsException((Thread.currentThread().getName().toLowerCase().contains("client") ? "Not found" : "Unknown") + " dimension: \"" + resourceKey.location() + "\"");
+   } // OLD
 
    @Override
    public IContainer getIContainer(AbstractContainerMenu container) {

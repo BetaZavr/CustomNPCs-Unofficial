@@ -7,6 +7,7 @@ import noppes.npcs.api.wrapper.data.DataElement;
 import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
+import noppes.npcs.util.ValueUtil;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.*;
@@ -643,6 +644,8 @@ public class DataObject implements IDataObject {
         return builder.toString().replaceAll("\\n", System.lineSeparator());
     }
 
-    private void addTabs(StringBuilder builder, int tabs) { builder.append(" ".repeat(tabs)); }
+    private void addTabs(StringBuilder builder, int tabs) {
+        builder.append(" ".repeat(ValueUtil.onlyPositiveInt(tabs, 400)));
+    }
 
 }

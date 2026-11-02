@@ -183,7 +183,7 @@ public class ServerTickHandler {
       }
       if (ticks % 10 == 0 && CustomNpcs.Server != null && !CustomNpcs.Server.getPlayerList().getPlayers().isEmpty()) {
          ServerPlayer player = CustomNpcs.Server.getPlayerList().getPlayers().get(0);
-         if (player != null) { EventHooks.onEvent(PlayerData.get(player).scriptData, "worldtick", new WorldEvent.ServerTickEvent(event)); }
+         if (player != null) { EventHooks.onEvent(EventHooks.getPlayerHandler(), "worldtick", new WorldEvent.ServerTickEvent(event)); }
       }
       if (ticks % 1200 == 0) {
          BankController.getInstance().update();

@@ -321,7 +321,7 @@ public class GuiLog
             init();
             break;
          }
-         case 6: CustomNpcs.IsFastAnimationGUI = ((GuiCheckBoxNop) button).selected(); break;
+         case 6: compassData.questLogIsFast = ((GuiCheckBoxNop) button).selected(); break;
       }
    }
 
@@ -524,16 +524,13 @@ public class GuiLog
          // tabs
          graphics.blit(ql.get(4), 0, 0, 0, hover || offset ? 30 : 60, 28, 30);
 
-         matrixStack.pushPose();
-         matrixStack.translate(6.0f, 8.0f, 0.0f);
          ItemStack stack = switch (i) {
             case 1 -> new ItemStack(Items.RED_BANNER);
             case 2 -> new ItemStack(Items.BOOK);
             case 3 -> new ItemStack(Items.COMPASS);
             default -> new ItemStack(Blocks.CRAFTING_TABLE);
          };
-         renderStackInGUI(graphics, stack, 0, 0, 0.0f, 1.0f, null);
-         matrixStack.popPose();
+         renderStackInGUI(graphics, stack, 6.0f, 8.0f, 0.0f, 1.0f, null);
       }
       matrixStack.popPose();
 
@@ -1796,7 +1793,7 @@ public class GuiLog
                  .setSize((int) (104.0f * scaleW), (int) (fontHeight * scaleH))
                  .setColor(questLogColor)
                  .setCustomFont(ClientProxy.LogFont);
-         addCheckBox(6, x1, y += (int) (14.0f * scaleH), "quest.screen.log.is.fast", "quest.screen.log.is.slow", CustomNpcs.IsFastAnimationGUI)
+         addCheckBox(6, x1, y += (int) (14.0f * scaleH), "quest.screen.log.is.fast", "quest.screen.log.is.slow", compassData.questLogIsFast)
                  .setSize((int) (104.0f * scaleW), (int) (fontHeight * scaleH))
                  .setColor(questLogColor)
                  .setCustomFont(ClientProxy.LogFont);
@@ -1986,7 +1983,8 @@ public class GuiLog
    }
 
    private void setNextTick(int time, boolean isNext) {
-      tick = (int) (time / (CustomNpcs.IsFastAnimationGUI ? 3.0f : 1.0f));
+      if (compassData == null) { compassData = PlayerData.get(player).compass; }
+      tick = (int) (time / (compassData.questLogIsFast ? 3.0f : 1.0f));
       milliTick = tick - (isNext ? 1 : 0);
    }
 

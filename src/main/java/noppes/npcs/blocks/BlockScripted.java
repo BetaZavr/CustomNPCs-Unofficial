@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -38,13 +39,12 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.ForgeHooks;
-import noppes.npcs.CustomBlocks;
-import noppes.npcs.CustomItems;
-import noppes.npcs.EventHooks;
+import noppes.npcs.*;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.packets.server.SPacketGuiOpen;
+import noppes.npcs.shared.common.CommonUtil;
 
 public class BlockScripted
         extends BlockInterface {
@@ -77,29 +77,37 @@ public class BlockScripted
 
    @Override
    @SuppressWarnings("deprecation")
-   public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult ray) {
-      if (level.isClientSide) { return InteractionResult.SUCCESS; }
-      ItemStack currentItem = player.getInventory().getSelected();
-      if (currentItem.getItem() != CustomItems.wand && currentItem.getItem() != CustomItems.scripter) {
-         Vec3 vec = ray.getLocation();
-         float x = (float)(vec.x - (double)pos.getX());
-         float y = (float)(vec.y - (double)pos.getY());
-         float z = (float)(vec.z - (double)pos.getZ());
-         TileScripted tile = (TileScripted)level.getBlockEntity(pos);
-         if (tile == null) { return InteractionResult.FAIL; }
-         return EventHooks.onScriptBlockInteract(tile, player, ray.getDirection().get3DDataValue(), x, y, z) ? InteractionResult.FAIL : InteractionResult.SUCCESS;
-      } else {
+   public @Nonnull InteractionResult use(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player playerIn, @Nonnull InteractionHand hand, @Nonnull BlockHitResult ray) {
+      if (!level.isClientSide() && playerIn instanceof ServerPlayer player) {
+         ItemStack heldItem = player.getInventory().getSelected();
+         if (heldItem.getItem() != CustomItems.wand && heldItem.getItem() != CustomItems.scripter) {
+            Vec3 vec = ray.getLocation();
+            float x = (float)(vec.x - (double)pos.getX());
+            float y = (float)(vec.y - (double)pos.getY());
+            float z = (float)(vec.z - (double)pos.getZ());
+            TileScripted tile = (TileScripted)level.getBlockEntity(pos);
+            if (tile == null) { return InteractionResult.FAIL; }
+            return EventHooks.onScriptBlockInteract(tile, player, ray.getDirection().get3DDataValue(), x, y, z) ? InteractionResult.FAIL : InteractionResult.SUCCESS;
+         }
+         if ((CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+                 !CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_SCRIPTER)) {
+            player.sendSystemMessage(Component.translatable("availability.permission"));
+            return InteractionResult.FAIL;
+         }
          PlayerData.get(player).scriptBlockPos = pos;
-         SPacketGuiOpen.sendOpenGui((ServerPlayer) player, EnumGuiType.ScriptBlock, null, pos);
-         return InteractionResult.SUCCESS;
+         SPacketGuiOpen.sendOpenGui(player, EnumGuiType.ScriptBlock, null, pos);
       }
+      return InteractionResult.SUCCESS;
    }
 
    @Override
    public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity entity, @Nonnull ItemStack item) {
-      if (!level.isClientSide && entity instanceof Player player) {
-         PlayerData.get(player).scriptBlockPos = pos;
-         SPacketGuiOpen.sendOpenGui((ServerPlayer) player, EnumGuiType.ScriptBlock, null, pos);
+      if (!level.isClientSide() && entity instanceof ServerPlayer player) {
+         if ((!CustomNpcs.OpsOnly || CommonUtil.isOp(player)) &&
+                 CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_SCRIPTER)) {
+            PlayerData.get(player).scriptBlockPos = pos;
+            SPacketGuiOpen.sendOpenGui(player, EnumGuiType.ScriptBlock, null, pos);
+         }
       }
    }
 

@@ -37,22 +37,27 @@ public class MarkRenderer {
 	public static void render(RenderLivingEvent.Post<?, ?> event, Mark mark) {
 		int color = mark.color;
 		float alpha = 1.0f;
+		float size = 1.0f;
+		int light = event.getPackedLight();
+		int overlay = OverlayTexture.NO_OVERLAY;
 		PoseStack matrixStack = event.getPoseStack();
 		matrixStack.pushPose();
-		matrixStack.translate(0.0f, event.getEntity().getBbHeight() +  0.6f, 0.0f);
-		matrixStack.mulPose(Axis.XP.rotationDegrees(180));
-		matrixStack.mulPose(Axis.YP.rotationDegrees(event.getEntity().yHeadRot));
 		if(event.getEntity() instanceof EntityNPCInterface npc) {
 			if (npc.isInvisible()) {
 				alpha = 0.333333f;
 				color = (85 << 24) | (color & 0x00FFFFFF);
 			}
-			if (npc.display.getSize() > 5) { matrixStack.scale(4.0f, 4.0f, 4.0f); }
+			size = 0.2f * npc.display.getSize();
 		}
+		matrixStack.translate(0.0f, event.getEntity().getBbHeight() +  0.6f, 0.0f);
+		matrixStack.mulPose(Axis.XP.rotationDegrees(180));
+		matrixStack.mulPose(Axis.YP.rotationDegrees(event.getEntity().yHeadRot));
+		matrixStack.scale(size, size, size);
+
 		if (mark.isRotate()) { matrixStack.mulPose(Axis.YP.rotationDegrees((float) (event.getEntity().level().getGameTime() % 360) / 0.25f)); }
 		if (mark.is3D()) {
 			matrixStack.mulPose(Axis.XP.rotationDegrees(180.0f));
-            ModelBuffer.render(matrixStack, event.getMultiBufferSource(), locations.get(true).get(mark.type), null, null, event.getPackedLight(), OverlayTexture.NO_OVERLAY, color);
+            ModelBuffer.render(matrixStack, event.getMultiBufferSource(), locations.get(true).get(mark.type), null, null, light, overlay, color);
 		}
 		else {
 			matrixStack.translate(-0.5f, 0, 0);
@@ -69,7 +74,7 @@ public class MarkRenderer {
 			if (notBodyVisible) { renderType = ((RenderNPCInterface<?, ?>) eRenderer).getModel().renderType(location); }
 			else { renderType = isGlowing ? RenderType.outline(location) : RenderType.entityTranslucent(location); }
 
-			renderer.render(location, matrixStack, event.getMultiBufferSource().getBuffer(renderType), event.getPackedLight(), OverlayTexture.WHITE_OVERLAY_V, red, green, blue, alpha);
+			renderer.render(location, matrixStack, event.getMultiBufferSource().getBuffer(renderType), light, overlay, red, green, blue, alpha);
 		}
 		matrixStack.popPose();
 	}

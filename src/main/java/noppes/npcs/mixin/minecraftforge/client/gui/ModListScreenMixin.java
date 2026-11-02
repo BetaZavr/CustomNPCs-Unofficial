@@ -122,7 +122,12 @@ public class ModListScreenMixin {
                         return Pair.<ResourceLocation, Size2i>of(null, new Size2i(0, 0));})
                     .orElse(Pair.of(null, new Size2i(0, 0)));
 
-            lines.add(selectedMod.getDisplayName());
+            String displayName = selectedMod.getDisplayName();
+            String colorChar = ((char) 65533) + "";
+            if (displayName.contains(colorChar)) {
+                displayName = displayName.replace(colorChar, ((char) 167) + "");
+            }
+            lines.add(displayName);
 
             lines.add(ForgeI18n.parseMessage("fml.menu.mods.info.version",
                     MavenVersionStringHelper.artifactVersionToString(selectedMod.getVersion())));

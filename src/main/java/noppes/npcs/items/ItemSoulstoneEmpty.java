@@ -32,7 +32,7 @@ public class ItemSoulstoneEmpty extends Item {
 
    public ItemSoulstoneEmpty() { super((new Properties()).stacksTo(64)); }
 
-   public void store(LivingEntity entity, ItemStack stack, Player player) {
+   public void store(LivingEntity entity, ItemStack stack, ServerPlayer player) {
       if (hasPermission(entity, player) && !(entity instanceof Player)) {
          ItemStack stone = new ItemStack(CustomItems.soulstoneFull);
          CompoundTag compound = new CompoundTag();
@@ -62,9 +62,16 @@ public class ItemSoulstoneEmpty extends Item {
       }
    }
 
-   public boolean hasPermission(LivingEntity entity, Player player) {
-      if ((CustomNpcs.OpsOnly && CommonUtil.isOp(player)) ||
-              CustomNpcsPermissions.hasPermission((ServerPlayer) player, CustomNpcsPermissions.SOULSTONE_ALL)) { return true; }
+   public boolean hasPermission(LivingEntity entity, ServerPlayer player) {
+      if (player == null ||
+              (CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+              !CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.SOULSTONE_ALL)) {
+         if (player != null) {
+            player.sendSystemMessage(Component.translatable("availability.permission"));
+         }
+         return false;
+      }
+
       if (entity instanceof EntityNPCInterface npc) {
          if (npc.role instanceof RoleCompanion role && role.getOwner() == player) { return true; }
          else if (npc.role instanceof RoleFollower role && role.getOwner() == player) { return !role.refuseSoulStone; }

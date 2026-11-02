@@ -1563,7 +1563,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
 
    // New from Unofficial (BetaZavr)
    private void setNextTick(int time, boolean isNext) {
-      tick = (int) (time / (CustomNpcs.IsFastAnimationGUI ? 3.0f : 1.0f));
+      tick = (int) (time / (playerData.compass.questLogIsFast ? 3.0f : 1.0f));
       milliTick = tick - (isNext ? 1 : 0);
    }
 

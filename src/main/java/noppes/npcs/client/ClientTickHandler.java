@@ -118,6 +118,7 @@ public class ClientTickHandler {
          EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.TICK, new PlayerEvent.UpdateEvent(ClientProxy.mcWrapper.getPlayer()));
       }
       // sounds
+      /**/
       try {
          Iterator<MusicData> it = musics.iterator();
          while (it.hasNext()) {
@@ -126,15 +127,20 @@ public class ClientTickHandler {
                it.remove();
                continue;
             }
-            if (md.channel.playing()) {
-               md.createClientEvent(event, mc.player, 1);
-            } else if (md.channel.stopped()) {
-               md.createClientEvent(event, mc.player, 2);
+            if (md.channel != null &&
+                    md.channel.playing() &&
+                    md.duration > 0 &&
+                    md.getCurrentTime() > md.duration * 2L) {
+               md.createClientEvent(mc.player, 1);
+            }
+            else {
+               if (md.channel != null) { md.createClientEvent(mc.player, 2); }
                it.remove();
                if (mc.level != null && mc.getConnection() != null) { Packets.sendServer(new SPacketPlayerSound(false, md)); }
             }
          }
       } catch (Exception ignored) { }
+      /**/
        // any 0.5 sec
       if (ticks % 10 == 0) {
          // markets update

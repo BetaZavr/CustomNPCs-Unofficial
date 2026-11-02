@@ -174,7 +174,7 @@ public class CustomNpcsConfigGui extends GuiBasic {
     public void onClose() {
         if (minecraft == null) { minecraft = Minecraft.getInstance(); }
         CustomNpcs.Config.updateConfig();
-        CustomNpcs.resetChars(CustomNpcs.CharCurrencies, CustomNpcs.CharDonation);
+        CustomNpcs.resetChars();
         minecraft.setScreen(this.lastScreen);
     }
 

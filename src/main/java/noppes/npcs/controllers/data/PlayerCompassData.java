@@ -29,6 +29,7 @@ public class PlayerCompassData implements ICompassData, IPlayerData {
     public boolean showOfPlayer = true;
     public boolean showDial = true;
     public boolean isCustomPoint = false;
+    public boolean questLogIsFast = false;
     public boolean isFlat = false;
     public ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION, Level.OVERWORLD.location());
     public int questID;
@@ -52,6 +53,7 @@ public class PlayerCompassData implements ICompassData, IPlayerData {
         compassNbt.putInt("Type", taskType);
         compassNbt.putBoolean("ShowOfPlayer", showOfPlayer);
         compassNbt.putBoolean("IsCustomPoint", isCustomPoint);
+        compassNbt.putBoolean("QuestLogIsFast", questLogIsFast);
         compassNbt.putBoolean("IsShowDial", showDial);
         compassNbt.putBoolean("IsFlat", isFlat);
         compassNbt.putFloat("Scale", scale);
@@ -86,6 +88,7 @@ public class PlayerCompassData implements ICompassData, IPlayerData {
         setRange(compassNbt.getInt("Range"));
         setTaskType(compassNbt.getInt("Type"));
         isCustomPoint = compassNbt.getBoolean("IsCustomPoint");
+        questLogIsFast = compassNbt.getBoolean("QuestLogIsFast");
         isFlat = compassNbt.getBoolean("IsFlat");
         if (compassNbt.contains("IsShowDial", 1)) { showDial = compassNbt.getBoolean("IsShowDial"); }
         if (compassNbt.contains("ShowOfPlayer", 1)) { showOfPlayer = compassNbt.getBoolean("ShowOfPlayer"); }

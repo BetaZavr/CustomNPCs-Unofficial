@@ -30,7 +30,7 @@ public class PacketCustomNBT extends PacketBasic {
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
         EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.PACKAGE_FROM,
-                new PlayerEvent.PlayerPackage(PlayerData.get(player).scriptData.getPlayer(), data));
+                new PlayerEvent.PlayerPackage(PlayerData.get(player).getIPlayer(), data));
         CustomNpcs.debugData.end("Packets");
     }
 }

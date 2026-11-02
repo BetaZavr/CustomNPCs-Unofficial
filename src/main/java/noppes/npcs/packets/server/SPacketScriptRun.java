@@ -9,7 +9,6 @@ import noppes.npcs.api.event.QuestEvent;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.shared.common.PacketServerBasic;
 
 import java.util.List;
@@ -48,9 +47,9 @@ public class SPacketScriptRun extends PacketServerBasic {
     @Override
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
-        PlayerScriptData handler = PlayerData.get(player).scriptData;
         if (Objects.requireNonNull(type) == EnumScriptType.QUEST_LOG_BUTTON) {
-            EventHooks.onEvent(handler, type, new QuestEvent.QuestExtraButtonEvent(handler.getPlayer(), QuestController.instance.get(data)));
+            EventHooks.onEvent(EventHooks.getPlayerHandler(), type,
+                    new QuestEvent.QuestExtraButtonEvent(PlayerData.get(player).getIPlayer(), QuestController.instance.get(data)));
         } // player compass data
         CustomNpcs.debugData.end("Packets");
     }

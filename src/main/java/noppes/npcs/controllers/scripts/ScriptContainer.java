@@ -52,6 +52,7 @@ public class ScriptContainer {
 
    // New from Unofficial (BetaZavr)
    public boolean canEncryptCode = false;
+   protected Boolean valid = null;
 
    static {
       FillMap(AlignmentType.class);
@@ -168,7 +169,10 @@ public class ScriptContainer {
       if (executor == null || !currentScriptLanguage.equals(handler.getLanguage())) { fillEngine(handler.getLanguage()); }
       if (executor != null && !executor.isErrored() && hasCode() && !executor.isUnknownFunction(functionName) && CustomNpcs.EnableScripting) {
          ScriptEngine engine = executor.getEngine();
-         if (handler.isClient() && (engine.get("mc") == null || engine.get("storedData") == null)) { fillEngineClient(engine); }
+         if (functionName.equals("playerInteractEventRightClickBlock")) {
+            LogWriter.info("[DEBUG] api "+engine.get("api"));
+         }
+         if (handler.isClient() && engine.get("mc") == null) { fillEngineClient(engine); }
          if (!executor.isErrored()) {
             if (ScriptController.Instance.lastLoaded > lastCreated) {
                canEncryptCode = false;
@@ -178,6 +182,9 @@ public class ScriptContainer {
             synchronized (lock) {
                Current = this;
                String consoleOutput = "";
+               if (functionName.equals("playerInteractEventRightClickBlock")) {
+                  LogWriter.info("[DEBUG] "+event);
+               }
                try { consoleOutput = executor.run(handler, functionName, event); }
                finally {
                   appendConsole(consoleOutput.trim());
@@ -192,7 +199,12 @@ public class ScriptContainer {
 
    public boolean hasCode() { return !getFullCode().isEmpty(); }
 
-   public boolean isValid() { return !executor.isErrored(); }
+   public boolean isValid() {
+      if (valid == null) {
+         valid = executor != null && !executor.isErrored();
+      }
+      return valid;
+   }
 
    // Change or added new from Unofficial (BetaZavr)
    public boolean hasHandler() {
@@ -211,6 +223,7 @@ public class ScriptContainer {
    }
 
    public void fillEngine(String language) {
+      language = Util.instance.deleteColor(language);
       if (executor == null || !currentScriptLanguage.equals(language)) {
          if (executor != null) { executor.close(); }
          Supplier<IScriptExecutor> provider = ScriptController.Instance.executorProviders.computeIfAbsent(language.toLowerCase(), l -> Jsr223Executor::new);
@@ -233,6 +246,7 @@ public class ScriptContainer {
          try { globals.put("System", scriptEngine.eval("Java.type('" + System.class.getName() + "')")); } catch (Throwable ignored) { LogWriter.error("Not put key \"System\" to engine"); }
          // Custom Functions
          //LogWriter.debug("Fill custom functions to data");
+         language = language.toLowerCase();
          ListTag functions = constants.getCompound("Functions").getList(language, 8);
          for (int i = 0; i < functions.size(); i++) {
             String body = functions.getString(i);
@@ -241,8 +255,8 @@ public class ScriptContainer {
                String key = body.substring(body.indexOf(" ") + 1, body.indexOf("("));
                if (key.isEmpty()) { continue; }
                try {
-                  //LogWriter.debug("Put function to data key: " + key + "; value: " + body);
                   DATA.put(key, scriptEngine.eval(body));
+                  LogWriter.debug("Put function to data key: " + key + "; value: " + body);
                }
                catch (Throwable e) {
                   LogWriter.error("Not add function key: \"" + body + "\"; body: \"" + body + "\" to data");
@@ -268,20 +282,20 @@ public class ScriptContainer {
             catch (Throwable e) { constants.getList("Functions", 10).getCompound(i).putBoolean("EvalIsError", true); }
          }
          // Custom Constants
-         //LogWriter.debug("Fill custom constants to data");
          CompoundTag cons = constants.getCompound("Constants").getCompound(language);
+         LogWriter.debug("Fill custom constants to data");
          for (String key : cons.getAllKeys()) {
             Object value = getNBTValue(Objects.requireNonNull(cons.get(key)));
             String err = "";
             if (value == null) { err = "NullPointerException"; }
             else {
                try {
-                  //LogWriter.debug("Put constant to data key: " + key + "; value: " + value);
                   if (value instanceof String) {
                      try { DATA.put(key, scriptEngine.eval((String) value)); }
                      catch (Throwable e) { DATA.put(key, value); }
                   }
                   else { DATA.put(key, value); }
+                  LogWriter.debug("Put constant to data key: " + key + "; value: " + value);
                }
                catch (Throwable t) { err = t.getCause().getClass().getSimpleName(); }
             }

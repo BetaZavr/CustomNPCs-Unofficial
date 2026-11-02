@@ -23,6 +23,7 @@ import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.shared.common.CommonUtil;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
 import org.jetbrains.annotations.NotNull;
@@ -47,28 +48,31 @@ public class ItemNpcWand extends Item implements INPCToolItem {
 
    @Override
    public @NotNull InteractionResult useOn(UseOnContext context) {
-      if (context.getLevel().isClientSide) { return InteractionResult.SUCCESS; }
-      if (context.getPlayer() != null) {
-         if (CustomNpcs.OpsOnly && context.getPlayer().getServer() != null && !context.getPlayer().getServer().getPlayerList().isOp(context.getPlayer().getGameProfile())) {
-            context.getPlayer().sendSystemMessage(Component.translatable("availability.permission"));
-         } else {
-            Entity rayTraceEntity = Util.instance.getLookEntity(context.getPlayer(), 5.0d, false);
-            if (CustomNpcsPermissions.hasPermission((ServerPlayer)context.getPlayer(), CustomNpcsPermissions.NPC_CREATE)) {
-               if (rayTraceEntity instanceof EntityNPCInterface npc) {
-                  NoppesUtilServer.sendOpenGui((ServerPlayer) context.getPlayer(), EnumGuiType.MainMenuDisplay, npc);
-                  return InteractionResult.FAIL;
-               }
-               // create new
-               EntityCustomNpc npc = new EntityCustomNpc(CustomEntities.entityCustomNpc, context.getLevel());
-               npc.ais.setStartPos(context.getClickedPos().above());
-               npc.moveTo(context.getClickedPos().getX() + 0.5D, npc.getStartYPos(), context.getClickedPos().getZ() + 0.5D, context.getPlayer().getYRot(), context.getPlayer().getXRot());
-               context.getLevel().addFreshEntity(npc);
-               npc.setHealth(npc.getMaxHealth());
-               CustomNPCsScheduler.runTack(() -> NoppesUtilServer.sendOpenGui((ServerPlayer) context.getPlayer(), EnumGuiType.MainMenuDisplay, npc), 100);
-            } else {
-               context.getPlayer().sendSystemMessage(Component.translatable("availability.permission"));
-            }
+      if (!context.getLevel().isClientSide() && context.getPlayer() instanceof ServerPlayer player) {
+         if (CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) {
+            player.sendSystemMessage(Component.translatable("availability.permission"));
+            return InteractionResult.FAIL;
          }
+         Entity rayTraceEntity = Util.instance.getLookEntity(player, 5.0d, false);
+         if (rayTraceEntity instanceof EntityNPCInterface npc) {
+            if (!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_GUI)) {
+               player.sendSystemMessage(Component.translatable("availability.permission"));
+               return InteractionResult.FAIL;
+            }
+            NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, npc);
+            return InteractionResult.SUCCESS;
+         }
+         if (!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_CREATE)) {
+            player.sendSystemMessage(Component.translatable("availability.permission"));
+            return InteractionResult.FAIL;
+         }
+         // create new
+         EntityCustomNpc npc = new EntityCustomNpc(CustomEntities.entityCustomNpc, context.getLevel());
+         npc.ais.setStartPos(context.getClickedPos().above());
+         npc.moveTo(context.getClickedPos().getX() + 0.5D, npc.getStartYPos(), context.getClickedPos().getZ() + 0.5D, player.getYRot(), player.getXRot());
+         context.getLevel().addFreshEntity(npc);
+         npc.setHealth(npc.getMaxHealth());
+         CustomNPCsScheduler.runTack(() -> NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, npc), 100);
       }
       return InteractionResult.SUCCESS;
    }

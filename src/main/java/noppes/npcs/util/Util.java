@@ -1155,6 +1155,8 @@ public class Util implements IMethods {
         MarkData.get(npc).marks.clear();
         npc.display.setShowName(1);
         npc.display.setVisible(0);
+        npc.display.setSize(5);
+        npc.refreshDimensions();
         npc.setHealth(npc.getMaxHealth());
         npc.deathTime = 0;
         npc.xRotO = 0;
@@ -1162,6 +1164,7 @@ public class Util implements IMethods {
         npc.yBodyRot = 0;
         npc.yHeadRotO = 0;
         npc.ais.orientation = 0;
+        npc.setPos(npcParent.position());
         if (copyRotation) {
             npc.xRotO = npcParent.xRotO;
             npc.yRotO = npcParent.yRotO;

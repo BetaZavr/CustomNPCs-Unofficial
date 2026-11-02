@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
+import noppes.npcs.api.event.QuestEvent;
 import noppes.npcs.api.handler.data.IDialog;
 import noppes.npcs.constants.EnumQuestRepeat;
 import noppes.npcs.constants.EnumQuestTask;
@@ -67,8 +68,8 @@ public class PlayerQuestController {
    public static void addActiveQuest(Quest quest, Player player, boolean skipBeAccepted) {
       if (player == null || quest == null || !quest.isSetUp()) { return; }
       PlayerData data = PlayerData.get(player);
-      if (skipBeAccepted || data.scriptData.getPlayer().canQuestBeAccepted(quest.id)) {
-         if (EventHooks.onQuestStarted(data.scriptData, quest)) { return; }
+      if (skipBeAccepted || data.getIPlayer().canQuestBeAccepted(quest.id)) {
+         if (EventHooks.onQuestStarted(new QuestEvent.QuestStartEvent(data.getIPlayer(), quest))) { return; }
          data.questData.activeQuests.put(quest.id, new QuestData(quest));
          Packets.send((ServerPlayer) player, new PacketAchievement(Component.translatable("quest.newquest"), Component.translatable(quest.title), 2, new CompoundTag()));
          Packets.send((ServerPlayer) player, new PacketChat(Component.translatable("quest.newquest").append(":").append(Component.translatable(quest.title))));
