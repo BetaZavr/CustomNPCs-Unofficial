@@ -6,12 +6,12 @@ import noppes.npcs.CustomItems;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.EventHooks;
+import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.ItemEvent;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.shared.common.PacketServerBasic;
 
@@ -44,13 +44,12 @@ public class SPacketPlayerLeftClicked extends PacketServerBasic {
       CustomNpcs.debugData.start("Packets");
       if (CustomNpcs.EnableScripting && !ScriptController.Instance.languages.isEmpty()) {
          ItemStack item = player.getHeldItemMainhand();
-         PlayerScriptData handler = PlayerData.get(player).scriptData;
-         PlayerEvent.AttackEvent ev = new PlayerEvent.AttackEvent(handler.getIPlayer(), 0, null);
-         EventHooks.onPlayerAttack(handler, ev);
+         IPlayer<?> iPlayer = PlayerData.get(player).getIPlayer();
+         EventHooks.onPlayerAttack(new PlayerEvent.AttackEvent(iPlayer, 0, null));
          if (item.getItem() == CustomItems.scripter_item) {
             ItemScriptedWrapper isw = ItemScripted.GetWrapper(item);
-            ItemEvent.AttackEvent eve = new ItemEvent.AttackEvent(isw, handler.getIPlayer(), 0, null);
-            EventHooks.onScriptItemAttack(isw, eve);
+            ItemEvent.AttackEvent itemEvent = new ItemEvent.AttackEvent(isw, iPlayer, 0, null);
+            EventHooks.onScriptItemAttack(isw, itemEvent);
          }
       }
       CustomNpcs.debugData.end("Packets");

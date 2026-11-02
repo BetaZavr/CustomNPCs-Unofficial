@@ -49,8 +49,8 @@ public class SubGuiNpcJobHealerSettings
 		if (!Component.translatable(lv).getString().equals(lv)) { lv = Component.translatable(lv).getFormattedText(); }
 		else { lv = "" + (healerSettings.amplifier + 1); }
 		addTextField(3, x2, guiTop + y, 45, 20, healerSettings.amplifier + 1)
-				.setMinMaxDefault(1, 4, 1)
-				.setHoverTexts("beacon.hover.power", lv);
+				.setMinMaxDefault(1, 10, healerSettings.amplifier + 1)
+				.setHoverTexts(Component.translatable("beacon.hover.power", lv));
 		y += 24;
 		addLabel(4, x0, guiTop + y + 5, "gui.time")
 				.setSize(86, 12);

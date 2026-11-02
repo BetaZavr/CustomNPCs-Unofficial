@@ -20,7 +20,7 @@ advanced.menu.hover.anim.custom=Настройки собственной ани
 advanced.menu.hover.anim.none=Нет анимаций
 advanced.menu.hover.anim.puppet=Настройка марионетки
 advanced.menu.hover.dialogs=Диалоги, которые NPC должен показать игроку
-advanced.menu.hover.faction=Назначить, какой Фракции принадлежит этот NPC
+advanced.menu.hover.faction=Назначить Фракцию, к которой этот NPC будет принадлежать
 advanced.menu.hover.job.0=Выбрать Работу этому NPC<br>§7Работа доступна всегда и выполняется постоянно (если это возможно)
 advanced.menu.hover.job.1=Запускает звук<br>§7Звук запускается в месте, где стоит NPC<br>§7Если NPC уходит, звук остаётся на месте!
 advanced.menu.hover.job.10=Строит конструкции<br>§7Требуется в близи (10 блоков) наличие блока "Строительный блок"<br>§7Строит конструкцию, настроенную в этом блоке
@@ -547,7 +547,7 @@ beacon.hover.edit=Редактировать выбранную настройк
 beacon.hover.massive=Эффект накладывать на все найденные сущности или на одну случайно
 beacon.hover.on.him.self=Способен накладывать этот эффект на себя
 beacon.hover.on.mobs=Способен накладывать этот эффект на мобов (как враждебные) и на животных (как дружелюбные)
-beacon.hover.power=Сила добавляемого эффекта<br>§7От§6 1§7, сейчас это "%s§7"
+beacon.hover.power=Сила добавляемого эффекта<br>§7От§6 1§7 до§6 10§7, сейчас это "%s§7"
 beacon.hover.speed=Скорость в тиках, как часто NPC будет накладывать эффекты<br>§7Перезарядка от§6 1§7 до§6 72000
 beacon.hover.time=Время в тиках действия наложенного эффекта
 beacon.hover.toall=<br>§e Используется только при добавлении новых эффектов
@@ -2371,6 +2371,8 @@ property.displayerrorinchat.hover=Отображать админам обнар
 property.enablechatbubbles.hover=Включить чат-пузыри от NPC
 property.enabledefaulteyes.hover=Новые NPC создаются со случайными нестандартными глазами
 property.enableforgescripting.hover=Включены ли скрипты для событий Forge или нет?
+property.enablepacketscripting.hover=Включены ли сценарии для пакетных событий или нет?
+property.enableclientscripting.hover=Включены ли скрипты для клиентских событий или нет?
 property.enableinvisiblenpcs.hover=Возможность скрыть NPC на клиентах
 property.enableplayerchatbubbles.hover=Включить чат-пузыри от игроков
 property.enablescripting.hover=Включены ли сценарии или нет
@@ -2408,7 +2410,6 @@ property.opsonly.hover=Только операторы игры могут со�
 property.questlogcolor.hover=Цвет текста для графического интерфейса квестового журнала
 property.recalculatelr.hover=Пересчитывать ли характеристики при изменении уровня и редкости в графическом интерфейсе настройки статов NPC
 property.replacecustombackground.hover=Заменить фон в ГУИ меню
-property.isfastanimationgui.hover=Анимация ГУИ мода будет быстрой
 property.resistanceboss.hover=Параметры для расчета сопротивлений NPC (0=-100%, 1=0%, 2=100% [рукопашный бой, стрела, взрыв, отбрасывание] редкость Босс)
 property.resistanceelite.hover=Параметры для расчета сопротивлений NPC (0=-100%, 1=0%, 2=100% [рукопашный бой, стрела, взрыв, отбрасывание] редкость Элитный)
 property.resistancenormal.hover=Параметры для расчета сопротивлений NPC (0=-100%, 1=0%, 2=100% [рукопашный бой, стрела, взрыв, отбрасывание] редкость Нормальный)

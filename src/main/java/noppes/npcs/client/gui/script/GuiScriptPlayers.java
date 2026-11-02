@@ -5,7 +5,7 @@ import noppes.npcs.controllers.data.PlayerScriptData;
 
 public class GuiScriptPlayers extends GuiScriptInterface {
 
-	protected final PlayerScriptData script = new PlayerScriptData(null);
+	protected final PlayerScriptData script = new PlayerScriptData();
 
 	public GuiScriptPlayers() {
 		super(4);

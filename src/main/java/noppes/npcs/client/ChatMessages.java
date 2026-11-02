@@ -19,7 +19,7 @@ import net.minecraft.entity.Entity;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.IChatMessages;
 
-public class RenderChatMessages implements IChatMessages {
+public class ChatMessages implements IChatMessages {
 
 	private final int boxLength = 46;
 	private String lastMessage = "";

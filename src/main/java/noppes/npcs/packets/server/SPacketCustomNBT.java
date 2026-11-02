@@ -9,7 +9,6 @@ import noppes.npcs.EventHooks;
 import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.shared.common.PacketServerBasic;
 
 import java.util.List;
@@ -44,8 +43,8 @@ public class SPacketCustomNBT extends PacketServerBasic {
     @Override
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
-        PlayerScriptData handler = PlayerData.get(player).scriptData;
-        EventHooks.onEvent(handler, EnumScriptType.PACKAGE_FROM, new PlayerEvent.PlayerPackage(handler.getIPlayer(), data));
+        EventHooks.onEvent(EventHooks.getPlayerHandler(), EnumScriptType.PACKAGE_FROM,
+                new PlayerEvent.PlayerPackage(PlayerData.get(player).getIPlayer(), data));
         CustomNpcs.debugData.end("Packets");
     }
 

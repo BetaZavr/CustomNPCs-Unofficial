@@ -20,6 +20,7 @@ import noppes.npcs.api.handler.data.IFaction;
 import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.interfaces.EventName;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.ContainerWrapper;
 import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.constants.EnumScriptType;
 
@@ -436,6 +437,27 @@ public class PlayerEvent extends CustomNPCsEvent {
 			command = commandIn;
 			parameters = parametersIn;
 		}
+	}
+
+	@EventName(EnumScriptType.GUI_SLOT_CHANGED)
+	public static class SlotChangedItemStackEvent extends PlayerEvent {
+
+		public final int slotIndex;
+		public final IItemStack handStack;
+		public final IContainer container;
+		public IItemStack slotStack;
+
+		public SlotChangedItemStackEvent(IPlayer<?> player, int slotIndexIn, ItemStack slotStackIn, ItemStack handStackIn, IInventory inventoryIn) {
+			super(player);
+			slotIndex = slotIndexIn;
+			slotStack = API.getIItemStack(slotStackIn);
+			handStack = API.getIItemStack(handStackIn);
+			container = new ContainerWrapper(inventoryIn);
+		}
+
+		@SuppressWarnings("unused")
+		public void setSlotStack(IItemStack slotStackIn) { slotStack = slotStackIn; }
+
 	}
 
 }

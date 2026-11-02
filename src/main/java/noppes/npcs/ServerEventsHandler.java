@@ -159,53 +159,62 @@ public class ServerEventsHandler {
 	public void cnpcEntityInteract(PlayerInteractEvent.EntityInteract event) {
 		CustomNpcs.debugData.start(event.getEntityPlayer());
 		ItemStack item = event.getEntityPlayer().getHeldItemMainhand();
-		if (!item.isEmpty() && event.getHand() == EnumHand.MAIN_HAND && !event.getEntityPlayer().world.isRemote) {
+		if (!item.isEmpty() &&
+				event.getHand() == EnumHand.MAIN_HAND &&
+				event.getEntityPlayer() instanceof EntityPlayerMP) {
 			EntityPlayerMP player = (EntityPlayerMP) event.getEntityPlayer();
+			if (item.getItem() == CustomItems.soulstoneEmpty && event.getTarget() instanceof EntityLivingBase) {
+				((ItemSoulstoneEmpty) item.getItem()).store((EntityLivingBase) event.getTarget(), item, player);
+				event.setCanceled(true);
+			}
 			if (!CustomNpcs.OpsOnly || CommonUtil.isOp(player)) {
-				if (item.getItem() == CustomItems.soulstoneEmpty && event.getTarget() instanceof EntityLivingBase) {
-					((ItemSoulstoneEmpty) item.getItem()).store((EntityLivingBase) event.getTarget(), item, player);
-					event.setCanceled(true);
-				}
-				else if (item.getItem() == CustomItems.wand) {
+				if (item.getItem() == CustomItems.wand) {
 					if (event.getTarget() instanceof EntityVillager) {
+						event.setCanceled(true);
 						if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_VILLAGER)) {
-							event.setCanceled(true);
 							NoppesUtilServer.setEditingNpc(player, null);
 							NoppesUtilServer.openContainerGui(player, EnumGuiType.MerchantAdd, (buffer) -> buffer.writeInt(event.getTarget().getEntityId()));
 						}
+						else { player.sendMessage(Component.translatable("availability.permission").getParent()); }
 					}
 					else if (event.getTarget() instanceof EntityNPCInterface) {
+						event.setCanceled(true);
 						if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_GUI)) {
-							event.setCanceled(true);
 							NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, (EntityNPCInterface) event.getTarget());
 						}
+						else { player.sendMessage(Component.translatable("availability.permission").getParent()); }
 					}
 				}
-				else if (item.getItem() == CustomItems.cloner&& !(event.getTarget() instanceof EntityPlayer)) {
-					NBTTagCompound compound = new NBTTagCompound();
-					if (event.getTarget().writeToNBTAtomically(compound)) {
-						String s = compound.getString("id");
-						if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) { compound.setString("id", CustomNpcs.MODID + ":customnpc"); }
-						PlayerData data = PlayerData.get(player);
-						ServerCloneController.Instance.cleanTags(compound);
-						Packets.send(player, new PacketGuiCloneOpen(compound));
-						data.cloned = compound;
+				else if (item.getItem() == CustomItems.cloner && !(event.getTarget() instanceof EntityPlayer)) {
+					if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_CLONE)) {
 						event.setCanceled(true);
+						NBTTagCompound compound = new NBTTagCompound();
+						if (event.getTarget().writeToNBTAtomically(compound)) {
+							String s = compound.getString("id");
+							if (s.equals("minecraft:customnpcs.customnpc") || s.equals("minecraft:customnpcs:customnpc")) { compound.setString("id", CustomNpcs.MODID + ":customnpc"); }
+							PlayerData data = PlayerData.get(player);
+							ServerCloneController.Instance.cleanTags(compound);
+							Packets.send(player, new PacketGuiCloneOpen(compound));
+							data.cloned = compound;
+						}
 					}
+					else { player.sendMessage(Component.translatable("availability.permission").getParent()); }
 				}
 				else if (item.getItem() == CustomItems.scripter && event.getTarget() instanceof EntityNPCInterface) {
-					if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_GUI)) {
-						event.setCanceled(true);
+					event.setCanceled(true);
+					if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_SCRIPTER)) {
 						NoppesUtilServer.setEditingNpc(player, (EntityNPCInterface) event.getTarget());
 						Packets.send(player, new PacketGuiOpen(EnumGuiType.Script, BlockPos.ORIGIN));
 					}
+					else { player.sendMessage(Component.translatable("availability.permission").getParent()); }
 				}
 				else if (item.getItem() == CustomItems.mount) {
+					event.setCanceled(true);
 					if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_MOUNTER)) {
-						event.setCanceled(true);
 						PlayerData.get(player).mounted = event.getTarget();
 						Packets.send(player, new PacketGuiOpen(EnumGuiType.MobSpawnerMounter, BlockPos.ORIGIN));
 					}
+					else { player.sendMessage(Component.translatable("availability.permission").getParent()); }
 				}
 			}
 		}
@@ -295,13 +304,11 @@ public class ServerEventsHandler {
 	public void cnpcCommandEvent(CommandEvent event) {
 		CustomNpcs.debugData.start(event.getSender());
 		if (event.getSender() instanceof EntityPlayer) {
-			noppes.npcs.api.event.PlayerEvent.CommandEvent ev = new noppes.npcs.api.event.PlayerEvent.CommandEvent(
+			if (EventHooks.onEvent(EventHooks.getPlayerHandler(), EnumScriptType.SEND_COMMAND, new noppes.npcs.api.event.PlayerEvent.CommandEvent(
 					(IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity((Entity) event.getSender()),
 					event.getCommand(),
 					event.getParameters()
-			);
-			EventHooks.onEvent(PlayerData.get((EntityPlayer) event.getSender()).scriptData, EnumScriptType.SEND_COMMAND, ev);
-			if (ev.isCanceled()) {
+			))) {
 				event.setCanceled(true);
 				CustomNpcs.debugData.end(event.getSender());
 				return;

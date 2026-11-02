@@ -71,8 +71,14 @@ public class ItemSoulstoneEmpty extends Item {
 	}
 
 	public boolean hasPermission(EntityLivingBase entity, EntityPlayerMP player) {
-		if ((CustomNpcs.OpsOnly && CommonUtil.isOp(player)) ||
-				CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.SOULSTONE_ALL)) { return true; }
+		if (player == null ||
+				(CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+				!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.SOULSTONE_ALL)) {
+			if (player != null) {
+				player.sendMessage(Component.translatable("availability.permission").getParent());
+			}
+			return false;
+		}
 		if (entity instanceof EntityNPCInterface) {
 			EntityNPCInterface npc = (EntityNPCInterface) entity;
 			if (npc.role instanceof RoleCompanion && ((RoleCompanion) npc.role).getOwner() == player) { return true; }

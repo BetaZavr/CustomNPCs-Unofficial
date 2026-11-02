@@ -336,7 +336,7 @@ public class CustomNpcsConfigGui extends GuiConfig {
 	public void onGuiClosed() {
 		CustomNpcs.Config.resetData();
 		CustomNpcs.Config.config.save();
-		CustomNpcs.resetChars(CustomNpcs.CharCurrencies, CustomNpcs.CharDonation);
+		CustomNpcs.resetChars();
 		super.onGuiClosed();
 	}
 

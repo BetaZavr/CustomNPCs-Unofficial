@@ -56,7 +56,6 @@ public class ScriptController {
 	public boolean shouldSave = false;
 
 	public long lastLoaded = 0L;
-	public long lastPlayerUpdate = 0L;
 	public NBTTagCompound compound = new NBTTagCompound();
 	public File dir;
 	
@@ -65,7 +64,7 @@ public class ScriptController {
 	public final Map<String, String> scripts = new TreeMap<>();
 
 	public ForgeScriptData forgeScripts = new ForgeScriptData();
-	public PlayerScriptData playerScripts = new PlayerScriptData(null);
+	public PlayerScriptData playerScripts = new PlayerScriptData();
 	public File localDir;
 
 	// New fields from Unofficial (GoodBird)
@@ -879,46 +878,39 @@ public class ScriptController {
 		Packets.send(player, new PacketSendFileList(fileList));
 	}
 
-	public void setClientScripts(NBTTagCompound compound) { clientScripts.load(compound); }
-
-	public void setNPCsScripts(NBTTagCompound compound) {
-		npcsScripts.load(compound);
-		File file = npcsScriptsFile();
-		try {
-			NBTJsonUtil.SaveFile(file, compound.copy());
-			npcsScripts.lastInited = -1L;
-		} catch (Exception e) { LogWriter.error(e); }
+	public void saveNPCsScripts() {
+		NBTTagCompound compound = new NBTTagCompound();
+		npcsScripts.save(compound);
+		npcsScripts.init();
+		try { NBTJsonUtil.SaveFile(npcsScriptsFile(), compound.copy()); } catch (Exception e) { LogWriter.error(e); }
 	}
 	
-	public void setForgeScripts(NBTTagCompound compound) {
-		forgeScripts.load(compound);
-		File file = forgeScriptsFile();
-		try {
-			Util.instance.saveFile(file, compound);
-			forgeScripts.lastInited = -1L;
-		} catch (Exception e) { LogWriter.error(e); }
+	public void saveForgeScripts() {
+		NBTTagCompound compound = new NBTTagCompound();
+		forgeScripts.save(compound);
+		forgeScripts.init();
+		try { Util.instance.saveFile(forgeScriptsFile(), compound); } catch (Exception e) { LogWriter.error(e); }
 	}
 
-	public void setPlayerScripts(NBTTagCompound compound) {
-		playerScripts.load(compound);
-		if (CustomNpcs.Server != null) {
-			for (EntityPlayerMP player : CustomNpcs.Server.getPlayerList().getPlayers()) {
-				PlayerData.get(player).scriptData.load(compound);
-			}
-		}
-		try {
-			Util.instance.saveFile(playerScriptsFile(), compound);
-			lastPlayerUpdate = System.currentTimeMillis();
-		} catch (Exception e) { LogWriter.error(e); }
+	public void savePlayerScripts() {
+		NBTTagCompound compound = new NBTTagCompound();
+		playerScripts.save(compound);
+		playerScripts.init();
+		try { Util.instance.saveFile(playerScriptsFile(), compound); } catch (Exception e) { LogWriter.error(e); }
 	}
 
-	public void setPotionScripts(NBTTagCompound compound) {
-		potionScripts.load(compound);
-		File file = potionScriptsFile();
-		try {
-			Util.instance.saveFile(file, compound);
-			potionScripts.lastInited = -1L;
-		} catch (Exception e) { LogWriter.error(e); }
+	public void saveClientScripts() {
+		NBTTagCompound compound = new NBTTagCompound();
+		clientScripts.save(compound);
+		clientScripts.init();
+		try { Util.instance.saveFile(clientScriptsFile(), compound); } catch (Exception e) { LogWriter.error(e); }
+	}
+
+	public void savePotionScripts() {
+		NBTTagCompound compound = new NBTTagCompound();
+		potionScripts.save(compound);
+		potionScripts.init();
+		try { Util.instance.saveFile(potionScriptsFile(), compound); } catch (Exception e) { LogWriter.error(e); }
 	}
 
 	// New from Unofficial (BetaZavr)

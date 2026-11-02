@@ -527,7 +527,7 @@ public class GuiLog extends GuiNPCInterface
 				case 3: stack = new ItemStack(Items.COMPASS); break;
 				default: stack = new ItemStack(Blocks.CRAFTING_TABLE); break;
 			}
-			renderStackInGUI(stack, 0, 0, 0.0f, 1.0f, null);
+			renderStackInGUI(stack, 6.0f, 8.0f, 0.0f, 1.0f, null);
 		}
 		GlStateManager.popMatrix();
 
@@ -2115,7 +2115,8 @@ public class GuiLog extends GuiNPCInterface
 	}
 
 	private void setNextTick(int time, boolean isNext) {
-		tick = (int) (time / (CustomNpcs.IsFastAnimationGUI ? 3.0f : 1.0f));
+		if (compassData == null) { compassData = PlayerData.get(player).compass; }
+		tick = (int) (time / (compassData.questLogIsFast ? 3.0f : 1.0f));
 		milliTick = tick - (isNext ? 1 : 0);
 	}
 

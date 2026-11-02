@@ -91,12 +91,12 @@ public class SPacketScriptSave extends PacketServerBasic {
             break;
          } // Item
          case 3: {
-            ScriptController.Instance.setForgeScripts(data);
+            ScriptController.Instance.forgeScripts.load(data);
             handler = ScriptController.Instance.forgeScripts;
             break;
          } // Forge
          case 4: {
-            ScriptController.Instance.setPlayerScripts(data);
+            ScriptController.Instance.playerScripts.load(data);
             handler = ScriptController.Instance.playerScripts;
             break;
          } // Player
@@ -111,19 +111,19 @@ public class SPacketScriptSave extends PacketServerBasic {
          } // Door
          case 6: {
             if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_CLIENT_SCRIPT)) {
-               ScriptController.Instance.setClientScripts(data);
+               ScriptController.Instance.clientScripts.load(data);
                handler = ScriptController.Instance.clientScripts;
             }
             else { warn(CustomNpcsPermissions.EDIT_CLIENT_SCRIPT.getNodeName()); }
             break;
          } // Client
          case 7: {
-            ScriptController.Instance.setPotionScripts(data);
+            ScriptController.Instance.potionScripts.load(data);
             handler = ScriptController.Instance.potionScripts;
             break;
          } // Potion
          case 8: {
-            ScriptController.Instance.setNPCsScripts(data);
+            ScriptController.Instance.npcsScripts.load(data);
             handler = ScriptController.Instance.npcsScripts;
             break;
          } // all NPC's

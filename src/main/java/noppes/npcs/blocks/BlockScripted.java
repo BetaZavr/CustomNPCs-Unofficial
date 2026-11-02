@@ -14,6 +14,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -22,13 +23,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import noppes.npcs.CustomItems;
-import noppes.npcs.CustomTabs;
-import noppes.npcs.EventHooks;
+import noppes.npcs.*;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.packets.server.SPacketGuiOpen;
+import noppes.npcs.shared.common.CommonUtil;
 
 import javax.annotation.Nonnull;
 
@@ -220,20 +220,27 @@ public class BlockScripted extends BlockInterface {
 	}
 
 	@Override
-	public boolean onBlockActivated(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (world.isRemote) { return false; }
-		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem.getItem() != CustomItems.wand && currentItem.getItem() != CustomItems.scripter) {
-			float x = (float)(hitX - (double)pos.getX());
-			float y = (float)(hitY - (double)pos.getY());
-			float z = (float)(hitZ - (double)pos.getZ());
-			TileScripted tile = (TileScripted) world.getTileEntity(pos);
-			return tile != null && !EventHooks.onScriptBlockInteract(tile, player, side.getIndex(), x, y, z);
-		} else {
+	public boolean onBlockActivated(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer playerIn, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
+		if (!world.isRemote && playerIn instanceof EntityPlayerMP) {
+			EntityPlayerMP player = (EntityPlayerMP) playerIn;
+			ItemStack currentItem = player.inventory.getCurrentItem();
+			if (currentItem.getItem() != CustomItems.wand && currentItem.getItem() != CustomItems.scripter) {
+				float x = (float)(hitX - (double)pos.getX());
+				float y = (float)(hitY - (double)pos.getY());
+				float z = (float)(hitZ - (double)pos.getZ());
+				TileScripted tile = (TileScripted) world.getTileEntity(pos);
+				if (tile == null) { return false; }
+				return !EventHooks.onScriptBlockInteract(tile, player, side.getIndex(), x, y, z);
+			}
+			if ((CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+					!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_SCRIPTER)) {
+				player.sendMessage(Component.translatable("availability.permission").getParent());
+				return false;
+			}
 			PlayerData.get(player).scriptBlockPos = pos;
-			SPacketGuiOpen.sendOpenGui((EntityPlayerMP) player, EnumGuiType.ScriptBlock, null, pos);
-			return true;
+			SPacketGuiOpen.sendOpenGui(player, EnumGuiType.ScriptBlock, null, pos);
 		}
+		return true;
 	}
 
 	@Override
@@ -266,8 +273,12 @@ public class BlockScripted extends BlockInterface {
 	@Override
 	public void onBlockPlacedBy(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityLivingBase entity, @Nonnull ItemStack stack) {
 		if (!world.isRemote && entity instanceof EntityPlayerMP) {
-			PlayerData.get((EntityPlayerMP) entity).scriptBlockPos = pos;
-			SPacketGuiOpen.sendOpenGui((EntityPlayerMP) entity, EnumGuiType.ScriptBlock, null, pos);
+			EntityPlayerMP player = (EntityPlayerMP) entity;
+			if ((!CustomNpcs.OpsOnly || CommonUtil.isOp(player)) &&
+					CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_SCRIPTER)) {
+				PlayerData.get((EntityPlayerMP) entity).scriptBlockPos = pos;
+				SPacketGuiOpen.sendOpenGui((EntityPlayerMP) entity, EnumGuiType.ScriptBlock, null, pos);
+			}
 		}
 	}
 

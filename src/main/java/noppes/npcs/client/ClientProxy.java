@@ -423,7 +423,6 @@ public class ClientProxy extends CommonProxy {
 				playerData.player = player;
 				playerData.playerLevel = player.experienceLevel;
 				playerData.animation = new DataAnimation(player);
-				playerData.scriptData = new PlayerScriptData(player);
 			}
 		}
 		return playerData;

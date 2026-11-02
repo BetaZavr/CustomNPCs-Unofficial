@@ -135,9 +135,9 @@ public class ClientTickHandler {
 					continue;
 				}
 				if (md.playing()) {
-					md.createClientEvent(event, mc.player, 1);
+					md.createClientEvent(mc.player, 1);
 				} else if (md.stopped()) {
-					md.createClientEvent(event, mc.player, 2);
+					md.createClientEvent(mc.player, 2);
 					it.remove();
 					if (mc.world != null && mc.getConnection() != null) { Packets.sendServer(new SPacketPlayerSound(false, md)); }
 				}

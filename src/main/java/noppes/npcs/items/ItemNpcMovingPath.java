@@ -32,6 +32,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketMenuSave;
 import noppes.npcs.packets.server.SPacketResetItemMoving;
+import noppes.npcs.shared.common.CommonUtil;
 
 public class ItemNpcMovingPath extends Item implements INPCToolItem {
 
@@ -108,58 +109,68 @@ public class ItemNpcMovingPath extends Item implements INPCToolItem {
 		}
 	}
 
-	public @Nonnull ActionResult<ItemStack> onItemRightClick(@Nonnull World world, @Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
-		ItemStack stack = player.getHeldItem(hand);
-		if (!world.isRemote &&
-				hand == EnumHand.MAIN_HAND &&
-				CustomNpcsPermissions.hasPermission((EntityPlayerMP) player, CustomNpcsPermissions.TOOL_MOUNTER)) {
+	public @Nonnull ActionResult<ItemStack> onItemRightClick(@Nonnull World world, @Nonnull EntityPlayer playerIn, @Nonnull EnumHand hand) {
+		ItemStack stack = playerIn.getHeldItem(hand);
+		if (!world.isRemote && playerIn instanceof EntityPlayerMP && hand == EnumHand.MAIN_HAND) {
+			EntityPlayerMP player = (EntityPlayerMP) playerIn;
 			EntityNPCInterface npc = getNpc(stack, world);
 			if (npc != null && (player.isSneaking() || npc.ais.getMovingType() == 2)) {
-				NoppesUtilServer.sendOpenGui((EntityPlayerMP) player, EnumGuiType.MovingPath, npc);
+				if ((CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+						!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_PATHER)) {
+					player.sendMessage(Component.translatable("availability.permission").getParent());
+					return new ActionResult<>(EnumActionResult.FAIL, stack);
+				}
+				NoppesUtilServer.sendOpenGui(player, EnumGuiType.MovingPath, npc);
 			}
-			return new ActionResult<>(EnumActionResult.SUCCESS, stack);
 		}
-		return new ActionResult<>(EnumActionResult.PASS, stack);
+		return new ActionResult<>(EnumActionResult.SUCCESS, stack);
 	}
 
-	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer player, @Nonnull World world, @Nonnull BlockPos bpos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (world.isRemote || !CustomNpcsPermissions.hasPermission((EntityPlayerMP) player, CustomNpcsPermissions.TOOL_MOUNTER) || hand != EnumHand.MAIN_HAND) {
-			if (world.isRemote) { ClientEventHandler.movingPath.clear(); }
-			return EnumActionResult.FAIL;
-		}
-		ItemStack stack = player.getHeldItem(hand);
-		EntityNPCInterface npc = getNpc(stack, world);
-		if (npc != null) {
-			List<int[]> list = npc.ais.getMovingPath();
-			int[] pos = list.get(list.size() - 1);
-			int x = bpos.getX();
-			int y = bpos.getY();
-			int z = bpos.getZ();
-			if (npc.ais.getMovingType() != 2) {
-				npc.ais.setStartPos(new BlockPos(x, y, z));
-				player.sendMessage(Component.translatable("message.pather.home",
-						((char) 167) + "6" + x, ((char) 167) + "6" + y, ((char) 167) + "6" + z,
-						npc.getName()).getParent());
+	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer playerIn, @Nonnull World world, @Nonnull BlockPos bpos,
+											   @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
+		if (world.isRemote) { ClientEventHandler.movingPath.clear(); }
+		else if (playerIn instanceof EntityPlayerMP &&
+				hand == EnumHand.MAIN_HAND) {
+			EntityPlayerMP player = (EntityPlayerMP) playerIn;
+			if ((CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+					!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_PATHER)) {
+				player.sendMessage(Component.translatable("availability.permission").getParent());
+				return EnumActionResult.FAIL;
 			}
-			else {
-				boolean added = true;
-				if (!list.isEmpty()) {
-					int[] p = list.get(list.size() - 1);
-					added = !(p[0] == x && p[1] == y && p[2] == z);
-				}
-				if (added) {
-					list.add(new int[] { x, y, z });
-					player.sendMessage(Component.translatable("message.pather.added",
+			ItemStack stack = player.getHeldItem(hand);
+			EntityNPCInterface npc = getNpc(stack, world);
+			if (npc != null) {
+				List<int[]> list = npc.ais.getMovingPath();
+				int[] pos = list.get(list.size() - 1);
+				int x = bpos.getX();
+				int y = bpos.getY();
+				int z = bpos.getZ();
+				if (npc.ais.getMovingType() != 2) {
+					npc.ais.setStartPos(new BlockPos(x, y, z));
+					player.sendMessage(Component.translatable("message.pather.home",
 							((char) 167) + "6" + x, ((char) 167) + "6" + y, ((char) 167) + "6" + z,
 							npc.getName()).getParent());
-					double d0 = x - pos[0];
-					double d1 = y - pos[1];
-					double d2 = z - pos[2];
-					double distance = Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
-					if (distance > CustomNpcs.NpcNavRange) {
-						player.sendMessage(Component.translatable("message.pather.warn.added", ((char) 167) + "6" + CustomNpcs.NpcNavRange).getParent());
+				}
+				else {
+					boolean added = true;
+					if (!list.isEmpty()) {
+						int[] p = list.get(list.size() - 1);
+						added = !(p[0] == x && p[1] == y && p[2] == z);
 					}
-					Packets.send((EntityPlayerMP) player, new PacketMenuSave(npc, EnumMenuType.AI));
+					if (added) {
+						list.add(new int[] { x, y, z });
+						player.sendMessage(Component.translatable("message.pather.added",
+								((char) 167) + "6" + x, ((char) 167) + "6" + y, ((char) 167) + "6" + z,
+								npc.getName()).getParent());
+						double d0 = x - pos[0];
+						double d1 = y - pos[1];
+						double d2 = z - pos[2];
+						double distance = Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+						if (distance > CustomNpcs.NpcNavRange) {
+							player.sendMessage(Component.translatable("message.pather.warn.added", ((char) 167) + "6" + CustomNpcs.NpcNavRange).getParent());
+						}
+						Packets.send(player, new PacketMenuSave(npc, EnumMenuType.AI));
+					}
 				}
 			}
 		}

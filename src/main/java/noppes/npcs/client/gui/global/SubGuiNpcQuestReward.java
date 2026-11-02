@@ -22,7 +22,7 @@ import java.util.*;
 // Changed by Unofficial (BetaZavr)
 public class SubGuiNpcQuestReward extends GuiBasic implements ITextfieldListener, ICustomScrollListener {
 
-	protected final Map<Component, DropSet> data = new HashMap<>();
+	protected final Map<Component, DropSet> data = new LinkedHashMap<>();
 	protected final Quest quest;
 	protected GuiCustomScrollNop scroll;
 

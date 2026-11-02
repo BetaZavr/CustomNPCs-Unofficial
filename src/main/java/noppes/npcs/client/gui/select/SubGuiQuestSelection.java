@@ -53,18 +53,21 @@ public class SubGuiQuestSelection extends GuiBasic implements ICustomScrollListe
 			categoryData.put(Component.translatable(category.title), category);
 		}
 		questData.clear();
-		for (QuestCategory category : QuestController.instance.categories.values()) {
-			categoryData.put(Component.translatable(category.title), category);
+		if (categoryData.containsKey(selectedCategory)) {
+			QuestCategory category = categoryData.get(selectedCategory);
+			if (category != null) {
+				for (Quest quest : category.quests.values()) { questData.put(Component.translatable(quest.title), quest); }
+			}
 		}
 		if (scrollCategories == null) { scrollCategories = addScroll(0).setSize(170, 200); }
 		scrollCategories.setNormalList(Lists.newArrayList(categoryData.keySet()));
-        scrollCategories.setSelected(selectedCategory);
-        add(scrollCategories.setPos(guiLeft + 4, guiTop + 14));
+		scrollCategories.setSelected(selectedCategory);
+		add(scrollCategories.setPos(guiLeft + 4, guiTop + 14));
 
 		if (scrollQuests == null) { scrollQuests = addScroll(1).setSize(170, 200); }
 		scrollQuests.setNormalList(Lists.newArrayList(questData.keySet()));
-        scrollQuests.setSelected(selectedQuest);
-        add(scrollQuests.setPos(guiLeft + 175, guiTop + 14));
+		scrollQuests.setSelected(selectedQuest);
+		add(scrollQuests.setPos(guiLeft + 175, guiTop + 14));
 	}
 
 	@Override

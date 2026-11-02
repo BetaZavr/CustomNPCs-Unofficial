@@ -1,7 +1,6 @@
 package noppes.npcs.items;
 
 import java.util.List;
-import java.util.Objects;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -26,6 +26,7 @@ import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.shared.common.CommonUtil;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
 
@@ -59,17 +60,23 @@ public class ItemNpcWand extends Item implements INPCToolItem {
 
 	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer playerIn, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand,
 											   @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (world.isRemote) { return EnumActionResult.SUCCESS; }
-		EntityPlayerMP player = (EntityPlayerMP) playerIn;
-		if (CustomNpcs.OpsOnly && !Objects.requireNonNull(player.getServer()).getPlayerList().canSendCommands(player.getGameProfile())) {
-			player.sendMessage(new TextComponentTranslation("availability.permission"));
-		}
-		else if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_CREATE)) {
+		if (!world.isRemote && playerIn instanceof EntityPlayerMP) {
+			EntityPlayerMP player = (EntityPlayerMP) playerIn;
+			if (CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) {
+				player.sendMessage(Component.translatable("availability.permission").getParent());
+				return EnumActionResult.FAIL;
+			}
 			Entity rayTraceEntity = Util.instance.getLookEntity(player, 4.0d, false);
 			if (rayTraceEntity instanceof EntityNPCInterface) {
-				if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_GUI)) {
-					NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, (EntityNPCInterface) rayTraceEntity);
+				if (!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_GUI)) {
+					player.sendMessage(Component.translatable("availability.permission").getParent());
+					return EnumActionResult.FAIL;
 				}
+				NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, (EntityNPCInterface) rayTraceEntity);
+				return EnumActionResult.SUCCESS;
+			}
+			if (!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_CREATE)) {
+				player.sendMessage(Component.translatable("availability.permission").getParent());
 				return EnumActionResult.FAIL;
 			}
 			// create new
@@ -79,8 +86,6 @@ public class ItemNpcWand extends Item implements INPCToolItem {
 			world.spawnEntity(npc);
 			npc.setHealth(npc.getMaxHealth());
 			CustomNPCsScheduler.runTack(() -> NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, npc), 100);
-		} else {
-			player.sendMessage(new TextComponentTranslation("availability.permission"));
 		}
 		return EnumActionResult.SUCCESS;
 	}

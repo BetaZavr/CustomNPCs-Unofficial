@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
+import noppes.npcs.api.event.QuestEvent;
 import noppes.npcs.api.handler.data.IPlayerData;
 import noppes.npcs.constants.EnumQuestCompletion;
 import noppes.npcs.constants.EnumQuestRepeat;
@@ -109,7 +110,7 @@ public class PlayerQuestData implements IPlayerData {
 			}
 			data.isCompleted = true;
 			updateClient = true;
-			EventHooks.onQuestFinished(PlayerData.get(player).scriptData, data.quest);
+			EventHooks.onQuestFinished(new QuestEvent.QuestCompletedEvent(PlayerData.get(player).getIPlayer(), data.quest));
 			return true;
 		}
 		return false;

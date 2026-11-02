@@ -546,7 +546,7 @@ beacon.hover.edit=Edit the selected effect overlay setting
 beacon.hover.massive=Apply the effect to all entities found or to one at random
 beacon.hover.on.him.self=Able to superimpose this effect on himself
 beacon.hover.on.mobs=Able to cast this effect on mobs (as hostile) and animals (as friendly)
-beacon.hover.power=The strength of the added effect<br>§7From§6 1§7, it is now "%s§7"
+beacon.hover.power=The strength of the added effect<br>§7From§6 1§7 to§6 10§7, it is now "%s§7"
 beacon.hover.speed=Speed in ticks, how often the NPC will apply effects<br>§7Recharge from§6 1§7 to§6 72000
 beacon.hover.time=Time in ticks of the applied effect
 beacon.hover.toall=<br>§e Enabled only when adding new effects
@@ -2384,7 +2384,9 @@ property.disablepermissions.hover=If you are using Sponge and want to disable pe
 property.displayerrorinchat.hover=Display detected errors and logs from scripts in chat to admins
 property.enablechatbubbles.hover=Enable NPC chat bubbles
 property.enabledefaulteyes.hover=New NPCs are spawned with random custom eyes
-property.enableforgescripting.hover=Are scripts enabled for Forge events or not
+property.enableforgescripting.hover=Are scripts for Forge events enabled or not?
+property.enablepacketscripting.hover=Are scripts for packets events enabled or not?
+property.enableclientscripting.hover=Are scripts for client events enabled or not?
 property.enableinvisiblenpcs.hover=Ability to hide NPCs on clients
 property.enableplayerchatbubbles.hover=Enable player chat bubbles
 property.enablescripting.hover=Whether scripting is enabled or not
@@ -2422,7 +2424,6 @@ property.opsonly.hover=Only game operators can create and edit NPCs
 property.questlogcolor.hover=Text color for the quest log GUI
 property.recalculatelr.hover=Whether to recalculate characteristics when changing level and rarity in the NPC stat settings GUI
 property.replacecustombackground.hover=Replace the background in the GUI menu
-property.isfastanimationgui.hover=Animation of the GUI mod will be fast
 property.resistanceboss.hover=Parameters for calculating NPC resistances (0=-100%, 1=0%, 2=100% [melee, arrow, explosion, knockback] Boss rarity)
 property.resistanceelite.hover=Parameters for calculating NPC resistances (0=-100%, 1=0%, 2=100% [melee, arrow, explosion, knockback] Elite rarity)
 property.resistancenormal.hover=Parameters for calculating NPC resistances (0=-100%, 1=0%, 2=100% [melee, arrow, explosion, knockback] rarity Normal)

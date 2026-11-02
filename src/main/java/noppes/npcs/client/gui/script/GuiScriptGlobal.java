@@ -25,28 +25,11 @@ public class GuiScriptGlobal extends GuiNPCInterface {
 			GuiButtonNop button = addButton(i, guiLeft + 38, guiTop + 20 + i * 30, Component.empty())
 					.setSize(100, 20);
 			switch (i) {
-				case 1:
-					button.setHoverTexts("script.hover.npcs");
-					button.setIsEnabled(false)
-							.setDisplayText("NPC");
-					break;
-				case 2:
-					button.setHoverTexts("script.hover.forge")
-							.setDisplayText("Forge");
-					break;
-				case 3:
-					button.setHoverTexts("script.hover.potion")
-							.setIsEnabled(false)
-							.setDisplayText("gui.help.potions");
-					break;
-				case 4:
-					button.setHoverTexts("script.hover.client")
-							.setDisplayText("gui.client");
-					break;
-				default:
-					button.setHoverTexts("script.hover.players")
-							.setDisplayText("playerdata.players");
-					break;
+				case 1: button.setHoverTexts("script.hover.npcs");button.setDisplayText("NPC"); break;
+				case 2: button.setHoverTexts("script.hover.forge").setDisplayText("Forge"); break;
+				case 3: button.setHoverTexts("script.hover.potion").setDisplayText("gui.help.potions"); break;
+				case 4: button.setHoverTexts("script.hover.client").setDisplayText("gui.client"); break;
+				default: button.setHoverTexts("script.hover.players").setDisplayText("playerdata.players"); break;
 			}
 		}
 	}

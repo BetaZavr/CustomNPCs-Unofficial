@@ -57,7 +57,7 @@ public class ContainerCustomChest extends ContainerNpcInterface {
 		super.onContainerClosed(player);
 		if (!player.world.isRemote) {
 			PlayerData data = PlayerData.get(player);
-			CustomContainerEvent.CloseEvent event = new CustomContainerEvent.CloseEvent(data.scriptData.getIPlayer(),
+			CustomContainerEvent.CloseEvent event = new CustomContainerEvent.CloseEvent(data.getIPlayer(),
 					this.container);
 			EventHooks.onCustomChestClosed(event);
 		}
@@ -82,7 +82,7 @@ public class ContainerCustomChest extends ContainerNpcInterface {
 		IItemStack item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(slot.getStack());
 		IItemStack heldItem = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(player.inventory.getItemStack());
 		CustomContainerEvent.SlotClickedEvent event = new CustomContainerEvent.SlotClickedEvent(
-				data.scriptData.getIPlayer(), this.container, slotId, item, heldItem);
+				data.getIPlayer(), this.container, slotId, item, heldItem);
 		EventHooks.onCustomChestClicked(event);
 		player.inventory.setItemStack((event.heldItem == null) ? ItemStack.EMPTY : event.heldItem.getMCItemStack());
 		((EntityPlayerMP) player).updateHeldItem();

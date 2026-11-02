@@ -4,6 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.scripts.IScriptHandler;
 import noppes.npcs.controllers.scripts.ScriptContainer;
 import noppes.npcs.shared.common.PacketServerBasic;
@@ -21,15 +22,17 @@ public class SPacketScriptText extends PacketServerBasic {
 
     private int type;
     private int tab;
+    private int maxTab;
     private int id;
     private int maxIDs;
     private String part;
 
     public SPacketScriptText() { }
 
-    public SPacketScriptText(int typeIn, int tabIn, int idIn, int maxIDsIn, String partIn) {
+    public SPacketScriptText(int typeIn, int tabIn, int maxTabIn, int idIn, int maxIDsIn, String partIn) {
         type = typeIn;
         tab = tabIn;
+        maxTab = maxTabIn;
         id = idIn;
         maxIDs = maxIDsIn;
         part = partIn;
@@ -48,6 +51,7 @@ public class SPacketScriptText extends PacketServerBasic {
     public void encode(FriendlyByteBuf buf) {
         buf.writeInt(type);
         buf.writeInt(tab);
+        buf.writeInt(maxTab);
         buf.writeInt(id);
         buf.writeInt(maxIDs);
         buf.writeUtf(part);
@@ -57,6 +61,7 @@ public class SPacketScriptText extends PacketServerBasic {
     public void decode(FriendlyByteBuf buf) {
         type = buf.readInt();
         tab = buf.readInt();
+        maxTab = buf.readInt();
         id = buf.readInt();
         maxIDs = buf.readInt();
         part = buf.readUtf();
@@ -68,9 +73,8 @@ public class SPacketScriptText extends PacketServerBasic {
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
         if (handlers.containsKey(type)) {
-            if (type == 6 && !CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_CLIENT_SCRIPT)) {
-                warn(CustomNpcsPermissions.EDIT_CLIENT_SCRIPT.getNodeName());
-            } else {
+            if (type == 6 && !CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_CLIENT_SCRIPT)) { warn(CustomNpcsPermissions.EDIT_CLIENT_SCRIPT.getNodeName()); }
+            else {
                 IScriptHandler handler = handlers.get(type);
                 if (!data.containsKey(tab)) { data.put(tab, new String[maxIDs]); }
                 data.get(tab)[id] = part;
@@ -88,6 +92,17 @@ public class SPacketScriptText extends PacketServerBasic {
                     if (container != null) {
                         container.script = total.toString();
                         handler.init();
+                    }
+                    if (tab == maxTab) {
+                        if (handler == ScriptController.Instance.forgeScripts) { ScriptController.Instance.saveForgeScripts(); }
+                        else if (handler == ScriptController.Instance.playerScripts) { ScriptController.Instance.savePlayerScripts(); }
+                        else if (handler == ScriptController.Instance.npcsScripts) { ScriptController.Instance.saveNPCsScripts(); }
+                        else if (handler == ScriptController.Instance.potionScripts) { ScriptController.Instance.savePotionScripts(); }
+                        else if (handler== ScriptController.Instance.clientScripts) {
+                            if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_CLIENT_SCRIPT)) {
+                                ScriptController.Instance.saveClientScripts();
+                            }
+                        }
                     }
                     data.remove(tab);
                 }

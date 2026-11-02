@@ -3,6 +3,7 @@ package noppes.npcs.mixin.network;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.*;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.api.event.PackageReceived;
 import org.spongepowered.asm.mixin.Final;
@@ -35,7 +36,8 @@ public class NetworkManagerMixin {
      */
     @Inject(method = "channelRead0*", at = @At("HEAD"), cancellable = true)
     private void npcs$channelRead0(ChannelHandlerContext context, Packet<INetHandler> packet, CallbackInfo ci) {
-        if (channel.isOpen() && !npcs$notAllowed.contains(packet.getClass().getSimpleName())) {
+        if (CustomNpcs.EnableScripting && CustomNpcs.EnablePacketScripting &&
+                channel.isOpen() && !npcs$notAllowed.contains(packet.getClass().getSimpleName())) {
             PackageReceived event = new PackageReceived(packet);
             EventHooks.onPackageReceived(event, direction == EnumPacketDirection.SERVERBOUND);
             if (event.isCanceled()) { ci.cancel(); }

@@ -26,7 +26,7 @@ public class CustomParticleEvent extends CustomNPCsEvent {
 		super();
 		particle = particleIn;
 		name = nameIn;
-		player = PlayerData.get(Minecraft.getMinecraft().player).scriptData.getIPlayer();
+		player = PlayerData.get(Minecraft.getMinecraft().player).getIPlayer();
 	}
 
 	@EventFunction(CREATE)

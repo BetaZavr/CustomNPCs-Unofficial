@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.EventHooks;
+import noppes.npcs.api.event.QuestEvent;
 import noppes.npcs.controllers.PlayerQuestController;
 import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.PlayerData;
@@ -49,8 +50,8 @@ public class SPacketQuestRemoveActive extends PacketServerBasic {
         Quest quest = QuestController.instance.get(questId);
         if (quest != null) {
             PlayerData data = PlayerData.get(player);
-            boolean bo = EventHooks.onQuestCanceled(data.scriptData, quest);
-            if (!bo && PlayerQuestController.getRemoveActiveQuest(player, questId)) {
+            if (!EventHooks.onQuestCanceled(new QuestEvent.QuestCanceledEvent(data.getIPlayer(), quest)) &&
+                    PlayerQuestController.getRemoveActiveQuest(player, questId)) {
                 player.sendMessage(Component.translatable("quest.removequest", quest.getTitle()).getParent());
                 Packets.send(player, new PacketGuiUpdate());
             }

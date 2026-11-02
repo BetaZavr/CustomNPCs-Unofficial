@@ -164,6 +164,10 @@ public class CustomNpcs {
 	public static String FuzzyMatchRules = "tacz:modern_kinetic_gun|GunId;slashblade:slashblade|";
 
 	// New from Unofficial (BetaZavr)
+	@ConfigProp(info = "Are scripts enabled for Packet events or not", def = "false")
+	public static boolean EnablePacketScripting = false;
+	@ConfigProp(info = "Are scripts enabled for Client events or not", def = "false")
+	public static boolean EnableClientScripting = false;
 	@ConfigProp(info = "Are scripts enabled for Forge events or not", def = "true")
 	public static boolean EnableForgeScripting = true;
 	@ConfigProp(info = "Currency symbol displayed in stores (unicode)", def = "20AC")
@@ -240,8 +244,6 @@ public class CustomNpcs {
 	public static int MaxBuilderBlocks = 10000;
 	@ConfigProp(info = "Maximum number of items in one Drop group", def = "32", min = "1", max = "64")
 	public static int MaxItemInDropsNPC = 32;
-	@ConfigProp(info = "Cancel the creation of variables in each Forge event (saves FPS)", def = "false")
-	public static boolean SimplifiedForgeEvents = false;
 	@ConfigProp(info = "Summon a new NPC with random custom eyes", def = "true")
 	public static boolean EnableDefaultEyes = true;
 	@ConfigProp(info = "Time in real days when the letter will be deleted from the player (-1 = never, at least 1 day, max 60)", def = "30")
@@ -286,8 +288,6 @@ public class CustomNpcs {
 	public static boolean ReplaceCustomBackground = true;
 	@ConfigProp(info = "Commission for transferring coins between players through a team", def = "5", min = "0", max = "500")
 	public static int CoinCommission = 5;
-	@ConfigProp(info = "The animation of the GUI mod will be fast", def = "false", type = "client")
-	public static boolean IsFastAnimationGUI = false;
 
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;
@@ -536,11 +536,13 @@ public class CustomNpcs {
 		debugData.end("Mod");
 	}
 
-	public static void resetChars(String currencies, String donations) {
-		try { displayCurrencies = "" + ((char) Integer.parseInt(currencies, 16)); }
-		catch (Exception e) { displayCurrencies = "" + currencies.charAt(0); }
-		try { displayDonation = "" + ((char) Integer.parseInt(donations, 16)); }
-		catch (Exception e) { displayDonation = "" + donations.charAt(0); }
+	public static void resetChars() {
+		if (CharCurrencies == null || CharCurrencies.isEmpty()) { CharCurrencies = "20AC"; }
+		if (CharDonation == null || CharDonation.isEmpty()) { CharDonation = "20B1"; }
+		try { displayCurrencies = "" + ((char) Integer.parseInt(CharCurrencies, 16)); }
+		catch (Exception e) { displayCurrencies = "" + CharCurrencies.charAt(0); }
+		try { displayDonation = "" + ((char) Integer.parseInt(CharDonation, 16)); }
+		catch (Exception e) { displayDonation = "" + CharDonation.charAt(0); }
 	}
 
 }

@@ -106,8 +106,8 @@ public class CustomNpcsPermissions {
 		if (permission == null) { return true; }
 		if (CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) { return false; }
 		return CustomNpcs.DisablePermissions ?
-				PermissionAPI.hasPermission(player, permission.name) :
-				inData(permission.name, player);
+				PermissionAPI.hasPermission(player, ADMIN.name) || PermissionAPI.hasPermission(player, permission.name) :
+				inData(ADMIN.name, player) || inData(permission.name, player);
 	}
 
 	public static boolean hasPermission(EntityPlayerMP player, String permission) {

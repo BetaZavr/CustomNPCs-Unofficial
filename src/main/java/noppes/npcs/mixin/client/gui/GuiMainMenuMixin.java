@@ -35,7 +35,7 @@ public abstract class GuiMainMenuMixin extends GuiScreen {
 
     @Inject(method = "initGui", at = @At("TAIL"))
     public void npcs$initGui(CallbackInfo ci) {
-        CustomNpcs.resetChars(CustomNpcs.CharCurrencies, CustomNpcs.CharDonation);
+        CustomNpcs.resetChars();
         if (CustomNpcs.ReplaceCustomBackground && CustomNpcs.ShowButtonsInGuiMenu) {
             buttonList.add(new GuiButton(150, 3, 3, 20, 20, cnpc$names.get(cnpc$variant)));
         }

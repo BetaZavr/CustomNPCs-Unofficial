@@ -65,13 +65,12 @@ public class SPacketPlayerMailDelete extends PacketServerBasic {
             break;
          } // delete specific
          case 1: {
-            long serverTime = System.currentTimeMillis();
-            mailData.playerMails.removeIf(mail -> serverTime - mail.timeWhenReceived - mail.timeWillCome < 0L);
+            mailData.playerMails.removeIf(mail -> mail.beenRead);
             Packets.send(player, new PacketSyncUpdate(0, 12, mailData.save(new NBTTagCompound())));
             break;
          } // delete all only read letters
          default: {
-            mailData.playerMails.removeIf(mail -> mail.beenRead);
+            mailData.playerMails.clear();
             Packets.send(player, new PacketSyncUpdate(0, 12, mailData.save(new NBTTagCompound())));
             break;
          } // delete all letters

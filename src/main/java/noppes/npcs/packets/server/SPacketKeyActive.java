@@ -5,9 +5,14 @@ import net.minecraft.network.FriendlyByteBuf;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.EventHooks;
+import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.event.PlayerEvent;
+import noppes.npcs.api.handler.data.IKeySetting;
+import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.shared.common.PacketServerBasic;
 
 import java.util.List;
+import java.util.Objects;
 
 public class SPacketKeyActive extends PacketServerBasic {
 
@@ -39,7 +44,10 @@ public class SPacketKeyActive extends PacketServerBasic {
     @Override
     public void handle() {
         CustomNpcs.debugData.start("Packets");
-        EventHooks.onPlayerKeyActive(player, id);
+        IKeySetting kb = Objects.requireNonNull(NpcAPI.Instance()).getIKeyBinding().getKeySetting(id);
+        if (kb != null) {
+            EventHooks.onPlayerKeyActive(new PlayerEvent.KeyActive(PlayerData.get(player).getIPlayer(), kb));
+        }
         CustomNpcs.debugData.end("Packets");
     }
 

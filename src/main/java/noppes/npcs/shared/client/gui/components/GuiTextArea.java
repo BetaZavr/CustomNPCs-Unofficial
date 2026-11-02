@@ -170,7 +170,7 @@ public class GuiTextArea
                             posX = font.width(line.substring(0, m.start()));
                             e = font.width(line.substring(0, m.end())) + 1;
                             int posY = y + 1 + (i - scrolledLine) * container.lineHeight;
-                            drawRect(x + 1 + posX, posY, x + 1 + e, posY + container.lineHeight + 1, -1728033792);
+                            drawRect(x + 1 + posX, posY + 1, x + 1 + e, posY + container.lineHeight + 1, 0x99004C00);
                         }
                     }
                 }
@@ -178,13 +178,13 @@ public class GuiTextArea
                     yPos = font.width(line.substring(0, Math.max(startSelection - data.start, 0)));
                     posX = font.width(line.substring(0, Math.min(endSelection - data.start, w))) + 1;
                     e = y + 1 + (i - scrolledLine) * container.lineHeight;
-                    drawRect(x + 1 + yPos, e, x + 1 + posX, e + container.lineHeight + 1, -1728052993);
+                    drawRect(x + 1 + yPos, e + 1, x + 1 + posX, e + container.lineHeight + 1, -1728052993);
                 }
                 yPos = y + (i - scrolledLine) * container.lineHeight + 1;
                 font.draw(data.getFormattedString(container.makeup), (float)(x + 1), (float) yPos, packedFGColor);
                 if (active && isEnabled() && cursorCounter / 6 % 2 == 0 && cursorPosition >= data.start && cursorPosition < data.end) {
                     posX = x + font.width(line.substring(0, cursorPosition - data.start));
-                    drawRect(posX + 1, yPos, posX + 2, yPos + 1 + container.lineHeight, -3092272);
+                    drawRect(posX + 1, yPos + 1, posX + 2, yPos + 1 + container.lineHeight, -3092272);
                 }
             }
         }
@@ -198,11 +198,16 @@ public class GuiTextArea
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             drawRect(posX2, posY3, posX2 + 5, posY3 + sbSize, 0xFFE0E0E0);
         }
-        String tr = Component.translatable(text).getString();
-        if (isYDE && isHovered && !Util.instance.equalsDeleteColor(text, tr, false)) {
-            if (tr.length() > 200) { tr = tr.substring(0, 200) + "..."; }
-            hoverText.clear();
-            for (String line : tr.split("\n")) { hoverText.add(Component.literal(line)); }
+        if (isYDE && isHovered && text != null && !text.isEmpty()) {
+            try {
+                String tr = Component.translatable(text).getString();
+                if (!Util.instance.equalsDeleteColor(text, tr, false)) {
+                    if (tr.length() > 200) { tr = tr.substring(0, 200) + "..."; }
+                    hoverText.clear();
+                    for (String line : tr.split("\n")) { hoverText.add(Component.literal(line)); }
+                }
+            }
+            catch (Exception ignored) { }
         }
         if (listener != null && isHovered && !hoverText.isEmpty()) {
             listener.setHoverText(hoverText);

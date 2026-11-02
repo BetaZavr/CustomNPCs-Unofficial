@@ -308,14 +308,14 @@ public class Client {
             EntityNPCInterface npc = (EntityNPCInterface) entity;
             String text = NoppesStringUtils.formatText(msg.message.getFormattedText(), msg.player, npc);
             if (CustomNpcs.EnableChatBubbles) {
-                if (npc.messages == null) { npc.messages = new RenderChatMessages(); }
+                if (npc.messages == null) { npc.messages = new ChatMessages(); }
                 npc.messages.addMessage(text, npc);
             }
             if (msg.showMessage) { msg.player.sendMessage(new TextComponentString(npc.getName() + ": " + text)); }
         }
         else if (CustomNpcs.EnablePlayerChatBubbles && entity instanceof EntityPlayer) {
             EntityPlayer pl = (EntityPlayer) entity;
-            if (!ClientEventHandler.chatMessages.containsKey(pl)) { ClientEventHandler.chatMessages.put(pl, new RenderChatMessages()); }
+            if (!ClientEventHandler.chatMessages.containsKey(pl)) { ClientEventHandler.chatMessages.put(pl, new ChatMessages()); }
             ClientEventHandler.chatMessages.get(pl).addMessage(msg.message.getFormattedText(), pl);
         }
     }
@@ -960,7 +960,7 @@ public class Client {
 
     private static void packetClientScripts(PacketClientScripts msg) {
         ScriptController.HasStart = true;
-        ScriptController.Instance.setClientScripts(msg.compound);
+        ScriptController.Instance.clientScripts.load(msg.compound);
     }
 
     private static void packetSendFileList(PacketSendFileList msg) {
@@ -1141,9 +1141,7 @@ public class Client {
             total.append(str);
         }
         if (done) {
-            if (minecraft.currentScreen instanceof GuiScriptInterface) {
-                ((GuiScriptInterface) minecraft.currentScreen).setTabScript(msg.tab, total.toString());
-            }
+            if (minecraft.currentScreen instanceof GuiScriptInterface) { ((GuiScriptInterface) minecraft.currentScreen).setTabScript(msg.tab, total.toString()); }
             if (msg.isSetClient) {
                 ScriptContainer container = ScriptController.Instance.clientScripts.getScripts().get(msg.tab);
                 if (container != null) {
@@ -1197,7 +1195,7 @@ public class Client {
 
     private static void packetCustomNBT(PacketCustomNBT msg) {
         EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.PACKAGE_FROM,
-                new PlayerEvent.PlayerPackage(PlayerData.get(msg.player).scriptData.getIPlayer(), msg.data));
+                new PlayerEvent.PlayerPackage(PlayerData.get(msg.player).getIPlayer(), msg.data));
     }
 
     private static void packetStopSound(PacketStopSound msg) {

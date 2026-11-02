@@ -36,7 +36,6 @@ import net.minecraftforge.client.event.sound.PlaySoundSourceEvent;
 import net.minecraftforge.client.event.sound.PlayStreamingSourceEvent;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.IFluidBlock;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import noppes.npcs.api.constants.AnimationKind;
@@ -126,7 +125,7 @@ public class ClientEventHandler extends Gui {
 
 	protected static final ResourceLocation[] BORDER = new ResourceLocation[16];
 	public static final ResourceLocation[] COMPASS_ICONS = new ResourceLocation[32];
-	public static final Map<EntityPlayer, RenderChatMessages> chatMessages = new HashMap<>();
+	public static final Map<EntityPlayer, ChatMessages> chatMessages = new HashMap<>();
 
 	static {
 		for (int i = 0; i < 16; i++) {
@@ -566,14 +565,14 @@ public class ClientEventHandler extends Gui {
 	@SubscribeEvent
 	public void cnpcPlaySoundSource(PlaySoundSourceEvent event) {
 		CustomNpcs.debugData.start("Players");
-		processSoundPlay(event, event.getSound(), event.getUuid());
+		processSoundPlay(event.getSound(), event.getUuid());
 		CustomNpcs.debugData.end("Players");
 	}
 
 	@SubscribeEvent
 	public void cnpcPlayStreamingSource(PlayStreamingSourceEvent event) {
 		CustomNpcs.debugData.start("Players");
-		processSoundPlay(event, event.getSound(), event.getUuid());
+		processSoundPlay(event.getSound(), event.getUuid());
 		CustomNpcs.debugData.end("Players");
 	}
 
@@ -655,7 +654,7 @@ public class ClientEventHandler extends Gui {
 			data.uuid = mc.player.getUniqueID().toString();
 			miniMapLoaded = false;
 			updateMiniMaps(true);
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGIN, new PlayerEvent.LoginEvent(data.scriptData.getIPlayer()));
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.LOGIN, new PlayerEvent.LoginEvent(data.getIPlayer()));
 			CustomNpcsLangPack.check();
 			LogWriter.debug("Client Player: Start game");
 		}
@@ -869,14 +868,14 @@ public class ClientEventHandler extends Gui {
 		return x <= 16.0 && z <= 16.0;
 	}
 
-	private void processSoundPlay(Event event, ISound sound, String uuid) {
+	private void processSoundPlay(ISound sound, String uuid) {
 		if (sound == null) { return; }
 		mc = Minecraft.getMinecraft();
 		try {
 			if (mc.world != null && mc.getConnection() != null) {
 				MusicData md = new MusicData(sound, uuid, ((ISoundHandlerMixin) mc.getSoundHandler()).getSndManager());
 				ClientTickHandler.musics.add(md);
-				md.createClientEvent(event, mc.player, 0);
+				md.createClientEvent(mc.player, 0);
 				Packets.sendServer(new SPacketPlayerSound(true, md));
 			}
 		}

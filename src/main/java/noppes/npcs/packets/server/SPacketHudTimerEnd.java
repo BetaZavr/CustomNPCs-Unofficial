@@ -5,6 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.EventHooks;
+import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.shared.common.PacketServerBasic;
 
@@ -51,7 +52,7 @@ public class SPacketHudTimerEnd extends PacketServerBasic {
     protected void handle() {
         CustomNpcs.debugData.start("Packets");
         PlayerData data = PlayerData.get(player);
-        EventHooks.onPlayerTimer(data, timerId);
+        EventHooks.onPlayerTimer(new PlayerEvent.TimerEvent(data.getIPlayer(), timerId));
         CustomNpcs.debugData.end("Packets");
     }
 

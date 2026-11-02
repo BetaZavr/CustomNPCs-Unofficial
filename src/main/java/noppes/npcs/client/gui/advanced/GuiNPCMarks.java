@@ -77,17 +77,17 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ICustomScrollListen
 					}
 				}));
 				break;
-			}
+			} // color
 			case 2: setSubGui(new SubGuiNpcAvailability(selectedMark.availability, parent)); break;
 			case 3: {
-				MarkData.Mark newark = data.addMark(selectedMark.getType());
-				newark.color = selectedMark.color;
-				newark.rotate = selectedMark.rotate;
-				newark.availability.load(selectedMark.availability.save(new NBTTagCompound()));
-				selectedMark = newark;
+				MarkData.Mark newMark = data.addMark(selectedMark.getType());
+				newMark.color = selectedMark.color;
+				newMark.rotate = selectedMark.rotate;
+				newMark.availability.load(selectedMark.availability.save(new NBTTagCompound()));
+				selectedMark = newMark;
 				initGui();
 				break;
-			}
+			} // add mark
 			case 4: {
 				if (!scroll.hasSelected()) { return; }
 				data.marks.remove(selectedMark);
@@ -96,7 +96,7 @@ public class GuiNPCMarks extends GuiNPCInterface2 implements ICustomScrollListen
 				selectedMark = null;
 				initGui();
 				break;
-			}
+			} // del mark
 			case 5: selectedMark.rotate = button.getValue() == 0; initGui(); break;
 			case 6: selectedMark.is3d = button.getValue() == 0; initGui(); break;
 		}

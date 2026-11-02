@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
+import noppes.npcs.api.event.QuestEvent;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketAchievement;
 import noppes.npcs.packets.client.PacketChat;
@@ -72,8 +73,8 @@ public class PlayerQuestController {
 	public static void addActiveQuest(Quest quest, EntityPlayer player, boolean skipBeAccepted) {
 		if (player == null || quest == null || !quest.isSetUp()) { return; }
 		PlayerData data = PlayerData.get(player);
-		if (skipBeAccepted || data.scriptData.getIPlayer().canQuestBeAccepted(quest.id)) {
-			if (EventHooks.onQuestStarted(data.scriptData, quest)) { return; }
+		if (skipBeAccepted || data.getIPlayer().canQuestBeAccepted(quest.id)) {
+			if (EventHooks.onQuestStarted(new QuestEvent.QuestStartEvent(data.getIPlayer(), quest))) { return; }
 			data.questData.activeQuests.put(quest.id, new QuestData(quest));
 			Packets.send((EntityPlayerMP) player, new PacketAchievement(Component.translatable("quest.newquest"), Component.translatable(quest.title), 2, new NBTTagCompound()));
 			Packets.send((EntityPlayerMP) player, new PacketChat(Component.translatable("quest.newquest").append(":").append(Component.translatable(quest.title))));

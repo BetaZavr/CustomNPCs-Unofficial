@@ -61,7 +61,7 @@ public class SubGuiNpcAvailabilityQuest
 				key.append(Component.translatable("quest.notfound").withStyle(TextFormatting.DARK_RED));
 			} else {
 				key.append(Component.translatable(quest.getCategory().getName() + "/").withStyle(TextFormatting.GRAY))
-						.append(Component.literal(quest.getName()).withStyle(TextFormatting.RESET))
+						.append(Component.translatable(quest.getName()).withStyle(TextFormatting.RESET))
 						.append(Component.literal(" (").withStyle(TextFormatting.GRAY))
 						.append(Component.translatable("availability." + availability.quests.get(id).name().toLowerCase()).withStyle(TextFormatting.BLUE))
 						.append(Component.literal(")").withStyle(TextFormatting.GRAY));
@@ -137,7 +137,7 @@ public class SubGuiNpcAvailabilityQuest
 					select.append(Component.translatable("quest.notfound").withStyle(TextFormatting.DARK_RED));
 				} else {
 					select.append(Component.translatable(quest.getCategory().getName() + "/").withStyle(TextFormatting.GRAY))
-							.append(Component.literal(quest.getName()).withStyle(TextFormatting.RESET))
+							.append(Component.translatable(quest.getName()).withStyle(TextFormatting.RESET))
 							.append(Component.literal(" (").withStyle(TextFormatting.GRAY))
 							.append(Component.translatable("availability." + ead.name().toLowerCase()).withStyle(TextFormatting.BLUE))
 							.append(Component.literal(")").withStyle(TextFormatting.GRAY));
@@ -166,13 +166,12 @@ public class SubGuiNpcAvailabilityQuest
 
 	@Override
 	public void selected(int id, String name) {
-		if (id <= 0) { return; }
-		if (dataIDs.containsKey(select)) { availability.quests.remove(dataIDs.get(select)); }
 		Quest quest = QuestController.instance.quests.get(id);
 		if (quest == null) { return; }
+		if (dataIDs.containsKey(select)) { availability.quests.remove(dataIDs.get(select)); }
 		select = Component.literal("ID:" + id + " - ")
 				.append(Component.translatable(quest.category.getName() + "/").withStyle(TextFormatting.GRAY))
-				.append(Component.literal(quest.getName()).withStyle(TextFormatting.RESET))
+				.append(Component.translatable(quest.getName()).withStyle(TextFormatting.RESET))
 				.append(Component.literal(" (").withStyle(TextFormatting.GRAY))
 				.append(Component.translatable("availability.after").withStyle(TextFormatting.BLUE))
 				.append(Component.literal(")").withStyle(TextFormatting.GRAY));

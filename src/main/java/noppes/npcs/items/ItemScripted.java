@@ -32,38 +32,43 @@ public class ItemScripted extends Item {
 		setHasSubtypes(true);
 	}
 
+	@Override
 	public double getDurabilityForDisplay(@Nonnull ItemStack stack) {
-		IItemStack istack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
-		if (istack instanceof ItemScriptedWrapper) {
-			return 1.0 - ((ItemScriptedWrapper) istack).durabilityValue;
+		IItemStack iStack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
+		if (iStack instanceof ItemScriptedWrapper) {
+			return 1.0 - ((ItemScriptedWrapper) iStack).durabilityValue;
 		}
 		return super.getDurabilityForDisplay(stack);
 	}
 
+	@Override
 	public int getItemStackLimit(@Nonnull ItemStack stack) {
-		IItemStack istack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
-		if (istack instanceof ItemScriptedWrapper) {
-			return istack.getMaxStackSize();
+		IItemStack iStack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
+		if (iStack instanceof ItemScriptedWrapper) {
+			return iStack.getMaxStackSize();
 		}
 		return super.getItemStackLimit(stack);
 	}
 
+	@Override
 	public int getRGBDurabilityForDisplay(@Nonnull ItemStack stack) {
-		IItemStack istack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
-		if (!(istack instanceof ItemScriptedWrapper)) {
+		IItemStack iStack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
+		if (!(iStack instanceof ItemScriptedWrapper)) {
 			return super.getRGBDurabilityForDisplay(stack);
 		}
-		int color = ((ItemScriptedWrapper) istack).durabilityColor;
+		int color = ((ItemScriptedWrapper) iStack).durabilityColor;
 		if (color >= 0) {
 			return color;
 		}
 		return MathHelper.hsvToRGB((float) (Math.max(0.0f, (1.0 - getDurabilityForDisplay(stack))) / 3.0f), 1.0f,  1.0f);
 	}
 
+	@Override
 	public boolean hitEntity(@Nonnull ItemStack stack, @Nonnull EntityLivingBase target, @Nonnull EntityLivingBase attacker) {
 		return true;
 	}
 
+	@Override
 	public boolean showDurabilityBar(@Nonnull ItemStack stack) {
 		IItemStack iStack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
 		if (iStack instanceof ItemScriptedWrapper) {

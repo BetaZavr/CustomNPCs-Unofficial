@@ -56,10 +56,9 @@ public class PlayerFactionData implements IPlayerData {
 		if (!factionData.containsKey(factionId)) {
 			if (player.world.isRemote) { factionData.put(factionId, faction.defaultPoints); }
 			else {
-				PlayerScriptData handler = PlayerData.get(player).scriptData;
 				PlayerWrapper<?> wrapper = (PlayerWrapper<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
 				PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(wrapper, faction, faction.defaultPoints, true);
-				EventHooks.onPlayerFactionChange(handler, event);
+				EventHooks.onPlayerFactionChange(event);
 				if (!event.isCanceled() && event.faction != null) {
 					int value = ValueUtil.correctInt(event.points, 0, Integer.MAX_VALUE);
 					if (value >= 0) { factionData.put(event.faction.getId(), value); }
@@ -75,9 +74,8 @@ public class PlayerFactionData implements IPlayerData {
 		if (player != null && !player.world.isRemote) {
 			Faction faction = FactionController.instance.getFaction(factionId);
 			if (faction != null) {
-				PlayerScriptData handler = PlayerData.get(player).scriptData;
-				PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(handler.getIPlayer(), faction, points, false);
-				EventHooks.onPlayerFactionChange(handler, event);
+				PlayerEvent.FactionUpdateEvent event = new PlayerEvent.FactionUpdateEvent(PlayerData.get(player).getIPlayer(), faction, points, false);
+				EventHooks.onPlayerFactionChange(event);
 				if (event.faction != null) {
 					factionId = event.faction.getId();
 					int value = ValueUtil.correctInt(event.points, 0, Integer.MAX_VALUE);

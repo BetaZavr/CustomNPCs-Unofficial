@@ -212,6 +212,7 @@ public class ScriptContainer {
 	}
 
 	public void fillEngine(String language) {
+		language = Util.instance.deleteColor(language);
 		if (executor == null || !currentScriptLanguage.equals(language)) {
 			if (executor != null) { executor.close(); }
 			Supplier<IScriptExecutor> provider = ScriptController.Instance.executorProviders.computeIfAbsent(language.toLowerCase(), l -> Jsr223Executor::new);
@@ -234,6 +235,7 @@ public class ScriptContainer {
 			try { scriptEngine.put("System", scriptEngine.eval("Java.type('" + System.class.getName() + "')")); } catch (Throwable ignored) { LogWriter.error("Not put key \"System\" to engine"); }
 			// Custom Functions
 			//LogWriter.debug("Fill custom functions to data");
+			language = language.toLowerCase();
 			NBTTagList functions = constants.getCompoundTag("Functions").getTagList(language, 8);
 			for (int i = 0; i < functions.tagCount(); i++) {
 				String body = functions.getStringTagAt(i);

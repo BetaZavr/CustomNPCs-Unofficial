@@ -124,12 +124,9 @@ implements IScriptHandler {
 		else { message.append(Component.literal("; ").withStyle(TextFormatting.DARK_GRAY)); }
 		IEntity<?> iEntity = null;
 		IBlock iBlock = null;
-		if (event instanceof Event && !(event instanceof CustomNPCsEvent)) { event = new ForgeEvent((Event) event); }
-		if (event instanceof ForgeEvent) { iEntity = ((ForgeEvent) event).entity; }
 		if (event instanceof PlayerEvent) {
-			if (((PlayerEvent) event).player != null) { iEntity =  ((PlayerEvent) event).player; }
-			else { message.append(Component.literal("Global players script").withStyle(TextFormatting.DARK_GRAY)); }
-			if (((PlayerEvent) event).player != null) { iEntity =  ((PlayerEvent) event).player; }
+			iEntity =  ((PlayerEvent) event).player;
+			if (iEntity == null) { message.append(Component.literal("Global players script").withStyle(TextFormatting.DARK_GRAY)); }
 		}
 		else if (event instanceof NpcEvent && ((NpcEvent) event).npc != null) { iEntity = ((NpcEvent) event).npc; }
 		if (iEntity != null) {

@@ -94,7 +94,7 @@ public class Jsr223Executor
                     Component errInfo = Component.literal("Script " + (cause != null ? cause.getClass().getSimpleName() : "") + ": " + error);
                     errInfo.setStyle(errInfo.getStyle().setColor(TextFormatting.DARK_GRAY));
                     CommonUtil.NotifyOPs(notice.append("\n").append(errInfo), true);
-                    LogWriter.error(noticeToLog + " ", t);
+                    try { LogWriter.error(noticeToLog + " ", t); } catch (Exception ignore) { }
                 }
             }
             result = sw.toString();

@@ -17,6 +17,8 @@ import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.api.wrapper.PlayerWrapper;
 import noppes.npcs.client.ClientProxy;
 import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.api.handler.ICustomPlayerData;
@@ -53,7 +55,6 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 	public final PlayerMailData mailData = new PlayerMailData();
 	public final PlayerQuestData questData = new PlayerQuestData();
 	public final PlayerTransportData transportData = new PlayerTransportData();
-	public PlayerScriptData scriptData;
 
 	public EntityPlayer player;
 	public String name = "";
@@ -68,6 +69,7 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 	public Entity mounted;
 
 	// New data from Unofficial (BetaZavr)
+	protected IPlayer<?> playerAPI;
 	public NBTTagCompound cloned;
 	public DataAnimation animation;
 	public final PlayerGameData game = new PlayerGameData();
@@ -268,10 +270,14 @@ public class PlayerData implements IPlayerDataHandler, ICapabilityProvider, ICus
 			data.player = player;
 			data.playerLevel = player.experienceLevel;
 			data.animation = new DataAnimation(player);
-			data.scriptData = new PlayerScriptData(player);
 			data.setNBT(loadPlayerData(player.getUniqueID().toString(), player.getName()));
 		}
 		return data;
+	}
+
+	public IPlayer<?> getIPlayer() {
+		if (playerAPI == null && player != null) { playerAPI = new PlayerWrapper<>(player); }
+		return playerAPI;
 	}
 
 }

@@ -20,10 +20,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.*;
 import noppes.npcs.api.item.INPCToolItem;
+import noppes.npcs.api.util.IRayTraceResults;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.controllers.data.PlayerData;
+import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketGuiOpen;
 import noppes.npcs.shared.common.CommonUtil;
+import noppes.npcs.util.Util;
 
 public class ItemNpcScripter extends Item implements INPCToolItem {
 
@@ -51,7 +55,9 @@ public class ItemNpcScripter extends Item implements INPCToolItem {
 					(CustomNpcs.OpsOnly && !CommonUtil.isOp(player))) {
 				player.sendMessage(Component.translatable("availability.permission").getParent());
 				return new ActionResult<>(EnumActionResult.FAIL, itemstack);
-			} else {
+			}
+			IRayTraceResults rayTrace = Util.instance.rayTraceBlocksAndEntitys(player, player.rotationYaw, player.rotationPitch, PlayerData.get(player).game.blockReachDistance);
+			if (rayTrace.getEntitys().length == 0 || !(rayTrace.getEntitys()[0].getMCEntity() instanceof EntityNPCInterface)) {
 				Packets.send(player, new PacketGuiOpen(EnumGuiType.ScriptPlayers, BlockPos.ORIGIN));
 			}
 		}

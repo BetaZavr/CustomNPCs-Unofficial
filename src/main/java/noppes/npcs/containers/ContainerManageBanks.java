@@ -31,6 +31,7 @@ public class ContainerManageBanks extends Container {
 		}
 	}
 
+	@Override
 	public boolean canInteractWith(@Nonnull EntityPlayer playerIn) {
 		if (playerIn instanceof EntityPlayerMP) {
 			return CustomNpcsPermissions.hasPermission((EntityPlayerMP) playerIn, CustomNpcsPermissions.GLOBAL_BANK);
@@ -49,6 +50,7 @@ public class ContainerManageBanks extends Container {
 		}
 	}
 
+	@Override
 	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int i) { return ItemStack.EMPTY; }
 
 	public boolean isBank(int bankIdIn) { return bankId == bankIdIn; }

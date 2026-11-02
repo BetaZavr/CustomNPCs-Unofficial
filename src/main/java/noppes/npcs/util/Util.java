@@ -258,6 +258,9 @@ public class Util implements IMethods {
 		EntityNPCInterface npc = (EntityNPCInterface) entity;
 		MarkData.get(npc).marks.clear();
 		npc.display.setShowName(1);
+		npc.display.setVisible(0);
+		npc.display.setSize(5);
+		npc.updateHitbox();
 		npc.setHealth(npc.getMaxHealth());
 		npc.deathTime = 0;
 		npc.rotationYaw = 0;
@@ -266,6 +269,7 @@ public class Util implements IMethods {
 		npc.rotationPitch = 0;
 		npc.prevRotationPitch = 0;
 		npc.ais.orientation = 0;
+		npc.setPosition(npcParent.posX, npcParent.posY, npcParent.posZ);
 		if (copyRotation) {
 			npc.rotationYaw = npcParent.rotationYaw;
 			npc.prevRotationYaw = npcParent.prevRotationYaw;
@@ -1050,7 +1054,7 @@ public class Util implements IMethods {
 		if (file == null || text == null) {
 			return false;
 		}
-		//LogWriter.debug("Trying save text to file \"" + file.getAbsolutePath() + "\"");
+		LogWriter.debug("Trying save text to file \"" + file.getAbsolutePath() + "\"");
 		if (file.getParentFile() != null && !file.getParentFile().exists() && !file.getParentFile().mkdirs()) { // create directories
 			LogWriter.debug("Error creating directories from file path \"" + file.getAbsolutePath() + "\"");
 			return false;

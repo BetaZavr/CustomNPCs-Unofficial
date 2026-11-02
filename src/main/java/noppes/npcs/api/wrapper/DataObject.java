@@ -10,6 +10,7 @@ import noppes.npcs.api.handler.IDataObject;
 import noppes.npcs.api.handler.data.IDataElement;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
+import noppes.npcs.util.ValueUtil;
 
 import javax.annotation.Nonnull;
 
@@ -641,6 +642,7 @@ public class DataObject implements IDataObject {
 	}
 
 	private void addTabs(StringBuilder line, int tabs) {
+		tabs = ValueUtil.onlyPositiveInt(tabs, 400);
 		while (tabs >= 0) { line.append(" "); tabs--; }
 	}
 

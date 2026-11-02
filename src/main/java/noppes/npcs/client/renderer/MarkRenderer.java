@@ -3,6 +3,7 @@ package noppes.npcs.client.renderer;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.minecraft.client.renderer.RenderHelper;
 import noppes.npcs.api.constants.MarkType;
 import noppes.npcs.client.renderer.obj.ModelBuffer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -29,21 +30,23 @@ public class MarkRenderer {
 	}
 
 	public static void render(EntityLivingBase entity, double x, double y, double z, MarkData.Mark mark) {
-		float alpha = 1.0f;
 		GlStateManager.pushMatrix();
 		int color = mark.color;
-		GlStateManager.translate(x, y + entity.height + 0.6, z);
-		GlStateManager.rotate(-entity.rotationYawHead, 0.0f, 1.0f, 0.0f);
-		if(entity instanceof EntityNPCInterface) {
+		float alpha = 1.0f;
+		float size = 1.0f;
+		if (!entity.isAddedToWorld()) { RenderHelper.disableStandardItemLighting(); }
+		if (entity instanceof EntityNPCInterface) {
 			if (entity.isInvisible()) {
 				alpha = 0.333333f;
 				color = (85 << 24) | (color & 0x00FFFFFF);
 			}
-			//if (((EntityNPCInterface) entity).display.getSize() > 5) { GlStateManager.scale(4.0f, 4.0f, 4.0f); }
+			size = 0.2f * ((EntityNPCInterface) entity).display.getSize();
 		}
+		GlStateManager.translate(x, y + entity.height + 0.6 * size, z);
+		GlStateManager.rotate(-entity.rotationYawHead, 0.0f, 1.0f, 0.0f);
+		GlStateManager.scale(size, size, size);
 		if (mark.isRotate()) { GlStateManager.rotate(entity.world.getTotalWorldTime() % 360 / 0.25f, 0.0f, 1.0f, 0.0f); }
 		if (mark.is3D()) {
-			GlStateManager.rotate(180.0f, 1.0f, 1.0f, 0.0f);
 			ModelBuffer.render(locations.get(true).get(mark.type), null, null, color, true);
 		}
 		else {
@@ -53,9 +56,9 @@ public class MarkRenderer {
 			float blue = (float) (color & 255) / 255.0f;
 			GlStateManager.color(red, green, blue, alpha);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(locations.get(false).get(mark.type));
-			GlStateManager.translate(-0.5, 0.0, 0.0);
 			Model2DRenderer.renderItemIn2D(Tessellator.getInstance().getBuffer(), 0.0f, 0.0f, 1.0f, 1.0f, 32, 32, 0.0625f);
 		}
+		if (!entity.isAddedToWorld()) { RenderHelper.enableStandardItemLighting(); }
 		GlStateManager.popMatrix();
 
 	}

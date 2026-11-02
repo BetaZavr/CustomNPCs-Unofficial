@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.Component;
 import net.minecraft.potion.Potion;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
@@ -28,9 +29,8 @@ public class GuiNpcHealer
 	protected final JobHealer job;
 
 	// New from Unofficial (BetaZavr)
-	private final Map<Component, String> displays_0 = new HashMap<>();
-	private final Map<Component, String> displays_1 = new HashMap<>(); // [display name, registry name] (0-options, 1-configured)
-	private final Map<String, Integer> potions = new TreeMap<>(); // [registry name, registry ID]
+	private final Map<Component, Component> displays = new LinkedHashMap<>(); // [display name, registry name]
+	private final Map<Component, ResourceLocation> potions = new TreeMap<>(Comparator.comparing(Component::getString)); // [registry name, registry ID]
 	private int range = 8;
 	private int speed = 10;
 	private int amplifier = 0;
@@ -43,8 +43,10 @@ public class GuiNpcHealer
 
 		backGui = EnumGuiType.MainMenuAdvanced;
 		job = (JobHealer)npc.job;
-		for (Potion p : Potion.REGISTRY) {
-			potions.put(Component.translatable("effect." + p.getName().toLowerCase()).getFormattedText(), Potion.getIdFromPotion(p));
+
+		for (Potion potion : Potion.REGISTRY) {
+			potions.put(Component.empty().append(Component.translatable(potion.getName())
+					.withStyle(potion.isBeneficial() ? TextFormatting.GREEN : TextFormatting.RED)), potion.getRegistryName());
 		}
 	}
 
@@ -59,8 +61,7 @@ public class GuiNpcHealer
 		if (configured == null) { configured = addScroll(1).setSize(172, 154); }
 		add(configured.setPos(guiLeft + 238, y));
 		addLabel(12, guiLeft + 239, y - 10, "beacon.currentEffects");
-		displays_0.clear();
-		displays_1.clear();
+		displays.clear();
 		LinkedHashMap<Integer, List<Component>> htsO = new LinkedHashMap<>();
 		LinkedHashMap<Integer, List<Component>> htsC = new LinkedHashMap<>();
 		Component r = Component.translatable("gui.range").withStyle(TextFormatting.GRAY);
@@ -72,32 +73,20 @@ public class GuiNpcHealer
 		Component l = Component.translatable("parameter.level").withStyle(TextFormatting.GRAY);
 		Component j = Component.translatable("gui.type").withStyle(TextFormatting.GRAY);
 		Component u = Component.translatable("script.target").withStyle(TextFormatting.GRAY);
-		for (String pointName : potions.keySet()) {
-			int id = potions.get(pointName);
-			Potion potion = Potion.getPotionById(id);
-			Component name = Component.empty().append(Component.translatable(pointName)
-					.withStyle(potion == null ? TextFormatting.LIGHT_PURPLE :
-							potion.isBeneficial() ? TextFormatting.GREEN : TextFormatting.RED));
+		for (Component name : potions.keySet()) {
+			Potion potion = Potion.getPotionFromResourceLocation(potions.get(name).toString());
+			if (potion == null) { continue; }
+			int id = Potion.getIdFromPotion(potion);
 			if (!job.effects.containsKey(id)) { // has potion ID
-				displays_0.put(name, pointName);
-				htsO.put(htsO.size(), Collections.singletonList(Component.empty()
-						.append(Component.literal("ID: "))
-						.append(Component.literal("" + id).withStyle(TextFormatting.GOLD))));
+				htsO.put(htsO.size(), getHover(id, potions.get(name).toString()));
 			}
 			else { // to setts
 				HealerSettings hs = job.effects.get(id);
 				String lv = "enchantment.level." + (hs.amplifier + 1);
 				if (!Component.translatable(lv).getString().equals(lv)) { lv = Component.translatable(lv).getFormattedText(); }
 				else { lv = "" + (hs.amplifier + 1); }
-				displays_1.put(name.append(Component.literal(" " + lv).withStyle(TextFormatting.RESET)), pointName);
-				Component f = Component.translatable(hs.type == (byte) 0 ? "faction.friendly" : hs.type == (byte) 1 ? "faction.unfriendly" : "spawner.all")
-						.withStyle(hs.type == (byte) 0 ? TextFormatting.GREEN : TextFormatting.DARK_AQUA);
-				Component h = Component.translatable(hs.isMassive ? "beacon.massive" : "beacon.not.massive")
-						.withStyle(hs.isMassive ? TextFormatting.DARK_PURPLE : TextFormatting.YELLOW);
-				List<Component> hovers = new ArrayList<>();
-				hovers.add(Component.empty()
-						.append(Component.literal("ID: "))
-						.append(Component.literal("" + id).withStyle(TextFormatting.GOLD)));
+				displays.put(name.copy().append(Component.literal(" " + lv).withStyle(TextFormatting.RESET)), name);
+				List<Component> hovers = getHover(id, potions.get(name).toString());
 				hovers.add(Component.empty()
 						.append(r)
 						.append(Component.literal(": ").withStyle(TextFormatting.GRAY))
@@ -125,17 +114,19 @@ public class GuiNpcHealer
 				hovers.add(Component.empty()
 						.append(j)
 						.append(Component.literal(": ").withStyle(TextFormatting.GRAY))
-						.append(f));
+						.append(Component.translatable(hs.type == (byte) 0 ? "faction.friendly" : hs.type == (byte) 1 ? "faction.unfriendly" : "spawner.all")
+								.withStyle(hs.type == (byte) 0 ? TextFormatting.GREEN : TextFormatting.DARK_AQUA)));
 				hovers.add(Component.empty()
 						.append(u)
 						.append(Component.literal(": ").withStyle(TextFormatting.GRAY))
-						.append(h));
+						.append(Component.translatable(hs.isMassive ? "beacon.massive" : "beacon.not.massive")
+								.withStyle(hs.isMassive ? TextFormatting.DARK_PURPLE : TextFormatting.YELLOW)));
 				htsC.put(htsC.size(), hovers);
 			}
 		}
-		options.setUnsortedList(new ArrayList<>(displays_0.keySet()));
+		options.setUnsortedList(new ArrayList<>(potions.keySet()));
 		options.setHoverTexts(htsO);
-		configured.setUnsortedList(new ArrayList<>(displays_1.keySet()));
+		configured.setUnsortedList(new ArrayList<>(displays.keySet()));
 		configured.setHoverTexts(htsC);
 		Component toall = Component.translatable("beacon.hover.toall");
 		y += 156;
@@ -175,11 +166,11 @@ public class GuiNpcHealer
 				.setHoverTexts("hover.del.element");
 		addButton(13, guiLeft + 177, (y += 44), ">>")
 				.setSize(61, 20)
-				.setIsEnabled(!displays_0.isEmpty())
+				.setIsEnabled(!potions.isEmpty())
 				.setHoverTexts("hover.add.all.element");
 		addButton(14, guiLeft + 177, (y += 22), "<<")
 				.setSize(61, 20)
-				.setIsEnabled(!displays_1.isEmpty())
+				.setIsEnabled(!displays.isEmpty())
 				.setHoverTexts("hover.del.all.element");
 		addButton(0, guiLeft + 177, y + 33, "gui.edit")
 				.setSize(61, 20)
@@ -191,8 +182,10 @@ public class GuiNpcHealer
 	public void buttonEvent(GuiButtonNop button) {
 		switch (button.id) {
 			case 0: {
-				if (displays_1.containsKey(configured.getNormalSelected())) {
-					int id = potions.get(displays_1.get(configured.getNormalSelected()));
+				if (displays.containsKey(configured.getNormalSelected())) {
+					Potion potion = Potion.getPotionFromResourceLocation(potions.get(displays.get(configured.getNormalSelected())).toString());
+					if (potion == null) { return; }
+					int id = Potion.getIdFromPotion(potion);
 					if (job.effects.containsKey(id)) {
 						setSubGui(new SubGuiNpcJobHealerSettings(job.effects.get(id)));
 					}
@@ -201,9 +194,11 @@ public class GuiNpcHealer
 			} // edit HealerSettings
 			case 1: type = (byte) button.getValue(); break; // faction type
 			case 11: {
-				if (displays_0.containsKey(options.getNormalSelected())) {
+				if (potions.containsKey(options.getNormalSelected())) {
 					GuiTextFieldNop.unfocus();
-					int id = potions.get(displays_0.get(options.getNormalSelected()));
+					Potion potion = Potion.getPotionFromResourceLocation(potions.get(options.getNormalSelected()).toString());
+					if (potion == null) { return; }
+					int id = Potion.getIdFromPotion(potion);
 					HealerSettings hs = new HealerSettings(id, range, speed, amplifier, type);
 					job.effects.put(id, hs);
 					options.setSelected(-1);
@@ -213,8 +208,10 @@ public class GuiNpcHealer
 				break;
 			} // >
 			case 12: {
-				if (displays_1.containsKey(configured.getNormalSelected())) {
-					job.effects.remove(potions.get(displays_1.get(configured.getNormalSelected())));
+				if (displays.containsKey(configured.getNormalSelected())) {
+					Potion potion = Potion.getPotionFromResourceLocation(potions.get(displays.get(configured.getNormalSelected())).toString());
+					if (potion == null) { return; }
+					job.effects.remove(Potion.getIdFromPotion(potion));
 					options.setSelected(-1);
 					configured.setSelected(-1);
 					initGui();
@@ -251,8 +248,9 @@ public class GuiNpcHealer
 	@Override
 	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiNpcJobHealerSettings && configured.hasSelected()) {
-			Integer id = potions.get(displays_1.get(configured.getNormalSelected()));
-			if (id == null) { return; }
+			Potion potion = Potion.getPotionFromResourceLocation(potions.get(displays.get(configured.getNormalSelected())).toString());
+			if (potion == null) { return; }
+			int id = Potion.getIdFromPotion(potion);
 			job.effects.put(id, ((SubGuiNpcJobHealerSettings) subgui).healerSettings);
 			initGui();
 		}
@@ -264,18 +262,21 @@ public class GuiNpcHealer
 	@Override
 	public void scrollDoubleClicked(GuiCustomScrollNop scroll) {
 		if (scroll.id == 0) {
-			if (!options.hasSelected()) { return; }
+			if (!scroll.hasSelected() || !potions.containsKey(scroll.getNormalSelected())) { return; }
 			GuiTextFieldNop.unfocus();
-			int id = potions.get(displays_0.get(options.getNormalSelected()));
-			HealerSettings hs = new HealerSettings(id, range, speed, amplifier, type);
-			job.effects.put(id, hs);
+			Potion potion = Potion.getPotionFromResourceLocation(potions.get(scroll.getNormalSelected()).toString());
+			if (potion == null) { return; }
+			HealerSettings hs = new HealerSettings(Potion.getIdFromPotion(potion), range, speed, amplifier, type);
+			job.effects.put(hs.id, hs);
 			options.setSelected(-1);
 			configured.setSelected(-1);
 			initGui();
 		}
 		else {
-			if (!configured.hasSelected()) { return; }
-			int id = potions.get(displays_1.get(configured.getNormalSelected()));
+			if (!scroll.hasSelected() || !displays.containsKey(scroll.getNormalSelected())) { return; }
+			Potion potion = Potion.getPotionFromResourceLocation(potions.get(displays.get(scroll.getNormalSelected())).toString());
+			if (potion == null) { return; }
+			int id = Potion.getIdFromPotion(potion);
 			if (!job.effects.containsKey(id)) { return; }
 			setSubGui(new SubGuiNpcJobHealerSettings(job.effects.get(id)));
 		}
@@ -288,6 +289,18 @@ public class GuiNpcHealer
 			case 2: speed = textField.getInteger(); break;
 			case 3: amplifier = textField.getInteger() - 1; break;
 		}
+	}
+
+	protected List<Component> getHover(int id, String regName) {
+		List<Component> hover = new ArrayList<>();
+		hover.add(Component.empty()
+				.append(Component.literal("ID: "))
+				.append(Component.literal("" + id).withStyle(TextFormatting.GOLD)));
+		hover.add(Component.empty()
+				.append(Component.translatable("gui.name"))
+				.append(": ")
+				.append(Component.literal(regName).withStyle(TextFormatting.DARK_AQUA)));
+		return hover;
 	}
 
 }

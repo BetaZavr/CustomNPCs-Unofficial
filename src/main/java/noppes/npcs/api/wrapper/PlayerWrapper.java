@@ -502,7 +502,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public void trigger(int id, Object... arguments) {
-		EventHooks.onScriptTriggerEvent(PlayerData.get(entity).scriptData, id, getWorld(), getPos(), null, arguments);
+		EventHooks.onScriptTriggerEvent(EventHooks.getPlayerHandler(), id, getWorld(), getPos(), null, arguments);
 	}
 
 	private int inventoryItemCount(ItemStack stack) {

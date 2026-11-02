@@ -17,6 +17,7 @@ import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.controllers.MusicController;
 import noppes.npcs.client.gui.ConfirmScreen;
 import noppes.npcs.client.gui.util.*;
+import noppes.npcs.controllers.data.PlayerCompassData;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.server.SPacketPlayerMailDelete;
@@ -48,8 +49,9 @@ public class GuiMailbox extends GuiNPCInterface
 	protected int closeType;
 	protected int step;
 	protected int tick;
-	protected int millyTick;
+	protected int milliTick;
 	protected final Random rnd = new Random();
+	protected PlayerCompassData compassData;
 
 	public GuiMailbox() {
 		super();
@@ -58,8 +60,7 @@ public class GuiMailbox extends GuiNPCInterface
 
 		ClientTickHandler.checkMails = true;
 		// Animations
-		tick = 30;
-		millyTick = 30;
+		setNextTick(30);
 		step = 0;
 		closeType = 0;
 		Packets.sendServer(new SPacketPlayerMailGet());
@@ -73,22 +74,20 @@ public class GuiMailbox extends GuiNPCInterface
 				if (selected == null) { return; }
 				GuiMailmanWrite.mail = selected;
 				step = 4;
-				tick = 15;
-				millyTick = 15;
+				setNextTick(15);
 				closeType = 2;
 				break;
 			} // select
 			case 1: {
 				step = 4;
-				tick = 15;
-				millyTick = 15;
+				setNextTick(15);
 				closeType = 1;
 				break;
 			} // close 1
 			case 2: {
 				if (selected == null) { return; }
 				ConfirmScreen guiYesNo = new ConfirmScreen((agree) -> {
-					if (agree && selected != null) {
+					if (agree) {
 						Packets.sendServer(new SPacketPlayerMailDelete(0, selected.timeWhenReceived, selected.sender));
 						selected = null;
 						MusicController.Instance.playSound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":mail.delete",
@@ -138,8 +137,7 @@ public class GuiMailbox extends GuiNPCInterface
 			} // delete all letters
 			case 5: {
 				step = 4;
-				tick = 15;
-				millyTick = 15;
+				setNextTick(15);
 				closeType = 0;
 				break;
 			} // close 0
@@ -219,12 +217,12 @@ public class GuiMailbox extends GuiNPCInterface
 		if (tick >= 0) {
 			if (tick == 0) { partialTicks = 0.0f; }
 			float part = (float) tick + partialTicks;
-			float cos = (float) Math.cos(90.0d * part / (double) millyTick * Math.PI / 180.0d);
+			float cos = (float) Math.cos(90.0d * part / (double) milliTick * Math.PI / 180.0d);
 			if (cos < 0.0f) { cos = 0.0f; }
 			else if (cos > 1.0f) { cos = 1.0f; }
 			switch (step) {
 				case 0: {
-					if (tick == millyTick) {
+					if (tick == milliTick) {
 						MusicController.Instance.playSound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":mail.movement",
 								player.posX, player.posY, player.posZ, 1.0f,
 								0.75f + 0.25f * rnd.nextFloat());
@@ -237,8 +235,7 @@ public class GuiMailbox extends GuiNPCInterface
 					GlStateManager.popMatrix();
 					if (tick == 0) {
 						step = 1;
-						tick = 20;
-						millyTick = 20;
+						setNextTick(20);
 						MusicController.Instance.playSound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":mail.open.door",
 								player.posX, player.posY, player.posZ, 1.0f,
 								0.75f + 0.25f * rnd.nextFloat());
@@ -255,8 +252,7 @@ public class GuiMailbox extends GuiNPCInterface
 					GlStateManager.popMatrix();
 					if (tick == 0) {
 						step = 2;
-						tick = 15;
-						millyTick = 15;
+						setNextTick(15);
 						GlStateManager.disableBlend();
 					}
 					break;
@@ -280,13 +276,13 @@ public class GuiMailbox extends GuiNPCInterface
 					GlStateManager.popMatrix();
 					if (tick == 0) {
 						step = 3;
-						millyTick = 0;
+						milliTick = 0;
 						GlStateManager.disableBlend();
 					}
 					break;
 				} // turning the door
 				case 4: {
-					if (tick == millyTick) {
+					if (tick == milliTick) {
 						MusicController.Instance.playSound(SoundCategory.PLAYERS,
 								CustomNpcs.MODID + ":mail.close.door",
 								player.posX, player.posY, player.posZ, 1.0f, 0.75f + 0.25f * rnd.nextFloat());
@@ -309,8 +305,7 @@ public class GuiMailbox extends GuiNPCInterface
 					GlStateManager.popMatrix();
 					if (tick == 0) {
 						step = 5;
-						tick = 20;
-						millyTick = 20;
+						setNextTick(20);
 						GlStateManager.disableBlend();
 					}
 					break;
@@ -324,8 +319,7 @@ public class GuiMailbox extends GuiNPCInterface
 					GlStateManager.popMatrix();
 					if (tick == 0) {
 						step = 6;
-						tick = 30;
-						millyTick = 30;
+						setNextTick(30);
 						MusicController.Instance.playSound(SoundCategory.PLAYERS, CustomNpcs.MODID + ":mail.movement",
 								player.posX, player.posY, player.posZ, 1.0f,
 								0.75f + 0.25f * rnd.nextFloat());
@@ -342,8 +336,7 @@ public class GuiMailbox extends GuiNPCInterface
 					GlStateManager.popMatrix();
 					if (tick == 0) {
 						step = 0;
-						tick = 30;
-						millyTick = 30;
+						setNextTick(30);
 						if (closeType == 1) {
 							Packets.sendServer(new SPacketPlayerMailOpen(true, true,0L, ""));
 						} else if (closeType == 2 && selected != null) {
@@ -515,8 +508,7 @@ public class GuiMailbox extends GuiNPCInterface
 	public boolean keyPressed(char typedChar, int keyCode) {
 		if (!hasSubGui() && step == 3 && (isEscKey(keyCode) || isInventoryKey(keyCode))) {
 			step = 4;
-			tick = 15;
-			millyTick = 15;
+			setNextTick(15);
 			closeType = 0;
 			return true;
 		}
@@ -535,8 +527,7 @@ public class GuiMailbox extends GuiNPCInterface
 		GuiMailmanWrite.parent = this;
 		GuiMailmanWrite.mail = selected;
 		step = 4;
-		tick = 15;
-		millyTick = 15;
+		setNextTick(15);
 		closeType = 2;
 	}
 
@@ -545,6 +536,12 @@ public class GuiMailbox extends GuiNPCInterface
 		PlayerData.get(player).mailData.load(compound);
 		selected = null;
 		initGui();
+	}
+
+	private void setNextTick(int time) {
+		if (compassData == null) { compassData = PlayerData.get(player).compass; }
+		tick = (int) (time / (compassData.questLogIsFast ? 3.0f : 1.0f));
+		milliTick = tick;
 	}
 
 }

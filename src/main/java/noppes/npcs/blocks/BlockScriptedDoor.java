@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
@@ -16,15 +17,18 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
-import noppes.npcs.CustomBlocks;
-import noppes.npcs.CustomItems;
-import noppes.npcs.EventHooks;
+import noppes.npcs.*;
+import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.event.BlockEvent;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
 import noppes.npcs.constants.EnumGuiType;
+import noppes.npcs.constants.EnumScriptType;
+import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketPlaySound;
 import noppes.npcs.packets.server.SPacketGuiOpen;
+import noppes.npcs.shared.common.CommonUtil;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -106,27 +110,38 @@ public class BlockScriptedDoor extends BlockNpcDoorInterface {
 	}
 
 	@Override
-	public boolean onBlockActivated(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer playerIn,
+									@Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (world.isRemote) {
-			return true;
+			BlockEvent.DoorToggleEvent event = new BlockEvent.DoorToggleEvent(Objects.requireNonNull(NpcAPI.Instance()).getIBlock(world, pos));
+			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.DOOR_TOGGLE, event);
+			return !event.isCanceled();
 		}
-		BlockPos blockpos1 = (state.getValue(BlockScriptedDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER) ? pos
-				: pos.down();
-		IBlockState iblockstate1 = pos.equals(blockpos1) ? state : world.getBlockState(blockpos1);
-		if (iblockstate1.getBlock() != this) {
-			return false;
+		else if (playerIn instanceof EntityPlayerMP) {
+			EntityPlayerMP player = (EntityPlayerMP) playerIn;
+			BlockPos blockpos1 = state.getValue(BlockScriptedDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER ? pos : pos.down();
+			IBlockState iblockstate1 = pos.equals(blockpos1) ? state : world.getBlockState(blockpos1);
+			if (iblockstate1.getBlock() != this) { return false; }
+			ItemStack heldItem = player.inventory.getCurrentItem();
+			if (heldItem.getItem() == CustomItems.wand ||
+					heldItem.getItem() == CustomItems.scripter ||
+					heldItem.getItem() == CustomBlocks.scripted_door_item) {
+				if ((CustomNpcs.OpsOnly && !CommonUtil.isOp(player)) ||
+						!CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_SCRIPTER)) {
+					player.sendMessage(Component.translatable("availability.permission").getParent());
+					return false;
+				}
+				PlayerData.get(player).scriptBlockPos = blockpos1;
+				SPacketGuiOpen.sendOpenGui(player, EnumGuiType.ScriptDoor, null, blockpos1);
+			}
+			else {
+				TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(blockpos1);
+				if (tile == null ||
+						EventHooks.onScriptBlockInteract(tile, player, side.getIndex(), hitX, hitY, hitZ))
+				{ return false; }
+				toggleDoor(world, blockpos1, iblockstate1.getValue(BlockDoor.OPEN).equals(false));
+			}
 		}
-		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem.getItem() == CustomItems.wand || currentItem.getItem() == CustomItems.scripter || currentItem.getItem() == CustomBlocks.scripted_door_item) {
-			PlayerData.get(player).scriptBlockPos = blockpos1;
-			SPacketGuiOpen.sendOpenGui((EntityPlayerMP) player, EnumGuiType.ScriptDoor, null, blockpos1);
-			return true;
-		}
-		TileScriptedDoor tile = (TileScriptedDoor) world.getTileEntity(blockpos1);
-		if (tile != null && EventHooks.onScriptBlockInteract(tile, player, side.getIndex(), hitX, hitY, hitZ)) {
-			return false;
-		}
-		toggleDoor(world, blockpos1, iblockstate1.getValue(BlockDoor.OPEN).equals(false));
 		return true;
 	}
 

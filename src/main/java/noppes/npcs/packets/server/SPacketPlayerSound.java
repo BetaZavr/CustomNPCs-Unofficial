@@ -11,7 +11,6 @@ import noppes.npcs.api.event.PlayerEvent;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerScriptData;
 import noppes.npcs.shared.common.PacketServerBasic;
 
 import java.util.List;
@@ -89,9 +88,8 @@ public class SPacketPlayerSound extends PacketServerBasic {
    @Override
    protected void handle() {
       CustomNpcs.debugData.start("Packets");
-      PlayerScriptData handler = PlayerData.get(player).scriptData;
-      EventHooks.onEvent(handler, isStart ? EnumScriptType.PLAY_SOUND : EnumScriptType.STOP_SOUND,
-              new PlayerEvent.PlayerSound(handler.getIPlayer(), name, resource, category, looping, x, y, z, volume, pitch));
+      EventHooks.onEvent(EventHooks.getPlayerHandler(), isStart ? EnumScriptType.PLAY_SOUND : EnumScriptType.STOP_SOUND,
+              new PlayerEvent.PlayerSound(PlayerData.get(player).getIPlayer(), name, resource, category, looping, x, y, z, volume, pitch));
       CustomNpcs.debugData.end("Packets");
    }
 
