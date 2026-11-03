@@ -45,9 +45,11 @@ public class RecipeButtonMixin {
     /** npc recipe */
     @Inject(at = {@At("HEAD")}, method = {"renderWidget"}, cancellable = true)
     private void npcs$renderWidget(GuiGraphics graphics, int x, int y, float partialTicks, CallbackInfo ci) {
-        IRecipeButtonMixin mixin = (IRecipeButtonMixin) this;
-        Recipe<?> recipe = mixin.invokeGetRecipe();
         RecipeButton parent = (RecipeButton) (Object) this;
+        if (parent.getCollection() == null) { return; }
+        IRecipeButtonMixin mixin = (IRecipeButtonMixin) this;
+        Recipe<?> recipe = null;
+        try { recipe = mixin.invokeGetRecipe(); } catch (Exception ignored) { }
         if (parent.visible && recipe instanceof RecipeCarpentry npcRecipe) {
             ci.cancel();
             Minecraft mc = Minecraft.getInstance();
@@ -106,8 +108,11 @@ public class RecipeButtonMixin {
     /** add availability info from npc recipe */
     @Inject(at = {@At("RETURN")}, method = {"getTooltipText"}, cancellable = true)
     public void npcs$getTooltipText(CallbackInfoReturnable<List<Component>> cir) {
+        RecipeButton parent = (RecipeButton) (Object) this;
+        if (parent.getCollection() == null) { return; }
         IRecipeButtonMixin mixin = (IRecipeButtonMixin) this;
-        Recipe<?> recipe = mixin.invokeGetRecipe();
+        Recipe<?> recipe = null;
+        try { recipe = mixin.invokeGetRecipe(); } catch (Exception ignored) { }
         if (recipe instanceof RecipeCarpentry npcRecipe) {
             if (npcs$availabilityList != null && Screen.hasShiftDown()) { cir.setReturnValue(npcs$availabilityList); }
             else {
