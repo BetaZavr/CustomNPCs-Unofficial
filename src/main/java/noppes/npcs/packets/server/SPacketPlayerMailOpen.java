@@ -4,6 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
+import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.controllers.data.PlayerData;
@@ -63,14 +64,20 @@ public class SPacketPlayerMailOpen extends PacketServerBasic {
       CustomNpcs.debugData.start("Packets");
       player.closeContainer();
       if (canEdit && canSend) {
-         player.openGui(CustomNpcs.instance, EnumGuiType.PlayerMailOpen.ordinal(), player.world, 1, 1, 0);
+         NoppesUtilServer.openContainerGui(player, EnumGuiType.PlayerMailOpen, (buf) -> {
+            buf.writeBoolean(true);
+            buf.writeBoolean(true);
+         });
          return;
       }
       PlayerMailData mailData  = PlayerData.get(player).mailData;
       for (PlayerMail mail : mailData.playerMails) {
          if (mail.timeWhenReceived == time && mail.sender.equals(username)) {
             ContainerMail.staticMail = mail;
-            player.openGui(CustomNpcs.instance, EnumGuiType.PlayerMailOpen.ordinal(), player.world, 0, 0, 0);
+            NoppesUtilServer.openContainerGui(player, EnumGuiType.PlayerMailOpen, (buf) -> {
+               buf.writeBoolean(false);
+               buf.writeBoolean(false);
+            });
             break;
          }
       }

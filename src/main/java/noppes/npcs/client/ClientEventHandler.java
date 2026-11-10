@@ -580,7 +580,7 @@ public class ClientEventHandler extends Gui {
 	public void cnpcOpenGUIEvent(GuiOpenEvent event) {
 		CustomNpcs.debugData.start(null);
 		mc = Minecraft.getMinecraft();
-		String oldScreenName = mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getSimpleName();
+		String oldScreenName = mc.currentScreen == null ? "GuiIngame" : mc.currentScreen.getClass().getName();
 		String newGUI = event.getGui() == null ? "GuiIngame" : event.getGui().getClass().getSimpleName();
 		if (event.getGui() instanceof GuiLog) {
 			switch(((GuiLog) event.getGui()).type) {
@@ -590,7 +590,12 @@ public class ClientEventHandler extends Gui {
 				default: newGUI = "GuiInventoryLog"; break;
 			}
 		}
-		LogWriter.debug(((event.getGui() == null ? "Close GUI " : "Open GUI - " + event.getGui().getClass().getName()) + "; OLD - " + oldScreenName));
+		if (event.getGui() != null &&
+				oldScreenName.equals(event.getGui().getClass().getName())) {
+			LogWriter.info("Re-open GUI \"" + event.getGui().getClass().getName()); }
+		else if (event.getGui() != null || mc.currentScreen != null) {
+			LogWriter.debug(((event.getGui() == null ? "Close GUI \"" : "Open GUI \"" + event.getGui().getClass().getName() + "\"; OLD GUI \"" )+ oldScreenName));
+		}
 		Packets.sendServer(new SPacketPlayerScreen(newGUI, oldScreenName));
 		if (mc.currentScreen instanceof GuiNpcPather) { movingPath.clear(); }
 		else if (event.getGui() instanceof GuiInventory) {

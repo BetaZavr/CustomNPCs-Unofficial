@@ -15,7 +15,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.IPlayer;
-import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerQuestData;
@@ -46,6 +45,7 @@ implements ITickable {
 		return list;
 	}
 
+	@Override
 	public @Nonnull NBTTagCompound getUpdateTag() {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("x", pos.getX());
@@ -55,6 +55,7 @@ implements ITickable {
 		return compound;
 	}
 
+	@Override
 	public void onDataPacket(@Nonnull NetworkManager net, @Nonnull SPacketUpdateTileEntity pkt) {
 		range = pkt.getNbtCompound().getInteger("Range");
 	}
@@ -91,13 +92,13 @@ implements ITickable {
 					continue;
 				}
 				boolean bo = data.quest.step == 1;
-				for (IQuestObjective obj : data.quest
+				for (QuestObjective obj : data.quest
 						.getObjectives((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player))) {
 					if (data.quest.step == 1 && !bo) {
 						break;
 					}
 					bo = obj.isCompleted();
-					if (((QuestObjective) obj).getEnumType() != EnumQuestTask.LOCATION || !obj.getTargetName().equals(name)) {
+					if (obj.getEnumType() != EnumQuestTask.LOCATION || !obj.getTargetName().equals(name)) {
 						continue;
 					}
 
@@ -125,9 +126,8 @@ implements ITickable {
 		}
 	}
 
-	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
+	public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
 		if (!name.isEmpty()) { compound.setString("LocationName", name); }
 		compound.setInteger("LocationRange", range);
 		return super.writeToNBT(compound);

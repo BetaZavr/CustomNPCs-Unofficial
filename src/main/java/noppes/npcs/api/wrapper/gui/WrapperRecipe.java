@@ -1,6 +1,5 @@
-package noppes.npcs.api.wrapper;
+package noppes.npcs.api.wrapper.gui;
 
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
@@ -14,7 +13,6 @@ import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.RecipeCarpentry;
-import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -27,7 +25,7 @@ public class WrapperRecipe {
     public final @Nonnull Map<Integer, ItemStack[]> ingredients = new TreeMap<>(); // -> ItemStack[].length == 0 ... 16 max (not null)
     public @Nonnull Availability availability = new Availability();
     public @Nonnull ResourceLocation id = new ResourceLocation(CustomNpcs.MODID, "");
-    public @Nonnull ItemStack product;
+    public @Nonnull ItemStack product = ItemStack.EMPTY;
     public boolean isGlobal = true;
     public boolean isKnown = false;
     public boolean ignoreDamage = false;
@@ -38,16 +36,20 @@ public class WrapperRecipe {
     public Component group = Component.empty();
     public IRecipe parent = null;
 
-    public WrapperRecipe() {
-        product = new ItemStack(Blocks.COBBLESTONE);
-        ingredients.put(0, new ItemStack[] { new ItemStack(Blocks.COBBLESTONE) });
+    public void clear() {
+        ingredients.clear();
+        availability.clear();
+        id = new ResourceLocation(CustomNpcs.MODID, "");
+        product = ItemStack.EMPTY;
+        group = Component.empty();
+        parent = null;
     }
 
     public NBTTagCompound getNbt() {
         NBTTagCompound compound = new NBTTagCompound();
         compound.setString("Id", id.toString());
         compound.setString("Name", id.getResourcePath());
-        compound.setString("Group", group.getFormattedText());
+        compound.setString("Group", group.getString());
         compound.setTag("Item", product.writeToNBT(new NBTTagCompound()));
         int size = isGlobal ? 3 : 4;
         int maxX = 0;
@@ -72,7 +74,6 @@ public class WrapperRecipe {
         height = maxY - minY;
         compound.setInteger("Width", width);
         compound.setInteger("Height", height);
-        LogWriter.info("[DEBUG] WH "+width+", "+height);
         int nsPos = 0;
         NBTTagList list = new NBTTagList();
         for (int slotId = 0; slotId < size * size; slotId++) {
@@ -113,7 +114,7 @@ public class WrapperRecipe {
 
     public boolean isValid() {
         if (id.getResourcePath().isEmpty() || !id.getResourceDomain().equals(CustomNpcs.MODID) ||
-                group.getFormattedText().isEmpty() || ingredients.isEmpty() || product.isEmpty()) {
+                group.getString().isEmpty() || ingredients.isEmpty() || product.isEmpty()) {
             return false;
         }
         for (ItemStack[] array : new ArrayList<>(ingredients.values())) {
@@ -136,9 +137,10 @@ public class WrapperRecipe {
         wrapper.id = Objects.requireNonNull(recipe.getRegistryName());
         NonNullList<Ingredient> ings = recipe.getIngredients();
         if (recipe instanceof ShapedRecipes) {
+            ShapedRecipes sRecipe = (ShapedRecipes) recipe;
             wrapper.isShaped = true;
-            wrapper.width = ((ShapedRecipes) recipe).getRecipeWidth();
-            wrapper.height = ((ShapedRecipes) recipe).getRecipeHeight();
+            wrapper.width = sRecipe.getRecipeWidth();
+            wrapper.height = sRecipe.getRecipeHeight();
             for (int slotId = 0; slotId < 9; slotId++) {
                 int x = slotId % 3;
                 int y = (int) Math.floor((double) slotId / 3.0d);
@@ -156,9 +158,13 @@ public class WrapperRecipe {
                 else { wrapper.ingredients.put(slotId, new ItemStack[0]); }
             }
         }
-        wrapper.group = Component.literal(recipe.getGroup().isEmpty() ? wrapper.id.getResourceDomain() : recipe.getGroup()).withStyle(TextFormatting.GRAY);
+        String groupName = recipe.getGroup().isEmpty() ? wrapper.id.getResourcePath() : recipe.getGroup();
+        if (!wrapper.id.getResourceDomain().equals(CustomNpcs.MODID)) {
+            wrapper.group = Component.literal(groupName).withStyle(TextFormatting.GRAY);
+        } else {
+            wrapper.group = Component.literal(groupName);
+        }
         wrapper.product = recipe.getRecipeOutput();
-        wrapper.availability.clear();
         return wrapper;
     }
 

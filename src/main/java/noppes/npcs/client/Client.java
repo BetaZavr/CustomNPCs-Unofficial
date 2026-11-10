@@ -605,7 +605,7 @@ public class Client {
                 break;
             } // overlay data
             case 7: {
-                //RecipeController.instance.load();
+                RecipeController.getInstance().load();
                 break;
             } // recipes
             case 8: {

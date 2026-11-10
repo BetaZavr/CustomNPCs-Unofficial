@@ -895,11 +895,11 @@ public class Availability implements ICompatibilty, IAvailability {
 				list.add(Component.translatable("availability.type.daytime.1",
 						Component.literal(daytime[0]+":00").withStyle(TextFormatting.DARK_GREEN),
 						Component.literal(daytime[1]+":00").withStyle(TextFormatting.DARK_GREEN),
-						Component.literal(time+":00").withStyle(TextFormatting.GOLD),
-						Component.translatable("quest.task.manual."+(bo ? "0" : "1"))));
+						Component.literal(time+":00").withStyle(TextFormatting.GOLD), " " +
+								Component.translatable("quest.task.manual."+(bo ? "0" : "1")).getFormattedText()));
 			} else {
-				list.add(Component.translatable("availability.type.daytime.0",
-						Component.translatable("quest.task.manual."+(bo ? "0" : "1"))));
+				list.add(Component.translatable("availability.type.daytime.0", " " +
+						Component.translatable("quest.task.manual."+(bo ? "0" : "1")).getFormattedText()));
 			}
 		}
 		// dialogue
@@ -918,7 +918,8 @@ public class Availability implements ICompatibilty, IAvailability {
 							.append(Component.literal( gm ? " - " : "").withStyle(TextFormatting.RESET));
 				}
 				if (d != null) { data.append(Component.translatable(d.getName())); }
-				data.append(Component.translatable("quest.task.manual."+(dialogAvailable(id, dialogues.get(id), player) ? "0" : "1")));
+				data.append(" ")
+						.append(Component.translatable("quest.task.manual."+(dialogAvailable(id, dialogues.get(id), player) ? "0" : "1")));
 			}
 			if (!data.getFormattedText().isEmpty()) { list.add(Component.translatable("availability.type.dialogues").append(data)); }
 		}
@@ -937,7 +938,8 @@ public class Availability implements ICompatibilty, IAvailability {
 				data.append(Component.translatable("availability." + quests.get(id).name().toLowerCase()))
 						.append(" ");
 				if (q != null) { data.append(q.getTitle()); }
-				data.append(Component.translatable("quest.task.manual."+(questAvailable(id, quests.get(id), player) ? "0" : "1")));
+				data.append(" ")
+						.append(Component.translatable("quest.task.manual."+(questAvailable(id, quests.get(id), player) ? "0" : "1")));
 			}
 			if (!data.getFormattedText().isEmpty()) { list.add(Component.translatable("availability.type.quests").append(data)); }
 		}
@@ -959,7 +961,8 @@ public class Availability implements ICompatibilty, IAvailability {
 				data.append(Component.translatable("faction.name." + attitude))
 						.append(" ");
 				if (f != null) { data.append(f.getName()); }
-				data.append(Component.translatable("quest.task.manual."+(factionAvailable(id, factions.get(id).factionStance, factions.get(id).factionAvailable, player) ? "0" : "1")));
+				data.append(" ")
+						.append(Component.translatable("quest.task.manual."+(factionAvailable(id, factions.get(id).factionStance, factions.get(id).factionAvailable, player) ? "0" : "1")));
 			}
 			if (!data.getFormattedText().isEmpty()) { list.add(Component.translatable("availability.type.factions").append(data)); }
 		}
@@ -972,6 +975,7 @@ public class Availability implements ICompatibilty, IAvailability {
 						.append(Component.translatable("availability." + scoreboards.get(obj).scoreboardType.name().toLowerCase()))
 						.append(" ")
 						.append(String.valueOf(scoreboards.get(obj).scoreboardValue))
+						.append(" ")
 						.append(Component.translatable("quest.task.manual."+(scoreboardAvailable(player, obj, scoreboards.get(obj).scoreboardType, scoreboards.get(obj).scoreboardValue) ? "0" : "1")));
 			}
 			if (!data.getFormattedText().isEmpty()) { list.add(Component.translatable("availability.type.scoreboards").append(data)); }
@@ -1001,7 +1005,8 @@ public class Availability implements ICompatibilty, IAvailability {
 					if (!st) { data.append("; "); } else { st = false; }
 					data.append(name);
 				}
-				data.append("]").append(Component.translatable("quest.task.manual."+(listOnly.contains(player.getName()) ? "0" : "1")));
+				data.append("] ")
+						.append(Component.translatable("quest.task.manual."+(listOnly.contains(player.getName()) ? "0" : "1")));
 			}
 			if (!listExcept.isEmpty()) {
 				data.append(Component.translatable("availability.except")).append("[");
@@ -1010,7 +1015,8 @@ public class Availability implements ICompatibilty, IAvailability {
 					if (!st) { data.append("; "); } else { st = false; }
 					data.append(name);
 				}
-				data.append("]").append(Component.translatable("quest.task.manual."+(listExcept.contains(player.getName()) ? "0" : "1")));
+				data.append("] ")
+						.append(Component.translatable("quest.task.manual."+(listExcept.contains(player.getName()) ? "0" : "1")));
 			}
 			if (!data.getFormattedText().isEmpty()) { list.add(Component.translatable("availability.type.player.names").append(data)); }
 		}
@@ -1042,6 +1048,7 @@ public class Availability implements ICompatibilty, IAvailability {
 						.append(Component.translatable("gui.name"))
 						.append(": ")
 						.append(sd.key)
+						.append(" ")
 						.append(Component.translatable("quest.task.item."+(bo ? "0" : "1")));
 			}
 			if (!data.getFormattedText().isEmpty()) { list.add(Component.translatable("availability.type.storeddata").append(data)); }
@@ -1064,6 +1071,7 @@ public class Availability implements ICompatibilty, IAvailability {
 						.append(Component.translatable("gui.name"))
 						.append(": ")
 						.append(Component.translatable("gui." + eam.name().toLowerCase()))
+						.append(" ")
 						.append(Component.translatable("quest.task.item."+(bo ? "1" : "0")));
 			}
 			if (!data.getFormattedText().isEmpty()) { list.add(Component.translatable("availability.type.moneys").append(data)); }
@@ -1085,7 +1093,7 @@ public class Availability implements ICompatibilty, IAvailability {
 			int h = (int) (player.getHealth() / player.getMaxHealth() * 100);
 			data = Component.empty().append(" ")
 					.append(Component.translatable("availability." + (healthType == 1 ? "smaller" : "bigger")))
-					.append(" " + h + "%")
+					.append(" " + h + "% ")
 					.append(Component.translatable("quest.task.item."+((healthType == 1 && h < health) || (healthType == 2 && h > health) ? "1" : "0")));
 			list.add(Component.translatable("availability.type.health").append(data));
 		}
@@ -1093,6 +1101,7 @@ public class Availability implements ICompatibilty, IAvailability {
 		if (onlyGM) {
 			data = Component.empty().append(": ")
 					.append(Component.translatable("gui.enabled"))
+					.append(" ")
 					.append(Component.translatable("quest.task.manual."+(gm ? "0" : "1")));
 			list.add(Component.translatable("availability.type.only.gm.true").append(data));
 		}
@@ -1100,7 +1109,7 @@ public class Availability implements ICompatibilty, IAvailability {
 		if (minPlayerLevel > 0) {
 			data = Component.empty().append(" ")
 					.append(Component.translatable("availability.bigger"))
-					.append(" " + minPlayerLevel)
+					.append(" " + minPlayerLevel + " ")
 					.append(Component.translatable("quest.task.manual."+(player.experienceLevel >= minPlayerLevel ? "0" : "1")));
 			list.add(Component.translatable("availability.type.level", data.toString()));
 		}

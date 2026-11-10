@@ -498,10 +498,8 @@ public class CustomNpcs {
 
 	@Mod.EventHandler
 	public void started(FMLServerStartedEvent event) {
-		if (Server != null) {
-			debugData.started = System.currentTimeMillis();
-			debugData.startedTicks = Server.getWorld(0).getTotalWorldTime();
-		}
+		debugData.start("Mod");
+		RecipeController.getInstance().load();
 		new BankController();
 		new MarcetController();
 		new BorderController();
@@ -510,6 +508,7 @@ public class CustomNpcs {
 		ScriptController.HasStart = true;
 		ServerCloneController.Instance = new ServerCloneController();
 		ScriptController.Instance.loadItemTextures();
+		debugData.end("Mod");
 	}
 
 	@Mod.EventHandler

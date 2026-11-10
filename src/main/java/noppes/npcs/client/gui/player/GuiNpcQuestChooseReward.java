@@ -56,7 +56,7 @@ public class GuiNpcQuestChooseReward extends GuiNPCInterface {
 
 	@Override
 	public void buttonEvent(GuiButtonNop button) {
-		Packets.sendServer(new SPacketQuestCompletionCheck(quest.id, button.id == 0 ?ItemStack.EMPTY : button.renderStack));
+		Packets.sendServer(new SPacketQuestCompletionCheck(quest.id, button.id == 0 ?ItemStack.EMPTY : button.getRenderStack()));
 		onClose();
 	}
 

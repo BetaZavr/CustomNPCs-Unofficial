@@ -40,7 +40,6 @@ import noppes.npcs.entity.data.DataInventory;
 import noppes.npcs.mixin.entity.player.IEntityPlayerMPMixin;
 import noppes.npcs.mixin.minecraftforge.registries.ForgeRegistryMixin;
 import noppes.npcs.mixin.stats.IRecipeBookMixin;
-import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nullable;
 
@@ -292,8 +291,8 @@ public class CommonProxy implements IGuiHandler {
 		}
 		RecipeController rData = RecipeController.getInstance();
 		for (int i = 0; i < 2; i++) {
-			for (INpcRecipe npcRecipe : (i == 0 ? rData.getAllGlobalRecipes() : rData.getAllAnvilRecipes())) {
-				if (npcRecipe.isKnown()) { book.unlock((IRecipe) npcRecipe); }
+			for (INpcRecipe iRecipe : (i == 0 ? rData.getAllGlobalRecipes() : rData.getAllAnvilRecipes())) {
+				if (iRecipe.isKnown()) { book.unlock((IRecipe) iRecipe); }
 			}
 		}
 	}

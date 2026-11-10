@@ -248,26 +248,26 @@ public class RecipeController implements IRecipeHandler {
 
 	public boolean delete(ResourceLocation id) {
 		if (CustomNpcs.Server != null) {
-			RecipeCarpentry recipe = getRecipe(id);
-			if (recipe != null) {
-				List<RecipeCarpentry> list;
-				boolean isRemoved = false;
-				if (globalRecipes.containsKey(recipe.getGroup())) {
-					list = globalRecipes.get(recipe.getGroup());
-					isRemoved = list.remove(recipe);
-					if (list.isEmpty()) { globalRecipes.remove(recipe.getGroup()); }
+			boolean isRemoved = false;
+			for (int i = 0; i < 2; i++) {
+				for (List<RecipeCarpentry> group : (i == 0 ? globalRecipes : anvilRecipes).values()) {
+					for (RecipeCarpentry npcRecipe : group) {
+						if (npcRecipe.getMCId().equals(id)) {
+							isRemoved = true;
+							break;
+						}
+					}
+					if (isRemoved) { break; }
 				}
-				if (anvilRecipes.containsKey(recipe.getGroup())) {
-					list = anvilRecipes.get(recipe.getGroup());
-					isRemoved = isRemoved || list.remove(recipe);
-					if (list.isEmpty()) { anvilRecipes.remove(recipe.getGroup()); }
-				}
-				if (isRemoved) {
-					saveCategories();
-					updateToAll();
-				}
-				return isRemoved;
+				if (isRemoved) { break; }
 			}
+			globalRecipes.values().removeIf(List::isEmpty);
+			anvilRecipes.values().removeIf(List::isEmpty);
+			if (isRemoved) {
+				saveCategories();
+				updateToAll();
+			}
+			return isRemoved;
 		}
 		return false;
 	}

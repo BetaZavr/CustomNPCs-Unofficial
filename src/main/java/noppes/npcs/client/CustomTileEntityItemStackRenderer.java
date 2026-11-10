@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import noppes.npcs.blocks.custom.CustomBlockPortal;
+import noppes.npcs.blocks.tiles.TileMailbox;
 import noppes.npcs.client.renderer.items.BlockCustomPortalItemRenderer;
 import noppes.npcs.items.ItemNpcBlock;
 
@@ -33,6 +34,7 @@ public class CustomTileEntityItemStackRenderer extends TileEntityItemStackRender
                 tile = ((ITileEntityProvider) block).createNewTileEntity(Minecraft.getMinecraft().world, meta);
                 if (tile != null) { data.put(block, tile); }
             }
+            if (tile instanceof TileMailbox) { ((TileMailbox) tile).setModel(stack.getItemDamage()); }
             if (tile != null) { TileEntityRendererDispatcher.instance.render(tile, 0.0D, 0.0D, 0.0D, partialTicks); }
         }
     }

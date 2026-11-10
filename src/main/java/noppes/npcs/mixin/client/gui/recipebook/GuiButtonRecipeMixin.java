@@ -3,7 +3,6 @@ package noppes.npcs.mixin.client.gui.recipebook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.recipebook.GuiButtonRecipe;
-import net.minecraft.client.gui.recipebook.RecipeList;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -32,7 +31,6 @@ public class GuiButtonRecipeMixin {
 
     @Final @Shadow private static ResourceLocation RECIPE_BOOK;
     @Shadow private RecipeBook book;
-    @Shadow private RecipeList list;
     @Shadow private float time;
     @Shadow private float animationTime;
     @Shadow private int currentIndex;
@@ -43,9 +41,11 @@ public class GuiButtonRecipeMixin {
     /** npc recipe */
     @Inject(at = {@At("HEAD")}, method = {"drawButton"}, cancellable = true)
     public void npcs$drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
-        IGuiButtonRecipeMixinMixin mixin = (IGuiButtonRecipeMixinMixin) this;
-        IRecipe recipe = mixin.invokeGetRecipe();
         GuiButtonRecipe parent = (GuiButtonRecipe) (Object) this;
+        if (parent.getList() == null) { return; }
+        IGuiButtonRecipeMixinMixin mixin = (IGuiButtonRecipeMixinMixin) this;
+        IRecipe recipe = null;
+        try { recipe = mixin.invokeGetRecipe(); } catch (Exception ignored) { }
         if (parent.visible && recipe instanceof RecipeCarpentry) {
             ci.cancel();
             RecipeCarpentry npcRecipe = (RecipeCarpentry) recipe;
@@ -79,9 +79,9 @@ public class GuiButtonRecipeMixin {
             ((IGuiButton) this).setHovered(mouseX >= parent.x && mouseY >= parent.y && mouseX < parent.x + parent.width && mouseY < parent.y + parent.height);
             mc.getTextureManager().bindTexture(RECIPE_BOOK);
             int i = 29;
-            if (!list.containsCraftableRecipes() || !npcRecipe.availability.isAvailable(mc.player)) { i += 25; }
+            if (!parent.getList().containsCraftableRecipes() || !npcRecipe.availability.isAvailable(mc.player)) { i += 25; }
             int j = 206;
-            if (list.getRecipes(book.isFilteringCraftable()).size() > 1) { j += 25; }
+            if (parent.getList().getRecipes(book.isFilteringCraftable()).size() > 1) { j += 25; }
             boolean isAnimated = animationTime > 0.0F;
             if (isAnimated) {
                 float f = 1.0F + 0.1F * (float)Math.sin(animationTime / 15.0F * (float)Math.PI);
@@ -95,7 +95,7 @@ public class GuiButtonRecipeMixin {
             currentIndex = MathHelper.floor(time / 30.0F) % listOrderedRecipes.size();
             ItemStack itemstack = listOrderedRecipes.get(currentIndex).getRecipeOutput();
             int k = 4;
-            if (list.hasSingleResultItem() && listOrderedRecipes.size() > 1) {
+            if (parent.getList().hasSingleResultItem() && listOrderedRecipes.size() > 1) {
                 GuiBasic.renderStackInGUI(itemstack, parent.x + k + 1, parent.y + k + 1, 0.0f, 1.0f, "");
                 --k;
             }
@@ -107,8 +107,11 @@ public class GuiButtonRecipeMixin {
     /** add availability info from npc recipe */
     @Inject(at = {@At("RETURN")}, method = {"getToolTipText"}, cancellable = true)
     public void npcs$getToolTipText(GuiScreen guiScreen, CallbackInfoReturnable<List<String>> cir) {
+        GuiButtonRecipe parent = (GuiButtonRecipe) (Object) this;
+        if (parent.getList() == null) { return; }
         IGuiButtonRecipeMixinMixin mixin = (IGuiButtonRecipeMixinMixin) this;
-        IRecipe recipe = mixin.invokeGetRecipe();
+        IRecipe recipe = null;
+        try { recipe = mixin.invokeGetRecipe(); } catch (Exception ignored) { }
         if (recipe instanceof RecipeCarpentry) {
             RecipeCarpentry npcRecipe = (RecipeCarpentry) recipe;
             if (npcs$availabilityList != null && GuiScreen.isShiftKeyDown()) { cir.setReturnValue(npcs$availabilityList); }
@@ -123,7 +126,7 @@ public class GuiButtonRecipeMixin {
                 if (npcs$availabilityList != null) {
                     hovers.add(Component.translatable("gui.recipebook.availability.3").getFormattedText());
                 }
-                if (list.getRecipes(book.isFilteringCraftable()).size() > 1) {
+                if (parent.getList().getRecipes(book.isFilteringCraftable()).size() > 1) {
                     hovers.add(Component.translatable("gui.recipebook.moreRecipes").getFormattedText());
                 }
                 cir.setReturnValue(hovers);

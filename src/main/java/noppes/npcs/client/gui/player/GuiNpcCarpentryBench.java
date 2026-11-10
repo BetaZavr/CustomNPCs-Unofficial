@@ -60,36 +60,33 @@ implements IRecipeShownListener {
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
+		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
+		GlStateManager.pushMatrix();
 		mc.getTextureManager().bindTexture(resource);
 		menu.checkPos(recipeBookGui.isVisible());
 		drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
-		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 		fontRenderer.drawString(Component.translatable("tile.npccarpentybench.name").getString(), guiLeft + 4, guiTop + 4, CustomNpcResourceListener.DefaultTextColor);
 		fontRenderer.drawString(Component.translatable("container.inventory").getString(), guiLeft + 4, guiTop + 87, CustomNpcResourceListener.DefaultTextColor);
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		GlStateManager.popMatrix();
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		drawDefaultBackground();
 		if (recipeBookGui.isVisible() && widthTooNarrow) {
 			drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 			recipeBookGui.render(mouseX, mouseY, partialTicks);
-		} else {
-			recipeBookGui.render(mouseX, mouseY, partialTicks);
+		}
+		else {
 			super.drawScreen(mouseX, mouseY, partialTicks);
+			recipeBookGui.render(mouseX, mouseY, partialTicks);
 			recipeBookGui.renderGhostRecipe(guiLeft, guiTop, true, partialTicks);
 		}
 		renderHoveredToolTip(mouseX, mouseY);
 		recipeBookGui.renderTooltip(guiLeft, guiTop, mouseX, mouseY);
 	}
 
-	@Nonnull
 	@Override
-	public GuiRecipeBook func_194310_f() {
-		return recipeBookGui;
-	}
+	public @Nonnull GuiRecipeBook func_194310_f() { return recipeBookGui; }
 
 	@Override
 	protected void handleMouseClick(@Nonnull Slot slotIn, int slotId, int mouseButton, @Nonnull ClickType type) {
@@ -97,6 +94,7 @@ implements IRecipeShownListener {
 		recipeBookGui.slotClicked(slotIn);
 	}
 
+	@Override
 	protected boolean hasClickedOutside(int p_193983_1_, int p_193983_2_, int p_193983_3_, int p_193983_4_) {
 		boolean flag = p_193983_1_ < p_193983_3_ || p_193983_2_ < p_193983_4_ || p_193983_1_ >= p_193983_3_ + xSize || p_193983_2_ >= p_193983_4_ + ySize;
 		return recipeBookGui.hasClickedOutside(p_193983_1_, p_193983_2_, guiLeft, guiTop, xSize, ySize) && flag;

@@ -129,6 +129,9 @@ public class Component {
     public ITextComponent getParent() { return parent; }
 
     @Override
+    public String toString() { return parent.toString(); }
+
+    @Override
     public boolean equals(Object other) {
         if (this == other) { return true; }
         if (!(other instanceof Component)) { return false; }

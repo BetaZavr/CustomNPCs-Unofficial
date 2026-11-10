@@ -152,12 +152,10 @@ jar {
                 "Implementation-Version"     : mod_version,
                 "Implementation-Vendor"      : mod_authors,
                 "Implementation-Timestamp"   : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "FMLCorePluginContainsFMLMod": "true",
                 "FMLCorePlugin"              : "${mod_group_id}.mixin.NpcMixinCore".toString(),
                 "FMLAT"                      : "accesstransformer.cfg",
                 "TweakClass"                 : "org.spongepowered.asm.launch.MixinTweaker",
                 "MixinConfigs"               : "mixins.${mod_id}.json".toString(),
-                "ForceLoadAsMod"             : "true",
                 "CertificateFingerprint"     : project.findProperty('certificateFingerprint') ?: "",
         ])
     }

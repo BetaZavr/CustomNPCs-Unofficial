@@ -78,8 +78,6 @@ public class CustomBlocks {
         GameRegistry.registerTileEntity(TileRedstoneBlock.class, new ResourceLocation(CustomNpcs.MODID, "TileRedstoneBlock"));
         GameRegistry.registerTileEntity(TileBlockAnvil.class, new ResourceLocation(CustomNpcs.MODID, "TileBlockAnvil"));
         GameRegistry.registerTileEntity(TileMailbox.class, new ResourceLocation(CustomNpcs.MODID, "TileMailbox"));
-        GameRegistry.registerTileEntity(TileMailbox2.class, new ResourceLocation(CustomNpcs.MODID, "TileMailbox2"));
-        GameRegistry.registerTileEntity(TileMailbox3.class, new ResourceLocation(CustomNpcs.MODID, "TileMailbox3"));
         GameRegistry.registerTileEntity(TileWaypoint.class, new ResourceLocation(CustomNpcs.MODID, "TileWaypoint"));
         GameRegistry.registerTileEntity(TileScripted.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCScripted"));
         GameRegistry.registerTileEntity(TileScriptedDoor.class, new ResourceLocation(CustomNpcs.MODID, "TileNPCScriptedDoor"));
@@ -272,9 +270,7 @@ public class CustomBlocks {
         ModelLoader.setCustomModelResourceLocation(scripted_door_item, 0, new ModelResourceLocation(CustomNpcs.MODID + ":npcscripteddoortool", "inventory"));
         // Render Tiles
         ClientRegistry.bindTileEntitySpecialRenderer(TileBlockAnvil.class, new BlockCarpentryBenchRenderer<>());
-        ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox.class, new BlockMailboxRenderer<>(0));
-        ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox2.class, new BlockMailboxRenderer<>(1));
-        ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox3.class, new BlockMailboxRenderer<>(2));
+        ClientRegistry.bindTileEntitySpecialRenderer(TileMailbox.class, new BlockMailboxRenderer<>());
         ClientRegistry.bindTileEntitySpecialRenderer(TileScripted.class, new BlockScriptedRenderer<>());
         ClientRegistry.bindTileEntitySpecialRenderer(TileDoor.class, new BlockDoorRenderer<>());
         ClientRegistry.bindTileEntitySpecialRenderer(TileCopy.class, new BlockCopyRenderer<>());

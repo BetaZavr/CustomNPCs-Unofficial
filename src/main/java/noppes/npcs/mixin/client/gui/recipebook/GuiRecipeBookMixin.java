@@ -46,22 +46,20 @@ public class GuiRecipeBookMixin {
      * @author BetaZavr
      * @reason Custom recipes require more information
      */
-    @Inject(method = "func_194303_a", at = @At("TAIL"))
-    public void npcs$func_194303_a(int w, int h, @Nonnull Minecraft minecraft, boolean widthTooNarrow, @Nonnull InventoryCrafting inv, CallbackInfo ci) {
+    @Inject(method = "func_194303_a", at = @At("HEAD"))
+    public void npcs$init(int w, int h, @Nonnull Minecraft minecraft, boolean widthTooNarrow, @Nonnull InventoryCrafting inv, CallbackInfo ci) {
         if (minecraft.currentScreen instanceof GuiNpcCarpentryBench) {
-            if (recipeTabs.size() != 2) {
+            if (recipeTabs.isEmpty() ||
+                    recipeTabs.get(0).getCategory() != ClientRegisterEvents.CRAFTING_CUSTOM_ANVIL_CATEGORY) {
                 recipeTabs.clear();
                 recipeTabs.add(new GuiButtonRecipeTab(0, ClientRegisterEvents.CRAFTING_CUSTOM_ANVIL_CATEGORY));
             }
         } else {
-            if (recipeTabs.size() != 6) {
-                recipeTabs.clear();
-                recipeTabs.add(new GuiButtonRecipeTab(0, CreativeTabs.SEARCH));
-                recipeTabs.add(new GuiButtonRecipeTab(1, CreativeTabs.TOOLS));
-                recipeTabs.add(new GuiButtonRecipeTab(2, CreativeTabs.BUILDING_BLOCKS));
-                recipeTabs.add(new GuiButtonRecipeTab(3, CreativeTabs.MISC));
-                recipeTabs.add(new GuiButtonRecipeTab(4, CreativeTabs.REDSTONE));
-                recipeTabs.add(new GuiButtonRecipeTab(5, ClientRegisterEvents.CRAFTING_CUSTOM_GLOBAL_CATEGORY));
+            if (recipeTabs.isEmpty() ||
+                    recipeTabs.size() < 6 ||
+                    recipeTabs.get(5).getCategory() != ClientRegisterEvents.CRAFTING_CUSTOM_GLOBAL_CATEGORY) {
+                if (recipeTabs.size() >= 6) { recipeTabs.remove(5); }
+                recipeTabs.add(5, new GuiButtonRecipeTab(5, ClientRegisterEvents.CRAFTING_CUSTOM_GLOBAL_CATEGORY));
             }
         }
     }
@@ -79,12 +77,14 @@ public class GuiRecipeBookMixin {
                     category == ClientRegisterEvents.CRAFTING_CUSTOM_GLOBAL_CATEGORY ||
                     category == ClientRegisterEvents.CRAFTING_CUSTOM_ANVIL_CATEGORY) {
                 tabButton.visible = true;
-                tabButton.setPosition(x, y + tabHeight * tabId++);
+                tabButton.setPosition(x, y + tabHeight * tabId);
+                if (category != CreativeTabs.SEARCH) { tabButton.startAnimation(mc); }
             }
             else if (tabButton.updateVisibility()) {
-                tabButton.setPosition(x, y + tabHeight * tabId++);
+                tabButton.setPosition(x, y + tabHeight * tabId);
                 tabButton.startAnimation(mc);
             }
+            tabId++;
         }
     }
 

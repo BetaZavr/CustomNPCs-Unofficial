@@ -16,6 +16,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
@@ -30,6 +31,7 @@ import javax.annotation.Nonnull;
 
 public class BlockMailbox extends BlockInterface {
 
+	protected static final AxisAlignedBB AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.375D, 1.0D);
 	public static PropertyInteger ROTATION = PropertyInteger.create("rotation", 0, 3);
 	public static PropertyInteger TYPE = PropertyInteger.create("type", 0, 2);
 
@@ -48,9 +50,7 @@ public class BlockMailbox extends BlockInterface {
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(@Nonnull World var1, int var2) {
-		return new TileMailbox();
-	}
+	public TileEntity createNewTileEntity(@Nonnull World world, int meta) { return new TileMailbox(); }
 
 	@Override
 	public int damageDropped(@Nonnull IBlockState state) {
@@ -108,7 +108,16 @@ public class BlockMailbox extends BlockInterface {
 	@Override
 	public void onBlockPlacedBy(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityLivingBase entity, @Nonnull ItemStack stack) {
 		int l = MathHelper.floor(entity.rotationYaw * 4.0f / 360.0f + 0.5) & 0x3;
-		world.setBlockState(pos, state.withProperty(BlockMailbox.TYPE, stack.getItemDamage()).withProperty(BlockMailbox.ROTATION, (l % 4)), 2);
+		int type = stack.getItemDamage();
+		world.setBlockState(pos, state.withProperty(BlockMailbox.TYPE, type).withProperty(BlockMailbox.ROTATION, (l % 4)), 2);
+		TileEntity tile = world.getTileEntity(pos);
+		if (tile instanceof TileMailbox) { ((TileMailbox) tile).setModel(type); }
+	}
+
+	@SuppressWarnings("deprecation")
+	@Override
+	public @Nonnull AxisAlignedBB getBoundingBox(@Nonnull IBlockState state, @Nonnull IBlockAccess source, @Nonnull BlockPos pos) {
+		return AABB;
 	}
 
 }

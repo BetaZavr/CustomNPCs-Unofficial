@@ -40,6 +40,7 @@ public class GuiMailbox extends GuiNPCInterface
 	protected static final ResourceLocation mDoor = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/box_door.png");
 	protected static final ResourceLocation mList = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/box_list.png");
 	public static final ResourceLocation icons = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/icons.png");
+	public static final ResourceLocation buttons = new ResourceLocation(CustomNpcs.MODID, "textures/gui/mail/buttons.png");
 
 	protected final Map<Component, PlayerMail> scrollData = new HashMap<>();
 	protected GuiCustomScrollNop scroll;
@@ -83,7 +84,7 @@ public class GuiMailbox extends GuiNPCInterface
 				setNextTick(15);
 				closeType = 1;
 				break;
-			} // close 1
+			} // write
 			case 2: {
 				if (selected == null) { return; }
 				ConfirmScreen guiYesNo = new ConfirmScreen((agree) -> {
@@ -140,72 +141,7 @@ public class GuiMailbox extends GuiNPCInterface
 				setNextTick(15);
 				closeType = 0;
 				break;
-			} // close 0
-		}
-	}
-
-	private void drawMailBox(float u, float v) {
-		GlStateManager.pushMatrix();
-		GlStateManager.translate(u, v, 0.0f);
-		mc.getTextureManager().bindTexture(mBox);
-		drawTexturedModalRect(0, 0, 0, 0, 192, 236); // Box
-		if (!scrollData.isEmpty()) {
-			mc.getTextureManager().bindTexture(mList);
-			drawTexturedModalRect(8, 45, 0, 0, 176, 156); // list
-		}
-		if (step == 3) {
-			mc.getTextureManager().bindTexture(mDoor);
-			drawTexturedModalRect(-5, 44, 181, 0, 7, 158); // door
-		}
-		GlStateManager.popMatrix();
-		if (scroll != null) { scroll.setPos((int) u + 9, (int) v + 45); }
-		if (getLabel(0) != null && getLabel(0).enabled) {
-			GuiLabel l = getLabel(0);
-			l.setX((int) u + 95 - (l.getWidth() / 2));
-			l.setY((int) v + 11);
-		}
-		for (int i = 0; i < 6; i++) {
-			if (getButton(i) == null) { return; }
-			GuiButtonNop b = getButton(i);
-			b.setIsEnabled(step == 3);
-			switch (i) {
-				case 0: {
-					b.setX((int) u + 8);
-					b.setY((int) v + 202);
-					b.setIsEnabled(step == 3 && selected != null);
-					break;
-				} // read
-				case 1: {
-					b.setX((int) u + 67);
-					b.setY((int) v + 202);
-					b.setIsEnabled(step == 3);
-					break;
-				} // write
-				case 2: {
-					b.setX((int) u + 126);
-					b.setY((int) v + 202);
-					b.setIsEnabled(step == 3 && selected != null);
-					break;
-				} // remove
-				case 3: {
-					b.setX((int) u + 8);
-					b.setY((int) v + 218);
-					b.setIsEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
-					break;
-				} // remove all
-				case 4: {
-					b.setX((int) u + 67);
-					b.setY((int) v + 218);
-					b.setIsEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
-					break;
-				} // clear
-				case 5: {
-					b.setX((int) u + 126);
-					b.setY((int) v + 218);
-					b.setIsEnabled(step == 3);
-					break;
-				} // exit
-			}
+			} // exit
 		}
 	}
 
@@ -470,37 +406,31 @@ public class GuiMailbox extends GuiNPCInterface
 		int y = guiTop + 202;
 		addButton(0, x, y, "mailbox.read")
 				.setSize(58, 14)
-				.setTexture(icons)
-				.setUV(0, 96, 0, 0)
+				.setTexture(buttons)
 				.setIsEnabled(selected != null)
 				.setHoverTexts("mailbox.hover.read");
 		addButton(1, x + 59, y, "mailbox.write")
 				.setSize(58, 14)
-				.setTexture(icons)
-				.setUV(0, 96, 0, 0)
+				.setTexture(buttons)
 				.setHoverTexts("mailbox.hover.write");
 		addButton(2, x + 118, y, "gui.remove")
 				.setSize(58, 14)
-				.setTexture(icons)
-				.setUV(0, 96, 0, 0)
+				.setTexture(buttons)
 				.setIsEnabled(selected != null)
 				.setHoverTexts("mailbox.hover.del");
 		addButton(3, x, y += 16, "gui.remove.all")
 				.setSize(58, 14)
-				.setTexture(icons)
-				.setUV(0, 96, 0, 0)
+				.setTexture(buttons)
 				.setIsEnabled(!list.isEmpty())
 				.setHoverTexts("mailbox.hover.delall");
 		addButton(4, x + 59, y, "gui.clear")
 				.setSize(58, 14)
-				.setTexture(icons)
-				.setUV(0, 96, 0, 0)
+				.setTexture(buttons)
 				.setIsEnabled(!list.isEmpty())
 				.setHoverTexts("mailbox.hover.clear");
 		addButton(5, x + 118, y, "display.hover.X")
 				.setSize(58, 14)
-				.setTexture(icons)
-				.setUV(0, 96, 0, 0)
+				.setTexture(buttons)
 				.setHoverTexts("hover.exit");
 	}
 
@@ -536,6 +466,71 @@ public class GuiMailbox extends GuiNPCInterface
 		PlayerData.get(player).mailData.load(compound);
 		selected = null;
 		initGui();
+	}
+
+	private void drawMailBox(float u, float v) {
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(u, v, 0.0f);
+		mc.getTextureManager().bindTexture(mBox);
+		drawTexturedModalRect(0, 0, 0, 0, 192, 236); // Box
+		if (!scrollData.isEmpty()) {
+			mc.getTextureManager().bindTexture(mList);
+			drawTexturedModalRect(8, 45, 0, 0, 176, 156); // list
+		}
+		if (step == 3) {
+			mc.getTextureManager().bindTexture(mDoor);
+			drawTexturedModalRect(-5, 44, 181, 0, 7, 158); // door
+		}
+		GlStateManager.popMatrix();
+		if (scroll != null) { scroll.setPos((int) u + 9, (int) v + 45); }
+		if (getLabel(0) != null && getLabel(0).enabled) {
+			GuiLabel l = getLabel(0);
+			l.setX((int) u + 95 - (l.getWidth() / 2));
+			l.setY((int) v + 11);
+		}
+		for (int i = 0; i < 6; i++) {
+			if (getButton(i) == null) { return; }
+			GuiButtonNop b = getButton(i);
+			b.setIsEnabled(step == 3);
+			switch (i) {
+				case 0: {
+					b.setX((int) u + 8);
+					b.setY((int) v + 202);
+					b.setIsEnabled(step == 3 && selected != null);
+					break;
+				} // read
+				case 1: {
+					b.setX((int) u + 67);
+					b.setY((int) v + 202);
+					b.setIsEnabled(step == 3);
+					break;
+				} // write
+				case 2: {
+					b.setX((int) u + 126);
+					b.setY((int) v + 202);
+					b.setIsEnabled(step == 3 && selected != null);
+					break;
+				} // remove
+				case 3: {
+					b.setX((int) u + 8);
+					b.setY((int) v + 218);
+					b.setIsEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
+					break;
+				} // remove all
+				case 4: {
+					b.setX((int) u + 67);
+					b.setY((int) v + 218);
+					b.setIsEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
+					break;
+				} // clear
+				case 5: {
+					b.setX((int) u + 126);
+					b.setY((int) v + 218);
+					b.setIsEnabled(step == 3);
+					break;
+				} // exit
+			}
+		}
 	}
 
 	private void setNextTick(int time) {

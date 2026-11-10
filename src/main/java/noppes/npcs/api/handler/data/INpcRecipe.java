@@ -4,7 +4,7 @@ import net.minecraft.util.ResourceLocation;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.interfaces.ParamName;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.wrapper.WrapperRecipe;
+import noppes.npcs.api.wrapper.gui.WrapperRecipe;
 
 import java.util.List;
 import java.util.Map;

@@ -7,6 +7,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -14,8 +15,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomTabs;
+import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.blocks.tiles.TileBlockAnvil;
 import noppes.npcs.constants.EnumGuiType;
 
@@ -60,10 +61,9 @@ public class BlockCarpentryBench extends BlockInterface {
 	public boolean isOpaqueCube(@Nonnull IBlockState state) { return false; }
 
 	@Override
-	public boolean onBlockActivated(@Nonnull World par1World, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (!par1World.isRemote) {
-			player.openGui(CustomNpcs.instance, EnumGuiType.PlayerAnvil.ordinal(), par1World, pos.getX(), pos.getY(),
-					pos.getZ());
+	public boolean onBlockActivated(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer player, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
+		if (!world.isRemote && player instanceof EntityPlayerMP) {
+			NoppesUtilServer.openContainerGui((EntityPlayerMP) player, EnumGuiType.PlayerAnvil, (buffer) -> buffer.writeBlockPos(pos));
 		}
 		return true;
 	}

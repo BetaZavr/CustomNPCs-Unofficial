@@ -25,7 +25,7 @@ import noppes.npcs.api.handler.data.INpcRecipe;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NBTWrapper;
-import noppes.npcs.api.wrapper.WrapperRecipe;
+import noppes.npcs.api.wrapper.gui.WrapperRecipe;
 import noppes.npcs.controllers.RecipeController;
 import noppes.npcs.util.CustomRecipeMatcher;
 
@@ -121,8 +121,10 @@ public class RecipeCarpentry implements IRecipe, INpcRecipe {
     @Override
     public boolean matches(@Nonnull InventoryCrafting inventoryCrafting, @Nullable World world) {
         if (isShaped) {
-            for(int x = 0; x <= 4 - width; ++x) {
-                for(int y = 0; y <= 4 - height; ++y) {
+            int gridWidth = inventoryCrafting.getWidth();
+            int gridHeight = inventoryCrafting.getHeight();
+            for(int x = 0; x <= gridWidth - width; ++x) {
+                for(int y = 0; y <= gridHeight - height; ++y) {
                     if (checkMatch(inventoryCrafting, x, y, true)) { return true; }
                     if (checkMatch(inventoryCrafting, x, y, false)) { return true; }
                 }
@@ -361,8 +363,10 @@ public class RecipeCarpentry implements IRecipe, INpcRecipe {
     }
 
     private boolean checkMatch(InventoryCrafting inventoryCrafting, int x, int y, boolean isRevers) {
-        for(int i = 0; i < 4; ++i) {
-            for(int j = 0; j < 4; ++j) {
+        int gridWidth = inventoryCrafting.getWidth();
+        int gridHeight = inventoryCrafting.getHeight();
+        for(int i = 0; i < gridWidth; ++i) {
+            for(int j = 0; j < gridHeight; ++j) {
                 int u = i - x;
                 int v = j - y;
                 Ingredient ingredient = Ingredient.EMPTY;
