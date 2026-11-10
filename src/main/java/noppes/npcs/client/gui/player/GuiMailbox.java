@@ -141,69 +141,6 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
       }
    }
 
-   private void drawMailBox(GuiGraphics graphics, float u, float v) {
-      PoseStack matrixStack = graphics.pose();
-      matrixStack.pushPose();
-      matrixStack.translate(u, v, 0.0f);
-      graphics.blit(mBox, 0, 0, 0, 0, 192, 236); // Box
-      if (!scrollData.isEmpty()) {
-         graphics.blit(mList, 8, 45, 0, 0, 176, 156); // list
-      }
-      if (step == 3) {
-         graphics.blit(mDoor, -5, 44, 181, 0, 7, 158); // door
-      }
-      matrixStack.popPose();
-      if (scroll != null) { scroll.setPos((int) u + 9, (int) v + 45); }
-      if (getLabel(0) != null && getLabel(0).enabled) {
-         GuiLabel l = getLabel(0);
-         l.setX((int) u + 95 - (l.getWidth() / 2));
-         l.setY((int) v + 11);
-      }
-      for (int i = 0; i < 6; i++) {
-         if (getButton(i) == null) { return; }
-         GuiButtonNop b = getButton(i);
-         b.setIsEnabled(step == 3);
-         switch (i) {
-            case 0: {
-               b.setX((int) u + 8);
-               b.setY((int) v + 202);
-               b.setIsEnabled(step == 3 && selected != null);
-               break;
-            } // read
-            case 1: {
-               b.setX((int) u + 67);
-               b.setY((int) v + 202);
-               b.setIsEnabled(step == 3);
-               break;
-            } // write
-            case 2: {
-               b.setX((int) u + 126);
-               b.setY((int) v + 202);
-               b.setIsEnabled(step == 3 && selected != null);
-               break;
-            } // remove
-            case 3: {
-               b.setX((int) u + 8);
-               b.setY((int) v + 218);
-               b.setIsEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
-               break;
-            } // remove all
-            case 4: {
-               b.setX((int) u + 67);
-               b.setY((int) v + 218);
-               b.setIsEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
-               break;
-            } // clear
-            case 5: {
-               b.setX((int) u + 126);
-               b.setY((int) v + 218);
-               b.setIsEnabled(step == 3);
-               break;
-            } // exit
-         }
-      }
-   }
-
    @Override
    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
       PoseStack matrixStack = graphics.pose();
@@ -517,6 +454,69 @@ public class GuiMailbox extends GuiNPCInterface implements IGuiData, ICustomScro
       PlayerData.get(player).mailData.load(compound);
       selected = null;
       init();
+   }
+
+   private void drawMailBox(GuiGraphics graphics, float u, float v) {
+      PoseStack matrixStack = graphics.pose();
+      matrixStack.pushPose();
+      matrixStack.translate(u, v, 0.0f);
+      graphics.blit(mBox, 0, 0, 0, 0, 192, 236); // Box
+      if (!scrollData.isEmpty()) {
+         graphics.blit(mList, 8, 45, 0, 0, 176, 156); // list
+      }
+      if (step == 3) {
+         graphics.blit(mDoor, -5, 44, 181, 0, 7, 158); // door
+      }
+      matrixStack.popPose();
+      if (scroll != null) { scroll.setPos((int) u + 9, (int) v + 45); }
+      if (getLabel(0) != null && getLabel(0).enabled) {
+         GuiLabel l = getLabel(0);
+         l.setX((int) u + 95 - (l.getWidth() / 2));
+         l.setY((int) v + 11);
+      }
+      for (int i = 0; i < 6; i++) {
+         if (getButton(i) == null) { return; }
+         GuiButtonNop b = getButton(i);
+         b.setIsEnabled(step == 3);
+         switch (i) {
+            case 0: {
+               b.setX((int) u + 8);
+               b.setY((int) v + 202);
+               b.setIsEnabled(step == 3 && selected != null);
+               break;
+            } // read
+            case 1: {
+               b.setX((int) u + 67);
+               b.setY((int) v + 202);
+               b.setIsEnabled(step == 3);
+               break;
+            } // write
+            case 2: {
+               b.setX((int) u + 126);
+               b.setY((int) v + 202);
+               b.setIsEnabled(step == 3 && selected != null);
+               break;
+            } // remove
+            case 3: {
+               b.setX((int) u + 8);
+               b.setY((int) v + 218);
+               b.setIsEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
+               break;
+            } // remove all
+            case 4: {
+               b.setX((int) u + 67);
+               b.setY((int) v + 218);
+               b.setIsEnabled(step == 3 && scroll != null && !scroll.getList().isEmpty());
+               break;
+            } // clear
+            case 5: {
+               b.setX((int) u + 126);
+               b.setY((int) v + 218);
+               b.setIsEnabled(step == 3);
+               break;
+            } // exit
+         }
+      }
    }
 
    private void setNextTick(int time) {

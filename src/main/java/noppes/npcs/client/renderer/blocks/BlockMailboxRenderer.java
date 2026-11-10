@@ -26,19 +26,18 @@ public class BlockMailboxRenderer<T extends TileMailbox> implements BlockEntityR
 	public BlockMailboxRenderer(Context ignoredDispatcher) { }
 
 	public void render(T te, float partialTicks, @NotNull PoseStack matrixStack, @NotNull MultiBufferSource buffer, int light, int overlay) {
-		int meta = 0;
+		float meta = 0;
 		int type = te.getModel();
-		if (te.getBlockPos() != BlockPos.ZERO) {
-			int rot = te.getBlockState().getValue(BlockMailbox.ROTATION);
-			meta = (rot | 0x4);
-		}
+		if (te.getBlockPos() != BlockPos.ZERO) { meta = (te.getBlockState().getValue(BlockMailbox.ROTATION) | 0x4); }
 		matrixStack.pushPose();
 		matrixStack.translate(0.5F, 1.5F, 0.5F);
 		matrixStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
-		matrixStack.mulPose(Axis.YP.rotationDegrees((float)(90 * meta)));
-		if (type == 0) { model.renderToBuffer(matrixStack, buffer.getBuffer(type1), light, overlay, 1.0F, 1.0F, 1.0F, 1.0F); }
-		else if (type == 1) { model2.renderToBuffer(matrixStack, buffer.getBuffer(type2), light, overlay, 1.0F, 1.0F, 1.0F, 1.0F); }
-		else if (type == 2) { model2.renderToBuffer(matrixStack, buffer.getBuffer(type3), light, overlay, 1.0F, 1.0F, 1.0F, 1.0F); }
+		matrixStack.mulPose(Axis.YP.rotationDegrees(90.0f * meta));
+		switch (type) {
+			case 1 -> model2.renderToBuffer(matrixStack, buffer.getBuffer(type2), light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+			case 2 -> model2.renderToBuffer(matrixStack, buffer.getBuffer(type3), light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+			default -> model.renderToBuffer(matrixStack, buffer.getBuffer(type1), light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+		}
 		matrixStack.popPose();
 	}
 

@@ -12,7 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.level.block.Blocks;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.RecipeCarpentry;
@@ -27,7 +26,7 @@ public class WrapperRecipe {
     public final @Nonnull Map<Integer, ItemStack[]> ingredients = new TreeMap<>(); // -> ItemStack[].length == 0 ... 16 max (not null)
     public @Nonnull Availability availability = new Availability();
     public @Nonnull ResourceLocation id = new ResourceLocation(CustomNpcs.MODID, "");
-    public @Nonnull ItemStack product;
+    public @Nonnull ItemStack product = ItemStack.EMPTY;
     public boolean isGlobal = true;
     public boolean isKnown = false;
     public boolean ignoreDamage = false;
@@ -38,9 +37,13 @@ public class WrapperRecipe {
     public Component group = Component.empty();
     public CraftingRecipe parent = null;
 
-    public WrapperRecipe() {
-        product = new ItemStack(Blocks.COBBLESTONE);
-        ingredients.put(0, new ItemStack[] { new ItemStack(Blocks.COBBLESTONE) });
+    public void clear() {
+        ingredients.clear();
+        availability.clear();
+        id = new ResourceLocation(CustomNpcs.MODID, "");
+        product = ItemStack.EMPTY;
+        group = Component.empty();
+        parent = null;
     }
 
     public CompoundTag getNbt() {
@@ -155,7 +158,12 @@ public class WrapperRecipe {
                 else { wrapper.ingredients.put(slotId, new ItemStack[0]); }
             }
         }
-        wrapper.group = Component.literal(recipe.getGroup().isEmpty() ? wrapper.id.getNamespace() : recipe.getGroup()).withStyle(ChatFormatting.GRAY);
+        String groupName = recipe.getGroup().isEmpty() ? wrapper.id.getPath() : recipe.getGroup();
+        if (!wrapper.id.getNamespace().equals(CustomNpcs.MODID)) {
+            wrapper.group = Component.literal(groupName).withStyle(ChatFormatting.GRAY);
+        } else {
+            wrapper.group = Component.literal(groupName);
+        }
         wrapper.product = recipe.getResultItem(player.level().registryAccess());
         return wrapper;
     }

@@ -129,8 +129,10 @@ public class RecipeCarpentry implements CraftingRecipe, INpcRecipe {
    @Override
    public boolean matches(@Nonnull CraftingContainer inventoryCrafting, @Nullable Level world) {
       if (isShaped) {
-         for(int x = 0; x <= inventoryCrafting.getWidth() - width; ++x) {
-            for(int y = 0; y <= inventoryCrafting.getHeight() - height; ++y) {
+         int gridWidth = inventoryCrafting.getWidth();
+         int gridHeight = inventoryCrafting.getHeight();
+         for(int x = 0; x <= gridWidth - width; ++x) {
+            for(int y = 0; y <= gridHeight - height; ++y) {
                if (checkMatch(inventoryCrafting, x, y, true)) { return true; }
                if (checkMatch(inventoryCrafting, x, y, false)) { return true; }
             }
@@ -380,8 +382,10 @@ public class RecipeCarpentry implements CraftingRecipe, INpcRecipe {
    }
 
    private boolean checkMatch(CraftingContainer inventoryCrafting, int x, int y, boolean isRevers) {
-      for(int i = 0; i < inventoryCrafting.getWidth(); ++i) {
-         for(int j = 0; j < inventoryCrafting.getHeight(); ++j) {
+      int gridWidth = inventoryCrafting.getWidth();
+      int gridHeight = inventoryCrafting.getHeight();
+      for(int i = 0; i < gridWidth; ++i) {
+         for(int j = 0; j < gridHeight; ++j) {
             int u = i - x;
             int v = j - y;
             Ingredient ingredient = Ingredient.EMPTY;

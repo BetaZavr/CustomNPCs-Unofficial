@@ -25,7 +25,6 @@ import noppes.npcs.packets.client.PacketAchievement;
 import noppes.npcs.client.gui.util.quests.QuestInterface;
 import noppes.npcs.client.gui.util.quests.QuestObjective;
 import noppes.npcs.util.CustomNPCsScheduler;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -115,13 +114,15 @@ public class TileWaypoint extends TileNpcEntity {
       return level.getEntitiesOfClass(Player.class, (new AABB(this.worldPosition, this.worldPosition.offset(1, 1, 1))).inflate(x, y, z));
    }
 
-   public void load(@NotNull CompoundTag compound) {
+   @Override
+   public void load(@Nonnull CompoundTag compound) {
       super.load(compound);
       name = compound.getString("LocationName");
       range = Math.max(2, compound.getInt("LocationRange"));
    }
 
-   public void saveAdditional(@NotNull CompoundTag compound) {
+   @Override
+   public void saveAdditional(@Nonnull CompoundTag compound) {
       if (!name.isEmpty()) { compound.putString("LocationName", name); }
       compound.putInt("LocationRange", range);
       super.saveAdditional(compound);

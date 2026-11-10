@@ -58,8 +58,8 @@ public class GuiButtonNop extends Button implements IComponentGui {
    protected static final double step = 60;
 
    public ItemStack[] renderStacks = null;
-   public ItemStack renderStack = ItemStack.EMPTY;
-   public int renderStackId = -1;
+   protected ItemStack renderStack = ItemStack.EMPTY;
+   protected int renderStackId = -1;
    protected int ticks = 0;
    protected int wait = 0;
 
@@ -331,6 +331,10 @@ public class GuiButtonNop extends Button implements IComponentGui {
       hasDefBack = bo;
       return this;
    }
+
+   public ItemStack getRenderStack() { return renderStack; }
+
+   public int getRenderStackId() { return renderStackId; }
 
    public GuiButtonNop setVariants(Object ... variants) {
       Set<Component> lines = new LinkedHashSet<>();

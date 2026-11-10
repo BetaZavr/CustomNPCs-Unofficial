@@ -74,8 +74,8 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface<ContainerCarp
          recipeBookComponent.render(graphics, mouseX, mouseY, partialTicks);
       }
       else {
-         recipeBookComponent.render(graphics, mouseX, mouseY, partialTicks);
          super.render(graphics, mouseX, mouseY, partialTicks);
+         recipeBookComponent.render(graphics, mouseX, mouseY, partialTicks);
          recipeBookComponent.renderGhostRecipe(graphics, guiLeft, guiTop, false, partialTicks);
       }
       renderTooltip(graphics, mouseX, mouseY);
@@ -116,7 +116,7 @@ public class GuiNpcCarpentryBench extends GuiContainerNPCInterface<ContainerCarp
 
    @Override
    protected void renderLabels(@Nonnull GuiGraphics graphics, int mouseX, int mouseY) {
-      graphics.drawString(font, Component.translatable("tile.npccarpentybench.name").append(":"),
+      graphics.drawString(font, Component.translatable("block.customnpcs.npccarpentybench").append(":"),
               titleLabelX, titleLabelY - 2, CustomNpcResourceListener.DefaultTextColor, false);
       graphics.drawString(font, Component.translatable("container.inventory").append(":"),
               titleLabelX, titleLabelY + 82, CustomNpcResourceListener.DefaultTextColor, false);

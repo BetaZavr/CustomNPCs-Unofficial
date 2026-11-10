@@ -724,20 +724,18 @@ public class ClientEventHandler {
         CustomNpcs.debugData.start("Players");
         mc = Minecraft.getInstance();
         String oldScreenName = mc.screen == null ? "GuiIngame" : mc.screen.getClass().getSimpleName();
-        if (oldScreenName.equals(event.getScreen().getClass().getSimpleName())) { LogWriter.info("Re-open GUI - " + event.getScreen().getClass()); }
-        else {
-            String newGUI = event.getScreen().getClass().getSimpleName();
-            if (event.getScreen() instanceof GuiLog) {
-                newGUI = switch (((GuiLog) event.getScreen()).type) {
-                    case 0 -> "GuiFactionLog";
-                    case 1 -> "GuiQuestLog";
-                    case 2 -> "GuiCompassLog";
-                    default -> "GuiInventoryLog";
-                };
-            }
-            LogWriter.debug("Open GUI - " + event.getScreen().getClass().getName() + "; OLD - " + oldScreenName);
-            Packets.sendServer(new SPacketPlayerScreen(newGUI, oldScreenName));
+        if (oldScreenName.equals(event.getScreen().getClass().getSimpleName())) { LogWriter.info("Re-open GUI \"" + event.getScreen().getClass().getName()); }
+        else { LogWriter.debug("Open GUI \"" + event.getScreen().getClass().getName() + "\"; OLD GUI \"" + oldScreenName); }
+        String newGUI = event.getScreen().getClass().getSimpleName();
+        if (event.getScreen() instanceof GuiLog) {
+            newGUI = switch (((GuiLog) event.getScreen()).type) {
+                case 0 -> "GuiFactionLog";
+                case 1 -> "GuiQuestLog";
+                case 2 -> "GuiCompassLog";
+                default -> "GuiInventoryLog";
+            };
         }
+        Packets.sendServer(new SPacketPlayerScreen(newGUI, oldScreenName));
         if (event.getScreen() instanceof GuiNpcPather) { movingPath.clear(); }
         else if (event.getScreen() instanceof EffectRenderingInventoryScreen && mc.player != null &&
                 mc.player.isCreative() &&
@@ -757,7 +755,10 @@ public class ClientEventHandler {
         CustomNPCsScheduler.runTack(() -> {
             CustomNpcs.debugData.start("Players");
             Minecraft mc = Minecraft.getInstance();
-            if (mc.screen == null) { Packets.sendServer(new SPacketPlayerScreen("GuiIngame", event.getScreen().getClass().getSimpleName())); }
+            if (mc.screen == null) {
+                LogWriter.debug("Close GUI \"" + event.getScreen().getClass().getName());
+                Packets.sendServer(new SPacketPlayerScreen("GuiIngame", event.getScreen().getClass().getSimpleName()));
+            }
             CustomNpcs.debugData.end("Players");
         }, 100);
     }

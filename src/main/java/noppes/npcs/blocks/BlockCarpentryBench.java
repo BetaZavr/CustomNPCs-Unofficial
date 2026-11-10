@@ -35,10 +35,10 @@ public class BlockCarpentryBench extends BlockInterface {
 
    @Override
    @SuppressWarnings("deprecation")
-   public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player,
+   public @NotNull InteractionResult use(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player playerIn,
                                          @NotNull InteractionHand hand, @NotNull BlockHitResult ray) {
-      if (!level.isClientSide) {
-         NoppesUtilServer.openContainerGui((ServerPlayer)player, EnumGuiType.PlayerAnvil, (buffer) -> buffer.writeBlockPos(pos));
+      if (!level.isClientSide && playerIn instanceof ServerPlayer player) {
+         NoppesUtilServer.openContainerGui(player, EnumGuiType.PlayerAnvil, (buffer) -> buffer.writeBlockPos(pos));
       }
 
       return InteractionResult.SUCCESS;

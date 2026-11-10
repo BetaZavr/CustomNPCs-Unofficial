@@ -271,16 +271,6 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
       mail = new PlayerMail();
    }
 
-   private void updateButtons() {
-      if (!menu.canEdit && mail.ransom > 0) {
-         buttonNextPage.setIsVisible(false);
-         buttonPreviousPage.setIsVisible(false);
-         return;
-      }
-      buttonNextPage.setIsVisible((menu.canEdit && !bookPages.getString(currPage).isEmpty()) || currPage < bookTotalPages - 1);
-      buttonPreviousPage.setIsVisible(currPage > 0);
-   }
-
    @Override
    public void buttonEvent(GuiButtonNop button) {
       if (!button.active) { return; }
@@ -354,10 +344,6 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
       updateButtons();
    }
 
-   private void removeMail() {
-      playerData.mailData.playerMails.removeIf(mailIn -> mailIn.timeWhenReceived == mail.timeWhenReceived && mailIn.sender.equals(mail.sender));
-   }
-
    @Override
    public boolean charTyped(char typedChar, int keyCode) {
       if (GuiTextFieldNop.getActive() == null && menu.canEdit && SharedConstants.isAllowedChatCharacter(typedChar)) {
@@ -380,6 +366,757 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
       }
       GuiBasic.checkAltH();
       return wrapper.keyPressed(keyCode, scanCode, modifiers);
+   }
+
+   @Override
+   public void render(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+      super.renderBackground(graphics);
+      PoseStack matrixStack = graphics.pose();
+      if (minecraft == null) { minecraft = Minecraft.getInstance(); }
+      if (errTick != 0L && minecraft.level != null && errTick < minecraft.level.getGameTime()) {
+         errTick = 0L;
+         if (error != null) { error.setMessage(""); }
+      }
+      // Info
+      if (!menu.canEdit && mail.ransom > 0) {
+         graphics.blit(GuiMailbox.icons, guiLeft + 33, guiTop + 43, 0, 126, 120, 130);
+         graphics.drawCenteredString(font, Component.translatable("mailbox.hover.ransom.sell"),
+                 guiLeft + 87, guiTop + 100,
+                 CustomNpcs.MainColor.getRGB() | 0xFF000000);
+      }
+      boolean hasMail = false;
+      cost.clear();
+      long c = CustomNpcs.MailCostSendingLetter[0];
+      cost.put(0, c);
+      totalCost = c;
+      if (bookPages != null) {
+         c = 0;
+         for (int i = 0; i < bookPages.size(); ++i) {
+            if (bookPages.getString(i).isEmpty()) { continue; }
+            c += CustomNpcs.MailCostSendingLetter[1];
+            hasMail = true;
+         }
+         cost.put(1, c);
+         totalCost += c;
+      }
+      c = 0;
+      hasStacks = false;
+      for (int i = 0; i < 4; i++) {
+         Slot slot = menu.getSlot(i);
+         if (slot.getItem().isEmpty()) { continue; }
+         c += (int) ((float) CustomNpcs.MailCostSendingLetter[2] * (float) slot.getItem().getCount()
+                 / (float) slot.getItem().getMaxStackSize());
+         hasStacks = true;
+         hasMail = true;
+      }
+      cost.put(3, c);
+      totalCost += c;
+      if (mail.money > 0) {
+         c = (long) ((float) mail.money * (float) CustomNpcs.MailCostSendingLetter[3] / 100.0f);
+         cost.put(2, c);
+         totalCost += c;
+         totalCost += mail.money;
+         hasMail = true;
+      }
+      if (mail.ransom > 0) {
+         c = (long) (int) ((float) mail.ransom * (float) CustomNpcs.MailCostSendingLetter[4]
+                 / 100.0f);
+         cost.put(4, c);
+         totalCost += c;
+      }
+      if (getLabel(5) != null) {
+         getLabel(5).setMessage(Component.translatable("mailbox.cost.send",
+                 "" + (totalCost == 0L ? 0
+                         : Util.instance.getTextReducedNumber(totalCost, true, false, false)),
+                 CustomNpcs.displayCurrencies));
+      }
+      if (menu.canEdit && menu.canSend && getButton(0) != null) {
+         type = 0;
+         type = !player.isCreative() && username.equals(player.getName().getString()) && !CustomNpcs.MailSendToYourself ? 3 : 0;
+         if (type == 0) { type = getTextField(0) != null && getTextField(0).getValue().isEmpty() ? 1 : 0; } // player
+         if (type == 0) { type = mail.title.isEmpty() ? 4 : 0; } // title
+         if (type == 0 && !player.isCreative()) { type = PlayerData.get(player).game.getMoney() < totalCost ? 2 : 0; } // money
+         if (type == 0 && !hasMail) { type = 5; } // empty
+         getButton(0).setIsEnabled(type == 0);
+      }
+      // Animations
+      matrixStack.pushPose();
+      RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+      if (tick >= 0) {
+         if (tick == 0) { partialTicks = 0.0f; }
+         float part = (float) tick + partialTicks;
+         float cos = ValueUtil.correctFloat((float) Math.cos(90.0d * part / (double) milliTick * Math.PI / 180.0d), 0.0f, 1.0f);
+         switch (step) {
+            case 0: {
+               float u = guiLeft + (1.0f - cos) * 174.0f;
+               float v = guiTop + (1.0f - cos) * 248.0f;
+               drawPlace(graphics, u, v, mouseX, mouseY);
+               matrixStack.pushPose();
+               matrixStack.translate(u, v, 2.0f);
+               graphics.blit(mEnvelope, 5, 40, 0, 0, 156, 134);
+               graphics.blit(mSendBox, 53, 168, 0, 54, 68, 74);
+               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
+               matrixStack.popPose();
+               if (tick == 0) {
+                  step = 1;
+                  setNextTick(21, true);
+                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.down",
+                          player.getX(), player.getY(), player.getZ(), 1.0f,
+                          0.75f + 0.25f * rnd.nextFloat());
+               }
+               break;
+            } // open
+            case 1: {
+               drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY);
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft, guiTop + cos * 150.0f, 2.0f);
+               graphics.blit(mEnvelope, 5, 40, 0, 0, 156, 134);
+               matrixStack.popPose();
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + cos * 183.0f, guiTop + cos * 169.0f, 2.0f);
+               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
+               matrixStack.popPose();
+               // handle
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 0.0f);
+               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
+               matrixStack.popPose();
+               if (tick == 0) {
+                  step = 2;
+                  setNextTick(21, true);
+                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.sheet",
+                          player.getX(), player.getY(), player.getZ(), 1.0f,
+                          0.8f + 0.4f * rnd.nextFloat());
+               }
+               break;
+            } // box and envelope_0 offset
+            case 2: {
+               drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY);
+               // envelope_0
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 5, guiTop + 190.0f, 2.0f);
+               graphics.blit(mEnvelope, 0, 0, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // list
+               float v = guiTop + 150.0f - cos * 134.0f;
+               int h = 186 - (int) v;
+               if (h > 134) {
+                  h = 134;
+               }
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 9, v, 2.0f);
+               graphics.blit(mList, 0, 0, 0, 0, 156, h);
+               matrixStack.popPose();
+               // handle
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 2.0f);
+               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
+               matrixStack.popPose();
+               // box
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
+               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
+               graphics.blit(mTable, 25, 27, 174, 22, 18, 18);
+               graphics.blit(mSendBox, 0, 41, 0, 95, 68, 33);
+               matrixStack.popPose();
+               if (tick == 0) {
+                  step = 3;
+                  setNextTick(16, true);
+                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.sheet",
+                          player.getX(), player.getY(), player.getZ(), 1.0f,
+                          0.8f + 0.4f * rnd.nextFloat());
+               }
+               break;
+            } // box added slots and show list
+            case 3: {
+               drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY);
+               // envelope_1
+               float u = guiLeft + cos * 142.0f;
+               float v = guiTop + 150.0f - cos * 160.0f;
+               matrixStack.pushPose();
+               matrixStack.translate(u, v, 2.0f);
+               graphics.blit(mEnvelope, 5, 40, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // list
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 9.0f, guiTop + 12.0f, 2.0f);
+               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // handle
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 2.0f);
+               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
+               matrixStack.popPose();
+               // box
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
+               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
+               graphics.blit(mTable, 25, 27, 174, 22, 18, 18);
+               graphics.blit(mSendBox, 0, 41, 0, 95, 68, 33);
+               matrixStack.popPose();
+               if (tick == 0) {
+                  step = 4;
+                  setNextTick(36, true);
+               }
+               break;
+            } // envelope_1 offset
+            case 4: {
+               drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY);
+               // envelope
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 142.0f, guiTop - 10.0f, 2.0f);
+               graphics.blit(mEnvelope, 5, 40, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // list
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 9.0f, guiTop + 12.0f, 2.0f);
+               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // handle
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 2.0f);
+               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
+               matrixStack.popPose();
+               // box
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
+               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
+               matrixStack.popPose();
+               // slots
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 208.0f, guiTop + 196.0f, 2.0f);
+               graphics.blit(mTable, 0, 0, 174, 22, 18, 18);
+               double h = 36.0d;
+               int x0 = 0, y0 = 0;
+               for (int s = 0; s < 36; s++) {
+                  int t = tick + s - 35;
+                  int x = s % 9;
+                  int y = (int) Math.floor((double) s / 9.0d);
+                  int x1 = x * 18 - 202;
+                  int y1 = y * 18 + (y == 3 ? 2 : 0) - 29;
+                  if (t < 0) {
+                     graphics.blit(mTable, x1, y1, 174, 22, 18, 18);
+                  } else {
+                     cos = (float) Math.cos(90.0d * ((double) t + partialTicks) / 35.0d * Math.PI / 180.0d);
+                     if (cos < 0.0f) {
+                        cos = 0.0f;
+                     } else if (cos > 1.0f) {
+                        cos = 1.0f;
+                     }
+                     double px = x0 - x1, py = y0 - y1;
+                     double dist = Math.sqrt(px * px + py * py);
+                     double r = (Math.pow(dist / 2.0d, 2.0d) + Math.pow(h, 2.0d)) / (2.0d * h);
+                     double tg = Math.abs(py / px);
+                     double angle = Math.atan(tg) * 180.0d / Math.PI;
+                     double cx = (x0 - x1) / 2.0d + x1;
+                     double cy = (y0 - y1) / 2.0d + y1;
+                     double rx = cx + Math.sin(angle * Math.PI / 180) * (r - h) * -1;
+                     double ry = cy + Math.cos(angle * Math.PI / 180) * (r - h);
+                     px = x0 - rx;
+                     py = y0 - ry;
+                     tg = Math.abs(py / px);
+                     double startAngle = Math.atan(tg) * 180.0d / Math.PI;
+                     px = x1 - rx;
+                     py = y1 - ry;
+                     tg = Math.abs(py / px);
+                     angle = 180.0d - startAngle - Math.atan(tg) * 180.0d / Math.PI;
+                     double nowAngle = cos * angle + startAngle;
+                     x1 = (int) (rx + Math.cos(nowAngle * Math.PI / 180) * r);
+                     y1 = (int) (ry + Math.sin(nowAngle * Math.PI / 180) * r * -1);
+                     graphics.blit(mTable, x1, y1, 174, 22, 18, 18);
+                  }
+               }
+               matrixStack.popPose();
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
+               graphics.blit(mSendBox, 0, 41, 0, 95, 68, 33);
+               matrixStack.popPose();
+               if (tick % 4 == 0) {
+                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":mail.slot",
+                          player.getX(), player.getY(), player.getZ(), 1.0f,
+                          0.7f + 0.4f * rnd.nextFloat());
+               }
+               if (tick == 0) {
+                  step = 5;
+                  milliTick = 0;
+               }
+               break;
+            } // slots
+            case 6: {
+               drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY);
+               if (tick == 0) {
+                  step = 7;
+                  setNextTick(36, false);
+               }
+            } // simple close/back
+            case 7: {
+               // table
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft, guiTop, 0.0f);
+               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
+               matrixStack.popPose();
+               // envelope
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 142.0f, guiTop - 10.0f, 2.0f);
+               graphics.blit(mEnvelope, 5, 40, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // list
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 9.0f, guiTop + 12.0f, 2.0f);
+               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // handle
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 2.0f);
+               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
+               matrixStack.popPose();
+               // box
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
+               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
+               matrixStack.popPose();
+               // slots
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 208.0f, guiTop + 196.0f, 2.0f);
+               graphics.blit(mTable, 0, 0, 174, 22, 18, 18);
+               int x0 = 0, y0 = 0;
+               for (int s = 0; s < 36; s++) {
+                  int x = s % 9;
+                  int y = (int) Math.floor((double) s / 9.0d);
+                  int x1 = x * 18 - 202;
+                  int y1 = y * 18 + (y == 3 ? 2 : 0) - 29;
+                  double px = x0 - x1, py = y0 - y1;
+                  graphics.blit(mTable, (int) (x1 + px * cos), (int) (y1 + py * cos), 174, 22, 18, 18);
+               }
+               matrixStack.popPose();
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
+               graphics.blit(mSendBox, 0, 41, 0, 95, 68, 33);
+               matrixStack.popPose();
+               if (tick % 6 == 0) {
+                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":mail.slot",
+                          player.getX(), player.getY(), player.getZ(), 1.0f,
+                          0.9f + 0.3f * rnd.nextFloat());
+               }
+               if (tick == 0) {
+                  step = aType == 0 ? 8 : aType == 1 ? 10 : 13;
+                  setNextTick(31, true);
+                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.sheet",
+                          player.getX(), player.getY(), player.getZ(), 1.0f,
+                          0.8f + 0.4f * rnd.nextFloat());
+               }
+               break;
+            } // 0 _ simple close/back
+            case 8: {
+               // table
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft, guiTop, 0.0f);
+               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
+               matrixStack.popPose();
+               float u = guiLeft + 9.0f;
+               float v = guiTop + 12.0f + cos * 53.0f;
+               // list
+               matrixStack.pushPose();
+               matrixStack.translate(u, v, 2.0f);
+               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // handle
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 2.0f);
+               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
+               matrixStack.popPose();
+               u = guiLeft + 142.0f - cos * 142.0f;
+               v = guiTop - 10.0f + cos * 34.0f;
+               // envelope
+               matrixStack.pushPose();
+               matrixStack.translate(u, v, 2.0f);
+               graphics.blit(mEnvelope, 5, 40, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // box
+               u = guiLeft + 183.0f - cos * 130.0f;
+               v = guiTop + 169.0f - cos * 75.0f;
+               matrixStack.pushPose();
+               matrixStack.translate(u, v, 2.0f);
+               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
+               matrixStack.popPose();
+               if (tick == 0) {
+                  step = 9;
+                  setNextTick(31, true);
+               }
+               break;
+            } // 1 _ simple close/back
+            case 9: {
+               // table
+               float u = guiLeft + cos * 174.0f;
+               float v = guiTop + cos * 248.0f;
+               matrixStack.pushPose();
+               matrixStack.translate(u, v, 2.0f);
+               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
+               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
+               // envelope
+               matrixStack.pushPose();
+               matrixStack.translate(u, v + 24.0f, 2.0f);
+               graphics.blit(mEnvelope, 5, 40, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // box
+               matrixStack.pushPose();
+               matrixStack.translate(u + 53.0f, v + 94.0f, 2.0f);
+               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
+               matrixStack.popPose();
+               if (tick == 0) {
+                  step = 0;
+                  milliTick = 0;
+                  onClose();
+               }
+               break;
+            } // 2 _ simple close/back
+            case 10: {
+               // box
+               if (hasStacks) {
+                  matrixStack.pushPose();
+                  matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 0.0f);
+                  graphics.blit(mSendBox, 0, 0, 74, 0, 74, 54);
+                  matrixStack.popPose();
+               } else {
+                  matrixStack.pushPose();
+                  matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 0.0f);
+                  graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
+                  matrixStack.popPose();
+               }
+               // table
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft, guiTop, 0.0f);
+               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
+               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
+               matrixStack.popPose();
+               // list
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 9.0f, guiTop + 12.0f, 0.0f);
+               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // envelope
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 142.0f - cos * 142.0f, guiTop - 10.0f + cos * 160.0f,
+                       1.0f);
+               graphics.blit(mEnvelope, 5, 40, 0, 0, 156, 134);
+               matrixStack.popPose();
+               if (tick == 0) {
+                  step = 11;
+                  setNextTick(16, true);
+                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.sheet",
+                          player.getX(), player.getY(), player.getZ(), 1.0f,
+                          0.8f + 0.4f * rnd.nextFloat());
+               }
+               break;
+            } // 1 _ send
+            case 11: {
+               // table
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft, guiTop, 0.0f);
+               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
+               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
+               matrixStack.popPose();
+               // envelope
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft, guiTop + 150.0f, 0.0f);
+               graphics.blit(mEnvelope, 5, 40, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // list
+               float v = guiTop + 150.0f - (1.0f - cos) * 134.0f;
+               int h = 186 - (int) v;
+               if (h > 134) {
+                  h = 134;
+               }
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 9, v, 2.0f);
+               graphics.blit(mList, 0, 0, 0, 0, 156, h);
+               matrixStack.popPose();
+               if (hasStacks) {
+                  matrixStack.pushPose();
+                  matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 0.0f);
+                  graphics.blit(mSendBox, 0, 0, 74, 0, 74, 54);
+                  matrixStack.popPose();
+               }
+               if (tick == 0) {
+                  step = 12;
+                  setNextTick(31, true);
+                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.sheet",
+                          player.getX(), player.getY(), player.getZ(), 1.0f,
+                          0.8f + 0.4f * rnd.nextFloat());
+               }
+               break;
+            } // 2 _ send
+            case 12: {
+               // table
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + cos * 174.0f, guiTop + cos * 248.0f, 0.0f);
+               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
+               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
+               matrixStack.popPose();
+               // envelope
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + cos * 300.0f, guiTop + 150.0f - cos * 248.0f, 1.0f);
+               graphics.blit(mEnvelope, 5, 40, 0, 0, 156, 134);
+               matrixStack.popPose();
+               if (hasStacks) {
+                  matrixStack.pushPose();
+                  matrixStack.translate(guiLeft + 183.0f + cos * 300.0f, guiTop + 169.0f - cos * 248.0f, 0.0f);
+                  graphics.blit(mSendBox, 0, 0, 74, 0, 74, 54);
+                  matrixStack.popPose();
+               }
+               if (tick == 0) {
+                  step = 0;
+                  milliTick = 0;
+                  onClose();
+               }
+               break;
+            } // 3 _ send
+            case 13: {
+               // table
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + cos * 174.0f, guiTop + cos * 248.0f, 0.0f);
+               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
+               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
+               matrixStack.popPose();
+               // box
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 183.0f - cos * 41.0f, guiTop + 169.0f - cos * 74.0f, 1.0f);
+               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
+               matrixStack.popPose();
+               // envelope
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 147.0f - cos * 54.0f, guiTop + 30.0f + cos * 33.0f, 2.0f);
+               graphics.blit(mEnvelope, 0, 0, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // list
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 9.0f + cos * 88.0f, guiTop + 12.0f + cos * 52.0f, 2.0f);
+               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
+               matrixStack.popPose();
+               if (tick == 0) {
+                  step = 14;
+                  setNextTick(16, true);
+                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":mail.delete",
+                          player.getX(), player.getY(), player.getZ(), 1.0f,
+                          0.8f + 0.4f * rnd.nextFloat());
+               }
+               break;
+            } // 1 _ delete
+            case 14: {
+               // envelope
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 93.0f, guiTop + 63.0f, 1.0f);
+               RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f - cos);
+               graphics.blit(mEnvelope, 0, 0, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // list
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 97.0f, guiTop + 64.0f, 1.0f);
+               RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f - cos);
+               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
+               matrixStack.popPose();
+               // list
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 97.0f + cos * 28.0f, guiTop + 64.0f + cos * 19.5f, 2.0f);
+               matrixStack.scale(1.31092f - 0.47059f * cos, 1.09836f - 0.31967f * cos, 1.0f);
+               RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, cos);
+               graphics.blit(mList, 0, 0, 0, 134, 119, 122);
+               matrixStack.popPose();
+               if (tick == 0) {
+                  step = 15;
+                  setNextTick(31, true);
+               }
+               break;
+            } // 2 _ delete
+            case 15: {
+               // list
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 97.0f + 28.0f, guiTop + 64.0f + 19.5f, 1.0f);
+               matrixStack.scale(1.31092f - 0.47059f, 1.09836f - 0.31967f, 1.0f);
+               RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f - cos);
+               graphics.blit(mList, 0, 0, 0, 134, 119, 122);
+               matrixStack.popPose();
+
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 130.0f + cos * 7.5f, guiTop + 88.0f + cos * 7.125f, 2.0f);
+               matrixStack.scale(0.85f - 0.15f * cos, 0.85f - 0.15f * cos, 1.0f);
+               RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, cos);
+               graphics.blit(mList, 0, 0, 156, 0, 100, 95);
+               matrixStack.popPose();
+               if (tick == 0) {
+                  step = 16;
+                  setNextTick(31, true);
+               }
+               break;
+            } // 3 _ delete
+            case 16: {
+               matrixStack.pushPose();
+               matrixStack.translate(guiLeft + 137.5f - cos * 300.0f, guiTop + 95.125f - cos * 150.0f, 2.0f);
+               matrixStack.scale(0.6f, 0.6f, 1.0f);
+               graphics.blit(mList, 0, 0, 156, 0, 100, 95);
+               matrixStack.popPose();
+               if (tick == 0) {
+                  step = 0;
+                  milliTick = 0;
+                  onClose();
+               }
+               break;
+            } // 4 _ delete
+         }
+         tick--;
+      }
+      else { drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY); }
+      matrixStack.popPose();
+      if (step != 5) { return; }
+      if (getButton(0) != null) {
+         if (!menu.canSend) { getButton(0).setHoverTexts("mailbox.hover.done"); } // done
+         else {
+            if (type == 0) {
+               MutableComponent mes = Component.translatable("mailbox.hover.send.0",
+                       Util.instance.ticksToElapsedTime(CustomNpcs.MailTimeWhenLettersWillBeReceived[1] * 20L, false, true, true),
+                       "" + totalCost,
+                       CustomNpcs.displayCurrencies);
+               for (int i : cost.keySet()) {
+                  if (cost.get(i) > 0L) {
+                     String p0 = "" + cost.get(i);
+                     String p1 = "", p2 = "";
+                     switch (i) {
+                        case 1:
+                           p1 = "" + CustomNpcs.MailCostSendingLetter[1];
+                           break;
+                        case 2:
+                           p0 = "" + mail.money;
+                           p1 = "" + cost.get(i);
+                           p2 = "" + CustomNpcs.MailCostSendingLetter[3];
+                           break;
+                        case 3:
+                           p1 = "" + CustomNpcs.MailCostSendingLetter[2];
+                           break;
+                        case 4:
+                           p1 = "" + CustomNpcs.MailCostSendingLetter[4];
+                           break;
+                     }
+                     mes.append(Component.translatable("mailbox.hover.send.2." + i,
+                             p0, CustomNpcs.displayCurrencies, p1, CustomNpcs.displayCurrencies, p2));
+                  }
+               }
+               getButton(0).setHoverTexts(mes);
+            }
+            else if (type == 2) {
+               MutableComponent mes = Component.translatable("mailbox.hover.send.2",
+                       "" + totalCost, CustomNpcs.displayCurrencies);
+               for (int i : cost.keySet()) {
+                  if (cost.get(i) > 0L) {
+                     String p0 = "" + cost.get(i);
+                     String p1 = "", p2 = "";
+                     switch (i) {
+                        case 1:
+                           p1 = "" + CustomNpcs.MailCostSendingLetter[1];
+                           break;
+                        case 2:
+                           p0 = "" + mail.money;
+                           p1 = "" + cost.get(i);
+                           p2 = "" + CustomNpcs.MailCostSendingLetter[3];
+                           break;
+                        case 3:
+                           p1 = "" + CustomNpcs.MailCostSendingLetter[2];
+                           break;
+                        case 4:
+                           p1 = "" + CustomNpcs.MailCostSendingLetter[4];
+                           break;
+                        default:
+                           break;
+                     }
+                     mes.append(Component.translatable("mailbox.hover.send.2." + i, p0,
+                             CustomNpcs.displayCurrencies, p1, CustomNpcs.displayCurrencies, p2));
+                  }
+               }
+               getButton(0).setHoverTexts(mes);
+            }
+            else {
+               getButton(0).setHoverTexts(Component.translatable("mailbox.hover.send." + type));
+            }
+         }
+      }
+      super.render(graphics, mouseX, mouseY, partialTicks);
+      // Player Money
+      RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+      if (menu.canSend) {
+         int x = guiLeft + 166;
+         int y = guiTop + 150;
+         matrixStack.pushPose();
+         matrixStack.translate(x, y, 0.0f);
+         float sc = 16.0f / 250.f;
+         matrixStack.scale(sc, sc, sc);
+         graphics.blit(GuiBasic.MONEY, 0, 0, 0, 0, 256, 256);
+         matrixStack.popPose();
+         matrixStack.pushPose();
+         graphics.drawString(font, Util.instance.getTextReducedNumber(PlayerData.get(player).game.getMoney(), true, true, false)
+                 + CustomNpcs.displayCurrencies, x + 15, y + 8.0f / 2.0f, new Color(0x404040).getRGB(), false);
+         matrixStack.popPose();
+      }
+   }
+
+   @Override
+   public void unFocused(GuiTextFieldNop textField) {
+      switch (textField.id) {
+         case 0: username = textField.getValue(); break;
+         case 1: mail.title = textField.getValue(); break;
+         case 2: mail.sender = textField.getValue(); break;
+         case 3: {
+            mail.money = textField.getInteger();
+            textField.setValue("" + mail.money);
+            textField.setMinMaxDefault(textField.min, textField.max, mail.money);
+            break;
+         }
+         case 4: {
+            mail.ransom = textField.getInteger();
+            textField.setValue("" + mail.ransom);
+            textField.setMinMaxDefault(textField.min, textField.max, mail.ransom);
+            break;
+         }
+      }
+   }
+
+   @Override
+   public void setError(int id, CompoundTag data) {
+      hasSend = false;
+      if (error == null) { return; }
+      error.setMessage(switch (id) {
+         case 1 -> "mailbox.error.subject";
+         case 2 -> "mailbox.error.yourself";
+         case 3 -> "mailbox.error.nomoney";
+         default -> "mailbox.error.username";
+      });
+      if (minecraft == null) { minecraft = Minecraft.getInstance(); }
+      if (minecraft.level != null) { errTick = minecraft.level.getGameTime() + 200L; }
+   }
+
+   @Override
+   public void setClose(CompoundTag data) {
+      aType = 1;
+      animClose();
+   }
+
+   private void addNewPage() {
+      if (bookPages != null && bookPages.size() < 50) {
+         bookPages.add(StringTag.valueOf(""));
+         ++bookTotalPages;
+      }
+   }
+
+   private void updateButtons() {
+      if (!menu.canEdit && mail.ransom > 0) {
+         buttonNextPage.setIsVisible(false);
+         buttonPreviousPage.setIsVisible(false);
+         return;
+      }
+      buttonNextPage.setIsVisible((menu.canEdit && !bookPages.getString(currPage).isEmpty()) || currPage < bookTotalPages - 1);
+      buttonPreviousPage.setIsVisible(currPage > 0);
+   }
+
+   private void removeMail() {
+      playerData.mailData.playerMails.removeIf(mailIn -> mailIn.timeWhenReceived == mail.timeWhenReceived && mailIn.sender.equals(mail.sender));
    }
 
    // OLD: keyTypedInBook
@@ -467,7 +1204,7 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
          // envelope
          matrixStack.pushPose();
          matrixStack.translate(guiLeft + 142.0f, guiTop - 10.0f, 0.0f);
-         graphics.blit(mEnvelope, 5, 40, 0, 0, 164, 137);
+         graphics.blit(mEnvelope, 5, 40, 0, 0, 156, 134);
          matrixStack.popPose();
          // list
          matrixStack.pushPose();
@@ -824,744 +1561,16 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
       }
    }
 
-   @Override
-   public void render(@Nonnull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-      super.renderBackground(graphics);
-      PoseStack matrixStack = graphics.pose();
-      if (minecraft == null) { minecraft = Minecraft.getInstance(); }
-      if (errTick != 0L && minecraft.level != null && errTick < minecraft.level.getGameTime()) {
-         errTick = 0L;
-         if (error != null) { error.setMessage(""); }
-      }
-      // Info
-      if (!menu.canEdit && mail.ransom > 0) {
-         graphics.blit(GuiMailbox.icons, guiLeft + 33, guiTop + 43, 0, 126, 120, 130);
-         graphics.drawCenteredString(font, Component.translatable("mailbox.hover.ransom.sell"),
-                 guiLeft + 87, guiTop + 100,
-                 CustomNpcs.MainColor.getRGB() | 0xFF000000);
-      }
-      boolean hasMail = false;
-      cost.clear();
-      long c = CustomNpcs.MailCostSendingLetter[0];
-      cost.put(0, c);
-      totalCost = c;
-      if (bookPages != null) {
-         c = 0;
-         for (int i = 0; i < bookPages.size(); ++i) {
-            if (bookPages.getString(i).isEmpty()) { continue; }
-            c += CustomNpcs.MailCostSendingLetter[1];
-            hasMail = true;
-         }
-         cost.put(1, c);
-         totalCost += c;
-      }
-      c = 0;
-      hasStacks = false;
-      for (int i = 0; i < 4; i++) {
-         Slot slot = menu.getSlot(i);
-         if (slot.getItem().isEmpty()) { continue; }
-         c += (int) ((float) CustomNpcs.MailCostSendingLetter[2] * (float) slot.getItem().getCount()
-                 / (float) slot.getItem().getMaxStackSize());
-         hasStacks = true;
-         hasMail = true;
-      }
-      cost.put(3, c);
-      totalCost += c;
-      if (mail.money > 0) {
-         c = (long) ((float) mail.money * (float) CustomNpcs.MailCostSendingLetter[3] / 100.0f);
-         cost.put(2, c);
-         totalCost += c;
-         totalCost += mail.money;
-         hasMail = true;
-      }
-      if (mail.ransom > 0) {
-         c = (long) (int) ((float) mail.ransom * (float) CustomNpcs.MailCostSendingLetter[4]
-                 / 100.0f);
-         cost.put(4, c);
-         totalCost += c;
-      }
-      if (getLabel(5) != null) {
-         getLabel(5).setMessage(Component.translatable("mailbox.cost.send",
-                 "" + (totalCost == 0L ? 0
-                         : Util.instance.getTextReducedNumber(totalCost, true, false, false)),
-                 CustomNpcs.displayCurrencies));
-      }
-      if (menu.canEdit && menu.canSend && getButton(0) != null) {
-         type = 0;
-         type = !player.isCreative() && username.equals(player.getName().getString()) && !CustomNpcs.MailSendToYourself ? 3 : 0;
-         if (type == 0) { type = getTextField(0) != null && getTextField(0).getValue().isEmpty() ? 1 : 0; } // player
-         if (type == 0) { type = mail.title.isEmpty() ? 4 : 0; } // title
-         if (type == 0 && !player.isCreative()) { type = PlayerData.get(player).game.getMoney() < totalCost ? 2 : 0; } // money
-         if (type == 0 && !hasMail) { type = 5; } // empty
-         getButton(0).setIsEnabled(type == 0);
-      }
-      // Animations
-      matrixStack.pushPose();
-      RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-      if (tick >= 0) {
-         if (tick == 0) { partialTicks = 0.0f; }
-         float part = (float) tick + partialTicks;
-         float cos = ValueUtil.correctFloat((float) Math.cos(90.0d * part / (double) milliTick * Math.PI / 180.0d), 0.0f, 1.0f);
-         switch (step) {
-            case 0: {
-               float u = guiLeft + (1.0f - cos) * 174.0f;
-               float v = guiTop + (1.0f - cos) * 248.0f;
-               drawPlace(graphics, u, v, mouseX, mouseY);
-               matrixStack.pushPose();
-               matrixStack.translate(u, v, 2.0f);
-               graphics.blit(mEnvelope, 5, 40, 0, 0, 164, 137);
-               graphics.blit(mSendBox, 53, 168, 0, 54, 68, 74);
-               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
-               matrixStack.popPose();
-               if (tick == 0) {
-                  step = 1;
-                  setNextTick(21, true);
-                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.down",
-                          player.getX(), player.getY(), player.getZ(), 1.0f,
-                          0.75f + 0.25f * rnd.nextFloat());
-               }
-               break;
-            } // open
-            case 1: {
-               drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY);
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft, guiTop + cos * 150.0f, 2.0f);
-               graphics.blit(mEnvelope, 5, 40, 0, 0, 164, 137);
-               matrixStack.popPose();
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + cos * 183.0f, guiTop + cos * 169.0f, 2.0f);
-               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
-               matrixStack.popPose();
-               // handle
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 0.0f);
-               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
-               matrixStack.popPose();
-               if (tick == 0) {
-                  step = 2;
-                  setNextTick(21, true);
-                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.sheet",
-                          player.getX(), player.getY(), player.getZ(), 1.0f,
-                          0.8f + 0.4f * rnd.nextFloat());
-               }
-               break;
-            } // box and envelope_0 offset
-            case 2: {
-               drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY);
-               // envelope_0
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 5, guiTop + 190.0f, 2.0f);
-               graphics.blit(mEnvelope, 0, 0, 0, 0, 164, 137);
-               matrixStack.popPose();
-               // list
-               float v = guiTop + 150.0f - cos * 134.0f;
-               int h = 186 - (int) v;
-               if (h > 134) {
-                  h = 134;
-               }
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 9, v, 2.0f);
-               graphics.blit(mList, 0, 0, 0, 0, 156, h);
-               matrixStack.popPose();
-               // handle
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 2.0f);
-               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
-               matrixStack.popPose();
-               // box
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
-               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
-               graphics.blit(mTable, 25, 27, 174, 22, 18, 18);
-               graphics.blit(mSendBox, 0, 41, 0, 95, 68, 33);
-               matrixStack.popPose();
-               if (tick == 0) {
-                  step = 3;
-                  setNextTick(16, true);
-                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.sheet",
-                          player.getX(), player.getY(), player.getZ(), 1.0f,
-                          0.8f + 0.4f * rnd.nextFloat());
-               }
-               break;
-            } // box added slots and show list
-            case 3: {
-               drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY);
-               // envelope_1
-               float u = guiLeft + cos * 142.0f;
-               float v = guiTop + 150.0f - cos * 160.0f;
-               matrixStack.pushPose();
-               matrixStack.translate(u, v, 2.0f);
-               graphics.blit(mEnvelope, 5, 40, 0, 0, 164, 137);
-               matrixStack.popPose();
-               // list
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 9.0f, guiTop + 12.0f, 2.0f);
-               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
-               matrixStack.popPose();
-               // handle
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 2.0f);
-               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
-               matrixStack.popPose();
-               // box
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
-               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
-               graphics.blit(mTable, 25, 27, 174, 22, 18, 18);
-               graphics.blit(mSendBox, 0, 41, 0, 95, 68, 33);
-               matrixStack.popPose();
-               if (tick == 0) {
-                  step = 4;
-                  setNextTick(36, true);
-               }
-               break;
-            } // envelope_1 offset
-            case 4: {
-               drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY);
-               // envelope
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 142.0f, guiTop - 10.0f, 2.0f);
-               graphics.blit(mEnvelope, 5, 40, 0, 0, 164, 137);
-               matrixStack.popPose();
-               // list
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 9.0f, guiTop + 12.0f, 2.0f);
-               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
-               matrixStack.popPose();
-               // handle
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 2.0f);
-               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
-               matrixStack.popPose();
-               // box
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
-               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
-               matrixStack.popPose();
-               // slots
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 208.0f, guiTop + 196.0f, 2.0f);
-               graphics.blit(mTable, 0, 0, 174, 22, 18, 18);
-               double h = 36.0d;
-               int x0 = 0, y0 = 0;
-               for (int s = 0; s < 36; s++) {
-                  int t = tick + s - 35;
-                  int x = s % 9;
-                  int y = (int) Math.floor((double) s / 9.0d);
-                  int x1 = x * 18 - 202;
-                  int y1 = y * 18 + (y == 3 ? 2 : 0) - 29;
-                  if (t < 0) {
-                     graphics.blit(mTable, x1, y1, 174, 22, 18, 18);
-                  } else {
-                     cos = (float) Math.cos(90.0d * ((double) t + partialTicks) / 35.0d * Math.PI / 180.0d);
-                     if (cos < 0.0f) {
-                        cos = 0.0f;
-                     } else if (cos > 1.0f) {
-                        cos = 1.0f;
-                     }
-                     double px = x0 - x1, py = y0 - y1;
-                     double dist = Math.sqrt(px * px + py * py);
-                     double r = (Math.pow(dist / 2.0d, 2.0d) + Math.pow(h, 2.0d)) / (2.0d * h);
-                     double tg = Math.abs(py / px);
-                     double angle = Math.atan(tg) * 180.0d / Math.PI;
-                     double cx = (x0 - x1) / 2.0d + x1;
-                     double cy = (y0 - y1) / 2.0d + y1;
-                     double rx = cx + Math.sin(angle * Math.PI / 180) * (r - h) * -1;
-                     double ry = cy + Math.cos(angle * Math.PI / 180) * (r - h);
-                     px = x0 - rx;
-                     py = y0 - ry;
-                     tg = Math.abs(py / px);
-                     double startAngle = Math.atan(tg) * 180.0d / Math.PI;
-                     px = x1 - rx;
-                     py = y1 - ry;
-                     tg = Math.abs(py / px);
-                     angle = 180.0d - startAngle - Math.atan(tg) * 180.0d / Math.PI;
-                     double nowAngle = cos * angle + startAngle;
-                     x1 = (int) (rx + Math.cos(nowAngle * Math.PI / 180) * r);
-                     y1 = (int) (ry + Math.sin(nowAngle * Math.PI / 180) * r * -1);
-                     graphics.blit(mTable, x1, y1, 174, 22, 18, 18);
-                  }
-               }
-               matrixStack.popPose();
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
-               graphics.blit(mSendBox, 0, 41, 0, 95, 68, 33);
-               matrixStack.popPose();
-               if (tick % 4 == 0) {
-                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":mail.slot",
-                          player.getX(), player.getY(), player.getZ(), 1.0f,
-                          0.7f + 0.4f * rnd.nextFloat());
-               }
-               if (tick == 0) {
-                  step = 5;
-                  milliTick = 0;
-               }
-               break;
-            } // slots
-            case 6: {
-               drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY);
-               if (tick == 0) {
-                  step = 7;
-                  setNextTick(36, false);
-               }
-            } // simple close/back
-            case 7: {
-               // table
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft, guiTop, 0.0f);
-               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
-               matrixStack.popPose();
-               // envelope
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 142.0f, guiTop - 10.0f, 2.0f);
-               graphics.blit(mEnvelope, 5, 40, 0, 0, 164, 137);
-               matrixStack.popPose();
-               // list
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 9.0f, guiTop + 12.0f, 2.0f);
-               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
-               matrixStack.popPose();
-               // handle
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 2.0f);
-               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
-               matrixStack.popPose();
-               // box
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
-               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
-               matrixStack.popPose();
-               // slots
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 208.0f, guiTop + 196.0f, 2.0f);
-               graphics.blit(mTable, 0, 0, 174, 22, 18, 18);
-               int x0 = 0, y0 = 0;
-               for (int s = 0; s < 36; s++) {
-                  int x = s % 9;
-                  int y = (int) Math.floor((double) s / 9.0d);
-                  int x1 = x * 18 - 202;
-                  int y1 = y * 18 + (y == 3 ? 2 : 0) - 29;
-                  double px = x0 - x1, py = y0 - y1;
-                  graphics.blit(mTable, (int) (x1 + px * cos), (int) (y1 + py * cos), 174, 22, 18, 18);
-               }
-               matrixStack.popPose();
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 2.0f);
-               graphics.blit(mSendBox, 0, 41, 0, 95, 68, 33);
-               matrixStack.popPose();
-               if (tick % 6 == 0) {
-                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":mail.slot",
-                          player.getX(), player.getY(), player.getZ(), 1.0f,
-                          0.9f + 0.3f * rnd.nextFloat());
-               }
-               if (tick == 0) {
-                  step = aType == 0 ? 8 : aType == 1 ? 10 : 13;
-                  setNextTick(31, true);
-                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.sheet",
-                          player.getX(), player.getY(), player.getZ(), 1.0f,
-                          0.8f + 0.4f * rnd.nextFloat());
-               }
-               break;
-            } // 0 _ simple close/back
-            case 8: {
-               // table
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft, guiTop, 0.0f);
-               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
-               matrixStack.popPose();
-               float u = guiLeft + 9.0f;
-               float v = guiTop + 12.0f + cos * 53.0f;
-               // list
-               matrixStack.pushPose();
-               matrixStack.translate(u, v, 2.0f);
-               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
-               matrixStack.popPose();
-               // handle
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 49.0f, guiTop + 3.0f, 2.0f);
-               graphics.blit(mTable, 0, 0, 174, 0, 76, 22);
-               matrixStack.popPose();
-               u = guiLeft + 142.0f - cos * 142.0f;
-               v = guiTop - 10.0f + cos * 34.0f;
-               // envelope
-               matrixStack.pushPose();
-               matrixStack.translate(u, v, 2.0f);
-               graphics.blit(mEnvelope, 5, 40, 0, 0, 164, 137);
-               matrixStack.popPose();
-               // box
-               u = guiLeft + 183.0f - cos * 130.0f;
-               v = guiTop + 169.0f - cos * 75.0f;
-               matrixStack.pushPose();
-               matrixStack.translate(u, v, 2.0f);
-               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
-               matrixStack.popPose();
-               if (tick == 0) {
-                  step = 9;
-                  setNextTick(31, true);
-               }
-               break;
-            } // 1 _ simple close/back
-            case 9: {
-               // table
-               float u = guiLeft + cos * 174.0f;
-               float v = guiTop + cos * 248.0f;
-               matrixStack.pushPose();
-               matrixStack.translate(u, v, 2.0f);
-               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
-               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
-               // envelope
-               matrixStack.pushPose();
-               matrixStack.translate(u, v + 24.0f, 2.0f);
-               graphics.blit(mEnvelope, 5, 40, 0, 0, 164, 137);
-               matrixStack.popPose();
-               // box
-               matrixStack.pushPose();
-               matrixStack.translate(u + 53.0f, v + 94.0f, 2.0f);
-               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
-               matrixStack.popPose();
-               if (tick == 0) {
-                  step = 0;
-                  milliTick = 0;
-                  onClose();
-               }
-               break;
-            } // 2 _ simple close/back
-            case 10: {
-               // box
-               if (hasStacks) {
-                  matrixStack.pushPose();
-                  matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 0.0f);
-                  graphics.blit(mSendBox, 0, 0, 74, 0, 74, 54);
-                  matrixStack.popPose();
-               } else {
-                  matrixStack.pushPose();
-                  matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 0.0f);
-                  graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
-                  matrixStack.popPose();
-               }
-               // table
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft, guiTop, 0.0f);
-               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
-               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
-               matrixStack.popPose();
-               // list
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 9.0f, guiTop + 12.0f, 0.0f);
-               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
-               matrixStack.popPose();
-               // envelope
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 142.0f - cos * 142.0f, guiTop - 10.0f + cos * 160.0f,
-                       1.0f);
-               graphics.blit(mEnvelope, 5, 40, 0, 0, 164, 137);
-               matrixStack.popPose();
-               if (tick == 0) {
-                  step = 11;
-                  setNextTick(16, true);
-                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.sheet",
-                          player.getX(), player.getY(), player.getZ(), 1.0f,
-                          0.8f + 0.4f * rnd.nextFloat());
-               }
-               break;
-            } // 1 _ send
-            case 11: {
-               // table
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft, guiTop, 0.0f);
-               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
-               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
-               matrixStack.popPose();
-               // envelope
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft, guiTop + 150.0f, 0.0f);
-               graphics.blit(mEnvelope, 5, 40, 0, 0, 164, 137);
-               matrixStack.popPose();
-               // list
-               float v = guiTop + 150.0f - (1.0f - cos) * 134.0f;
-               int h = 186 - (int) v;
-               if (h > 134) {
-                  h = 134;
-               }
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 9, v, 2.0f);
-               graphics.blit(mList, 0, 0, 0, 0, 156, h);
-               matrixStack.popPose();
-               if (hasStacks) {
-                  matrixStack.pushPose();
-                  matrixStack.translate(guiLeft + 183.0f, guiTop + 169.0f, 0.0f);
-                  graphics.blit(mSendBox, 0, 0, 74, 0, 74, 54);
-                  matrixStack.popPose();
-               }
-               if (tick == 0) {
-                  step = 12;
-                  setNextTick(31, true);
-                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":book.sheet",
-                          player.getX(), player.getY(), player.getZ(), 1.0f,
-                          0.8f + 0.4f * rnd.nextFloat());
-               }
-               break;
-            } // 2 _ send
-            case 12: {
-               // table
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + cos * 174.0f, guiTop + cos * 248.0f, 0.0f);
-               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
-               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
-               matrixStack.popPose();
-               // envelope
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + cos * 300.0f, guiTop + 150.0f - cos * 248.0f, 1.0f);
-               graphics.blit(mEnvelope, 5, 40, 0, 0, 164, 137);
-               matrixStack.popPose();
-               if (hasStacks) {
-                  matrixStack.pushPose();
-                  matrixStack.translate(guiLeft + 183.0f + cos * 300.0f, guiTop + 169.0f - cos * 248.0f, 0.0f);
-                  graphics.blit(mSendBox, 0, 0, 74, 0, 74, 54);
-                  matrixStack.popPose();
-               }
-               if (tick == 0) {
-                  step = 0;
-                  milliTick = 0;
-                  onClose();
-               }
-               break;
-            } // 3 _ send
-            case 13: {
-               // table
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + cos * 174.0f, guiTop + cos * 248.0f, 0.0f);
-               graphics.blit(mTable, 0, -5, 0, 0, 174, 248);
-               graphics.blit(mTable, 49, 3, 174, 0, 76, 22);
-               matrixStack.popPose();
-               // box
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 183.0f - cos * 41.0f, guiTop + 169.0f - cos * 74.0f, 1.0f);
-               graphics.blit(mSendBox, 0, 0, 0, 54, 68, 74);
-               matrixStack.popPose();
-               // envelope
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 147.0f - cos * 54.0f, guiTop + 30.0f + cos * 33.0f, 2.0f);
-               graphics.blit(mEnvelope, 0, 0, 0, 0, 164, 137);
-               matrixStack.popPose();
-               // list
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 9.0f + cos * 88.0f, guiTop + 12.0f + cos * 52.0f, 2.0f);
-               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
-               matrixStack.popPose();
-               if (tick == 0) {
-                  step = 14;
-                  setNextTick(16, true);
-                  MusicController.Instance.playSound(SoundSource.PLAYERS, CustomNpcs.MODID + ":mail.delete",
-                          player.getX(), player.getY(), player.getZ(), 1.0f,
-                          0.8f + 0.4f * rnd.nextFloat());
-               }
-               break;
-            } // 1 _ delete
-            case 14: {
-               // envelope
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 93.0f, guiTop + 63.0f, 1.0f);
-               RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f - cos);
-               graphics.blit(mEnvelope, 0, 0, 0, 0, 164, 137);
-               matrixStack.popPose();
-               // list
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 97.0f, guiTop + 64.0f, 1.0f);
-               RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f - cos);
-               graphics.blit(mList, 0, 0, 0, 0, 156, 134);
-               matrixStack.popPose();
-               // list
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 97.0f + cos * 28.0f, guiTop + 64.0f + cos * 19.5f, 2.0f);
-               matrixStack.scale(1.31092f - 0.47059f * cos, 1.09836f - 0.31967f * cos, 1.0f);
-               RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, cos);
-               graphics.blit(mList, 0, 0, 0, 134, 119, 122);
-               matrixStack.popPose();
-               if (tick == 0) {
-                  step = 15;
-                  setNextTick(31, true);
-               }
-               break;
-            } // 2 _ delete
-            case 15: {
-               // list
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 97.0f + 28.0f, guiTop + 64.0f + 19.5f, 1.0f);
-               matrixStack.scale(1.31092f - 0.47059f, 1.09836f - 0.31967f, 1.0f);
-               RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f - cos);
-               graphics.blit(mList, 0, 0, 0, 134, 119, 122);
-               matrixStack.popPose();
-
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 130.0f + cos * 7.5f, guiTop + 88.0f + cos * 7.125f, 2.0f);
-               matrixStack.scale(0.85f - 0.15f * cos, 0.85f - 0.15f * cos, 1.0f);
-               RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, cos);
-               graphics.blit(mList, 0, 0, 156, 0, 100, 95);
-               matrixStack.popPose();
-               if (tick == 0) {
-                  step = 16;
-                  setNextTick(31, true);
-               }
-               break;
-            } // 3 _ delete
-            case 16: {
-               matrixStack.pushPose();
-               matrixStack.translate(guiLeft + 137.5f - cos * 300.0f, guiTop + 95.125f - cos * 150.0f, 2.0f);
-               matrixStack.scale(0.6f, 0.6f, 1.0f);
-               graphics.blit(mList, 0, 0, 156, 0, 100, 95);
-               matrixStack.popPose();
-               if (tick == 0) {
-                  step = 0;
-                  milliTick = 0;
-                  onClose();
-               }
-               break;
-            } // 4 _ delete
-         }
-         tick--;
-      }
-      else { drawPlace(graphics, guiLeft, guiTop, mouseX, mouseY); }
-      matrixStack.popPose();
-      if (step != 5) { return; }
-      if (getButton(0) != null) {
-         if (!menu.canSend) { getButton(0).setHoverTexts("mailbox.hover.done"); } // done
-         else {
-            if (type == 0) {
-               MutableComponent mes = Component.translatable("mailbox.hover.send.0",
-                       Util.instance.ticksToElapsedTime(CustomNpcs.MailTimeWhenLettersWillBeReceived[1] * 20L, false, true, true),
-                       "" + totalCost,
-                       CustomNpcs.displayCurrencies);
-               for (int i : cost.keySet()) {
-                  if (cost.get(i) > 0L) {
-                     String p0 = "" + cost.get(i);
-                     String p1 = "", p2 = "";
-                     switch (i) {
-                        case 1:
-                           p1 = "" + CustomNpcs.MailCostSendingLetter[1];
-                           break;
-                        case 2:
-                           p0 = "" + mail.money;
-                           p1 = "" + cost.get(i);
-                           p2 = "" + CustomNpcs.MailCostSendingLetter[3];
-                           break;
-                        case 3:
-                           p1 = "" + CustomNpcs.MailCostSendingLetter[2];
-                           break;
-                        case 4:
-                           p1 = "" + CustomNpcs.MailCostSendingLetter[4];
-                           break;
-                     }
-                     mes.append(Component.translatable("mailbox.hover.send.2." + i,
-                             p0, CustomNpcs.displayCurrencies, p1, CustomNpcs.displayCurrencies, p2));
-                  }
-               }
-               getButton(0).setHoverTexts(mes);
-            }
-            else if (type == 2) {
-               MutableComponent mes = Component.translatable("mailbox.hover.send.2",
-                       "" + totalCost, CustomNpcs.displayCurrencies);
-               for (int i : cost.keySet()) {
-                  if (cost.get(i) > 0L) {
-                     String p0 = "" + cost.get(i);
-                     String p1 = "", p2 = "";
-                     switch (i) {
-                        case 1:
-                           p1 = "" + CustomNpcs.MailCostSendingLetter[1];
-                           break;
-                        case 2:
-                           p0 = "" + mail.money;
-                           p1 = "" + cost.get(i);
-                           p2 = "" + CustomNpcs.MailCostSendingLetter[3];
-                           break;
-                        case 3:
-                           p1 = "" + CustomNpcs.MailCostSendingLetter[2];
-                           break;
-                        case 4:
-                           p1 = "" + CustomNpcs.MailCostSendingLetter[4];
-                           break;
-                        default:
-                           break;
-                     }
-                     mes.append(Component.translatable("mailbox.hover.send.2." + i, p0,
-                             CustomNpcs.displayCurrencies, p1, CustomNpcs.displayCurrencies, p2));
-                  }
-               }
-               getButton(0).setHoverTexts(mes);
-            }
-            else {
-               getButton(0).setHoverTexts(Component.translatable("mailbox.hover.send." + type));
-            }
-         }
-      }
-      super.render(graphics, mouseX, mouseY, partialTicks);
-      // Player Money
-      RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-      if (menu.canSend) {
-         int x = guiLeft + 166;
-         int y = guiTop + 150;
-         matrixStack.pushPose();
-         matrixStack.translate(x, y, 0.0f);
-         float sc = 16.0f / 250.f;
-         matrixStack.scale(sc, sc, sc);
-         graphics.blit(GuiBasic.MONEY, 0, 0, 0, 0, 256, 256);
-         matrixStack.popPose();
-         matrixStack.pushPose();
-         graphics.drawString(font, Util.instance.getTextReducedNumber(PlayerData.get(player).game.getMoney(), true, true, false)
-                 + CustomNpcs.displayCurrencies, x + 15, y + 8.0f / 2.0f, new Color(0x404040).getRGB(), false);
-         matrixStack.popPose();
-      }
-   }
-
-   @Override
-   public void unFocused(GuiTextFieldNop textField) {
-      switch (textField.id) {
-         case 0: username = textField.getValue(); break;
-         case 1: mail.title = textField.getValue(); break;
-         case 2: mail.sender = textField.getValue(); break;
-         case 3: {
-            mail.money = textField.getInteger();
-            textField.setValue("" + mail.money);
-            textField.setMinMaxDefault(textField.min, textField.max, mail.money);
-            break;
-         }
-         case 4: {
-            mail.ransom = textField.getInteger();
-            textField.setValue("" + mail.ransom);
-            textField.setMinMaxDefault(textField.min, textField.max, mail.ransom);
-            break;
-         }
-      }
-   }
-
-   @Override
-   public void setError(int id, CompoundTag data) {
-      hasSend = false;
-      if (error == null) { return; }
-      error.setMessage(switch (id) {
-         case 1 -> "mailbox.error.subject";
-         case 2 -> "mailbox.error.yourself";
-         case 3 -> "mailbox.error.nomoney";
-         default -> "mailbox.error.username";
-      });
-      if (minecraft == null) { minecraft = Minecraft.getInstance(); }
-      if (minecraft.level != null) { errTick = minecraft.level.getGameTime() + 200L; }
-   }
-
-   @Override
-   public void setClose(CompoundTag data) {
-      aType = 1;
-      animClose();
-   }
-
-   private void addNewPage() {
-      if (bookPages != null && bookPages.size() < 50) {
-         bookPages.add(StringTag.valueOf(""));
-         ++bookTotalPages;
-      }
-   }
-
    // New from Unofficial (BetaZavr)
+   @Override
+   public void textUpdate(IComponentGui component, String text) {}
+
+   @Override
+   public void setGuiData(CompoundTag compound) {
+      if (compound.contains("TimeWhenReceived", Tag.TAG_LONG)) { mail.load(compound); }
+      init();
+   }
+
    private void setNextTick(int time, boolean isNext) {
       tick = (int) (time / (playerData.compass.questLogIsFast ? 3.0f : 1.0f));
       milliTick = tick - (isNext ? 1 : 0);
@@ -1571,15 +1580,6 @@ public class GuiMailmanWrite extends GuiContainerNPCInterface<ContainerMail>
       if (step != 5) { return; }
       step = 6;
       setNextTick(5, false);
-   }
-
-   @Override
-   public void textUpdate(IComponentGui component, String text) {}
-
-   @Override
-   public void setGuiData(CompoundTag compound) {
-      if (compound.contains("TimeWhenReceived", Tag.TAG_LONG)) { mail.load(compound); }
-      init();
    }
 
 }

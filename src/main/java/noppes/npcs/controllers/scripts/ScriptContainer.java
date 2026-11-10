@@ -169,9 +169,6 @@ public class ScriptContainer {
       if (executor == null || !currentScriptLanguage.equals(handler.getLanguage())) { fillEngine(handler.getLanguage()); }
       if (executor != null && !executor.isErrored() && hasCode() && !executor.isUnknownFunction(functionName) && CustomNpcs.EnableScripting) {
          ScriptEngine engine = executor.getEngine();
-         if (functionName.equals("playerInteractEventRightClickBlock")) {
-            LogWriter.info("[DEBUG] api "+engine.get("api"));
-         }
          if (handler.isClient() && engine.get("mc") == null) { fillEngineClient(engine); }
          if (!executor.isErrored()) {
             if (ScriptController.Instance.lastLoaded > lastCreated) {
@@ -182,9 +179,6 @@ public class ScriptContainer {
             synchronized (lock) {
                Current = this;
                String consoleOutput = "";
-               if (functionName.equals("playerInteractEventRightClickBlock")) {
-                  LogWriter.info("[DEBUG] "+event);
-               }
                try { consoleOutput = executor.run(handler, functionName, event); }
                finally {
                   appendConsole(consoleOutput.trim());

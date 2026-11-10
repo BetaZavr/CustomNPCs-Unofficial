@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import noppes.npcs.CustomNpcs;
@@ -30,12 +31,13 @@ import javax.annotation.Nonnull;
 
 public class BlockMailbox extends BlockInterface {
 
+   protected static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 22.0D, 16.0D);
    public static final IntegerProperty ROTATION = IntegerProperty.create("rotation", 0, 3);
    public final int type;
 
-   public BlockMailbox(int type) {
+   public BlockMailbox(int typeIn) {
       super(Properties.copy(Blocks.IRON_BLOCK).sound(SoundType.METAL).strength(5.0F, 10.0F));
-      this.type = type;
+      type = typeIn;
    }
 
    @Override
@@ -74,6 +76,12 @@ public class BlockMailbox extends BlockInterface {
    @Override
    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
       return (new TileMailbox(pos, state)).setModel(type);
+   }
+
+   @Override
+   @SuppressWarnings("deprecation")
+   public @Nonnull VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+      return SHAPE;
    }
 
 }
