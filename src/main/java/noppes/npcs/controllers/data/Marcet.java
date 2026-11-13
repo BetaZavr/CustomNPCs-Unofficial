@@ -363,7 +363,7 @@ public class Marcet implements IMarcet, Predicate<EntityNPCInterface> {
         compound.putInt("LimitedType", limitedType);
         compound.putInt("UpdateTime", updateTime);
         compound.putLong("LastTime", lastTime);
-        compound.putLong("NextTime", lastTime + updateTime * 60000L - System.currentTimeMillis());
+        compound.putLong("NextTime", nextTime = (lastTime + updateTime * 60000L - System.currentTimeMillis()));
         compound.put("NpcLines", lines.save());
         return compound;
     }

@@ -18,22 +18,22 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = ServerPlaceRecipe.class, priority = 498)
-public class ServerPlaceRecipeMixin<C extends Container> {
+public abstract class ServerPlaceRecipeMixin<C extends Container> {
 
     @Shadow protected Inventory inventory;
     @Shadow protected RecipeBookMenu<C> menu;
+    @Shadow protected void clearGrid() { }
+    @Shadow private boolean testClearGrid() { return false; }
 
     @Unique protected CustomStackedContents<C> npcs$customStackedContents = new CustomStackedContents<>();
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Inject(at = {@At("HEAD")}, method = {"recipeClicked"}, cancellable = true)
     public void npcs$recipeClicked(ServerPlayer player, Recipe<C> recipe, boolean isShiftPress, CallbackInfo ci) {
-        //LogWriter.debug("[DEBUG] recipe clicked: "+recipe.getId()+"; player knows: "+player.getRecipeBook().contains(recipe));
         if (recipe instanceof RecipeCarpentry npcRecipe && player.getRecipeBook().contains(recipe)) {
             ci.cancel();
-            IServerPlaceRecipeMixin mixin = (IServerPlaceRecipeMixin) this;
             inventory = player.getInventory();
-            if (mixin.invokeTestClearGrid() || player.isCreative()) {
+            if (testClearGrid() || player.isCreative()) {
                 npcs$customStackedContents.clear();
                 npcs$customStackedContents.setRecipe(npcRecipe);
                 inventory.fillStackedContents(npcs$customStackedContents);
@@ -43,7 +43,7 @@ public class ServerPlaceRecipeMixin<C extends Container> {
                     new CustomServerPlaceRecipe(recipe, isShiftPress, inventory, menu, npcs$customStackedContents);
                 }
                 else {
-                    mixin.invokeClearGrid();
+                    clearGrid();
                     player.connection.send(new ClientboundPlaceGhostRecipePacket(player.containerMenu.containerId, recipe));
                 }
                 inventory.setChanged();

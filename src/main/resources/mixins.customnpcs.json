@@ -20,7 +20,6 @@
     "network.MixinFriendlyByteBufArgs",
     "network.protocol.game.CCreativeInventoryActionPacketMixin",
     "network.syncher.SynchedEntityDataMixin",
-    "recipebook.IServerPlaceRecipeMixin",
     "recipebook.ServerPlaceRecipeMixin",
     "server.IMinecraftServerMixin",
     "server.IServerScoreboardMixin",

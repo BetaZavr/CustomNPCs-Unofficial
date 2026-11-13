@@ -618,6 +618,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
               .setUV(0, 144, 128, 20)
               .setIsEnabled(enableBuy);
       buyButton.isSimple = true;
+      buyButton.showShadow = false;
       canBuy.clear();
       if (enableBuy) {
          if (wait || selectDealData.deal.getType() == 1) { canBuy.add(1); }
@@ -644,6 +645,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
               .setUV(128, 144, 128, 20)
               .setIsEnabled(enableSell);
       sellButton.isSimple = true;
+      sellButton.showShadow = false;
       canSell.clear();
       if (enableSell) {
          if (wait) { canSell.add(1); }
@@ -820,6 +822,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 
       public TradeButton(GuiNPCTrader gui, Deal dealIn, int level, int x, int y, int w, boolean inTradeIn) {
          super(gui, dealIn.getId(), dealIn.getName(), x, y, null);
+         showShadow = false;
          texture = BUTTONS;
          deal = dealIn;
          txrW = 256;
@@ -1050,14 +1053,8 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
                int i = 0;
                List<Component> hovers;
                for (ItemStack stack : dm.buyItems.keySet()) {
-                  GuiBasic.renderStackInGUI(graphics, stack, i * 18, 0, 0.0f, 1.0f, "");
-
-                  matrixStack.pushPose();
                   String sCount = Util.instance.getTextReducedNumber(dm.buyItems.get(stack), true, true, false);
-                  matrixStack.translate(i * 18 + 17, 16.0F, 200.0F);
-                  matrixStack.scale(0.75f, 0.75f, 0.75f);
-                  graphics.drawString(mc.font, sCount, -mc.font.width(sCount), -7.5f, CustomNpcs.MainColor.getRGB(), true);
-                  matrixStack.popPose();
+                  GuiBasic.renderStackInGUI(graphics, stack, i * 18, 0, 0.0f, 1.0f, sCount);
 
                   if (isHovered && isMouseHover(mouseX, mouseY, x + (i * 18) * s, y + parent.scrollY, 16.0f * s, 16.0f * s)) {
                      hoverText.clear();
@@ -1079,7 +1076,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
          x = getX() + 36;
          y = getY() + 2 + parent.scrollY;
          renderString(graphics, getMessage(), x, y, x + width - 39 - mw, y + 10,
-                 CustomNpcs.MainColor.getRGB() | 0xFF000000, true, EnumAlignText.LEFT, false, customFont);
+                 CustomNpcs.MainColor.getRGB() | 0xFF000000, showShadow, EnumAlignText.LEFT, false, customFont);
          matrixStack.popPose();
 
          graphics.disableScissor();
@@ -1120,6 +1117,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 
       public SectionButton(GuiNPCTrader gui, int id, MarcetSection sectionIn, int x, int y) {
          super(gui, id, Component.empty(), x, y);
+         showShadow = false;
          setWidth(sectionIn == null ? 16 : 24);
          setHeight(sectionIn == null ? 9 : 24);
          texture = ICONS;
@@ -1161,6 +1159,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 
       public TradeButtonBiDirectional(GuiNPCTrader gui, int x, int y, int w) {
          super(gui, 0, x, y, 0, new Object[1]);
+         showShadow = false;
          texture = BUTTONS;
          txrY = 84;
          txrW = 256;
