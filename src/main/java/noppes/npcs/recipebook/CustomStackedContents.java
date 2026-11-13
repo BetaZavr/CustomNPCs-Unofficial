@@ -18,7 +18,6 @@ public class CustomStackedContents extends RecipeItemHelper {
     public final HashMap<ItemStack, Integer> contents = new HashMap<>(); // {itemId, count}
     protected RecipeCarpentry npcRecipe;
 
-
     @Override
     public void accountStack(@Nonnull ItemStack stack) { accountStack(stack, 64); }
 

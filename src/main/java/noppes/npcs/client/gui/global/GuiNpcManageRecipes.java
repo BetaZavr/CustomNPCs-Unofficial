@@ -33,7 +33,6 @@ import noppes.npcs.packets.server.*;
 import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.components.*;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
-import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nullable;
 
@@ -689,9 +688,6 @@ public class GuiNpcManageRecipes
 	@Override
 	public void save() {
 		GuiTextFieldNop.unfocus();
-		LogWriter.info("[DEBUG] isValid "+(recipe.isValid() &&
-				recipe.parent instanceof INpcRecipe &&
-				recipe.id.getResourceDomain().equals(CustomNpcs.MODID)));
 		if (recipe.isValid() &&
 				recipe.parent instanceof INpcRecipe &&
 				recipe.id.getResourceDomain().equals(CustomNpcs.MODID)) {

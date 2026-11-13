@@ -88,11 +88,9 @@ public class GuiRecipeBookMixin {
         }
     }
 
-    @Inject(
-            method = "setupGhostRecipe",
+    @Inject(method = "setupGhostRecipe",
             at = @At(value = "HEAD"),
-            cancellable = true
-    )
+            cancellable = true)
     public void npcs$setupGhostRecipe(IRecipe recipe, List<Slot> slots, CallbackInfo ci) {
         if (recipe instanceof RecipeCarpentry) {
             RecipeCarpentry npcRecipe = (RecipeCarpentry) recipe;

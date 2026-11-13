@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.item.ItemStack;
@@ -646,6 +647,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 				.setUV(0, 144, 128, 20)
 				.setIsEnabled(enableBuy);
 		buyButton.isSimple = true;
+		buyButton.showShadow = false;
 		canBuy.clear();
 		if (enableBuy) {
 			if (wait || selectDealData.deal.getType() == 1) { canBuy.add(1); }
@@ -672,6 +674,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 				.setUV(128, 144, 128, 20)
 				.setIsEnabled(enableSell);
 		sellButton.isSimple = true;
+		sellButton.showShadow = false;
 		canSell.clear();
 		if (enableSell) {
 			if (wait) { canSell.add(1); }
@@ -843,6 +846,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 
 		public TradeButton(GuiNPCTrader gui, Deal dealIn, int level, int x, int y, int w, boolean inTradeIn) {
 			super(gui, dealIn.getId(), dealIn.getName(), x, y, null);
+			showShadow = false;
 			texture = BUTTONS;
 			deal = dealIn;
 			txrW = 256;
@@ -1094,20 +1098,8 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 					int i = 0;
 					List<Component> hovers = new ArrayList<>();
 					for (ItemStack stack : dm.buyItems.keySet()) {
-						GuiBasic.renderStackInGUI(stack, i * 18, 0, 0.0f, 1.0f, "");
-
-						GlStateManager.pushMatrix();
-						String sCount = String.valueOf(dm.buyItems.get(stack));
-						GlStateManager.translate(i * 18.0f + 17.0f, 16.0f, 200.0f);
-						GlStateManager.scale(0.75f, 0.75f, 0.75f);
-						GlStateManager.disableLighting();
-						GlStateManager.disableDepth();
-						GlStateManager.disableBlend();
-						mc.fontRenderer.drawStringWithShadow(sCount, 24.0f - (float) mc.fontRenderer.getStringWidth(sCount), -7.5f, CustomNpcs.MainColor.getRGB());
-						GlStateManager.enableLighting();
-						GlStateManager.enableDepth();
-						GlStateManager.enableBlend();
-						GlStateManager.popMatrix();
+						String sCount = Util.instance.getTextReducedNumber(dm.buyItems.get(stack), true, true, false);
+						GuiBasic.renderStackInGUI(stack, i * 18, 0, 0.0f, 1.0f, sCount);
 
 						if (isHovered && isMouseHover(mouseX, mouseY, x + (i * 18) * s, y + parent.scrollY, 16.0f * s, 16.0f * s)) {
 							hoverText.clear();
@@ -1133,11 +1125,12 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 			x = getX() + 36;
 			y = getY() + 2 + parent.scrollY;
 			renderString(getMessage(), x, y, x + width - 39 - mw, y + 10,
-					CustomNpcs.MainColor.getRGB() | 0xFF000000, true, EnumAlignText.LEFT, false, customFont);
+					CustomNpcs.MainColor.getRGB() | 0xFF000000, showShadow, EnumAlignText.LEFT, false, customFont);
 			GlStateManager.popMatrix();
 
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+			RenderHelper.enableGUIStandardItemLighting();
 		}
 
 		public int getState(boolean tradeIn) {
@@ -1174,6 +1167,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 
 		public SectionButton(GuiNPCTrader gui, int id, MarcetSection sectionIn, int x, int y) {
 			super(gui, id, Component.empty(), x, y);
+			showShadow = false;
 			setWidth(sectionIn == null ? 16 : 24);
 			setHeight(sectionIn == null ? 9 : 24);
 			texture = GuiNPCTrader.ICONS;
@@ -1204,6 +1198,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 
 			if (isHovered && !hoverText.isEmpty() && listener != null) { listener.setHoverText(hoverText); }
 			GlStateManager.popMatrix();
+			RenderHelper.enableGUIStandardItemLighting();
 		}
 
 	}
@@ -1213,6 +1208,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 
 		public TradeButtonBiDirectional(GuiNPCTrader gui, int x, int y, int w) {
 			super(gui, 0, x, y, 0, new Object[1]);
+			showShadow = false;
 			texture = BUTTONS;
 			txrY = 84;
 			txrW = 256;
@@ -1258,6 +1254,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 			renderString(mes, getX() + 11, getY(), getX() + getWidth() - 11, getY() + getHeight(),
 					getFGColor() | (int) Math.ceil(alpha * 255.0F) << 24, showShadow, EnumAlignText.CENTER, false, customFont);
 			if (isHovered && !hoverText.isEmpty() && listener != null) { listener.setHoverText(hoverText); }
+			RenderHelper.enableGUIStandardItemLighting();
 		}
 
 	}
@@ -1296,6 +1293,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface<ContainerNPCTrader>
 			super.renderWidget(mouseX, mouseY, partialTicks);
 			GlStateManager.popMatrix();
 			if (isHovered && !hoverText.isEmpty() && listener != null) { listener.setHoverText(hoverText); }
+			RenderHelper.enableGUIStandardItemLighting();
 		}
 
 	}

@@ -13,7 +13,6 @@ import noppes.npcs.containers.ContainerCarpentryBench;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
 
 // Changed by Unofficial (BetaZavr)
 // net.minecraft.client.gui.inventory.GuiInventory
@@ -79,7 +78,7 @@ implements IRecipeShownListener {
 		else {
 			super.drawScreen(mouseX, mouseY, partialTicks);
 			recipeBookGui.render(mouseX, mouseY, partialTicks);
-			recipeBookGui.renderGhostRecipe(guiLeft, guiTop, true, partialTicks);
+			recipeBookGui.renderGhostRecipe(guiLeft - 77, guiTop, true, partialTicks);
 		}
 		renderHoveredToolTip(mouseX, mouseY);
 		recipeBookGui.renderTooltip(guiLeft, guiTop, mouseX, mouseY);
@@ -95,9 +94,9 @@ implements IRecipeShownListener {
 	}
 
 	@Override
-	protected boolean hasClickedOutside(int p_193983_1_, int p_193983_2_, int p_193983_3_, int p_193983_4_) {
-		boolean flag = p_193983_1_ < p_193983_3_ || p_193983_2_ < p_193983_4_ || p_193983_1_ >= p_193983_3_ + xSize || p_193983_2_ >= p_193983_4_ + ySize;
-		return recipeBookGui.hasClickedOutside(p_193983_1_, p_193983_2_, guiLeft, guiTop, xSize, ySize) && flag;
+	protected boolean hasClickedOutside(int mouseX, int mouseY, int left, int top) {
+		boolean flag = mouseX < left || mouseY < top || mouseX >= left + xSize || mouseY >= top + ySize;
+		return recipeBookGui.hasClickedOutside(mouseX, mouseY, guiLeft, guiTop, xSize, ySize) && flag;
 	}
 
 	@Override
@@ -112,11 +111,12 @@ implements IRecipeShownListener {
 	}
 
 	@Override
-	public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-		if (!hasSubGui() && (widthTooNarrow || recipeBookGui.isVisible()) && recipeBookGui.mouseClicked(mouseX, mouseY, mouseButton)) {
-			return;
+	public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+		if (!hasSubGui() && (widthTooNarrow || recipeBookGui.isVisible()) &&
+				recipeBookGui.mouseClicked((int) mouseX, (int) mouseY, mouseButton)) {
+			return true;
 		}
-		super.mouseClicked(mouseX, mouseY, mouseButton);
+		return super.mouseClicked(mouseX, mouseY, mouseButton);
 	}
 
 	@Override
@@ -126,9 +126,7 @@ implements IRecipeShownListener {
 	}
 
 	@Override
-	public void recipesUpdated() {
-		recipeBookGui.recipesUpdated();
-	}
+	public void recipesUpdated() { recipeBookGui.recipesUpdated();}
 
     @Override
 	public void updateScreen() {

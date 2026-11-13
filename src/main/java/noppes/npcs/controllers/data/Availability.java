@@ -893,9 +893,9 @@ public class Availability implements ICompatibilty, IAvailability {
 			}
 			if (hasClock) {
 				list.add(Component.translatable("availability.type.daytime.1",
-						Component.literal(daytime[0]+":00").withStyle(TextFormatting.DARK_GREEN),
-						Component.literal(daytime[1]+":00").withStyle(TextFormatting.DARK_GREEN),
-						Component.literal(time+":00").withStyle(TextFormatting.GOLD), " " +
+						Component.literal(daytime[0]+":00").withStyle(TextFormatting.DARK_GREEN).getFormattedText(),
+						Component.literal(daytime[1]+":00").withStyle(TextFormatting.DARK_GREEN).getFormattedText(),
+						Component.literal(time+":00").withStyle(TextFormatting.GOLD).getFormattedText(), " " +
 								Component.translatable("quest.task.manual."+(bo ? "0" : "1")).getFormattedText()));
 			} else {
 				list.add(Component.translatable("availability.type.daytime.0", " " +

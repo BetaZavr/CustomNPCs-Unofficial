@@ -12,6 +12,7 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.tileentity.TileEntity;
@@ -38,8 +39,9 @@ import noppes.npcs.controllers.data.*;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataInventory;
 import noppes.npcs.mixin.entity.player.IEntityPlayerMPMixin;
-import noppes.npcs.mixin.minecraftforge.registries.ForgeRegistryMixin;
+import noppes.npcs.mixin.minecraftforge.registries.IForgeRegistryMixin;
 import noppes.npcs.mixin.stats.IRecipeBookMixin;
+import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nullable;
 
@@ -256,15 +258,27 @@ public class CommonProxy implements IGuiHandler {
 				int id = forgeRegistry.getID(key);
 				modifiable.remove(key);
 				if (id >= 0) {
-					((ForgeRegistryMixin) CustomNpcs.proxy.getRecipeManager()).getAvailabilityMap().clear(id);
+					((IForgeRegistryMixin) CustomNpcs.proxy.getRecipeManager()).getAvailabilityMap().clear(id);
 				}
 			}
 
 			// 3. We register only current RecipeCarpentry
 			for (int i = 0; i < 2; i++) {
 				for (INpcRecipe iRecipe : (i == 0 ? rData.getAllGlobalRecipes() : rData.getAllAnvilRecipes())) {
-					RecipeCarpentry carpentry = (RecipeCarpentry) iRecipe;
-					if (carpentry.isValid()) { manager.register(carpentry); }
+					RecipeCarpentry recipe = (RecipeCarpentry) iRecipe;
+					if (recipe.isValid()) {
+						if (manager.getKey(recipe) == null) { manager.register(recipe); }
+						else {
+							LogWriter.info("[DEBUG] recipe "+ recipe.getRegistryName());
+							int j = 0;
+							for (Ingredient ing : recipe.getIngredients()) {
+								if (ing != null) {
+									LogWriter.info("[DEBUG] ["+j+"] "+ Arrays.toString(ing.getMatchingStacks()));
+								}
+								j++;
+							}
+						}
+					}
 				}
 			}
 		}

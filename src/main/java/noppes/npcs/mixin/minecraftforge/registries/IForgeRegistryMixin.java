@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.BitSet;
 
 @Mixin(value = ForgeRegistry.class, priority = 502, remap = false)
-public interface ForgeRegistryMixin {
+public interface IForgeRegistryMixin {
 
     @Accessor("availabilityMap") BitSet getAvailabilityMap();
 

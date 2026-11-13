@@ -20,20 +20,16 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 @Mixin(value = ServerRecipeBookHelper.class, remap = false, priority = 498)
-public class ServerRecipeBookHelperMixin {
+public abstract class ServerRecipeBookHelperMixin {
 
-    @Shadow(aliases = "field_194332_c")
-    private EntityPlayerMP player;
-    @Shadow(aliases = "field_194333_d")
-    private IRecipe recipe;
-    @Shadow(aliases = "field_194334_e")
-    private boolean isShiftPressed;
-    @Shadow(aliases = "field_194335_f")
-    private InventoryCraftResult inventoryResult;
-    @Shadow(aliases = "field_194336_g")
-    private InventoryCrafting menu;
-    @Shadow(aliases = "field_194337_h")
-    private List<Slot> slots;
+    @Shadow(aliases = "field_194332_c") private EntityPlayerMP player;
+    @Shadow(aliases = "field_194333_d") private IRecipe recipe;
+    @Shadow(aliases = "field_194334_e") private boolean isShiftPressed;
+    @Shadow(aliases = "field_194335_f") private InventoryCraftResult inventoryResult;
+    @Shadow(aliases = "field_194336_g") private InventoryCrafting menu;
+    @Shadow(aliases = "field_194337_h") private List<Slot> slots;
+    @Shadow(aliases = "func_194326_a") private void clearGrid() { }
+    @Shadow(aliases = "func_194328_c") private boolean testClearGrid() { return false; }
 
     @Unique protected CustomStackedContents npcs$customStackedContents = new CustomStackedContents();
 
@@ -51,13 +47,11 @@ public class ServerRecipeBookHelperMixin {
     public void npcs$processCraftRecipe(EntityPlayerMP playerMP, @Nullable IRecipe iRecipe, boolean isShiftPress, CallbackInfo ci) {
         if (iRecipe instanceof RecipeCarpentry && playerMP.getRecipeBook().isUnlocked(iRecipe)) {
             ci.cancel();
-            IServerRecipeBookHelperMixin mixin = (IServerRecipeBookHelperMixin) this;
-            RecipeCarpentry npcRecipe = (RecipeCarpentry) recipe;
+            RecipeCarpentry npcRecipe = (RecipeCarpentry) iRecipe;
             player = playerMP;
-            recipe = iRecipe;
+            recipe = npcRecipe;
             isShiftPressed = isShiftPress;
             slots = playerMP.openContainer.inventorySlots;
-
             Container container = playerMP.openContainer;
             inventoryResult = null;
             menu = null;
@@ -74,19 +68,18 @@ public class ServerRecipeBookHelperMixin {
                 menu = ((IRecipeContainer)container).getCraftMatrix();
             }
 
-            if (inventoryResult != null && menu != null && mixin.invokeTestClearGrid() && playerMP.isCreative()) {
+            if (inventoryResult != null && menu != null && (testClearGrid() || player.isCreative())) {
                 npcs$customStackedContents.clear();
                 npcs$customStackedContents.setRecipe(npcRecipe);
                 playerMP.inventory.fillStackedContents(npcs$customStackedContents, false);
                 menu.fillStackedContents(npcs$customStackedContents);
-
                 if (npcRecipe.availability.isAvailable(player) &&
                         npcs$customStackedContents.canNpcCraft(npcRecipe)) {
                     new CustomServerPlaceRecipe(recipe, isShiftPress, playerMP.inventory, menu, inventoryResult,
                             playerMP.openContainer.inventorySlots, npcs$customStackedContents);
                 }
                 else {
-                    mixin.invokeClearGrid();
+                    clearGrid();
                     playerMP.connection.sendPacket(new SPacketPlaceGhostRecipe(playerMP.openContainer.windowId, recipe));
                 }
                 playerMP.inventory.markDirty();
