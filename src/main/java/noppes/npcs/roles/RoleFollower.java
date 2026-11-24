@@ -34,6 +34,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.packets.server.SPacketGuiOpen;
 import noppes.npcs.shared.client.gui.util.NoppesStringUtils;
 import noppes.npcs.util.Util;
+import noppes.npcs.util.ValueUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,6 +50,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
    public long hiredTime;
    public long waitTime = 0;
    public int rentalMoney = 0;
+   public boolean rentalIsDonat = false;
    public NpcMiscInventory rentalItems = new NpcMiscInventory(3);
    public NpcMiscInventory inventory = new NpcMiscInventory(0);
    public Player owner = null;
@@ -56,6 +58,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
    public String dialogFarewell = getTexts("follower.farewellText", " {player}");
    public String dialogFired = getTexts("follower.firedText", " {player}");
    public String dialogHire = getTexts("follower.hireText", " {days} ", Component.translatable("follower.days"));
+   public String dialogHired = getTexts("follower.is.hired", " {player}");
 
    private String getTexts(@Nonnull String main, Object ... added) {
       MutableComponent component = Component.translatable(main);
@@ -81,14 +84,16 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
       rates = NBTTags.getIntegerIntegerMap(compound.getList("MercenaryDayRates", 10));
       if (compound.contains("MercenaryInventory", 10)) {
          int size = compound.getCompound("MercenaryInventory").getInt("NpcMiscInvSize");
-         inventory = new NpcMiscInventory(size);
+         inventory = new NpcMiscInventory(ValueUtil.correctInt(size, 0, 9));
          inventory.load(compound.getCompound("MercenaryInventory"));
       }
       isFollowing = compound.getBoolean("MercenaryIsFollowing");
       disableGui = compound.getBoolean("MercenaryDisableGui");
       infiniteDays = compound.getBoolean("MercenaryInfiniteDays");
       refuseSoulStone = compound.getBoolean("MercenaryRefuseSoulstone");
+      rentalIsDonat = compound.getBoolean("MercenaryRentalIsDonat");
       dialogHire = compound.getString("MercenaryDialogHired");
+      dialogHired = compound.getString("MercenaryDialog");
       dialogFarewell = compound.getString("MercenaryDialogFarewell");
       // New from Unofficial (BetaZavr)
       rentalItems.load(compound.getCompound("MercenaryInv"));
@@ -104,6 +109,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
       compound.putInt("MercenaryDaysHired", daysHired);
       compound.putLong("MercenaryHiredTime", hiredTime);
       compound.putString("MercenaryDialogHired", dialogHire);
+      compound.putString("MercenaryDialog", dialogHired);
       compound.putString("MercenaryDialogFarewell", dialogFarewell);
       if (hasOwner()) { compound.putString("MercenaryOwner", ownerUUID); }
       compound.put("MercenaryDayRates", NBTTags.nbtIntegerIntegerMap(rates));
@@ -112,6 +118,7 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
       compound.putBoolean("MercenaryDisableGui", disableGui);
       compound.putBoolean("MercenaryInfiniteDays", infiniteDays);
       compound.putBoolean("MercenaryRefuseSoulstone", refuseSoulStone);
+      compound.putBoolean("MercenaryRentalIsDonat", rentalIsDonat);
       // New from Unofficial (BetaZavr)
       compound.put("MercenaryInv", rentalItems.save());
       compound.putInt("MercenaryMoney", rentalMoney);
@@ -239,11 +246,12 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
    public void interact(Player playerIn) {
       if (playerIn instanceof ServerPlayer player) {
          if (ownerUUID != null && !ownerUUID.isEmpty()) {
-            if (player == owner && !disableGui) { SPacketGuiOpen.sendOpenGui(player, EnumGuiType.PlayerFollower, npc, new BlockPos(1, 0, 0)); }
+            if (player.equals(getOwner()) && !disableGui) { SPacketGuiOpen.sendOpenGui(player, EnumGuiType.PlayerFollower, npc, BlockPos.ZERO); }
+            else if (npc != null && !dialogHired.isEmpty()) { npc.say(player, new Line(dialogHired)); }
          }
          else {
             if (npc != null) { npc.say(player, npc.advanced.getInteractLine()); }
-            SPacketGuiOpen.sendOpenGui(player, EnumGuiType.PlayerFollowerHire, npc, new BlockPos(0, 0, 0));
+            SPacketGuiOpen.sendOpenGui(player, EnumGuiType.PlayerFollowerHire, npc, BlockPos.ZERO);
          }
       }
    }
@@ -258,13 +266,10 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
    }
 
    public void setOwner(@Nullable Player player) {
-      if (player == null) {
-         killed();
-         return;
-      }
-      UUID id = player.getUUID();
-      if (ownerUUID == null || !ownerUUID.equals(id.toString())) { killed(); }
-      ownerUUID = id.toString();
+      if (player == null ||
+              ownerUUID == null ||
+              !ownerUUID.equals(player.getUUID().toString())) { killed(); }
+      if (player != null) { ownerUUID = player.getUUID().toString(); }
    }
 
    @Override
@@ -299,6 +304,12 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 
    @Override
    public void setRefuseSoulstone(boolean refuse) { refuseSoulStone = refuse; }
+
+   @Override
+   public boolean getRentalIsDonat() { return rentalIsDonat; }
+
+   @Override
+   public void setRentalIsDonat(boolean refuse) { rentalIsDonat = refuse; }
 
    @Override
    public IPlayer<?> getFollowing() {

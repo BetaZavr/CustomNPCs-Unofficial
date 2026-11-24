@@ -431,6 +431,7 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
          x = 0;
          y = 0;
       }
+      renderBackground(graphics);
       super.render(graphics, x, y, partialTicks);
       if (title != null && !title.getString().isEmpty()) {
          GuiButtonNop.renderString(graphics, title, guiLeft + 4, guiTop + 5, guiLeft + imageWidth - 8, guiTop + 15,

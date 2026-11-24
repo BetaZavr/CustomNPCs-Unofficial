@@ -26,6 +26,28 @@ public class CombatHandler {
 
    public CombatHandler(EntityNPCInterface npcIn) { npc = npcIn; }
 
+   public boolean checkTarget() {
+      if (aggressors.isEmpty() || npc.tickCount % 10 != 0) { return false; }
+      LivingEntity target = npc.getTarget();
+      Double current = 0.0d;
+      if (isValidTarget(target)) {
+         current = aggressors.get(target);
+         if (current == null) { current = 0.0d; }
+      } else {
+         target = null;
+      }
+      for (Map.Entry<LivingEntity, Double> entry : aggressors.entrySet()) {
+         if (entry.getValue() > current && isValidTarget(entry.getKey())) {
+            current = entry.getValue();
+            target = entry.getKey();
+         }
+      }
+      if (target == null && priorityTarget != null && isValidTarget(priorityTarget)) {
+         return false;
+      }
+      return target == null;
+   }
+
    public void update() {
       if (npc.isKilled()) {
          if (npc.isAttacking()) { reset(); }
@@ -62,6 +84,8 @@ public class CombatHandler {
          }
       }
       for (LivingEntity entity : del) { aggressors.remove(entity); }
+      LivingEntity currentTarget = npc.getTarget();
+      if (currentTarget != null && !isValidTarget(currentTarget)) { npc.setTarget(null); }
       // set priority target
       if (priorityTarget != null && (npc.getTarget() == null || !npc.getTarget().equals(priorityTarget))) {
          npc.setPriorityAttackTarget(priorityTarget);
@@ -120,25 +144,6 @@ public class CombatHandler {
       priorityTarget = null;
       npc.getEntityData().set(EntityNPCInterface.Attacking, false);
       if (npc.getTarget() != null) { npc.setTarget(null); }
-   }
-
-   public boolean checkTarget() {
-      if (aggressors.isEmpty() || npc.tickCount % 10 != 0) { return false; }
-      LivingEntity target = npc.getTarget();
-      Double current = 0.0d;
-      if (isValidTarget(target)) {
-         current = aggressors.get(target);
-         if (current == null) { current = 0.0d; }
-      } else {
-         target = null;
-      }
-      for (Map.Entry<LivingEntity, Double> entry : aggressors.entrySet()) {
-         if (entry.getValue() > current && isValidTarget(entry.getKey())) {
-            current = entry.getValue();
-            target = entry.getKey();
-         }
-      }
-      return target == null;
    }
 
    public boolean isValidTarget(LivingEntity target) {

@@ -9,6 +9,7 @@ import noppes.npcs.api.event.RoleEvent;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.controllers.data.Line;
 import noppes.npcs.controllers.data.PlayerData;
+import noppes.npcs.controllers.data.PlayerGameData;
 import noppes.npcs.mixin.world.ISimpleContainerMixin;
 import noppes.npcs.shared.common.PacketServerBasic;
 import noppes.npcs.roles.RoleFollower;
@@ -47,37 +48,33 @@ public class SPacketFollowerHire extends PacketServerBasic {
       CustomNpcs.debugData.start("Packets");
       if (npc.role instanceof RoleFollower role && player.containerMenu instanceof ContainerNPCFollowerHire) {
          if (pos >= 0 && pos < 4 && role.rates.containsKey(pos)) {
-            if (pos == 3) {
-               if (!player.isCreative()) {
-                  if (PlayerData.get(player).game.getMoney() < role.rentalMoney) {
-                     CustomNpcs.debugData.end("Packets");
-                     return;
-                  }
-                  PlayerData.get(player).game.addMoney(role.rentalMoney * -1);
-               }
-            }
-            else {
-               ItemStack currency = role.rentalItems.getItem(pos);
-               if (currency.isEmpty()) {
-                  CustomNpcs.debugData.end("Packets");
-                  return;
-               }
-               if (!player.isCreative()) {
-                  Map<ItemStack, Integer> map = new HashMap<>();
-                  map.put(currency, currency.getCount());
-                  if (!Util.instance.canRemoveItems(((ISimpleContainerMixin) role.rentalItems).getItems(), map, false, false)) {
-                     CustomNpcs.debugData.end("Packets");
-                     return;
-                  }
-                  Util.instance.removeItem(player, currency, false, false);
-               }
-            }
-            int days = role.rates.get(pos);
-            RoleEvent.FollowerHireEvent event = new RoleEvent.FollowerHireEvent(player, npc.wrappedNPC, days);
+            RoleEvent.FollowerHireEvent event = new RoleEvent.FollowerHireEvent(player, npc.wrappedNPC, role.rates.get(pos));
             if (!EventHooks.onNPCRole(npc, event) && event.days > 0) {
-               npc.say(player, new Line(NoppesStringUtils.formatText(role.dialogHire.replace("{days}", days + ""), player, npc)));
+               if (!player.isCreative()) {
+                  if (pos == 3) {
+                     PlayerGameData game = PlayerData.get(player).game;
+                     if ((role.rentalIsDonat ? game.getDonat() : game.getMoney()) < role.rentalMoney) {
+                        CustomNpcs.debugData.end("Packets");
+                        return;
+                     }
+                     game.addMoney(role.rentalMoney * -1);
+                  } // money / donate
+                  else {
+                     ItemStack currency = role.rentalItems.getItem(pos);
+                     if (!currency.isEmpty()) {
+                        Map<ItemStack, Integer> map = new HashMap<>();
+                        map.put(currency, currency.getCount());
+                        if (!Util.instance.canRemoveItems(((ISimpleContainerMixin) role.rentalItems).getItems(), map, false, false)) {
+                           CustomNpcs.debugData.end("Packets");
+                           return;
+                        }
+                        Util.instance.removeItem(player, currency, false, false);
+                     }
+                  } // stack
+               } // payment
+               npc.say(player, new Line(NoppesStringUtils.formatText(role.dialogHire.replace("{days}", event.days + ""), player, npc)));
                role.setOwner(player);
-               role.addDays(days);
+               role.addDays(event.days);
             }
          }
       }

@@ -198,7 +198,8 @@ public class NoppesUtilServer {
          case MainMenuInv -> CustomContainer.container_inv;
          case CompanionInv -> CustomContainer.container_companion;
          case PlayerTrader -> CustomContainer.container_trader;
-         case PlayerFollower, PlayerFollowerHire -> CustomContainer.container_followerhire;
+         case PlayerFollower -> CustomContainer.container_follower;
+         case PlayerFollowerHire -> CustomContainer.container_followerhire;
          case SetupTraderDeal -> CustomContainer.container_tradersetup;
          case SetupDrop -> CustomContainer.container_dropsetup;
          case SetupFollower -> CustomContainer.container_followersetup;
@@ -447,7 +448,18 @@ public class NoppesUtilServer {
    }
 
    public static void sendExtraData(ServerPlayer player, EntityNPCInterface npc, EnumGuiType gui) {
-      if (npc != null && npc.role.getEnumType() != RoleType.NONE &&
+      if (npc == null) { return; }
+      if (gui == EnumGuiType.MainMenuDisplay ||
+              gui == EnumGuiType.MainMenuStats ||
+              gui == EnumGuiType.MainMenuAI ||
+              gui == EnumGuiType.MainMenuInv ||
+              gui == EnumGuiType.MainMenuAdvanced ||
+              gui == EnumGuiType.MainMenuGlobal) {
+         CompoundTag full = new CompoundTag();
+         npc.save(full);
+         Packets.send(player, new PacketNpcInitData(npc.getId(), full));
+      }
+      else if (npc.role.getEnumType() != RoleType.NONE &&
               (gui == EnumGuiType.PlayerFollower ||
                       gui == EnumGuiType.PlayerFollowerHire ||
                       gui == EnumGuiType.PlayerTrader ||

@@ -69,6 +69,9 @@ public class GuiNpcDisplay
       addButton(0, x2 + 46, y, false, display.getShowName(), "display.show", "display.hide", "display.showAttacking")
               .setSize(110, 20)
               .setHoverTexts("display.hover.show.name");
+      String version = "v." + (CustomNpcs.mod == null ? CustomNpcs.VERSION : CustomNpcs.mod.getModInfo().getVersion());
+      addLabel(lID++, x2 + 155 - font.width(version), y + 22, version)
+              .setHoverTexts("display.hover.version");
       addButton(14, x2, y, "↻")
               .setSize(20, 20)
               .setHoverTexts("display.hover.random.name");

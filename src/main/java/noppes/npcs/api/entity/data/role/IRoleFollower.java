@@ -4,11 +4,16 @@ import noppes.npcs.api.interfaces.ParamName;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.INPCRole;
 
+@SuppressWarnings("unused")
 public interface IRoleFollower extends INPCRole {
 
    void addDays(@ParamName("days") int days);
 
    int getDays();
+
+    boolean getRentalIsDonat();
+
+   void setRentalIsDonat(boolean refuse);
 
    IPlayer<?> getFollowing();
 

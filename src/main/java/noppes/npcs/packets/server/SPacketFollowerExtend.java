@@ -64,9 +64,7 @@ public class SPacketFollowerExtend extends PacketServerBasic {
       if (pos == 3) {
          if (!player.isCreative()) {
             PlayerData data = PlayerData.get(player);
-            if (data.game.getMoney() < role.rentalMoney) {
-               return;
-            }
+            if ((role.rentalIsDonat ? data.game.getDonat() : data.game.getMoney()) < role.rentalMoney) { return; }
             data.game.addMoney(role.rentalMoney * -1);
          }
       }

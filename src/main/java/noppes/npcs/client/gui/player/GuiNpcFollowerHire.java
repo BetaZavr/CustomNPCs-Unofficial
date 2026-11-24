@@ -1,14 +1,15 @@
 package noppes.npcs.client.gui.player;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilServer;
-import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.controllers.data.PlayerData;
@@ -17,6 +18,7 @@ import noppes.npcs.packets.server.SPacketFollowerHire;
 import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.shared.client.gui.GuiBasic;
 import noppes.npcs.shared.client.gui.components.GuiButtonNop;
+import noppes.npcs.shared.client.gui.components.GuiLabel;
 import noppes.npcs.util.Util;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +30,10 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface<ContainerNPCFol
 
    protected final RoleFollower role;
 
+   // New from Unofficial (BetaZavr)
+   protected static final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/components.png");
+   protected GuiLabel moneyL;
+
    public GuiNpcFollowerHire(ContainerNPCFollowerHire container, Inventory inv, Component titleIn) {
       super(NoppesUtilServer.getEditingNpc(Minecraft.getInstance().player), container, inv, titleIn);
       setBackground("followerhire.png");
@@ -38,17 +44,37 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface<ContainerNPCFol
    @Override
    public void init() {
       super.init();
+      int lId = 0;
       int x = guiLeft + 26;
       int y = guiTop - 7;
-      for (int i = 0; i < 3; ++i) {
-         if (!role.rentalItems.getItem(i).isEmpty()) {
-            addButton(i, x, y += 18, "follower.hire")
-                 .setSize(50, 14);
+      for (int slot = 0; slot < 3; ++slot) {
+         if (!role.rentalItems.getItem(slot).isEmpty()) {
+            addButton(slot, x, y += 18, "follower.hire")
+                 .setSize(54, 14);
+            int days = role.rates.get(slot);
+            addLabel(lId++, x + 79, y + 2, Component.literal("= " + days + " ")
+                    .append(Component.translatable(days == 1 ? "follower.day": "follower.days")))
+                    .setSize(66, 10)
+                    .setIsVisible(!role.infiniteDays)
+                    .setHoverTexts(Component.translatable("gui.time")
+                            .append(" ≈ ")
+                            .append(Util.instance.ticksToElapsedTime(days * 28800L, false, true, false)));
          }
       }
       if (role.rates.containsKey(3) && role.rentalMoney > 0) {
-         addButton(3, x, guiTop + 65, "follower.hire")
-                 .setSize(50, 14);
+         addButton(3, x, y += 18, "follower.hire")
+                 .setSize(54, 14)
+                 .setHoverTexts("follower.hover.extend");
+         moneyL = addLabel(lId++, x + 56, y + 2, Component.literal(Util.instance.getTextReducedNumber(role.rentalMoney, true, true, false))
+                 .append(role.rentalIsDonat ? CustomNpcs.displayCurrencies : CustomNpcs.displayDonation));
+         int days = role.rates.get(3);
+         addLabel(lId, moneyL.getX() + moneyL.getWidth() + 14, y + 2, Component.literal("= " + days + " ")
+                 .append(Component.translatable(days == 1 ? "follower.day": "follower.days")))
+                 .setSize(66 - moneyL.getWidth(), 10)
+                 .setIsVisible(!role.infiniteDays)
+                 .setHoverTexts(Component.translatable("gui.time")
+                         .append(" ≈ ")
+                         .append(Util.instance.ticksToElapsedTime(days * 28800L, false, true, false)));
       }
    }
 
@@ -63,39 +89,35 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface<ContainerNPCFol
       int l = (width - imageWidth) / 2;
       int i1 = (height - imageHeight) / 2;
       graphics.blit(background, l, i1, 0, 0, imageWidth, imageHeight);
-      int index = 0;
       for(int slot = 0; slot < role.rentalItems.getContainerSize(); ++slot) {
          ItemStack itemstack = role.rentalItems.getItem(slot);
-         if (!NoppesUtilServer.isItemStackNull(itemstack)) {
-            int days = 1;
-            if (role.rates.containsKey(slot)) { days = role.rates.get(slot); }
-            int yOffset = index * 18;
-            int x = guiLeft + 89;
-            int y = guiTop + yOffset + 10;
+         GuiButtonNop button = getButton(slot);
+         if (!NoppesUtilServer.isItemStackNull(itemstack) && button != null) {
+            int x = button.getX() + button.getWidth() + 3;
+            int y = button.getY() - 1;
             graphics.blit(GuiBasic.RESOURCE_SLOT, x - 1, y - 1, 0, 0, 18, 18);
             GuiBasic.renderStackInGUI(graphics, itemstack, x, y, 0.0f, 1.0f, null);
-            Component daysS = Component.empty()
-                    .append(" = " + days + " ")
-                    .append(Component.translatable(days == 1 ? "follower.day": "follower.days"));
-            graphics.drawString(font, daysS, x + 16, y + 4,
-                    CustomNpcResourceListener.DefaultTextColor,
-                    false);
             if (isMouseHover(mouseX, mouseY, x, y, 16, 16)) {
                graphics.renderTooltip(font, itemstack, mouseX, mouseY);
             }
-            ++index;
          }
       }
+      PoseStack matrixStack = graphics.pose();
       if (role.rates.containsKey(3) && role.rentalMoney > 0) {
-         int days = role.rates.get(3);
-         Component daysS = Component.empty()
-                 .append(Util.instance.getTextReducedNumber(role.rentalMoney, true, true, false))
-                 .append(" " + CustomNpcs.displayCurrencies + " = " + days + " ")
-                 .append(Component.translatable(days == 1 ? "follower.day": "follower.days"));
-         graphics.drawString(font, daysS, guiLeft + 90, guiTop + 69,
-                 CustomNpcResourceListener.DefaultTextColor,
-                 false);
+         // icon
+         matrixStack.pushPose();
+         matrixStack.translate(moneyL.getX() + moneyL.getWidth() - 3.0f, moneyL.getY() - 2.0f, 0.0f);
+         float sc = 16.0f / 250.f;
+         matrixStack.scale(sc, sc, sc);
+         graphics.blit(role.rentalIsDonat ? GuiBasic.DONAT : GuiBasic.MONEY, 0, 0, 0, 0, 256, 256);
+         matrixStack.popPose();
       }
+      // stats
+      matrixStack.pushPose();
+      matrixStack.translate(guiLeft + 8.0f, guiTop + 12.0f, 0.0f);
+      matrixStack.scale(0.5f, 0.5f, 0.5f);
+      graphics.blit(resource, 0, 0, 98, 48, 24, 24);
+      matrixStack.popPose();
    }
 
    @Override
@@ -116,6 +138,14 @@ public class GuiNpcFollowerHire extends GuiContainerNPCInterface<ContainerNPCFol
             if (role.infiniteDays) { hover.add(Component.translatable("follower.hover.infinite")); }
             setHoverText(hover);
          }
+      }
+      // stats
+      if (isMouseHover(mouseX, mouseY, guiLeft + 8, guiTop + 12, 12, 12)) {
+         setHoverText(Component.translatable("stats.health").append(": " + (int) npc.getMaxHealth()),
+                 Component.translatable("stats.hover.attack.strength").append(": "),
+                 Component.literal(" - ").append(Component.translatable("stats.meleeproperties")).append(": " + npc.stats.getMelee().getStrength()),
+                 Component.literal(" - ").append(Component.translatable("stats.rangedproperties")).append(": " + npc.stats.getRanged().getStrength()),
+                 Component.translatable("stats.movespeed").append(": " + npc.ais.getWalkingSpeed()));
       }
       super.render(graphics, mouseX, mouseY, partialTicks);
    }
