@@ -212,14 +212,14 @@ public class SubGuiNpcAuctionCreateLot extends GuiBasicContainer<ContainerAuctio
 		if (fis.length > 0) {
 			for (Slot s : menu.inventorySlots) {
 				if (s.getHasStack()) {
+					GlStateManager.pushMatrix();
+					GlStateManager.translate( guiLeft - 1.0f, guiTop - 1.0f, 0.0f);
 					for (IForbiddenItem fi : fis) {
 						if (NoppesUtilPlayer.compareItems(s.getStack(), fi.getItem().getMCItemStack(), fi.isIgnoreDamage(), fi.isIgnoreNBT())) {
-							GlStateManager.pushMatrix();
-							GlStateManager.translate( guiLeft + s.xPos - 1.0f, guiTop + s.yPos - 1.0f, 300.0f);
-							drawTexturedModalRect(0, 0, 164, 0, 18, 18);
-							GlStateManager.popMatrix();
+							drawTexturedModalRect(s.xPos, s.yPos, 164, 0, 18, 18);
 						}
 					}
+					GlStateManager.popMatrix();
 				}
 			}
 			ItemStack heldStack = player.inventory.getItemStack();

@@ -6,7 +6,6 @@ import java.util.Map;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.CustomNpcs;
@@ -14,7 +13,6 @@ import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.packets.Packets;
 import noppes.npcs.packets.client.PacketGuiOpen;
-import noppes.npcs.packets.client.PacketNpcInitData;
 import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.item.ISpecBuilder;
@@ -75,11 +73,6 @@ public class SPacketGuiOpen extends PacketServerBasic {
 
    public static void sendOpenGui(EntityPlayerMP player, EnumGuiType gui, EntityNPCInterface npc, BlockPos pos) {
       NoppesUtilServer.setEditingNpc(player, npc);
-      if (npc != null && isNpcEditMenu(gui)) {
-         NBTTagCompound full = new NBTTagCompound();
-         npc.writeToNBT(full);
-         Packets.send(player, new PacketNpcInitData(npc.getEntityId(), full));
-      }
       NoppesUtilServer.sendExtraData(player, npc, gui);
       CustomNPCsScheduler.runTack(() -> {
          if (player.getServer() != null) {
@@ -97,18 +90,6 @@ public class SPacketGuiOpen extends PacketServerBasic {
             catch (Exception e) { LogWriter.error(e); }
          }
       }, 100);
-   }
-
-   private static boolean isNpcEditMenu(EnumGuiType gui) {
-      switch (gui) {
-         case MainMenuDisplay:
-         case MainMenuStats:
-         case MainMenuAI:
-         case MainMenuInv:
-         case MainMenuAdvanced:
-         case MainMenuGlobal: return true;
-         default: return false;
-      }
    }
 
    private static Map<String, Integer> getScrollData(EntityPlayerMP player, EnumGuiType gui, EntityNPCInterface npc) {

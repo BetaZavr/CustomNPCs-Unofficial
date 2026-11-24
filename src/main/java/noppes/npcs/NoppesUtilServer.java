@@ -773,7 +773,18 @@ public class NoppesUtilServer {
 	}
 
 	public static void sendExtraData(EntityPlayerMP player, EntityNPCInterface npc, EnumGuiType gui) {
-		if (npc != null && npc.role.getEnumType() != RoleType.NONE &&
+		if (npc == null) { return; }
+		if (gui == EnumGuiType.MainMenuDisplay ||
+				gui == EnumGuiType.MainMenuStats ||
+				gui == EnumGuiType.MainMenuAI ||
+				gui == EnumGuiType.MainMenuInv ||
+				gui == EnumGuiType.MainMenuAdvanced ||
+				gui == EnumGuiType.MainMenuGlobal) {
+			NBTTagCompound full = new NBTTagCompound();
+			npc.writeToNBT(full);
+			Packets.send(player, new PacketNpcInitData(npc.getEntityId(), full));
+		}
+		else if (npc.role.getEnumType() != RoleType.NONE &&
 				(gui == EnumGuiType.PlayerFollower ||
 						gui == EnumGuiType.PlayerFollowerHire ||
 						gui == EnumGuiType.PlayerTrader ||

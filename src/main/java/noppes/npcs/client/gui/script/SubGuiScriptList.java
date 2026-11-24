@@ -115,6 +115,7 @@ public class SubGuiScriptList extends GuiNPCInterface implements ICustomScrollLi
 		LinkedHashMap<Integer, List<Component>> htsB= new LinkedHashMap<>();
 		int i = 0;
 		for (Component key : ds.keySet()) {
+			if (key == null) { key = Component.empty(); }
 			suffixesBase.add(Component.empty());
 			listBase.add(key);
 			if (hs.containsKey(key.getFormattedText())) { htsB.put(i, hs.get(key.getFormattedText())); }
@@ -122,6 +123,7 @@ public class SubGuiScriptList extends GuiNPCInterface implements ICustomScrollLi
 			i++;
 		}
 		for (Component key : fs.keySet()) {
+			if (key == null) { key = Component.empty(); }
 			long l = fs.get(key);
 			String size = "" + Math.abs(l);
 			if (Math.abs(l) > 999) { size = Util.instance.getTextReducedNumber(Math.abs(l), false, false, true); }

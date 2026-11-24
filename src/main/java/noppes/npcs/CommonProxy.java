@@ -12,7 +12,6 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.tileentity.TileEntity;
@@ -41,7 +40,6 @@ import noppes.npcs.entity.data.DataInventory;
 import noppes.npcs.mixin.entity.player.IEntityPlayerMPMixin;
 import noppes.npcs.mixin.minecraftforge.registries.IForgeRegistryMixin;
 import noppes.npcs.mixin.stats.IRecipeBookMixin;
-import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nullable;
 
@@ -53,7 +51,7 @@ public class CommonProxy implements IGuiHandler {
 	public static Container getContainer(EnumGuiType gui, EntityPlayer player, FriendlyByteBuf buffer) {
 		EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 		switch (gui) {
-			case AvailabilityStack: { return new ContainerNpcAvailabilityItem(player, buffer); }
+			case AvailabilityStack: return new ContainerNpcAvailabilityItem(player, buffer);
 			case CustomContainer: {
 				buffer.readInt(); // npc id
 				TileEntity tile = player.world.getTileEntity(BlockPos.fromLong(buffer.readLong()));
@@ -62,31 +60,18 @@ public class CommonProxy implements IGuiHandler {
 				}
 				return null;
 			}
-			case CustomChest: {
-				return new ContainerCustomChest(player, buffer.readInt());
-			}
-			case MainMenuInv: {
-				return new ContainerNPCInv(npc, player);
-			}
+			case CustomChest: return new ContainerCustomChest(player, buffer.readInt());
+			case MainMenuInv: return new ContainerNPCInv(npc, player);
 			case ManageTransport: {
 				buffer.readInt();
 				return new ContainerNPCTransports(player, buffer.readBlockPos());
 			}
-			case PlayerAnvil: {
-				return new ContainerCarpentryBench(player.inventory, player.world, buffer.readBlockPos());
-			}
-			case PlayerBank: {
-				return new ContainerNPCBank(player, buffer.readNbt());
-			}
-			case PlayerFollowerHire: {
-				return new ContainerNPCFollowerHire(player, buffer.readInt(), buffer.readBlockPos());
-			}
-			case PlayerTrader: {
-				return new ContainerNPCTrader(player, npc, buffer.readInt());
-			}
-			case SetupItemGiver: {
-				return new ContainerNpcItemGiver(npc, player);
-			}
+			case PlayerAnvil: return new ContainerCarpentryBench(player.inventory, player.world, buffer.readBlockPos());
+			case PlayerBank: return new ContainerNPCBank(player, buffer.readNbt());
+			case PlayerFollower: return new ContainerNPCFollowerHire(player, buffer.readInt(), true);
+			case PlayerFollowerHire: return new ContainerNPCFollowerHire(player, buffer.readInt(), false);
+			case PlayerTrader: return new ContainerNPCTrader(player, npc, buffer.readInt());
+			case SetupItemGiver: return new ContainerNpcItemGiver(npc, player);
 			case SetupTraderDeal: { // Change
 				MarcetController mData = MarcetController.getInstance();
 				buffer.readInt(); // npc id
@@ -99,27 +84,13 @@ public class CommonProxy implements IGuiHandler {
 				if (deal == null) { deal = new Deal(dealId); }
 				return new ContainerNPCTraderSetup(marcet, deal, player);
 			}
-			case SetupFollower: {
-				return new ContainerNPCFollowerSetup(npc, player);
-			}
-			case QuestTypeItem: {
-				return new ContainerNpcQuestTypeItem(player, buffer.readInt());
-			}
-			case ManageRecipes: {
-				return new ContainerManageRecipes(player);
-			} // Change
-			case ManageBanks: {
-				return new ContainerManageBanks(player);
-			}
-			case MerchantAdd: {
-				return new ContainerMerchantAdd(player, buffer.readInt());
-			}
-			case PlayerMailOpen: {
-				return new ContainerMail(player, buffer.readBoolean(), buffer.readBoolean());
-			}
-			case CompanionInv: {
-				return new ContainerNPCCompanion(npc, player);
-			}
+			case SetupFollower: return new ContainerNPCFollowerSetup(npc, player);
+			case QuestTypeItem: return new ContainerNpcQuestTypeItem(player, buffer.readInt());
+			case ManageRecipes: return new ContainerManageRecipes(player); // Change
+			case ManageBanks: return new ContainerManageBanks(player);
+			case MerchantAdd: return new ContainerMerchantAdd(player, buffer.readInt());
+			case PlayerMailOpen: return new ContainerMail(player, buffer.readBoolean(), buffer.readBoolean());
+			case CompanionInv: return new ContainerNPCCompanion(npc, player);
 			case DeadInventory: {
 				int sizeInventory = buffer.readInt();
 				int pos = buffer.readInt();
@@ -268,16 +239,6 @@ public class CommonProxy implements IGuiHandler {
 					RecipeCarpentry recipe = (RecipeCarpentry) iRecipe;
 					if (recipe.isValid()) {
 						if (manager.getKey(recipe) == null) { manager.register(recipe); }
-						else {
-							LogWriter.info("[DEBUG] recipe "+ recipe.getRegistryName());
-							int j = 0;
-							for (Ingredient ing : recipe.getIngredients()) {
-								if (ing != null) {
-									LogWriter.info("[DEBUG] ["+j+"] "+ Arrays.toString(ing.getMatchingStacks()));
-								}
-								j++;
-							}
-						}
 					}
 				}
 			}

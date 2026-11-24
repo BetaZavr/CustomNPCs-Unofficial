@@ -31,6 +31,7 @@ public class WrapperRecipe {
     public boolean ignoreDamage = false;
     public boolean ignoreNBT = false;
     public boolean isShaped = true;
+    public boolean showInRecipeBook = true;
     public int width = 3;
     public int height = 3;
     public Component group = Component.empty();
@@ -108,7 +109,7 @@ public class WrapperRecipe {
         compound.setBoolean("IgnoreNBT", ignoreNBT);
         compound.setBoolean("IsKnown", isKnown);
         compound.setBoolean("IsShaped", isShaped);
-        compound.setBoolean("ShowInRecipeBook", true);
+        compound.setBoolean("ShowInRecipeBook", showInRecipeBook);
         return compound;
     }
 
@@ -134,6 +135,7 @@ public class WrapperRecipe {
         wrapper.isKnown = false;
         wrapper.ignoreDamage = false;
         wrapper.ignoreNBT = false;
+        wrapper.showInRecipeBook = true;
         wrapper.id = Objects.requireNonNull(recipe.getRegistryName());
         NonNullList<Ingredient> ings = recipe.getIngredients();
         if (recipe instanceof ShapedRecipes) {

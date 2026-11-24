@@ -48,6 +48,9 @@ public class CombatHandler {
 				target = entry.getKey();
 			}
 		}
+		if (target == null && priorityTarget != null && isValidTarget(priorityTarget)) {
+			return false;
+		}
 		return target == null;
 	}
 
@@ -160,6 +163,11 @@ public class CombatHandler {
 			}
 		}
 		for (EntityLivingBase entity : del) { aggressors.remove(entity); }
+		// Clear stale attack target if it's dead and no replacement is available
+		EntityLivingBase currentTarget = npc.getAttackTarget();
+		if (currentTarget != null && !isValidTarget(currentTarget)) {
+			npc.setAttackTarget(null);
+		}
 		// set priority target
 		if (priorityTarget != null && (npc.getAttackTarget() == null || !npc.getAttackTarget().equals(priorityTarget))) {
 			npc.setPriorityAttackTarget(priorityTarget);

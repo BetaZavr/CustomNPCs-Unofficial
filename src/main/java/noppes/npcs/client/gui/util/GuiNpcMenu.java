@@ -104,7 +104,7 @@ public class GuiNpcMenu implements GuiYesNoCallback {
 							.append(Component.translatable(str0).withStyle(TextFormatting.RESET))
 							.append(Component.literal(";").withStyle(TextFormatting.GRAY)),
 					Component.empty()
-							.append(Component.translatable("stats.meleeproperties").withStyle(TextFormatting.GRAY))
+							.append(Component.translatable("stats.melee").withStyle(TextFormatting.GRAY))
 							.append(Component.literal(" ").withStyle(TextFormatting.GRAY))
 							.append(Component.translatable("stats.meleestrength").withStyle(TextFormatting.GRAY))
 							.append(Component.literal(": ").withStyle(TextFormatting.GRAY))

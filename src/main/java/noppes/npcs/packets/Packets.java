@@ -70,6 +70,7 @@ public class Packets {
         ignoredDebug.add(PacketCustomAnimationStop.class);
         ignoredDebug.add(PacketPlaySound.class);
         ignoredDebug.add(PacketUpdatePhysics.class);
+        ignoredDebug.add(PacketNpcLookPos.class);
     }
 
     public static void register() {

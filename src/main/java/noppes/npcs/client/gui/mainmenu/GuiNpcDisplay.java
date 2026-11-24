@@ -104,6 +104,9 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 		addButton(0, x2 + 46, y, false, display.getShowName(), "display.show", "display.hide", "display.showAttacking")
 				.setSize(110, 20)
 				.setHoverTexts("display.hover.show.name");
+		String version = "v." + (CustomNpcs.mod == null ? CustomNpcs.VERSION : CustomNpcs.mod.getVersion());
+		addLabel(lID++, x2 + 155 - font.getStringWidth(version), y + 22, version)
+				.setHoverTexts("display.hover.version");
 		addButton(14, x2, y, "↻")
 				.setSize(20, 20)
 				.setHoverTexts("display.hover.random.name");

@@ -15,14 +15,14 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.play.server.SPacketScoreboardObjective;
 import net.minecraft.network.play.server.SPacketUpdateScore;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeModContainer;
@@ -152,7 +152,7 @@ public class CustomNpcs {
 	public static boolean EnableExternalSaving = false;
 	@ConfigProp(info = "The lifetime for the projectiles, after which they get despawned (used for removing stuck projectiles)", def = "1200", min = "10", max = "90000")
 	public static int ProjectileLifespan = 1200;
-	@ConfigProp(info = "Enable new dialog and quest GUI which allow accepting and rejecting quests")
+	@ConfigProp(info = "Enable new dialog and quest GUI which allow accepting and rejecting quests", def = "false")
 	public static boolean EnableNewDialogSystem = false;
 
 	// New from Unofficial (BetaZavr)
@@ -285,7 +285,7 @@ public class CustomNpcs {
 	public static CommonProxy proxy;
 	public static final String MODID = "customnpcs";
 	public static final String MODNAME = "CustomNpcs";
-	public static final String VERSION = "5.435";
+	public static final String VERSION = "5.436";
 	public static CustomNpcs instance;
 	public static CommandNoppes NoppesCommand = new CommandNoppes();
 	public static MarkovGenerator[] MARKOV_GENERATOR = new MarkovGenerator[10];
@@ -294,7 +294,11 @@ public class CustomNpcs {
 	public static boolean FreezeNPCs = false;
 	public static File Dir;
 	public static ConfigLoader Config;
-	public static ITextComponent prefix = new TextComponentString(((char) 167) + "e[" + ((char) 167) + "2" + MODNAME + ((char) 167) + "e]" + ((char) 167) + "r: ");
+	public static Component prefix = Component.empty()
+			.append(Component.literal("[").withStyle(TextFormatting.YELLOW))
+			.append(Component.literal(MODNAME).withStyle(TextFormatting.DARK_GREEN))
+			.append(Component.literal("]").withStyle(TextFormatting.YELLOW))
+			.append(Component.literal(": ").withStyle(TextFormatting.RESET));
 	public static ModContainer mod;
 	
 	public static int colorAnimHoverPart = new Color(0xFFFA7800).getRGB();

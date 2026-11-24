@@ -19,7 +19,9 @@ public interface IRoleFollower extends INPCRole {
 
 	boolean getRefuseSoulstone();
 
-	boolean isFollowing();
+    boolean getRentalIsDonat();
+
+    boolean isFollowing();
 
 	void reset();
 
@@ -31,4 +33,5 @@ public interface IRoleFollower extends INPCRole {
 
 	void setRefuseSoulstone(@ParamName("refuse") boolean refuse);
 
+	void setRentalIsDonat(boolean refuse);
 }
