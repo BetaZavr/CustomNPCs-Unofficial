@@ -52,7 +52,6 @@ import noppes.npcs.packets.client.PacketGuiCloneOpen;
 import noppes.npcs.packets.client.PacketGuiOpen;
 import noppes.npcs.packets.client.PacketMarkData;
 import noppes.npcs.shared.common.CommonUtil;
-import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.CustomNPCsScheduler;
 import org.jetbrains.annotations.Nullable;
 
@@ -183,7 +182,6 @@ public class ServerEventsHandler {
             }
             else if (item.getItem() == CustomItems.scripter && event.getTarget() instanceof EntityNPCInterface npc) {
                event.setCanceled(true);
-               LogWriter.info("[DEBUG] ");
                if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_SCRIPTER)) {
                   NoppesUtilServer.setEditingNpc(player, npc);
                   Packets.send(player, new PacketGuiOpen(EnumGuiType.Script, BlockPos.ZERO));

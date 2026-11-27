@@ -15,7 +15,7 @@ import java.util.List;
 public class ModelBuffer {
 
     /** parameterized rendered models */
-    private static final List<ParameterizedModel> MODELS = new ArrayList<>();
+    protected static final Map<String, ParameterizedModel> MODELS = new HashMap<>(); // list of parameterized
     /** missing models so as not to freeze the client */
     private static final List<ResourceLocation> NOT_FOUND = new ArrayList<>();
 
@@ -75,23 +75,40 @@ public class ModelBuffer {
                                                            Map<String, ResourceLocation> materialTextures,
                                                            boolean reverseNormals, int colorMask) {
         if (modelLocation == null || NOT_FOUND.contains(modelLocation)) { return null; }
-        ParameterizedModel model = new ParameterizedModel(modelLocation, visibleMeshes, materialTextures, reverseNormals, colorMask);
-        boolean found = false;
-        for (ParameterizedModel pm : MODELS) {
-            if (pm.equals(model)) {
-                model = pm;
-                found = true;
-                break;
-            }
-        }
+
+        String key = getKey(modelLocation, visibleMeshes, materialTextures, reverseNormals, colorMask);
+        ParameterizedModel model = MODELS.get(key);
+        if (model == null) { MODELS.put(key, model = new ParameterizedModel(modelLocation, visibleMeshes, materialTextures, reverseNormals, colorMask)); }
         if (model.objModel == null) { model.load(); }
         if (model.objModel == null) { NOT_FOUND.add(modelLocation); return null; }
-        if (!found) { MODELS.add(model); }
         return model;
     }
 
+    private static String getKey(ResourceLocation modelLocation, List<String> visibleMeshes, Map<String, ResourceLocation> materialTextures,
+                                 boolean reverseNormals, int colorMask) {
+        StringBuilder key = new StringBuilder(String.valueOf(modelLocation));
+        if (visibleMeshes != null) {
+            List<String> meshes = new ArrayList<>(visibleMeshes);
+            Collections.sort(meshes);
+            key.append(";[");
+            for (String mesh : meshes) { key.append(mesh).append(","); }
+            key.append("]");
+        }
+        if (materialTextures != null) {
+            TreeMap<String, ResourceLocation> map = materialTextures instanceof TreeMap ? (TreeMap<String, ResourceLocation>) materialTextures : new TreeMap<>(materialTextures);
+            key.append(";{");
+            for (String material : map.keySet()) { key.append("_").append(material).append("=").append(map.get(material)).append(","); }
+            key.append("}");
+        }
+        key.append(";").append(reverseNormals).append(";").append(colorMask);
+        return key.toString();
+    }
+
     private static void trimCache() {
-        while (MODELS.size() > 500) { MODELS.remove(0); }
+        for (String key : new ArrayList<>(MODELS.keySet())) {
+            if (MODELS.size() <= 500) { break; }
+            MODELS.remove(key);
+        }
     }
 
 }

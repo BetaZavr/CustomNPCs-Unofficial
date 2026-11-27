@@ -14,13 +14,15 @@ import noppes.npcs.shared.client.gui.components.GuiButtonNop;
 import noppes.npcs.shared.client.gui.components.GuiCheckBoxNop;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.components.GuiTextFieldNop;
+import noppes.npcs.shared.client.gui.listeners.IGuiData;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
 import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
 
 import java.util.*;
 
 // Changed by Unofficial (BetaZavr)
-public class SubGuiNpcQuestReward extends GuiBasic implements ITextfieldListener, ICustomScrollListener {
+public class SubGuiNpcQuestReward extends GuiBasic
+        implements ITextfieldListener, ICustomScrollListener, IGuiData {
 
    protected final Map<Component, DropSet> data = new LinkedHashMap<>();
    protected final Quest quest;
@@ -136,12 +138,6 @@ public class SubGuiNpcQuestReward extends GuiBasic implements ITextfieldListener
    }
 
    @Override
-   public void onClose() {
-      super.onClose();
-      NoppesUtil.openGUI(player, GuiNpcManageQuest.Instance);
-   }
-
-   @Override
    public void unFocused(GuiTextFieldNop textfield) {
       switch (textfield.id) {
          case 0: quest.rewardExp = textfield.getInteger(); break;
@@ -156,6 +152,20 @@ public class SubGuiNpcQuestReward extends GuiBasic implements ITextfieldListener
    @Override
    public void scrollDoubleClicked(GuiCustomScrollNop scroll) {
       if (data.get(scroll.getNormalSelected()) != null) { openItemEdit(scroll.getSelectedIndex()); }
+   }
+
+   @Override
+   public void setGuiData(CompoundTag compound) {
+      if (compound != null && compound.contains("Rewards", 9)) {
+         quest.loadPartial(compound);
+         init();
+      }
+   }
+
+   @Override
+   public void onClose() {
+      super.onClose();
+      NoppesUtil.openGUI(player, GuiNpcManageQuest.Instance);
    }
 
    private void openItemEdit(int pos) {

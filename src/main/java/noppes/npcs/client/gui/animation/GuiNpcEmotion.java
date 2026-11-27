@@ -8,7 +8,6 @@ import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.client.model.animation.EmotionFrame;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.controllers.AnimationController;
-import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.packets.Packets;
@@ -25,6 +24,7 @@ import noppes.npcs.util.Util;
 import java.util.Map;
 import java.util.TreeMap;
 
+@SuppressWarnings("unused")
 public class GuiNpcEmotion extends GuiNPCInterface2
         implements ICustomScrollListener, IGuiData, ITextfieldListener, ISliderListener {
 
@@ -44,7 +44,7 @@ public class GuiNpcEmotion extends GuiNPCInterface2
     protected GuiCustomScrollNop scroll;
     protected AnimationController aData;
 
-    public GuiNpcEmotion(EntityCustomNpc npc) {
+    public GuiNpcEmotion(EntityNPCInterface npc) {
         super(npc, 4);
         setBackground("bgfilled.png");
         closeOnEsc = true;

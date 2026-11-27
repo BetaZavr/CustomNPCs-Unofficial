@@ -12,9 +12,6 @@ import noppes.npcs.controllers.data.AuctionHouse;
 import noppes.npcs.controllers.data.AuctionLot;
 import noppes.npcs.shared.common.PacketBasic;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 public class PacketAuctionLotUpdate extends PacketBasic {
 
     protected static int channelId;
@@ -50,25 +47,21 @@ public class PacketAuctionLotUpdate extends PacketBasic {
         if (auction != null) {
             GuiNpcAuction gui = null;
             if (Minecraft.getInstance().screen instanceof GuiNpcAuction) { gui = (GuiNpcAuction) Minecraft.getInstance().screen; }
-            processUpdateAuctionLot(gui, auction, compound);
+            if (!compound.contains("CreationDate", 4)) { return; }
+            long lotId = compound.getLong("CreationDate");
+            AuctionLot existingLot = (AuctionLot) auction.getLot(lotId);
+            if (existingLot == null) {
+                // New lot - create and add
+                AuctionLot lot = new AuctionLot(0);
+                lot.load(compound);
+                auction.addLot(lot);
+            } else {
+                // Existing lot - update in place
+                existingLot.load(compound);
+            }
+            if (gui != null) { gui.updateLot(lotId); }
         }
         CustomNpcs.debugData.end("Packets");
-    }
-
-    public static void processUpdateAuctionLot(@Nullable GuiNpcAuction gui, @Nonnull AuctionHouse auction, @Nonnull CompoundTag compound) {
-        if (!compound.contains("CreationDate", 4)) { return; }
-        long lotId = compound.getLong("CreationDate");
-        AuctionLot existingLot = (AuctionLot) auction.getLot(lotId);
-        if (existingLot == null) {
-            // New lot - create and add
-            AuctionLot lot = new AuctionLot(0);
-            lot.load(compound);
-            auction.addLot(lot);
-        } else {
-            // Existing lot - update in place
-            existingLot.load(compound);
-        }
-        if (gui != null) { gui.updateLot(lotId); }
     }
 
 }

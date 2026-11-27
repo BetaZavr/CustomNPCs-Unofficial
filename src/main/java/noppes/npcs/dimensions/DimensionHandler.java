@@ -1,9 +1,6 @@
 package noppes.npcs.dimensions;
 
-import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -16,10 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.LevelEvent;
 import noppes.npcs.CustomNpcs;
@@ -34,7 +28,6 @@ import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nonnull;
 import java.util.*;
-import java.util.concurrent.Executor;
 
 public class DimensionHandler extends SavedData implements IDimensionHandler {
 
@@ -82,6 +75,7 @@ public class DimensionHandler extends SavedData implements IDimensionHandler {
         deleteDimension(null, levelKey);
     }
 
+    @SuppressWarnings("unused")
     public void deleteDimension(ServerPlayer player, ResourceKey<Level> levelKey) {
         if (!dimensionInfo.containsKey(levelKey)) return;
         ServerLevel level = CustomNpcs.Server.getLevel(levelKey);
@@ -108,6 +102,7 @@ public class DimensionHandler extends SavedData implements IDimensionHandler {
         syncWithClients();
     }
 
+    @SuppressWarnings("unused")
     public void restoreDimension(ServerPlayer player, ResourceKey<Level> levelKey) {
         if (!dimensionInfo.containsKey(levelKey) || !toBeDeleted.contains(levelKey)) return;
         toBeDeleted.remove(levelKey);
@@ -124,6 +119,7 @@ public class DimensionHandler extends SavedData implements IDimensionHandler {
         return new int[0];
     }
 
+    @SuppressWarnings("unused")
     public List<ResourceKey<Level>> getAllDimensionKeys() {
         List<ResourceKey<Level>> list = new ArrayList<>();
         for (ResourceKey<Level> key : dimensionInfo.keySet()) {
@@ -196,12 +192,14 @@ public class DimensionHandler extends SavedData implements IDimensionHandler {
         return handler;
     }
 
+    @SuppressWarnings("unused")
     private void loadDimension(ResourceKey<Level> levelKey, CustomWorldInfo info) {
         MinecraftServer server = CustomNpcs.Server;
         if (server == null) return;
         if (server.getLevel(levelKey) != null) return; // Already loaded
 
         try {
+            /*
             RegistryAccess registryAccess = server.registryAccess();
             Registry<DimensionType> dimTypeReg = registryAccess.registryOrThrow(Registries.DIMENSION_TYPE);
             Holder<DimensionType> dimType = dimTypeReg.getHolderOrThrow(
@@ -219,7 +217,6 @@ public class DimensionHandler extends SavedData implements IDimensionHandler {
 
             Executor executor = ((IMinecraftServerMixin) server).getExecutor();
             LevelStorageSource.LevelStorageAccess storage = ((IMinecraftServerMixin) server).getStorageSource();
-            /*
             ServerLevel newLevel = new ServerLevel(
                     server,
                     executor,
@@ -243,6 +240,7 @@ public class DimensionHandler extends SavedData implements IDimensionHandler {
         }
     }
 
+    @SuppressWarnings("unused")
     private ChunkGenerator buildChunkGenerator(MinecraftServer server, CustomWorldInfo info, RegistryAccess registryAccess) {
         /*
         String type = info.getMCGeneratorType();
@@ -275,6 +273,7 @@ public class DimensionHandler extends SavedData implements IDimensionHandler {
         }
     }
 
+    @SuppressWarnings("unused")
     public void ensureDimensionLoaded(ResourceKey<Level> levelKey) {
         if (dimensionInfo.containsKey(levelKey) && CustomNpcs.Server.getLevel(levelKey) == null) {
             loadDimension(levelKey, dimensionInfo.get(levelKey));
@@ -312,6 +311,7 @@ public class DimensionHandler extends SavedData implements IDimensionHandler {
         Packets.sendAll(new PacketSync(9, compound, true));
     }
 
+    @SuppressWarnings("unused")
     public void loadDimensions() {
         for (Map.Entry<ResourceKey<Level>, CustomWorldInfo> entry : dimensionInfo.entrySet()) {
             if (!toBeDeleted.contains(entry.getKey())) {
@@ -319,4 +319,5 @@ public class DimensionHandler extends SavedData implements IDimensionHandler {
             }
         }
     }
+
 }

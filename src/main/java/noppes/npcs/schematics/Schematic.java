@@ -34,6 +34,7 @@ import noppes.npcs.util.Util;
 
 import javax.annotation.Nullable;
 
+@SuppressWarnings({"deprecation","UnstableApiUsage"})
 public class Schematic implements ISchematic {
 
    public static Schematic create(Level levelIn, Direction rotate, String name, Map<Integer, BlockPos> schMap) {
@@ -61,9 +62,7 @@ public class Schematic implements ISchematic {
       int x;
       int y;
       int z;
-IPos iPos = new BlockPosWrapper(levelIn, bb.minX, bb.minY, bb.minZ);
-LogWriter.info("TEST: bb: "+bb);
-LogWriter.info("TEST: iPos "+iPos);
+      IPos iPos = new BlockPosWrapper(levelIn, bb.minX, bb.minY, bb.minZ);
       for (int i = 0; i < size; ++i) {
          y = i / (width * length);
          switch (rotate) {
@@ -90,7 +89,6 @@ LogWriter.info("TEST: iPos "+iPos);
          }
 
          BlockPos pos = iPos.offset(x, y, z).getMCBlockPos();
-         LogWriter.info("TEST: xyz["+i+"] = "+x+"; "+y+"; "+z+" - "+ levelIn.getBlockState(pos));
          schema.blockStates[i] = SchematicWrapper.rotationState(levelIn.getBlockState(pos), rot);
          if (schema.blockStates[i].getBlock() instanceof EntityBlock) {
             BlockEntity tile = levelIn.getBlockEntity(pos);
@@ -105,9 +103,6 @@ LogWriter.info("TEST: iPos "+iPos);
       // Added by mod
       schema.offset = new BlockPosWrapper(levelIn, (int) Math.floor(bb.minX - p.getX()), (int) Math.floor(bb.minY - p.getY()), (int) Math.floor(bb.minZ - p.getZ()))
               .rotate(rotate);
-      LogWriter.info("TEST: rotate: "+rotate);
-      LogWriter.info("TEST: offset 0: "+p);
-      LogWriter.info("TEST: offset 1: "+schema.offset);
       // Get Entitys:
       try {
          for (Entity e : levelIn.getEntitiesOfClass(Entity.class,

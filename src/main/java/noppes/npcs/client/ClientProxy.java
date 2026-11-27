@@ -678,4 +678,6 @@ public class ClientProxy extends CommonProxy {
       return null;
    }
 
+   public boolean hasConnection() { return Minecraft.getInstance().getConnection() != null; }
+
 }

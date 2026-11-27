@@ -2430,7 +2430,7 @@
   "quest.hover.edit.quest.command": "Customize the console command to be executed on execution of this quest",
   "quest.hover.edit.quest.completedtext": "Customize the message the player will receive when completing the quest<br>§7The message will be displayed in a separate window",
   "quest.hover.edit.quest.completion": "The way to complete the quest<br>§7Or right away<br>§7Or interaction with the specified NPC<br>§7All quest tasks must be completed at the same time",
-  "quest.hover.edit.quest.completion.npc": "NPC to return to and contact when completing all tasks in order to complete a quest",
+  "quest.hover.edit.quest.completion.npc": "NPC to return to and contact when completing all tasks in order to complete a quest<br>§6Important!§7 - selected from nearby NPCs or those already loaded in the world",
   "quest.hover.edit.quest.del": "Delete the selected Task from the Tasks list",
   "quest.hover.edit.quest.del.mail": "Delete letter",
   "quest.hover.edit.quest.del.next": "Delete the next quest",

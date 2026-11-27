@@ -826,33 +826,38 @@ public class ClientEventHandler {
                 if (pos != null) { renderZone(event.getPoseStack(), bufferSource, event.getCamera(), builder, pos); }
             }
             // Show quest points
-            if (CustomNpcs.TypeShowQuestCompass != 4) {
+            PlayerCompassData compassData = PlayerData.get(mc.player).compass;
+            if (CustomNpcs.TypeShowQuestCompass != 4 && compassData.getShowOfPlayer()) {
                 float red;
                 float green;
                 float blue;
                 RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
                 for (Quest quest : new ArrayList<>(QuestController.instance.quests.values())) {
-                    for (QuestObjective task : List.of(quest.questInterface.tasks)) {
-                        if (task != null && mc.player.level().dimension().location().equals(task.dimension) && Mth.sqrt((float) mc.player.distanceToSqr(task.pos.getCenter())) < 500.0) {
-                            int r = task.rangeCompass -1;
-                            AABB aabb = new AABB(-r, -r, -r, r, r, r);
-                            red = FastColor.ARGB32.red(task.colorCompass) / 255.0f;
-                            green = FastColor.ARGB32.green(task.colorCompass) / 255.0f;
-                            blue = FastColor.ARGB32.blue(task.colorCompass) / 255.0f;
+                    try {
+                        for (QuestObjective task : List.of(quest.questInterface.tasks)) {
+                            if (task != null && mc.player.level().dimension().location().equals(task.dimension) &&
+                                    Mth.sqrt((float) mc.player.distanceToSqr(task.pos.getCenter())) < 500.0) {
+                                int r = task.rangeCompass -1;
+                                AABB aabb = new AABB(-r, -r, -r, r, r, r);
+                                red = FastColor.ARGB32.red(task.colorCompass) / 255.0f;
+                                green = FastColor.ARGB32.green(task.colorCompass) / 255.0f;
+                                blue = FastColor.ARGB32.blue(task.colorCompass) / 255.0f;
 
-                            event.getPoseStack().pushPose();
-                            RenderSystem.enableBlend();
-                            event.getPoseStack().translate(task.pos.getX() + 0.5d, task.pos.getY() + 0.5d, task.pos.getZ() + 0.5d);
-                            event.getPoseStack().translate(-event.getCamera().getPosition().x, -event.getCamera().getPosition().y, -event.getCamera().getPosition().z);
-                            LevelRenderer.renderLineBox(event.getPoseStack(), bufferSource.getBuffer(RenderType.lines()), aabb,
-                                    red, green, blue, 0.75f);
-                            renderFilledBox(bufferSource.getBuffer(RenderType.debugFilledBox()),
-                                    event.getPoseStack().last().pose(),
-                                    aabb, true, red, green, blue, 0.15f);
-                            RenderSystem.disableBlend();
-                            event.getPoseStack().popPose();
+                                event.getPoseStack().pushPose();
+                                RenderSystem.enableBlend();
+                                event.getPoseStack().translate(task.pos.getX() + 0.5d, task.pos.getY() + 0.5d, task.pos.getZ() + 0.5d);
+                                event.getPoseStack().translate(-event.getCamera().getPosition().x, -event.getCamera().getPosition().y, -event.getCamera().getPosition().z);
+                                LevelRenderer.renderLineBox(event.getPoseStack(), bufferSource.getBuffer(RenderType.lines()), aabb,
+                                        red, green, blue, 0.75f);
+                                renderFilledBox(bufferSource.getBuffer(RenderType.debugFilledBox()),
+                                        event.getPoseStack().last().pose(),
+                                        aabb, true, red, green, blue, 0.15f);
+                                RenderSystem.disableBlend();
+                                event.getPoseStack().popPose();
+                            }
                         }
                     }
+                    catch (Exception ignored) {}
                 }
             }
         }

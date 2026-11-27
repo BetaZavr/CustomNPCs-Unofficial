@@ -141,4 +141,6 @@ public class CommonProxy {
       return null;
    }
 
+   public boolean hasConnection() { return CustomNpcs.Server != null; }
+
 }

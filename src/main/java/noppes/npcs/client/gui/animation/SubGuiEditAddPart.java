@@ -374,7 +374,7 @@ public class SubGuiEditAddPart<T extends EntityCustomNpc> extends GuiNPCInterfac
                 float size = Math.max(addPart.size[0], Math.max(addPart.size[1] + addPart.size[2] + addPart.size[3], addPart.size[4]));
                 s *= size / 12.0f;
                 matrixStack.scale(s, s, s);
-                partRender.render(0.0625f);
+                //partRender.render(0.0625f);
             }
         }
         else { // npc
@@ -637,7 +637,7 @@ public class SubGuiEditAddPart<T extends EntityCustomNpc> extends GuiNPCInterfac
                 .setHoverTexts("hover.save");
         // reset model render
         if (model != null) {
-            partRender = new ModelRendererAlt(model, addPart);
+            partRender = new ModelRendererAlt(addPart);
             if (typeModel == 0) {
                 partRender.objLocationUp = null;
                 partRender.objLocationDown = null;

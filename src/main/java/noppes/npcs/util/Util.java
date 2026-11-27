@@ -107,21 +107,22 @@ public class Util implements IMethods {
     public static List<String> splitString(String input) {
         List<String> result = new ArrayList<>();
         if (input != null && !input.isEmpty()) {
-            byte[] abyte = input.getBytes(StandardCharsets.UTF_8);
             StringBuilder temp = new StringBuilder();
             int size = 0;
-            for (int i = 0; i < abyte.length; i++) {
-                if (size + abyte[i] > 32768) {
+            for (int i = 0; i < input.length(); ) {
+                int codePoint = input.codePointAt(i);
+                byte[] cpBytes = new String(new int[]{codePoint}, 0, 1).getBytes(StandardCharsets.UTF_8);
+                int cpByteCount = cpBytes.length;
+                if (size + cpByteCount > 32768) {
                     result.add(temp.toString());
-                    temp = new StringBuilder("" + input.charAt(i));
+                    temp = new StringBuilder();
                     size = 0;
                 }
-                else {
-                    temp.append(input.charAt(i));
-                    size += abyte[i];
-                }
+                temp.appendCodePoint(codePoint);
+                size += cpByteCount;
+                i += Character.charCount(codePoint);
             }
-            if (!temp.toString().isEmpty()) { result.add(temp.toString()); }
+            if (!temp.isEmpty()) { result.add(temp.toString()); }
         }
         return result;
     }

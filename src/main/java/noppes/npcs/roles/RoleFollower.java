@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.EventHooks;
 import noppes.npcs.NBTTags;
+import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.constants.JobType;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.containers.inventories.NpcMiscInventory;
@@ -244,7 +245,15 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 
    @Override
    public void interact(Player playerIn) {
-      if (playerIn instanceof ServerPlayer player) {
+      boolean bo = false;
+      for (int i =0; i < rentalItems.getContainerSize(); i++) {
+         if (!NoppesUtilServer.isItemStackNull(rentalItems.getItem(i)) && rates.get(i) > 0) {
+            bo = true;
+            break;
+         }
+      }
+      if (rentalMoney > 0 && rates.get(3) > 0) { bo = true; }
+      if (bo && playerIn instanceof ServerPlayer player) {
          if (ownerUUID != null && !ownerUUID.isEmpty()) {
             if (player.equals(getOwner()) && !disableGui) { SPacketGuiOpen.sendOpenGui(player, EnumGuiType.PlayerFollower, npc, BlockPos.ZERO); }
             else if (npc != null && !dialogHired.isEmpty()) { npc.say(player, new Line(dialogHired)); }

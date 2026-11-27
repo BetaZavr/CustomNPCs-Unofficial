@@ -10,6 +10,7 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.player.GuiNpcAuction;
 import noppes.npcs.controllers.AuctionController;
 import noppes.npcs.controllers.data.AuctionHouse;
+import noppes.npcs.controllers.data.AuctionLot;
 import noppes.npcs.shared.common.PacketBasic;
 
 public class PacketAuctionHouseAddLots extends PacketBasic {
@@ -46,7 +47,19 @@ public class PacketAuctionHouseAddLots extends PacketBasic {
             if (Minecraft.getInstance().screen instanceof GuiNpcAuction) { gui = (GuiNpcAuction) Minecraft.getInstance().screen; }
             ListTag list = compound.getList("Lots", 10);
             for (int i = 0; i < list.size(); i++) {
-                PacketAuctionLotUpdate.processUpdateAuctionLot(gui, auction, list.getCompound(i));
+                CompoundTag nbt = list.getCompound(i);
+                long lotId = nbt.getLong("CreationDate");
+                AuctionLot existingLot = (AuctionLot) auction.getLot(lotId);
+                if (existingLot == null) {
+                    // New lot - create and add
+                    AuctionLot lot = new AuctionLot(0);
+                    lot.load(nbt);
+                    auction.addLot(lot);
+                } else {
+                    // Existing lot - update in place
+                    existingLot.load(nbt);
+                }
+                if (gui != null) { gui.updateLot(lotId); }
             }
         }
         CustomNpcs.debugData.end("Packets");

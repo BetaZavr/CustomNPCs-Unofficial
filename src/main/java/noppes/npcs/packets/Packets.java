@@ -1,7 +1,5 @@
 package noppes.npcs.packets;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -477,9 +475,8 @@ public class Packets {
    }
 
    public static <MSG extends PacketServerBasic> void sendServer(MSG msg) {
-      ClientPacketListener connection = Minecraft.getInstance().getConnection();
-      if (connection != null) {
-         Player player = Minecraft.getInstance().player;
+      if (CustomNpcs.proxy.hasConnection()) {
+         Player player = CustomNpcs.proxy.getPlayer();
          logged(msg, player == null ? "null" :player.getName().getString(), false);
          CHANNELS.get(msg.getChannelId()).sendToServer(msg);
       }
@@ -491,7 +488,7 @@ public class Packets {
       long now = System.currentTimeMillis();
       if (delaySendMap.size() > 1000) { delaySendMap.entrySet().removeIf(entry -> entry.getValue() <= now); }
       if (existing != null && existing > now) { return; }
-      Player player = Minecraft.getInstance().player;
+      Player player = CustomNpcs.proxy.getPlayer();
       logged(msg, player == null ? "null" :player.getName().getString(), false);
       CHANNELS.get(msg.getChannelId()).sendToServer(msg);
       delaySendMap.put(key, now + delay);

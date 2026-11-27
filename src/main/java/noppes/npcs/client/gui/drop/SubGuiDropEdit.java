@@ -36,7 +36,6 @@ import noppes.npcs.shared.client.gui.components.GuiTextFieldNop;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
 import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
 import noppes.npcs.shared.common.util.LogWriter;
-import noppes.npcs.util.Util;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -392,7 +391,6 @@ public class SubGuiDropEdit extends GuiContainerNPCInterface<ContainerNPCDropSet
                 break;
             } // amount max
         }
-        LogWriter.info("TEST: "+Arrays.toString(drop.amount));
     }
 
 }

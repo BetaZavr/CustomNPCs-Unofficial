@@ -41,7 +41,6 @@ import noppes.npcs.packets.client.PacketQuestCompletion;
 import noppes.npcs.packets.client.PacketSyncUpdate;
 import noppes.npcs.client.gui.util.quests.QuestInterface;
 import noppes.npcs.client.gui.util.quests.QuestObjective;
-import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 
@@ -145,7 +144,6 @@ public class Quest implements ICompatibilty, IQuest, Predicate<EntityNPCInterfac
             ds.amount = new int[] { ds.item.getCount(), ds.item.getCount() };
             ds.pos = j++;
             rewardItems.put(ds.pos, ds);
-            LogWriter.info("TEST: pos "+ds.pos);
          }
       } // OLD
       else {

@@ -22,6 +22,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -847,18 +848,46 @@ public class ScriptPlayerEventHandler {
       }
       else { strength *= 0.5f * ((float) CustomNpcs.KnockBackBasePower / 100.0f); }
 
-      double ratioX = event.getRatioX();
-      double ratioZ = event.getRatioZ();
       strength *= 1.0F - (float) entity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE);
       if (strength > 0.0F) {
          entity.hasImpulse = true;
          Vec3 vec3 = entity.getDeltaMovement();
+
+         // Get the attacker entity to calculate correct knockback direction
+         LivingEntity attacker = null;
+         DamageSource source = mixin.npcs$getCurrentDamageSource();
+         if (source != null) {
+            Entity sourceEntity = source.getEntity();
+            if (sourceEntity instanceof LivingEntity) {
+               attacker = (LivingEntity) sourceEntity;
+            }
+            // For projectiles, get the shooter
+            else if (sourceEntity != null && source.is(DamageTypeTags.IS_PROJECTILE)) {
+               // Try to find shooter from the damage source entity
+               Entity directEntity = source.getDirectEntity();
+               if (directEntity instanceof LivingEntity) {
+                  attacker = (LivingEntity) directEntity;
+               }
+            }
+         }
+
+         double ratioX, ratioZ;
+         if (attacker != null) {
+            // Calculate correct direction: FROM attacker TO victim
+            ratioX = entity.getX() - attacker.getX();
+            ratioZ = entity.getZ() - attacker.getZ();
+         }
+         else {
+            // Fallback: use default ratios if no attacker found
+            ratioX = event.getRatioX();
+            ratioZ = event.getRatioZ();
+         }
+
          Vec3 vec31 = (new Vec3(ratioX, 0.0, ratioZ)).normalize().scale(strength);
          entity.setDeltaMovement(vec3.x / 2.0 - vec31.x,
                  entity.onGround() ? Math.min(0.4, vec3.y / 2.0 + strength) : vec3.y, vec3.z / 2.0 - vec31.z);
       }
       mixin.npcs$setCurrentDamageSource(null);
-      event.setStrength(strength);
       event.setStrength(strength);
       event.setCanceled(true);
       CustomNpcs.debugData.end(entity);

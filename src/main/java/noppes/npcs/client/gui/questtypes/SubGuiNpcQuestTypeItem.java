@@ -179,7 +179,7 @@ public class SubGuiNpcQuestTypeItem
    @Override
    public void buttonEvent(GuiButtonNop button) {
       switch (button.id) {
-         case 0: task.setItemLeave(button.getValue() == 0); break;
+         case 0: task.setItemLeave(((GuiButtonYesNo) button).getBoolean()); break;
          case 1: task.setItemIgnoreDamage(((GuiButtonYesNo) button).getBoolean()); break;
          case 2: task.setItemIgnoreNBT(((GuiButtonYesNo) button).getBoolean()); break;
          case 4: {

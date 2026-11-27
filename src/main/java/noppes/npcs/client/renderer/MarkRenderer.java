@@ -21,17 +21,17 @@ import java.util.Map;
 
 public class MarkRenderer {
 
-	public static final Map<Boolean, Map<MarkType, ResourceLocation>> locations = new HashMap<>();
+	public static final Map<MarkType, ResourceLocation> textureCash = new HashMap<>();
+	public static final Map<MarkType, ResourceLocation> modelCash = new HashMap<>();
+
 	static {
-		locations.put(true, new HashMap<>());
-		locations.put(false, new HashMap<>());
 		for (MarkType mt : MarkType.values()) {
-			locations.get(true).put(mt, new ResourceLocation(CustomNpcs.MODID, "models/util/" + mt.name().toLowerCase() + ".obj"));
-			locations.get(false).put(mt, new ResourceLocation(CustomNpcs.MODID, "textures/marks/" + mt.name().toLowerCase() + ".png"));
+			textureCash.put(mt, new ResourceLocation(CustomNpcs.MODID, "textures/marks/" + mt.name().toLowerCase() + ".png"));
+			modelCash.put(mt, new ResourceLocation(CustomNpcs.MODID, "models/util/" + mt.name().toLowerCase() + ".obj"));
 		}
 	}
 
-	public static Model2DRenderer renderer = new Model2DRenderer(32, 32, 0, 0, 32, 32, locations.get(false).get(MarkType.EXCLAMATION));
+	public static Model2DRenderer renderer = new Model2DRenderer(32, 32, 0, 0, 32, 32, modelCash.get(MarkType.EXCLAMATION));
 
 	@SuppressWarnings("unchecked")
 	public static void render(RenderLivingEvent.Post<?, ?> event, Mark mark) {
@@ -57,11 +57,11 @@ public class MarkRenderer {
 		if (mark.isRotate()) { matrixStack.mulPose(Axis.YP.rotationDegrees((float) (event.getEntity().level().getGameTime() % 360) / 0.25f)); }
 		if (mark.is3D()) {
 			matrixStack.mulPose(Axis.XP.rotationDegrees(180.0f));
-            ModelBuffer.render(matrixStack, event.getMultiBufferSource(), locations.get(true).get(mark.type), null, null, light, overlay, color);
+            ModelBuffer.render(matrixStack, event.getMultiBufferSource(), textureCash.get(mark.type), null, null, light, overlay, color);
 		}
 		else {
 			matrixStack.translate(-0.5f, 0, 0);
-			ResourceLocation location = locations.get(false).get(mark.type);
+			ResourceLocation location = modelCash.get(mark.type);
 			float red = (float) (color >> 16 & 255) / 255.0f;
 			float green = (float) (color >> 8 & 255) / 255.0f;
 			float blue = (float) (color & 255) / 255.0f;

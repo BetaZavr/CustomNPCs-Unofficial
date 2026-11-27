@@ -89,7 +89,6 @@ public class SubGuiColorSelector
 
    @Override
    public void buttonEvent(GuiButtonNop button) {
-      LogWriter.info("TEST: buttonID: "+button.id+"; "+button.getClass().getSimpleName());
       if (button.id == 66) { onClose(); }
    }
 

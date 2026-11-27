@@ -11,7 +11,6 @@ import net.minecraft.util.Mth;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.shared.client.gui.listeners.IGuiInterface;
 import noppes.npcs.shared.client.gui.util.EnumAlignText;
-import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nonnull;
 
@@ -82,7 +81,6 @@ public class GuiCheckBoxNop extends GuiButtonNop {
     public boolean selected() { return selected; }
 
     public void setColor(int newTextColor, boolean isShowShadow) {
-        LogWriter.info("[DEBUG] "+id+"; "+textColor);
         textColor = newTextColor;
         showShadow = isShowShadow;
     }

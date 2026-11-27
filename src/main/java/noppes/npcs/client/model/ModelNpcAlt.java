@@ -1,12 +1,7 @@
 package noppes.npcs.client.model;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import noppes.npcs.CustomEntities;
 import noppes.npcs.api.util.IModelRenderer;
 import noppes.npcs.client.model.animation.AddedPartConfig;
 import noppes.npcs.client.model.animation.AnimationConfig;
@@ -16,6 +11,7 @@ import noppes.npcs.entity.EntityCustomNpc;
 
 import java.util.*;
 
+@SuppressWarnings("unused")
 public class ModelNpcAlt<T extends EntityCustomNpc> extends PlayerModel<T> {
 
     public static final AnimData editAnimDataSelect = new AnimData();
@@ -55,24 +51,15 @@ public class ModelNpcAlt<T extends EntityCustomNpc> extends PlayerModel<T> {
         if (animation == null) { return; }
         animAddedChildren.remove(animation.id);
         if (!animation.addParts.isEmpty()) {
-            // this model
-            Minecraft mc = Minecraft.getInstance();
-            EntityCustomNpc npc = new EntityCustomNpc(CustomEntities.entityCustomNpc, mc.level);
-            EntityRenderer<? super EntityCustomNpc> render = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(npc);
-            if (render instanceof LivingEntityRenderer<?, ?> livingRender) {
-                EntityModel<?> thisModel = livingRender.getModel();
-                // parts
-                if (!animAddedChildren.containsKey(animation.id)) { animAddedChildren.put(animation.id, new TreeMap<>()); }
-                Map<Integer, List<ModelRendererAlt>> map = animAddedChildren.get(animation.id);
-                map.clear();
-                // create all
-                for (int partID : animation.addParts.keySet()) {
-                    for (AddedPartConfig addedPartConfig : animation.addParts.get(partID)) {
-                        if (!map.containsKey(addedPartConfig.parentPart)) { map.put(addedPartConfig.parentPart, new ArrayList<>()); }
-                        map.get(addedPartConfig.parentPart).add(new ModelRendererAlt(thisModel, addedPartConfig));
-                    }
+            if (!animAddedChildren.containsKey(animation.id)) { animAddedChildren.put(animation.id, new TreeMap<>()); }
+            Map<Integer, List<ModelRendererAlt>> map = animAddedChildren.get(animation.id);
+            map.clear();
+            // create all
+            for (int partID : animation.addParts.keySet()) {
+                for (AddedPartConfig addedPartConfig : animation.addParts.get(partID)) {
+                    if (!map.containsKey(addedPartConfig.parentPart)) { map.put(addedPartConfig.parentPart, new ArrayList<>()); }
+                    map.get(addedPartConfig.parentPart).add(new ModelRendererAlt(addedPartConfig));
                 }
-                // put children
             }
         }
     }

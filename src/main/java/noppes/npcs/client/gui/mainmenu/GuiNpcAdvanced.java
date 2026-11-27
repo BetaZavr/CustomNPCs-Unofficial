@@ -198,7 +198,7 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData {
          case 13: NoppesUtil.openGUI(player, new GuiNPCAdvancedLinkedNpc(npc)); break;
          case 14: NoppesUtil.openGUI(player, new GuiNPCScenes(npc)); break;
          case 15: NoppesUtil.openGUI(player, new GuiNPCMarks(npc, this)); break;
-         case 18: NoppesUtil.openGUI(player, new GuiNpcEmotion((EntityCustomNpc) npc)); break; // Emotion Settings
+         case 18: NoppesUtil.openGUI(player, new GuiNpcEmotion(npc)); break; // Emotion Settings
       }
    }
 

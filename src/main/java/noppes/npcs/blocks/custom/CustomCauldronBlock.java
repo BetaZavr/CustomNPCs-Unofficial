@@ -28,7 +28,6 @@ import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.fluids.CustomFluid;
-import noppes.npcs.shared.common.util.LogWriter;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -92,7 +91,6 @@ public class CustomCauldronBlock extends AbstractCauldronBlock implements ICusto
         // 3. Taking liquid from the boiler (empty bottle) → custom bottle
         interactions.put(Items.GLASS_BOTTLE, (state, level, pos, player, hand, stack) -> {
             if (!level.isClientSide) {
-                LogWriter.info("[DEBUG] "+fluid.getBottle());
                 ItemStack filledBottle = new ItemStack(fluid.getBottle());
                 player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, filledBottle));
                 player.awardStat(Stats.USE_CAULDRON);
