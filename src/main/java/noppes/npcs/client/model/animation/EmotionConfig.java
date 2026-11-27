@@ -26,6 +26,7 @@ implements IEmotion {
 	public int repeatLast = 0;
 	public String name = "Default Emotion";
 	public boolean canBlink = true;
+	public float chance = 1.0f; // chance for base emotion activation (0.0 to 1.0)
 
 	public boolean immutable = false;
 	public boolean isEdit = false;
@@ -53,6 +54,7 @@ implements IEmotion {
 		name = nbtEmotion.getString("Name");
 		repeatLast = nbtEmotion.getInteger("EmotionRepeat");
 		canBlink = nbtEmotion.getBoolean("CanBlink");
+		if (nbtEmotion.hasKey("Chance", 5)) { chance = Math.max(0.0f, Math.min(1.0f, nbtEmotion.getFloat("Chance"))); }
 		if (nbtEmotion.hasKey("ScaleMoveX", 5)) { scaleMoveX = Math.max(0.05f, Math.min(1.25f, nbtEmotion.getFloat("ScaleMoveX"))); }
 		if (nbtEmotion.hasKey("ScaleMoveY", 5)) { scaleMoveY = Math.max(0.05f, Math.min(1.25f, nbtEmotion.getFloat("ScaleMoveY"))); }
 	}
@@ -66,6 +68,7 @@ implements IEmotion {
 		nbtEmotion.setString("Name", name);
 		nbtEmotion.setInteger("EmotionRepeat", repeatLast);
 		nbtEmotion.setBoolean("CanBlink", canBlink);
+		nbtEmotion.setFloat("Chance", chance);
 		if (repeatLast < 0) { repeatLast = frames.size() - 1; }
 		nbtEmotion.setFloat("ScaleMoveX", scaleMoveX);
 		nbtEmotion.setFloat("ScaleMoveY", scaleMoveY);

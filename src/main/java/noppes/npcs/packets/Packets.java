@@ -1,6 +1,5 @@
 package noppes.npcs.packets;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -472,7 +471,7 @@ public class Packets {
     }
 
     public static <MSG extends PacketServerBasic> void sendServer(MSG msg) {
-        EntityPlayer player = Minecraft.getMinecraft().player;
+        EntityPlayer player = CustomNpcs.proxy.getPlayer();
         logged(msg, player == null ? "null" :player.getName(), false);
         CHANNELS.get(msg.getChannelId()).sendToServer(msg);
     }
@@ -482,7 +481,7 @@ public class Packets {
         long now = System.currentTimeMillis();
         if (delaySendMap.size() > 1000) { delaySendMap.entrySet().removeIf(entry -> entry.getValue() <= now); }
         if (existing != null && existing > now) { return; }
-        EntityPlayer player = Minecraft.getMinecraft().player;
+        EntityPlayer player = CustomNpcs.proxy.getPlayer();
         logged(msg, player == null ? "null" :player.getName(),false);
         CHANNELS.get(msg.getChannelId()).sendToServer(msg);
         delaySendMap.put(key, now + delay);

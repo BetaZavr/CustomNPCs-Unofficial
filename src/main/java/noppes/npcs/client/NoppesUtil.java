@@ -7,6 +7,7 @@ import java.net.URI;
 import java.util.*;
 
 import net.minecraft.block.Block;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.CustomBlocks;
@@ -188,8 +189,8 @@ public class NoppesUtil {
 			String t = name.replace("example", "");
 			n = "Example Custom " + t.toUpperCase().charAt(0) + t.substring(1);
 		}
-		if (customitem instanceof CustomArmor) {
-			String t = ((CustomArmor) customitem).getEquipmentSlot().getName();
+		if (customitem instanceof ItemArmor) {
+			String t = ((ItemArmor) customitem).getEquipmentSlot().getName();
 			n += " (" + t.toUpperCase().charAt(0) + t.substring(1) + ")";
 		}
 		while (n.indexOf('_') != -1) { n = n.replace('_', ' '); }
@@ -231,7 +232,7 @@ public class NoppesUtil {
 					} // Tool
 					case (byte) 3: {
 						String slot = "helmet";
-						if (customitem instanceof CustomArmor) { slot = ((CustomArmor) customitem).getEquipmentSlot().getName().toLowerCase(); }
+						if (customitem instanceof ItemArmor) { slot = ((ItemArmor) customitem).getEquipmentSlot().getName().toLowerCase(); }
 						// Models
 						if (nbtData.hasKey("OBJData", 10)) {
 							File armorObjFile = new File(armorDir, name + ".png");
@@ -247,9 +248,9 @@ public class NoppesUtil {
 								textures.put(layer_1_File, getBufferImageOffset(getBufferedImage("ail1.png", 64, 32), offsetColor));
 							}
 						}
-						if (customitem instanceof CustomArmor) {
+						if (customitem instanceof ItemArmor) {
 							String part;
-							switch (((CustomArmor) customitem).getEquipmentSlot()) {
+							switch (((ItemArmor) customitem).getEquipmentSlot()) {
 								case HEAD: part = "ah"; break;
 								case CHEST: part = "ac"; break;
 								case LEGS: part = "al"; break;

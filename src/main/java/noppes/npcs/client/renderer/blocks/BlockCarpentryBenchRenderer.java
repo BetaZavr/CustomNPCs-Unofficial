@@ -1,7 +1,6 @@
 package noppes.npcs.client.renderer.blocks;
 
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -14,13 +13,12 @@ import javax.annotation.Nullable;
 public class BlockCarpentryBenchRenderer<T extends TileEntity> extends TileEntitySpecialRenderer<T> {
 
 	public static final ResourceLocation TEXTURE = new ResourceLocation(CustomNpcs.MODID, "textures/models/carpentrybench.png");
-	public static final ModelCarpentryBench model = new ModelCarpentryBench();;
+	public static final ModelCarpentryBench model = new ModelCarpentryBench();
 
+	@Override
 	public void render(@Nullable TileEntity te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		int rotation = 0;
-		if (te != null && te.getPos() != BlockPos.ORIGIN) {
-			rotation = te.getBlockMetadata() % 4;
-		}
+		if (te != null && te.getPos() != BlockPos.ORIGIN) { rotation = te.getBlockMetadata() % 4; }
 		GlStateManager.pushMatrix();
 		GlStateManager.disableBlend();
 		GlStateManager.enableLighting();

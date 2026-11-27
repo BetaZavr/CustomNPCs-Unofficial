@@ -116,10 +116,10 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData {
 		addLabel(lId, x, (y += 22) + 5, "advanced.emotion");
 		addButton(17, x + 230, y, "selectServer.edit")
 				.setSize(60, 20)
-				.setIsEnabled(false) // eye
+				.setIsEnabled(!ais.aiDisabled)
 				.setHoverTexts(Component.translatable("animation.hover.eye",
 						Component.translatable("gui.help.general").getFormattedText(),
-						Component.translatable("selectServer.edit").getFormattedText()), "gui.wip");
+						Component.translatable("selectServer.edit").getFormattedText()));
 		addButton(7, x, y += 24, "advanced.lines")
 				.setSize(195, 20)
 				.setHoverTexts("advanced.menu.hover.says");
@@ -194,7 +194,7 @@ public class GuiNpcAdvanced extends GuiNPCInterface2 implements IGuiData {
 			case 13: NoppesUtil.openGUI(player, new GuiNPCAdvancedLinkedNpc(npc)); break;
 			case 14: NoppesUtil.openGUI(player, new GuiNPCScenes(npc)); break;
 			case 15: NoppesUtil.openGUI(player, new GuiNPCMarks(npc, this)); break;
-			case 18: NoppesUtil.openGUI(player, new GuiNpcEmotion((EntityCustomNpc) npc)); break; // Emotion Settings
+			case 17: NoppesUtil.openGUI(player, new GuiNpcEmotion(npc)); break; // Emotion Settings
 		}
 	}
 

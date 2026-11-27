@@ -9,7 +9,7 @@ import noppes.npcs.controllers.QuestController;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.data.DropSet;
 import noppes.npcs.packets.Packets;
-import noppes.npcs.packets.client.PacketGuiUpdate;
+import noppes.npcs.packets.client.PacketGuiData;
 import noppes.npcs.shared.common.PacketServerBasic;
 
 import java.util.Collections;
@@ -32,7 +32,7 @@ public class SPacketQuestDropSetSave extends PacketServerBasic {
     public boolean requiresNpc() { return false; }
 
     @Override
-    public List<CustomNpcsPermissions.Permission> getPermission() { return Collections.singletonList(CustomNpcsPermissions.GLOBAL_MARKETS); }
+    public List<CustomNpcsPermissions.Permission> getPermission() { return Collections.singletonList(CustomNpcsPermissions.GLOBAL_QUEST); }
 
     @Override
     public boolean toolAllowed(ItemStack item) { return true; }
@@ -65,7 +65,7 @@ public class SPacketQuestDropSetSave extends PacketServerBasic {
                 quest.rewardItems.put(ds.pos, ds);
             }
             quest.rewardItems.get(pos).load(compound);
-            Packets.send(player, new PacketGuiUpdate());
+            Packets.send(player, new PacketGuiData(quest.save(new NBTTagCompound())));
         }
         CustomNpcs.debugData.end("Packets");
     }

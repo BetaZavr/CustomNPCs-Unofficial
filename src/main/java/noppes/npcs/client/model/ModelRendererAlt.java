@@ -27,7 +27,7 @@ import noppes.npcs.client.model.animation.AddedPartConfig;
 import noppes.npcs.client.renderer.obj.ModelBuffer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.entity.data.DataAnimation;
-import noppes.npcs.items.custom.CustomArmor;
+import noppes.npcs.items.custom.CustomArmorOBJ;
 
 public class ModelRendererAlt
 		extends ModelRenderer
@@ -173,6 +173,7 @@ public class ModelRendererAlt
 	public void render(float scale) {
 		if (isHidden || !showModel) { return; }
 		GlStateManager.pushMatrix();
+		GlStateManager.enableBlend();
 		postRender(scale);
 		// Tint
 		if (al != 0.0f) {
@@ -823,46 +824,16 @@ public class ModelRendererAlt
 		if (displayOBJListDown != null) { displayOBJListDown = null; }
 	}
 
-	public void setOBJModel(ItemStack stack, EnumParts part) {
-		if (stack == null || !(stack.getItem() instanceof CustomArmor)) {
+	public void setOBJModel(ItemStack stack, boolean isBelt) {
+		if (stack == null || !(stack.getItem() instanceof CustomArmorOBJ)) {
 			displayOBJListUp = null;
 			displayOBJListDown = null;
 			return;
 		}
-		CustomArmor armor = (CustomArmor) stack.getItem();
-		Map<String, ResourceLocation> map = new HashMap<>();
-		ResourceLocation mainTexture = ModelBuffer.getMainOBJTexture(armor.objModel);
-		if (mainTexture != null && stack.hasTagCompound() && stack.getTagCompound() != null && stack.getTagCompound().hasKey("OBJTexture")) {
-			map.put(mainTexture.toString(), new ResourceLocation(stack.getTagCompound().getString("OBJTexture")));
-		} else if (textureLocation != null) {
-			map.put("All", textureLocation);
-		}
-		if ((this.part == EnumParts.LEG_RIGHT && part == EnumParts.FEET_RIGHT) ||
-				(this.part == EnumParts.LEG_LEFT && part == EnumParts.FEET_LEFT)) {
-			displayOBJListDown = ModelBuffer.getParameterizedModel(armor.objModel, armor.getMeshNames(part), map, false, 0, true);
-		}
-		else {
-			displayOBJListUp = ModelBuffer.getParameterizedModel(armor.objModel, armor.getMeshNames(part != null ? part : this.part), map, false, 0, true);
-			switch(this.part) {
-				case ARM_RIGHT: {
-					displayOBJListDown = ModelBuffer.getParameterizedModel(armor.objModel, armor.getMeshNames(EnumParts.WRIST_RIGHT), map, false, 0, true);
-					break;
-				}
-				case ARM_LEFT: {
-					displayOBJListDown = ModelBuffer.getParameterizedModel(armor.objModel, armor.getMeshNames(EnumParts.WRIST_LEFT), map, false, 0, true);
-					break;
-				}
-				case LEG_RIGHT: {
-					displayOBJListDown = ModelBuffer.getParameterizedModel(armor.objModel, armor.getMeshNames(EnumParts.FEET_RIGHT), map, false, 0, true);
-					break;
-				}
-				case LEG_LEFT: {
-					displayOBJListDown = ModelBuffer.getParameterizedModel(armor.objModel, armor.getMeshNames(EnumParts.FEET_LEFT), map, false, 0, true);
-					break;
-				}
-				default: { break; }
-			}
-		}
+		EnumParts partIn = isBelt ? EnumParts.BELT : part;
+		CustomArmorOBJ armor = (CustomArmorOBJ) stack.getItem();
+		displayOBJListUp = armor.getParameterizedModel(partIn, stack, textureLocation, false);
+		displayOBJListDown = armor.getParameterizedModel(partIn, stack, textureLocation, true);
 	}
 
 	public boolean notOBJModel() { return displayOBJListUp == null && displayOBJListDown == null; }

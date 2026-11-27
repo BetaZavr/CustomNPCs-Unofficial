@@ -1,9 +1,9 @@
 package noppes.npcs.client.model;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import noppes.npcs.client.util.GlCache;
+import noppes.npcs.items.custom.CustomArmorOBJ;
 import noppes.npcs.mixin.client.model.IModelPlayerMixin;
 
 import net.minecraft.client.renderer.GlStateManager;
@@ -19,7 +19,6 @@ import noppes.npcs.constants.EnumParts;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.items.custom.CustomArmor;
 
 import javax.annotation.Nonnull;
 
@@ -108,8 +107,8 @@ public class ModelBipedAlt extends ModelNpcAlt {
 	public void render(@Nonnull Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
 		if (entityIn.equals(ModelNpcAlt.editAnimDataSelect.displayNpc) && !ModelNpcAlt.editAnimDataSelect.showArmor) { return; }
 		setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
-		Map<EnumParts, Boolean> ba = new HashMap<>();
-		Map<EnumParts, Boolean> baArmor = new HashMap<>();
+		Map<EnumParts, Boolean> ba = null;
+		Map<EnumParts, Boolean> baArmor = null;
 
 		float r = 1.0f, g = 1.0f, b = 1.0f;
 		if (isArmorModel) {
@@ -139,7 +138,8 @@ public class ModelBipedAlt extends ModelNpcAlt {
 		if (!isChild && entityIn.isSneaking()) { GlStateManager.translate(0.0f, 0.2f, 0.0f); }
 		GlStateManager.enableBlend();
 
-		bipedHead.showModel = ba.get(EnumParts.HEAD) && (!isArmorModel || (baArmor.get(EnumParts.HEAD) && slot == EntityEquipmentSlot.HEAD));
+		bipedHead.showModel = (ba == null || ba.get(EnumParts.HEAD)) &&
+				(!isArmorModel || ((baArmor == null || baArmor.get(EnumParts.HEAD)) && slot == EntityEquipmentSlot.HEAD));
 		if (bipedHead.showModel && entityIn instanceof EntityLivingBase) {
 			((ModelRendererAlt) bipedHead).checkBacklightColor(r, g, b);
 			if (isChild) {
@@ -161,13 +161,15 @@ public class ModelBipedAlt extends ModelNpcAlt {
 				}
 			}
 		}
-		bipedRightArm.showModel = ba.get(EnumParts.ARM_RIGHT) && (!isArmorModel || (baArmor.get(EnumParts.ARM_RIGHT) && slot == EntityEquipmentSlot.CHEST));
-		bipedLeftArm.showModel = ba.get(EnumParts.ARM_LEFT) && (!isArmorModel || (baArmor.get(EnumParts.ARM_LEFT) && slot == EntityEquipmentSlot.CHEST));
+		bipedRightArm.showModel = (ba == null || ba.get(EnumParts.ARM_RIGHT)) &&
+				(!isArmorModel || ((baArmor == null || baArmor.get(EnumParts.ARM_RIGHT)) && slot == EntityEquipmentSlot.CHEST));
+		bipedLeftArm.showModel = (ba == null || ba.get(EnumParts.ARM_LEFT)) &&
+				(!isArmorModel || ((baArmor == null || baArmor.get(EnumParts.ARM_LEFT)) && slot == EntityEquipmentSlot.CHEST));
 		if (bipedRightArm.showModel || bipedLeftArm.showModel) {
 			if (isArmorModel && slot == EntityEquipmentSlot.CHEST) {
 				stack = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.CHEST);
-				bipedRightArm.showModel = stack.getItem() instanceof ItemArmor && baArmor.get(EnumParts.ARM_RIGHT);
-				bipedLeftArm.showModel = stack.getItem() instanceof ItemArmor && baArmor.get(EnumParts.ARM_LEFT);
+				bipedRightArm.showModel = stack.getItem() instanceof ItemArmor && (baArmor == null || baArmor.get(EnumParts.ARM_RIGHT));
+				bipedLeftArm.showModel = stack.getItem() instanceof ItemArmor && (baArmor == null || baArmor.get(EnumParts.ARM_LEFT));
                 ((ModelRendererAlt) bipedRightArm).clearOBJ();
                 ((ModelRendererAlt) bipedLeftArm).clearOBJ();
                 if (entityIn instanceof EntityCustomNpc) {
@@ -176,9 +178,9 @@ public class ModelBipedAlt extends ModelNpcAlt {
 					((ModelRendererAlt) bipedRightArm).smallArms = smallArms;
                     ((ModelRendererAlt) bipedLeftArm).smallArms = smallArms;
                 }
-                if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
-                    ((ModelRendererAlt) bipedRightArm).setOBJModel(stack, null);
-                    ((ModelRendererAlt) bipedLeftArm).setOBJModel(stack, null);
+                if (stack.getItem() instanceof CustomArmorOBJ) {
+                    ((ModelRendererAlt) bipedRightArm).setOBJModel(stack, false);
+                    ((ModelRendererAlt) bipedLeftArm).setOBJModel(stack, false);
                 }
             }
             GlStateManager.pushMatrix();
@@ -195,20 +197,27 @@ public class ModelBipedAlt extends ModelNpcAlt {
             GlStateManager.popMatrix();
         }
 
-		bipedRightLeg.showModel = ba.get(EnumParts.LEG_RIGHT) && (!isArmorModel || (baArmor.get(EnumParts.LEG_RIGHT) && (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET)));
-		bipedLeftLeg.showModel = ba.get(EnumParts.LEG_LEFT) && (!isArmorModel || (baArmor.get(EnumParts.LEG_LEFT) && (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET)));
-		if ((ba.get(EnumParts.LEG_RIGHT) && bipedRightLeg.showModel) || (ba.get(EnumParts.LEG_LEFT) && bipedLeftLeg.showModel)) {
+		bipedRightLeg.showModel = (ba == null || ba.get(EnumParts.LEG_RIGHT)) &&
+				(!isArmorModel || ((baArmor == null || baArmor.get(EnumParts.LEG_RIGHT)) &&
+						(slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET)));
+		bipedLeftLeg.showModel = (ba == null || ba.get(EnumParts.LEG_LEFT)) &&
+				(!isArmorModel || ((baArmor == null || baArmor.get(EnumParts.LEG_LEFT)) &&
+						(slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET)));
+		if (((ba == null || ba.get(EnumParts.LEG_RIGHT)) && bipedRightLeg.showModel) ||
+				((ba == null || ba.get(EnumParts.LEG_LEFT)) && bipedLeftLeg.showModel)) {
 			boolean legsRender = true;
 			if (isArmorModel && (slot == EntityEquipmentSlot.LEGS || slot == EntityEquipmentSlot.FEET)) {
 				if (slot == EntityEquipmentSlot.LEGS) {
-					bipedRightLeg.showModel = baArmor.get(EnumParts.LEG_RIGHT);
-					bipedLeftLeg.showModel = baArmor.get(EnumParts.LEG_LEFT);
+					bipedRightLeg.showModel = (baArmor == null || baArmor.get(EnumParts.LEG_RIGHT));
+					bipedLeftLeg.showModel = (baArmor == null || baArmor.get(EnumParts.LEG_LEFT));
 				}
 				else {
-					bipedRightLeg.showModel = baArmor.get(EnumParts.FEET_RIGHT);
-					bipedLeftLeg.showModel = baArmor.get(EnumParts.FEET_LEFT);
-					baArmor.put(EnumParts.LEG_RIGHT, bipedRightLeg.showModel);
-					baArmor.put(EnumParts.LEG_LEFT, bipedLeftLeg.showModel);
+					bipedRightLeg.showModel = (baArmor == null || baArmor.get(EnumParts.FEET_RIGHT));
+					bipedLeftLeg.showModel = (baArmor == null || baArmor.get(EnumParts.FEET_LEFT));
+					if (baArmor != null) {
+						baArmor.put(EnumParts.LEG_RIGHT, bipedRightLeg.showModel);
+						baArmor.put(EnumParts.LEG_LEFT, bipedLeftLeg.showModel);
+					}
 				}
 				legsRender = ((EntityLivingBase) entityIn).getItemStackFromSlot(slot).getItem() instanceof ItemArmor;
 				((ModelRendererAlt) bipedBody).clearOBJ();
@@ -216,27 +225,27 @@ public class ModelBipedAlt extends ModelNpcAlt {
 				((ModelRendererAlt) bipedLeftLeg).clearOBJ();
 				if (slot == EntityEquipmentSlot.FEET && legsRender) {
 					stack = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.FEET);
-					if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
+					if (stack.getItem() instanceof CustomArmorOBJ) {
 						if (bipedRightLeg.showModel) {
 							((ModelRendererAlt) bipedRightLeg).checkBacklightColor(r, g, b);
-							((ModelRendererAlt) bipedRightLeg).setOBJModel(stack, EnumParts.FEET_RIGHT);
+							((ModelRendererAlt) bipedRightLeg).setOBJModel(stack, false);
 							bipedRightLeg.render(scale);
 						}
 						if (bipedLeftLeg.showModel) {
 							((ModelRendererAlt) bipedLeftLeg).checkBacklightColor(r, g, b);
-							((ModelRendererAlt) bipedLeftLeg).setOBJModel(stack, EnumParts.FEET_LEFT);
+							((ModelRendererAlt) bipedLeftLeg).setOBJModel(stack, false);
 							bipedLeftLeg.render(scale);
 						}
 					}
 				}
 				if (slot == EntityEquipmentSlot.LEGS && legsRender) {
 					stack = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.LEGS);
-					if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
-						if (bipedRightLeg.showModel) { ((ModelRendererAlt) bipedRightLeg).setOBJModel(stack, null); }
-						if (bipedLeftLeg.showModel) { ((ModelRendererAlt) bipedLeftLeg).setOBJModel(stack, null); }
-						if (ba.get(EnumParts.BODY) && bipedBody.showModel) {
+					if (stack.getItem() instanceof CustomArmorOBJ) {
+						if (bipedRightLeg.showModel) { ((ModelRendererAlt) bipedRightLeg).setOBJModel(stack, false); }
+						if (bipedLeftLeg.showModel) { ((ModelRendererAlt) bipedLeftLeg).setOBJModel(stack, false); }
+						if ((ba == null || ba.get(EnumParts.BODY)) && bipedBody.showModel) {
 							((ModelRendererAlt) bipedBody).checkBacklightColor(r, g, b);
-							((ModelRendererAlt) bipedBody).setOBJModel(stack, EnumParts.BELT);
+							((ModelRendererAlt) bipedBody).setOBJModel(stack, true);
 							bipedBody.render(scale);
 						}
 					}
@@ -258,12 +267,15 @@ public class ModelBipedAlt extends ModelNpcAlt {
 			}
 		}
 
-		bipedBody.showModel = ba.get(EnumParts.BODY) && (!isArmorModel || (baArmor.get(EnumParts.BODY) && slot == EntityEquipmentSlot.CHEST));
+		bipedBody.showModel = (ba == null || ba.get(EnumParts.BODY)) &&
+				(!isArmorModel || ((baArmor == null || baArmor.get(EnumParts.BODY)) && slot == EntityEquipmentSlot.CHEST));
 		if (bipedBody.showModel) {
 			if (isArmorModel) {
 				((ModelRendererAlt) bipedBody).clearOBJ();
 				stack = ((EntityLivingBase) entityIn).getItemStackFromSlot(EntityEquipmentSlot.CHEST);
-				if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) { ((ModelRendererAlt) bipedBody).setOBJModel(stack, null); }
+				if (stack.getItem() instanceof CustomArmorOBJ) {
+					((ModelRendererAlt) bipedBody).setOBJModel(stack, false);
+				}
 			}
 			GlStateManager.pushMatrix();
 			((ModelRendererAlt) bipedBody).checkBacklightColor(r, g, b);
@@ -277,9 +289,7 @@ public class ModelBipedAlt extends ModelNpcAlt {
 	private boolean renderHead(EntityLivingBase living, float scale) {
 		ItemStack stack = living.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
 		((ModelRendererAlt) bipedHead).clearOBJ();
-		if (stack.getItem() instanceof CustomArmor && ((CustomArmor) stack.getItem()).objModel != null) {
-			((ModelRendererAlt) bipedHead).setOBJModel(stack, null);
-		}
+		if (stack.getItem() instanceof CustomArmorOBJ) { ((ModelRendererAlt) bipedHead).setOBJModel(stack, false); }
 		bipedHead.render(scale);
 		return ((ModelRendererAlt) bipedHead).notOBJModel();
 	}

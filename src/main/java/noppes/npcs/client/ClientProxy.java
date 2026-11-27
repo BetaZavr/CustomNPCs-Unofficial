@@ -6,7 +6,6 @@ import java.util.*;
 import java.util.List;
 
 import io.netty.buffer.Unpooled;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -14,8 +13,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.recipebook.RecipeList;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.resources.*;
@@ -45,7 +42,6 @@ import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.registries.IRegistryDelegate;
 import noppes.npcs.*;
 import noppes.npcs.api.ICustomElement;
 import noppes.npcs.api.client.IMinecraft;
@@ -96,7 +92,6 @@ import noppes.npcs.client.model.ModelNpcSlime;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.part.ModelData;
 import noppes.npcs.client.parts.ModelPartData;
-import noppes.npcs.client.renderer.obj.ModelBuffer;
 import noppes.npcs.client.renderer.RenderCustomNpc;
 import noppes.npcs.client.renderer.RenderNPCInterface;
 import noppes.npcs.client.renderer.RenderNPCPony;
@@ -110,7 +105,6 @@ import noppes.npcs.client.util.aw.ArmourersWorkshopUtil;
 import noppes.npcs.controllers.data.*;
 import noppes.npcs.mixin.client.particle.IParticleFlameMixin;
 import noppes.npcs.mixin.client.particle.IParticleSmokeNormalMixin;
-import noppes.npcs.mixin.minecraftforge.client.IItemModelMesherForgeMixin;
 import noppes.npcs.mixin.client.util.IRecipeBookClientMixin;
 import noppes.npcs.shared.client.gui.util.TrueTypeFont;
 import noppes.npcs.constants.EnumGuiType;
@@ -129,7 +123,6 @@ import noppes.npcs.entity.EntityNpcPony;
 import noppes.npcs.entity.EntityNpcSlime;
 import noppes.npcs.entity.EntityProjectile;
 import noppes.npcs.entity.data.DataAnimation;
-import noppes.npcs.items.custom.CustomArmor;
 import noppes.npcs.items.ItemScripted;
 import noppes.npcs.mixin.client.settings.IKeyBindingMixin;
 import noppes.npcs.client.particles.CustomParticleSettings;
@@ -405,6 +398,12 @@ public class ClientProxy extends CommonProxy {
 					if (c.auction != null) { returnGui = new SubGuiNpcAuctionForbiddenItem(c); }
 				}
 			}
+			case EntityLivingInventory: {
+				if (container instanceof ContainerEntityInventory) {
+					returnGui = new GuiEntityInventory((ContainerEntityInventory) container);
+				}
+				break;
+			}
 			default: { break; }
 		}
 		ClientEvent.PostGetGuiCustomNpcs postEvent = new ClientEvent.PostGetGuiCustomNpcs(preEvent.npc, preEvent.guiType, preEvent.buffer, returnGui);
@@ -496,21 +495,7 @@ public class ClientProxy extends CommonProxy {
 	public void postload() {
 		// Set fields and methods in ArmourersWorkshop
 		ArmourersWorkshopUtil.getInstance();
-
-		// OBJ ItemStack Model Replace
-		Minecraft mc = Minecraft.getMinecraft();
-		RenderItem ri = mc.getRenderItem();
-		Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> models = ((IItemModelMesherForgeMixin) ri.getItemModelMesher()).getModels();
-		if (models != null) {
-			for (IRegistryDelegate<Item> key : models.keySet()) {
-				if (!(key.get() instanceof CustomArmor) || ((CustomArmor) key.get()).objModel == null) { continue; }
-				IBakedModel ibm = ModelBuffer.getIBakedModel((CustomArmor) key.get());
-				if (ibm == null) { continue; }
-				models.get(key).put(0, ibm);
-			}
-		}
-		mcWrapper = new WrapperMinecraft(mc);
-
+		mcWrapper = new WrapperMinecraft(Minecraft.getMinecraft());
 		ResourceSelection.preload(".png");
 	}
 
@@ -554,8 +539,7 @@ public class ClientProxy extends CommonProxy {
 	public void reloadItemTextures() {
 		for (Map.Entry<Integer, String> entry : ItemScripted.Resources.entrySet()) {
 			ModelResourceLocation mrl = new ModelResourceLocation(entry.getValue(), "inventory");
-			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(CustomItems.scripter_item,
-					entry.getKey(), mrl);
+			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(CustomItems.scripter_item, entry.getKey(), mrl);
 			ModelLoader.setCustomModelResourceLocation(CustomItems.scripter_item, entry.getKey(), mrl);
 		}
 	}

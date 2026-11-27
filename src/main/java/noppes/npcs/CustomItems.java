@@ -157,12 +157,14 @@ public class CustomItems {
                             rx = nbtItem.getInteger("RenderIndex") % 5;
                             if (rx < 0) { rx *= -1; }
                         }
-                        registryItem(location + "_" + slot.getName().toLowerCase(), new CustomArmor(mat, rx, slot,
-                                        ValueUtil.correctInt(part.getInteger("MaxStackDamage"), 0, Integer.MAX_VALUE),
-                                        ValueUtil.correctInt(part.getInteger("Defense"), 0, Integer.MAX_VALUE),
-                                        ValueUtil.correctInt(part.getInteger("Enchantability"), 0, Integer.MAX_VALUE),
-                                        ValueUtil.correctFloat(part.getFloat("Toughness"), 0.0f, Float.MAX_VALUE), nbtItem),
-                                names, items, nbtItem.getBoolean("CreateDefaultFiles"));
+                        int maxStackDamage = ValueUtil.correctInt(part.getInteger("MaxStackDamage"), 0, Integer.MAX_VALUE);
+                        int defense = ValueUtil.correctInt(part.getInteger("Defense"), 0, Integer.MAX_VALUE);
+                        int enchantability = ValueUtil.correctInt(part.getInteger("Enchantability"), 0, Integer.MAX_VALUE);
+                        float toughness = ValueUtil.correctFloat(part.getFloat("Toughness"), 0.0f, Float.MAX_VALUE);
+                        ItemArmor armor = nbtItem.hasKey("OBJData", 10) ?
+                                new CustomArmorOBJ(mat, rx, slot, maxStackDamage, defense, enchantability, toughness, nbtItem) :
+                                new CustomArmor(mat, rx, slot, maxStackDamage, defense, enchantability, toughness, nbtItem);
+                        registryItem(location + "_" + slot.getName().toLowerCase(), armor, names, items, nbtItem.getBoolean("CreateDefaultFiles"));
                     }
                     break;
                 } // Armor

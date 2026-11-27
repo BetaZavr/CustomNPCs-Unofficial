@@ -273,6 +273,30 @@ public class DataAnimation implements INPCAnimation {
 		emotionHandler.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, partialTicks);
 	}
 
+	// Base emotions list (similar to data in CustomAnimationHandler)
+	private final List<Integer> baseEmotions = new ArrayList<>();
+
+	public List<Integer> getBaseEmotions() { return baseEmotions; }
+
+	public void addBaseEmotion(int emotionId) {
+		if (emotionId < 0) { return; }
+		if (!baseEmotions.contains(emotionId)) {
+			baseEmotions.add(emotionId);
+		}
+	}
+
+	public void removeBaseEmotion(int emotionId) {
+		baseEmotions.remove(Integer.valueOf(emotionId));
+	}
+
+	public void clearBaseEmotions() {
+		baseEmotions.clear();
+	}
+
+	public boolean hasBaseEmotions() {
+		return !baseEmotions.isEmpty();
+	}
+
 	public boolean emotionIsDisableMoved() {
 		if (emotionHandler.currentFrame == null) { return true; }
 		return emotionHandler.currentFrame.disable;

@@ -59,7 +59,7 @@ public class GuiNpcEmotion extends GuiNPCInterface2
 	protected GuiCustomScrollNop scroll;
 	protected AnimationController aData;
 
-	public GuiNpcEmotion(EntityCustomNpc npc) {
+	public GuiNpcEmotion(EntityNPCInterface npc) {
 		super(npc, 4);
 		setBackground("bgfilled.png");
 		backGui = EnumGuiType.MainMenuAdvanced;

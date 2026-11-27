@@ -18,6 +18,7 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Container;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.FriendlyByteBuf;
@@ -400,8 +401,8 @@ public class NoppesUtilServer {
 						break;
 					} // Tool
 					case (byte) 3: {
-						String slot = ((CustomArmor) customitem).getEquipmentSlot().getName().toLowerCase();
-						if (((CustomArmor) customitem).objModel != null) {
+						String slot = ((ItemArmor) customitem).getEquipmentSlot().getName().toLowerCase();
+						if (customitem instanceof CustomArmorOBJ) {
 							File objFile = new File(armorObjDir, name + ".obj");
 							File mtlFile = new File(armorObjDir, name + ".mtl");
 							if (!itemModel.exists() || !objFile.exists() || !mtlFile.exists()) {

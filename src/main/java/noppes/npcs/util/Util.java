@@ -25,6 +25,7 @@ import com.google.common.collect.Iterables;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import net.minecraft.entity.*;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.pathfinding.Path;
@@ -80,6 +81,7 @@ import noppes.npcs.controllers.data.QuestData;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.custom.CustomArmor;
+import noppes.npcs.items.custom.CustomArmorOBJ;
 import noppes.npcs.mixin.nbt.INBTTagLongArrayMixin;
 import noppes.npcs.mixin.world.IWorldMixin;
 import noppes.npcs.shared.common.util.LogWriter;
@@ -1562,6 +1564,11 @@ public class Util implements IMethods {
 				if (!mapArmor.containsKey(key)) { mapArmor.put(key, new ArrayList<>()); }
 				mapArmor.get(key).add(stack);
 			}
+			else if (stack.getItem() instanceof CustomArmorOBJ) {
+				String key = ((CustomArmorOBJ) stack.getItem()).getCustomName();
+				if (!mapArmor.containsKey(key)) { mapArmor.put(key, new ArrayList<>()); }
+				mapArmor.get(key).add(stack);
+			}
 			else if (stack.getItem() instanceof ItemPotion) {
 				String key = stack.getItem().getClass().getSimpleName();
 				if (!mapPotion.containsKey(key)) { mapPotion.put(key, new ArrayList<>()); }
@@ -1582,8 +1589,8 @@ public class Util implements IMethods {
 		// sort
 		for (List<ItemStack> list: mapArmor.values()) {
 			list.sort((st_0, st_1) -> {
-                CustomArmor a_0 = (CustomArmor) st_0.getItem();
-                CustomArmor a_1 = (CustomArmor) st_1.getItem();
+				ItemArmor a_0 = (ItemArmor) st_0.getItem();
+				ItemArmor a_1 = (ItemArmor) st_1.getItem();
                 return Integer.compare(a_0.getEquipmentSlot().ordinal(), a_1.getEquipmentSlot().ordinal());
             });
 			items.addAll(list);
@@ -1757,19 +1764,20 @@ public class Util implements IMethods {
 	public static List<String> splitString(String input) {
 		List<String> result = new ArrayList<>();
 		if (input != null && !input.isEmpty()) {
-			byte[] abyte = input.getBytes(StandardCharsets.UTF_8);
 			StringBuilder temp = new StringBuilder();
 			int size = 0;
-			for (int i = 0; i < abyte.length; i++) {
-				if (size + abyte[i] > 32768) {
+			for (int i = 0; i < input.length(); ) {
+				int codePoint = input.codePointAt(i);
+				byte[] cpBytes = new String(new int[]{codePoint}, 0, 1).getBytes(StandardCharsets.UTF_8);
+				int cpByteCount = cpBytes.length;
+				if (size + cpByteCount > 32768) {
 					result.add(temp.toString());
-					temp = new StringBuilder("" + input.charAt(i));
+					temp = new StringBuilder();
 					size = 0;
 				}
-				else {
-					temp.append(input.charAt(i));
-					size += abyte[i];
-				}
+				temp.appendCodePoint(codePoint);
+				size += cpByteCount;
+				i += Character.charCount(codePoint);
 			}
 			if (!temp.toString().isEmpty()) { result.add(temp.toString()); }
 		}

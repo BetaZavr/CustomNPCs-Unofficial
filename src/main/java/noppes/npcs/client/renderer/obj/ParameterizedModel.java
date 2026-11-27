@@ -15,16 +15,15 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.client.model.obj.OBJModel;
+import net.minecraftforge.common.model.IModelState;
+import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
@@ -37,13 +36,13 @@ public class ParameterizedModel {
 	protected static final FloatBuffer COLOR_BUFFER = GLAllocation.createDirectFloatBuffer(4);
 	protected static final Vec3d LIGHT0_POS = (new Vec3d(0.2D, 1.0D, -0.7D)).normalize();
 	protected static final Vec3d LIGHT1_POS = (new Vec3d(-0.2D, 1.0D, 0.7D)).normalize();
-
-	protected final Function<ResourceLocation, TextureAtlasSprite> spriteFunction;
 	protected final float red;
 	protected final float green;
 	protected final float blue;
 	protected IBakedModel bakedModel;
+	protected IModelState modelState;
 
+	public final Function<ResourceLocation, TextureAtlasSprite> spriteFunction;
 	public final ResourceLocation modelLocation;
 	public final int colorMask;
 	public final boolean isDynamic;
@@ -52,6 +51,7 @@ public class ParameterizedModel {
 	public final Map<String, ResourceLocation> materialTextures = new HashMap<>();
 
 	public int listId = -1;
+	public boolean isItemStack = false;
 	public OBJModel objModel = null;
 	public ResourceLocation atlas = TextureMap.LOCATION_BLOCKS_TEXTURE;
 
@@ -118,30 +118,31 @@ public class ParameterizedModel {
 		};
 	}
 
-	@SuppressWarnings("deprecation")
-	public void load() {
+	public void load(IModelState iModelState) {
 		// load model
 		try {
 			objModel = (OBJModel) OBJLoader.INSTANCE.loadModel(modelLocation).process(ImmutableMap.copyOf(Collections.singletonMap("flip-v", "true")));
+			modelState = iModelState;
 			if (visibleMeshes.isEmpty()) {
 				visibleMeshes.addAll(objModel.getMatLib().getGroups().keySet());
 				visibleMeshes.remove("OBJModel.Default.Element.Name");
 			}
-			// baked
-			bakedModel = objModel.bake(new OBJModel.OBJState(ImmutableList.copyOf(visibleMeshes), true), DefaultVertexFormats.ITEM, spriteFunction);
 		}
 		catch (Exception ignored) { objModel = null; }
 	}
 
 	public void render() {
 		GlStateManager.pushMatrix();
+		GlStateManager.depthMask(true);
 		GlStateManager.enableBlend();
+		GlStateManager.enableDepth();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
 				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
 				GlStateManager.SourceFactor.ONE,
 				GlStateManager.DestFactor.ZERO);
-		GlStateManager.enableDepth();
-		Minecraft.getMinecraft().getTextureManager().bindTexture(atlas);
+		if (!isItemStack) {
+			Minecraft.getMinecraft().getTextureManager().bindTexture(atlas != null ? atlas : TextureMap.LOCATION_BLOCKS_TEXTURE);
+		}
 		boolean lit = colorMask != 0;
 		if (lit) { setupLight(); }
 		if (isDynamic) { draw(); }
@@ -154,8 +155,8 @@ public class ParameterizedModel {
 			GlStateManager.callList(listId);
 		}
 		if (lit) { clearLight(); }
-		GlStateManager.color(0.0f, 0.0f, 0.0f, 0.0f);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		GlStateManager.disableAlpha();
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
 	}
@@ -194,11 +195,20 @@ public class ParameterizedModel {
 
 	protected void draw() {
 		// draw
+		GlStateManager.enableBlend();
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
-		for (BakedQuad bakedquad : bakedModel.getQuads(null, null, 0)) { buffer.addVertexData(bakedquad.getVertexData()); }
+		for (BakedQuad bakedquad : getIBakedModel().getQuads(null, null, 0)) { buffer.addVertexData(bakedquad.getVertexData()); }
 		tessellator.draw();
+	}
+
+	@SuppressWarnings("deprecation")
+	public void createBakedModel() {
+		bakedModel = objModel.bake(new OBJModel.OBJState(ImmutableList.copyOf(visibleMeshes), true,
+						modelState != null ? modelState : TRSRTransformation.identity()),
+				DefaultVertexFormats.ITEM, spriteFunction);
+		listId = -1;
 	}
 
 	private static FloatBuffer setColorBuffer(float red, float green, float blue, float alpha) {
@@ -224,6 +234,11 @@ public class ParameterizedModel {
 			if (!objPM.materialTextures.containsKey(name) || !objPM.materialTextures.get(name).equals(materialTextures.get(name))) { return false; }
 		}
 		return true;
+	}
+
+	public IBakedModel getIBakedModel() {
+		if (bakedModel == null) { createBakedModel(); } // baked
+		return bakedModel;
 	}
 
 }

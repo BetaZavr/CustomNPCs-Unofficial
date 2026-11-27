@@ -19,13 +19,13 @@ import noppes.npcs.controllers.data.MarkData;
 
 public class MarkRenderer {
 
-	public static final Map<Boolean, Map<MarkType, ResourceLocation>> locations = new HashMap<>();
+	public static final Map<MarkType, ResourceLocation> textureCash = new HashMap<>();
+	public static final Map<MarkType, ResourceLocation> modelCash = new HashMap<>();
+
 	static {
-		locations.put(true, new HashMap<>());
-		locations.put(false, new HashMap<>());
 		for (MarkType mt : MarkType.values()) {
-			locations.get(true).put(mt, new ResourceLocation(CustomNpcs.MODID, "models/util/" + mt.name().toLowerCase() + ".obj"));
-			locations.get(false).put(mt, new ResourceLocation(CustomNpcs.MODID, "textures/marks/" + mt.name().toLowerCase() + ".png"));
+			textureCash.put(mt, new ResourceLocation(CustomNpcs.MODID, "textures/marks/" + mt.name().toLowerCase() + ".png"));
+			modelCash.put(mt, new ResourceLocation(CustomNpcs.MODID, "models/util/" + mt.name().toLowerCase() + ".obj"));
 		}
 	}
 
@@ -46,16 +46,14 @@ public class MarkRenderer {
 		GlStateManager.rotate(-entity.rotationYawHead, 0.0f, 1.0f, 0.0f);
 		GlStateManager.scale(size, size, size);
 		if (mark.isRotate()) { GlStateManager.rotate(entity.world.getTotalWorldTime() % 360 / 0.25f, 0.0f, 1.0f, 0.0f); }
-		if (mark.is3D()) {
-			ModelBuffer.render(locations.get(true).get(mark.type), null, null, color, true);
-		}
+		if (mark.is3D()) { ModelBuffer.render(modelCash.get(mark.type), null, null, color, true); }
 		else {
 			GlStateManager.translate(-0.5f, 0, 0);
 			float red = (float) (color >> 16 & 255) / 255.0f;
 			float green = (float) (color >> 8 & 255) / 255.0f;
 			float blue = (float) (color & 255) / 255.0f;
 			GlStateManager.color(red, green, blue, alpha);
-			Minecraft.getMinecraft().getTextureManager().bindTexture(locations.get(false).get(mark.type));
+			Minecraft.getMinecraft().getTextureManager().bindTexture(textureCash.get(mark.type));
 			Model2DRenderer.renderItemIn2D(Tessellator.getInstance().getBuffer(), 0.0f, 0.0f, 1.0f, 1.0f, 32, 32, 0.0625f);
 		}
 		if (!entity.isAddedToWorld()) { RenderHelper.enableStandardItemLighting(); }

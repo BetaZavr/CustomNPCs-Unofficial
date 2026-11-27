@@ -15,12 +15,14 @@ import noppes.npcs.shared.client.gui.components.GuiCheckBoxNop;
 import noppes.npcs.shared.client.gui.components.GuiCustomScrollNop;
 import noppes.npcs.shared.client.gui.components.GuiTextFieldNop;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
+import noppes.npcs.shared.client.gui.listeners.IGuiData;
 import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
 
 import java.util.*;
 
 // Changed by Unofficial (BetaZavr)
-public class SubGuiNpcQuestReward extends GuiBasic implements ITextfieldListener, ICustomScrollListener {
+public class SubGuiNpcQuestReward extends GuiBasic
+		implements ITextfieldListener, ICustomScrollListener, IGuiData {
 
 	protected final Map<Component, DropSet> data = new LinkedHashMap<>();
 	protected final Quest quest;
@@ -154,6 +156,14 @@ public class SubGuiNpcQuestReward extends GuiBasic implements ITextfieldListener
 		if (data.get(scroll.getNormalSelected()) != null) { openItemEdit(scroll.getSelectedIndex()); }
 	}
 
+	@Override
+	public void setGuiData(NBTTagCompound compound) {
+		if (compound != null && compound.hasKey("Rewards", 9)) {
+			quest.loadPartial(compound);
+			initGui();
+		}
+	}
+
 	private void openItemEdit(int pos) {
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("InventoryType", 2);
@@ -161,5 +171,4 @@ public class SubGuiNpcQuestReward extends GuiBasic implements ITextfieldListener
 		compound.setInteger("DropSet", pos);
 		Packets.sendServer(new SPacketContainerOpen(EnumGuiType.SetupDrop, (b) -> b.writeNbt(compound)));
 	}
-
 }

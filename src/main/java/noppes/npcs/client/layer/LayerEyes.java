@@ -30,6 +30,7 @@ extends LayerInterface<T> {
 	private final EyeRenderData leftData = new EyeRenderData(true);
 	private final EyeRenderData rightData = new EyeRenderData(false);
 	private final BrowsRenderData browsData = new BrowsRenderData();
+	private final MouthRenderData mouthData = new MouthRenderData();
 
     public LayerEyes(RenderLiving<?> render) {
 		super(render);
@@ -184,6 +185,28 @@ extends LayerInterface<T> {
 		GlStateManager.popMatrix(); // Pupil end
 
 		GlStateManager.popMatrix();
+	}
+
+	private void drawMouth(Float[] mouthDataRaw, EmotionFrame frame) {
+		if (frame == null) { return; }
+
+		// Determine if we should use random talk
+		boolean isRandom = frame.rndMouth && frame.showMouth;
+		long worldTime = npc.world != null ? npc.world.getTotalWorldTime() : 0;
+
+		// Update mouth render data
+		mouthData.update(frame, isRandom, worldTime);
+
+		if (!mouthData.show) { return; }
+
+		// Draw mouth cavity first (behind lips)
+		mouthData.drawQuad(mouthData.mouthCavity, mouthData.cavityColor, 4.03f);
+
+		// Draw lower lip
+		mouthData.drawQuad(mouthData.lowerLip, mouthData.lowerLipColor, 4.04f);
+
+		// Draw upper lip
+		mouthData.drawQuad(mouthData.upperLip, mouthData.upperLipColor, 4.05f);
 	}
 
 	private void drawRight(int selectType, int hoverColor) {
@@ -408,6 +431,9 @@ extends LayerInterface<T> {
 		selectType = 0;
 		if (elementType == 2) { selectType = isRight ? 1 : 2; }
 		drawBrows(selectType, hoverColor);
+
+		// Mouth rendering
+		drawMouth(finalEmotionData.get(6), frame);
 
 		mc.entityRenderer.setupFogColor(false);
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastBrightnessX, lastBrightnessY);

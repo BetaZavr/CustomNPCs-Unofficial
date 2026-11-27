@@ -1,6 +1,7 @@
 package noppes.npcs.mixin.client.gui.inventory;
 
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.renderer.RenderHelper;
 import noppes.npcs.client.ClientEventHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,6 +17,7 @@ public class GuiInventoryMixin {
         ClientEventHandler.renderBalance(parent, mouseX, mouseY,
                 parent.getGuiLeft() + 124,
                 parent.getGuiTop() + 62);
+        RenderHelper.enableGUIStandardItemLighting();
     }
 
 }

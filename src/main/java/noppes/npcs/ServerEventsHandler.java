@@ -169,18 +169,19 @@ public class ServerEventsHandler {
 			}
 			if (!CustomNpcs.OpsOnly || CommonUtil.isOp(player)) {
 				if (item.getItem() == CustomItems.wand) {
-					if (event.getTarget() instanceof EntityVillager) {
-						event.setCanceled(true);
-						if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_VILLAGER)) {
-							NoppesUtilServer.setEditingNpc(player, null);
-							NoppesUtilServer.openContainerGui(player, EnumGuiType.MerchantAdd, (buffer) -> buffer.writeInt(event.getTarget().getEntityId()));
-						}
-						else { player.sendMessage(Component.translatable("availability.permission").getParent()); }
-					}
-					else if (event.getTarget() instanceof EntityNPCInterface) {
+					if (event.getTarget() instanceof EntityNPCInterface) {
 						event.setCanceled(true);
 						if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_GUI)) {
 							NoppesUtilServer.sendOpenGui(player, EnumGuiType.MainMenuDisplay, (EntityNPCInterface) event.getTarget());
+						}
+						else { player.sendMessage(Component.translatable("availability.permission").getParent()); }
+					}
+					else if (event.getTarget() instanceof EntityLivingBase) {
+						event.setCanceled(true);
+						if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_VILLAGER)) {
+							NoppesUtilServer.setEditingNpc(player, null);
+							NoppesUtilServer.openContainerGui(player, event.getTarget() instanceof EntityVillager ?
+									EnumGuiType.MerchantAdd : EnumGuiType.EntityLivingInventory, (buffer) -> buffer.writeInt(event.getTarget().getEntityId()));
 						}
 						else { player.sendMessage(Component.translatable("availability.permission").getParent()); }
 					}

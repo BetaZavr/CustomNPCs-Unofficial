@@ -33,7 +33,11 @@ public enum EnumParts
 	EYES("eyes", -1),
 	BELT("belt", -1),
 	CUSTOM("custom", -1),
-	CUSTOM_LAYERS("layers", -1);
+	CUSTOM_LAYERS("layers", -1),
+	ARM_LEFT_FULL("armleft_full", 1),
+	ARM_RIGHT_FULL("armright_full", 2),
+	LEG_LEFT_FULL("legleft_full", 4),
+	LEG_RIGHT_FULL("legright_full", 5);
 	
 	public final String name;
 	public final int patterns;

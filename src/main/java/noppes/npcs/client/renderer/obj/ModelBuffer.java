@@ -1,39 +1,18 @@
 package noppes.npcs.client.renderer.obj;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Function;
 
-import net.minecraft.client.renderer.texture.*;
-import org.apache.commons.io.IOUtils;
-
-import com.google.common.collect.ImmutableList;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.obj.OBJLoader;
-import net.minecraftforge.client.model.obj.OBJModel;
 import noppes.npcs.shared.common.util.LogWriter;
-import noppes.npcs.client.model.ModelOBJPlayerArmor;
-import noppes.npcs.constants.EnumParts;
-import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.items.custom.CustomArmor;
+
+import javax.annotation.Nullable;
 
 public class ModelBuffer {
 
 	// rendered models
-	protected static final List<ParameterizedModel> MODELS = new ArrayList<>(); // list of parameterized
+	protected static final Map<String, ParameterizedModel> MODELS = new HashMap<>(); // list of parameterized
 	public static List<ResourceLocation> NOT_FOUND = new ArrayList<>();	// list of missing models
 	// so as not to freeze
-	// the client
-	private static ModelOBJPlayerArmor objModel;
 
 	/**
 	 * Attempting to display an OBJ model
@@ -76,103 +55,44 @@ public class ModelBuffer {
 	 * @param colorMask - color of the mask applied to the model
 	 * @return generated custom model
 	 */
-	public static ParameterizedModel getParameterizedModel(ResourceLocation modelLocation,
-														   List<String> visibleMeshes,
-														   Map<String, ResourceLocation> materialTextures,
-														   boolean reverseNormals, int colorMask, boolean isDynamic) {
+	public static @Nullable ParameterizedModel getParameterizedModel(ResourceLocation modelLocation,
+																	 List<String> visibleMeshes,
+																	 Map<String, ResourceLocation> materialTextures,
+																	 boolean reverseNormals, int colorMask, boolean isDynamic) {
 		if (modelLocation == null || NOT_FOUND.contains(modelLocation)) { return null; }
-		ParameterizedModel model = new ParameterizedModel(modelLocation, visibleMeshes, materialTextures, reverseNormals, colorMask, isDynamic);
-		boolean found = false;
-		for (ParameterizedModel pm : MODELS) {
-			if (pm.equals(model)) {
-				model = pm;
-				found = true;
-				break;
-			}
-		}
-		if (model.objModel == null) { model.load(); }
+		String key = getKey(modelLocation, visibleMeshes, materialTextures, reverseNormals, colorMask, isDynamic);
+		ParameterizedModel model = MODELS.get(key);
+		if (model == null) { MODELS.put(key, model = new ParameterizedModel(modelLocation, visibleMeshes, materialTextures, reverseNormals, colorMask, isDynamic)); }
+		if (model.objModel == null) { model.load(null); }
 		if (model.objModel == null) { NOT_FOUND.add(modelLocation); return null; }
-		if (!found) { MODELS.add(model); }
 		return model;
 	}
 
+	private static String getKey(ResourceLocation modelLocation, List<String> visibleMeshes, Map<String, ResourceLocation> materialTextures,
+								 boolean reverseNormals, int colorMask, boolean isDynamic) {
+		StringBuilder key = new StringBuilder(String.valueOf(modelLocation));
+		if (visibleMeshes != null) {
+			List<String> meshes = new ArrayList<>(visibleMeshes);
+			Collections.sort(meshes);
+			key.append(";[");
+			for (String mesh : meshes) { key.append(mesh).append(","); }
+			key.append("]");
+		}
+		if (materialTextures != null) {
+			TreeMap<String, ResourceLocation> map = materialTextures instanceof TreeMap ? (TreeMap<String, ResourceLocation>) materialTextures : new TreeMap<>(materialTextures);
+			key.append(";{");
+			for (String material : map.keySet()) { key.append("_").append(material).append("=").append(map.get(material)).append(","); }
+			key.append("}");
+		}
+		key.append(";").append(reverseNormals).append(";").append(colorMask).append(";").append(isDynamic);
+		return key.toString();
+	}
+
 	private static void trimCache() {
-		while (MODELS.size() > 500) { MODELS.remove(0); }
-	}
-
-	// Armor
-	public static ResourceLocation getMainOBJTexture(ResourceLocation objModel) {
-		try {
-			ResourceLocation location = new ResourceLocation(objModel.getResourceDomain(), objModel.getResourcePath().replace(".obj", ".mtl"));
-			IResource res = Minecraft.getMinecraft().getResourceManager().getResource(location);
-			String mat_lib = IOUtils.toString(res.getInputStream(), StandardCharsets.UTF_8);
-			if (mat_lib.contains("map_Kd")) {
-				int endIndex = mat_lib.indexOf("" + ((char) 10), mat_lib.indexOf("map_Kd"));
-				if (endIndex == -1) {
-					endIndex = mat_lib.length();
-				}
-				String txtr = mat_lib.substring(mat_lib.indexOf(" ", mat_lib.indexOf("map_Kd")) + 1, endIndex);
-				String domain = "", path;
-				if (!txtr.contains(":")) {
-					path = txtr;
-				} else {
-					domain = txtr.substring(0, txtr.indexOf(":"));
-					path = txtr.substring(txtr.indexOf(":") + 1);
-				}
-				return new ResourceLocation(domain, path);
-			}
-		} catch (Exception e) { LogWriter.error(e); }
-		return null;
-	}
-
-	public static ModelBiped getOBJModelBiped(CustomArmor armor, EntityLivingBase entity, ModelBiped defModel) {
-		if (!(entity instanceof EntityPlayer) && !(entity instanceof EntityNPCInterface)) {
-			return null;
+		for (String key : new ArrayList<>(MODELS.keySet())) {
+			if (MODELS.size() <= 500) { break; }
+			MODELS.remove(key);
 		}
-		if (entity instanceof EntityNPCInterface) { return defModel; }
-		if (objModel == null) {
-			objModel = new ModelOBJPlayerArmor(armor);
-		}
-		return objModel;
-	}
-
-	public static IBakedModel getIBakedModel(CustomArmor armor) {
-		if (armor.objModel == null) { return null; }
-		List<String> visibleMeshes = new ArrayList<>();
-		if (armor.getEquipmentSlot() == EntityEquipmentSlot.HEAD) {
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.HEAD));
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.MOHAWK));
-		} else if (armor.getEquipmentSlot() == EntityEquipmentSlot.CHEST) {
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.BODY));
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.ARM_LEFT));
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.ARM_RIGHT));
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.WRIST_LEFT));
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.WRIST_RIGHT));
-		} else if (armor.getEquipmentSlot() == EntityEquipmentSlot.LEGS) {
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.BELT));
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.LEG_LEFT));
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.LEG_RIGHT));
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.FEET_LEFT));
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.FEET_RIGHT));
-		} else if (armor.getEquipmentSlot() == EntityEquipmentSlot.FEET) {
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.FEET_LEFT));
-			visibleMeshes.addAll(armor.getMeshNames(EnumParts.FEET_RIGHT));
-		} else { return null; }
-		try {
-			OBJModel iModel = (OBJModel) OBJLoader.INSTANCE.loadModel(armor.objModel);
-			Function<ResourceLocation, TextureAtlasSprite> spriteFunction = location -> {
-				if (location.toString().equals("minecraft:missingno") || location.toString().equals("minecraft:builtin/white")) {
-					return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
-				}
-				TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
-				if (sprite == Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite()) {
-					LogWriter.debug("Not load or found texture sprite: " + location + " to " + objModel);
-				}
-				return sprite;
-			};
-			return iModel.bake(new CustomOBJState(ImmutableList.copyOf(visibleMeshes), true, armor), DefaultVertexFormats.ITEM, spriteFunction);
-		} catch (Exception e) { LogWriter.error(e); }
-		return null;
 	}
 
 }

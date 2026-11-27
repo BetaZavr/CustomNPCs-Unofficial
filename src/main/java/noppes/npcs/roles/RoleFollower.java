@@ -243,12 +243,19 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 
 	@Override
 	public void interact(EntityPlayer playerIn) {
-		if (playerIn instanceof EntityPlayerMP) {
+		boolean bo = false;
+		for (int i =0; i < rentalItems.getSizeInventory(); i++) {
+			if (!NoppesUtilServer.isItemStackNull(rentalItems.getStackInSlot(i)) && rates.get(i) > 0) {
+				bo = true;
+				break;
+			}
+		}
+		if (rentalMoney > 0 && rates.get(3) > 0) { bo = true; }
+		if (bo && playerIn instanceof EntityPlayerMP) {
 			EntityPlayerMP player = (EntityPlayerMP) playerIn;
 			if (ownerUUID != null && !ownerUUID.isEmpty()) {
 				if (player.equals(getOwner()) && !disableGui) { SPacketGuiOpen.sendOpenGui(player, EnumGuiType.PlayerFollower, npc, BlockPos.ORIGIN); }
 				else if (npc != null && !dialogHired.isEmpty()) { npc.say(player, new Line(dialogHired)); }
-				LogWriter.info("[DEBUG] ");
 			}
 			else {
 				if (npc != null) { npc.say(player, npc.advanced.getInteractLine()); }

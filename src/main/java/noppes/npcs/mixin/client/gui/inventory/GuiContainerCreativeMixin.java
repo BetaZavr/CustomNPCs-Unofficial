@@ -91,6 +91,9 @@ public class GuiContainerCreativeMixin {
                     parent.drawHoveringText(Component.translatable("key.quest.log").getFormattedText(), mouseX, mouseY);
                 }
             }
+            RenderHelper.enableGUIStandardItemLighting();
+            GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+            GlStateManager.enableBlend();
         }
         if (selectedTabIndex == 11) {
             ClientEventHandler.renderBalance(parent, mouseX, mouseY,

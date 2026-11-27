@@ -138,6 +138,7 @@ public class CommonProxy implements IGuiHandler {
 			case CustomGui: return new ContainerCustomGui(buffer.readNbt());
 			case PlayerAuctionCreateLot: return new ContainerAuctionCreateLot(player, buffer.readBlockPos());
 			case ManageAuctionForbiddenItem: return new ContainerAuctionForbiddenItem(player, buffer.readBlockPos());
+			case EntityLivingInventory: return new ContainerEntityInventory(player, buffer.readInt());
 		}
 		return null;
 	}

@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import net.minecraft.block.*;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.gui.*;
@@ -57,8 +58,7 @@ import noppes.npcs.client.util.CrashesData;
 import noppes.npcs.client.util.CustomNpcsLangPack;
 import noppes.npcs.client.util.MusicData;
 import noppes.npcs.constants.*;
-import noppes.npcs.controllers.BorderController;
-import noppes.npcs.controllers.DialogController;
+import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.*;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.entity.EntityCustomNpc;
@@ -111,8 +111,6 @@ import noppes.npcs.client.gui.GuiNbtBook;
 import noppes.npcs.client.gui.GuiNpcPather;
 import noppes.npcs.client.gui.player.GuiLog;
 import noppes.npcs.client.renderer.MarkRenderer;
-import noppes.npcs.controllers.SchematicController;
-import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.items.ItemBuilder;
 import noppes.npcs.schematics.Schematic;
 import noppes.npcs.schematics.SchematicWrapper;
@@ -690,6 +688,38 @@ public class ClientEventHandler extends Gui {
 		BuilderData builder = ItemBuilder.getBuilder(mc.player.getHeldItemMainhand(), mc.player);
 		if (builder != null && builder.getID() > -1 && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK) {
 			renderZone(builder, mc.objectMouseOver.getBlockPos());
+		}
+		// Show quest points
+		PlayerCompassData compassData = PlayerData.get(mc.player).compass;
+		if (CustomNpcs.TypeShowQuestCompass != 4 && compassData.getShowOfPlayer()) {
+			float red;
+			float green;
+			float blue;
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			for (Quest quest : new ArrayList<>(QuestController.instance.quests.values())) {
+				try {
+					for (QuestObjective task : Lists.newArrayList(quest.questInterface.tasks)) {
+						if (task != null && mc.player.world.provider.getDimension() == task.dimension &&
+								Math.sqrt((float) mc.player.getDistance(task.pos.getX() + 0.5d, task.pos.getY() + 0.5d,
+										task.pos.getZ() + 0.5d)) < 500.0) {
+							int r = task.rangeCompass -1;
+							AxisAlignedBB aabb = new AxisAlignedBB(-r, -r, -r, r, r, r);
+							red = (float)(task.colorCompass >> 16 & 255) / 255.0F;
+							green = (float)(task.colorCompass >> 8 & 255) / 255.0F;
+							blue = (float)(task.colorCompass & 255) / 255.0F;
+
+							GlStateManager.pushMatrix();
+							GlStateManager.enableBlend();
+							GlStateManager.translate(task.pos.getX() + 0.5d - dx, task.pos.getY() + 0.5d - dy, task.pos.getZ() + 0.5d - dz);
+							RenderGlobal.drawSelectionBoundingBox(aabb, red, green, blue, 0.75f);
+							renderFilledBox(aabb, true, red, green, blue, 0.15f);
+							GlStateManager.disableBlend();
+							GlStateManager.popMatrix();
+						}
+					}
+				}
+				catch (Exception ignored) {}
+			}
 		}
 		// Show block tool hitboxes
 		NBTTagCompound nbtMP = null;
@@ -2866,6 +2896,59 @@ public class ClientEventHandler extends Gui {
 			drawString(mc.fontRenderer, rayTitle.getFormattedText(), 0, 0, 0xFFFFFF);
 			GlStateManager.popMatrix();
 		}
+	}
+
+	public void renderFilledBox(AxisAlignedBB aabb, boolean addFromInside, float red, float green, float blue, float alpha) {
+		float minX = (float) aabb.minX;
+		float minY = (float) aabb.minY;
+		float minZ = (float) aabb.minZ;
+		float maxX = (float) aabb.maxX;
+		float maxY = (float) aabb.maxY;
+		float maxZ = (float) aabb.maxZ;
+
+		if (addFromInside) { GlStateManager.disableCull(); }
+		Tessellator tessellator = Tessellator.getInstance();
+		BufferBuilder buffer = tessellator.getBuffer();
+		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+
+		// Front face (minZ) - CCW when viewed from outside
+		buffer.pos(minX, minY, minZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+
+		// Back face (maxZ) - CCW when viewed from outside
+		buffer.pos(maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+
+		// Left face (minX) - CCW when viewed from outside
+		buffer.pos(minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(minX, minY, minZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+
+		// Right face (maxX) - CCW when viewed from outside
+		buffer.pos(maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+
+		// Bottom face (minY) - CCW when viewed from outside
+		buffer.pos(minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(minX, minY, minZ).color(red, green, blue, alpha).endVertex();
+
+		// Top face (maxY) - CCW when viewed from outside
+		buffer.pos(minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+		buffer.pos(minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+
+		tessellator.draw();
+		if (addFromInside) { GlStateManager.enableCull(); }
 	}
 
 }

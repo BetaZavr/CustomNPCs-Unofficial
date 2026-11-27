@@ -34,7 +34,6 @@ import noppes.npcs.shared.client.gui.components.*;
 import noppes.npcs.shared.client.gui.listeners.IComponentGui;
 import noppes.npcs.shared.client.gui.listeners.ICustomScrollListener;
 import noppes.npcs.shared.client.gui.listeners.ITextfieldListener;
-import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
@@ -380,7 +379,7 @@ public class GuiYellowDialogEditor extends GuiBasic
             }
             else {
                 if (selectLink.parent != null) {
-                    LogWriter.info("TEST: "+selectLink.parent);
+
                 }
                 selectLink = null;
             }

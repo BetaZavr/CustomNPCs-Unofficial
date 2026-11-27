@@ -13,7 +13,6 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.shared.common.util.LogWriter;
 import noppes.npcs.util.ValueUtil;
 
 import javax.annotation.Nonnull;
@@ -254,7 +253,6 @@ public class CmdMoney extends CommandBase {
                 CustomNpcsPermissions.Permission permission;
                 if (args[1].equalsIgnoreCase("money")) { permission = CustomNpcsPermissions.MONEY_MANAGER; }
                 else { permission = CustomNpcsPermissions.DONAT_MANAGER; }
-                LogWriter.info("[DEBUG] "+CustomNpcsPermissions.hasPermission((EntityPlayerMP) sender, permission));
                 if (CustomNpcsPermissions.hasPermission((EntityPlayerMP) sender, permission)) {
                     list.addAll(PlayerDataController.instance.getPlayerNames());
                 }

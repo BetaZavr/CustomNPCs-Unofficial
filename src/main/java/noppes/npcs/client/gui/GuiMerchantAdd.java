@@ -57,14 +57,12 @@ public class GuiMerchantAdd extends GuiBasicContainer<ContainerMerchantAdd> {
 
 	protected static final ResourceLocation merchantGuiTextures = new ResourceLocation("textures/gui/container/villager.png");
 
-	protected final ContainerMerchantAdd container;
 	protected int currentRecipeIndex;
 	protected MerchantButton nextRecipeButtonIndex;
 	protected MerchantButton previousRecipeButtonIndex;
 
 	public GuiMerchantAdd(ContainerMerchantAdd containerIn) {
 		super(containerIn, Component.translatable("entity.Villager.name"));
-		container = containerIn;
 	}
 
 	@Override
@@ -92,15 +90,15 @@ public class GuiMerchantAdd extends GuiBasicContainer<ContainerMerchantAdd> {
 			--currentRecipeIndex;
 			flag = true;
 		}
-		if (button.id == 4 && container.trader != null) {
-			MerchantRecipeList merchantrecipelist = container.trader.getRecipes(minecraft.player);
+		if (button.id == 4 && menu.trader != null) {
+			MerchantRecipeList merchantrecipelist = menu.trader.getRecipes(minecraft.player);
             if (merchantrecipelist != null && currentRecipeIndex < merchantrecipelist.size()) {
 				merchantrecipelist.remove(currentRecipeIndex);
 				if (currentRecipeIndex > 0) { --currentRecipeIndex; }
 				Packets.sendServer(new SPacketMerchantSetSlot(merchantrecipelist));
 			}
 		}
-		if (button.id == 5 && container.trader != null) {
+		if (button.id == 5 && menu.trader != null) {
 			ItemStack item1 = inventorySlots.getSlot(0).getStack();
 			ItemStack item2 = inventorySlots.getSlot(1).getStack();
 			ItemStack sold = inventorySlots.getSlot(2).getStack();
@@ -109,7 +107,7 @@ public class GuiMerchantAdd extends GuiBasicContainer<ContainerMerchantAdd> {
             item2 = item2.copy();
             MerchantRecipe recipe = new MerchantRecipe(item1, item2, sold);
             recipe.increaseMaxTradeUses(2147483639);
-            MerchantRecipeList merchantrecipelist = container.trader.getRecipes(minecraft.player);
+            MerchantRecipeList merchantrecipelist = menu.trader.getRecipes(minecraft.player);
 			if (merchantrecipelist == null) { return; }
 			merchantrecipelist.add(recipe);
 			Packets.sendServer(new SPacketMerchantSetSlot(merchantrecipelist));
@@ -128,8 +126,8 @@ public class GuiMerchantAdd extends GuiBasicContainer<ContainerMerchantAdd> {
 		int k = (width - xSize) / 2;
 		int l = (height - ySize) / 2;
 		drawTexturedModalRect(k, l, 0, 0, xSize, ySize);
-		if (container.trader != null) {
-			MerchantRecipeList merchantrecipelist = container.trader.getRecipes(minecraft.player);
+		if (menu.trader != null) {
+			MerchantRecipeList merchantrecipelist = menu.trader.getRecipes(minecraft.player);
 			if (merchantrecipelist != null && !merchantrecipelist.isEmpty()) {
 				int i1 = currentRecipeIndex;
 				MerchantRecipe merchantrecipe = merchantrecipelist.get(i1);
@@ -154,8 +152,8 @@ public class GuiMerchantAdd extends GuiBasicContainer<ContainerMerchantAdd> {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (container.trader != null) {
-			MerchantRecipeList merchantrecipelist = container.trader.getRecipes(minecraft.player);
+		if (menu.trader != null) {
+			MerchantRecipeList merchantrecipelist = menu.trader.getRecipes(minecraft.player);
 			if (merchantrecipelist != null && !merchantrecipelist.isEmpty()) {
 				int k = (width - xSize) / 2;
 				int l = (height - ySize) / 2;
@@ -177,8 +175,8 @@ public class GuiMerchantAdd extends GuiBasicContainer<ContainerMerchantAdd> {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-		if (container.trader != null && nextRecipeButtonIndex != null && previousRecipeButtonIndex != null) {
-			MerchantRecipeList merchantrecipelist = container.trader.getRecipes(Minecraft.getMinecraft().player);
+		if (menu.trader != null && nextRecipeButtonIndex != null && previousRecipeButtonIndex != null) {
+			MerchantRecipeList merchantrecipelist = menu.trader.getRecipes(Minecraft.getMinecraft().player);
 			if (merchantrecipelist != null) {
 				nextRecipeButtonIndex.setIsEnabled(currentRecipeIndex < merchantrecipelist.size() - 1);
 				previousRecipeButtonIndex.setIsEnabled(currentRecipeIndex > 0);

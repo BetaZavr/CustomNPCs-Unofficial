@@ -218,10 +218,9 @@ public class SubGuiEditAnimation extends GuiNPCInterface
 				ConfirmScreen guiYesNo = new ConfirmScreen((agree) -> {
 					if (agree) {
 						if (anim == null || frame == null || anim.frames.size() <= 1) { return; }
-						int f = frame.id - 1;
-						if (f < 0) { f = 0; }
+						int f = ValueUtil.correctInt(frame.id - 1, 0, anim.frames.size() - 1);
 						anim.removeFrame(frame);
-						frame = anim.frames.get(f);
+						frame = anim.frames.get(anim.frames.containsKey(f) ? f : 0);
 						setPart(frame.parts.get(part.id));
 						setHitbox(frame.damageHitboxes.get(0));
 						initGui();
