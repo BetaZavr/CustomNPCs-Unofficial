@@ -49,7 +49,7 @@ public class ContainerNPCInv extends AbstractContainerMenu {
       Slot slot = slots.get(index);
       if (slot.hasItem()) {
          ItemStack inSlot = slot.getItem();
-         if (index >= 16) { // player inventory
+         if (index >= 16 + (ArmourersWorkshopApi.isAvailable() ? 2 : 0)) { // player inventory
             if (inSlot.getItem() instanceof ArmorItem armorItem) {
                Slot armSlot = switch (armorItem.getEquipmentSlot()) {
                   case CHEST -> slots.get(1);

@@ -213,6 +213,7 @@ public class NoppesUtilServer {
          case AvailabilityStack -> CustomContainer.container_availability_item;
          case CustomChest -> CustomContainer.container_custom_chest;
          case DeadInventory -> CustomContainer.container_npc_dead;
+         case EntityLivingInventory -> CustomContainer.container_entity_inventory;
          case BuilderTool, ReplaceTool, RemoverTool -> CustomContainer.container_builder;
          default -> null;
       };

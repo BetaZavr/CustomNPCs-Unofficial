@@ -50,6 +50,7 @@ public class CustomContainer {
    public static MenuType<ContainerDead> container_npc_dead;
    public static MenuType<ContainerAuctionCreateLot> container_auction_create_lot;
    public static MenuType<ContainerAuctionForbiddenItem> container_auction_forbidden_item;
+   public static MenuType<ContainerEntityInventory> container_entity_inventory;
 
    @SubscribeEvent
    public static void registerContainer(RegisterEvent event) {
@@ -138,6 +139,7 @@ public class CustomContainer {
          }));
          event.getForgeRegistry().register(CustomNpcs.MODID + ":container_auction_create_lot", container_auction_create_lot = createContainer((containerId, inv, buffer) -> new ContainerAuctionCreateLot(containerId, inv, buffer.readBlockPos())));
          event.getForgeRegistry().register(CustomNpcs.MODID + ":container_auction_forbidden_item", container_auction_forbidden_item = createContainer((containerId, inv, buffer) -> new ContainerAuctionForbiddenItem(containerId, inv, buffer.readBlockPos())));
+         event.getForgeRegistry().register(CustomNpcs.MODID + ":container_entity_inventory", container_entity_inventory = createContainer((containerId, inv, buffer) -> new ContainerEntityInventory(containerId, inv, buffer.readInt())));
          CustomNpcs.debugData.end("Mod");
       }
    }

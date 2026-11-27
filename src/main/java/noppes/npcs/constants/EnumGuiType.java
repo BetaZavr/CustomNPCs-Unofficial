@@ -84,7 +84,8 @@ public enum EnumGuiType {
    ManageAuctions,
    PlayerAuction,
    PlayerAuctionCreateLot(true),
-   ManageAuctionForbiddenItem(true);
+   ManageAuctionForbiddenItem(true),
+   EntityLivingInventory(true);
 
    public boolean hasContainer;
    public final ResourceLocation resource;

@@ -15,6 +15,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -638,6 +639,10 @@ public class GuiBasicContainer<T extends AbstractContainerMenu> extends Abstract
          if (isHovering(slot.x, slot.y, 16, 16, mouseX, mouseY) && slot.isActive()) { return slot; }
       }
       return null;
+   }
+
+   public void drawNpc(@Nonnull GuiGraphics graphics, Entity entity, int x, int y, float zoomed, int rotation, int vertical, int followCursor) {
+      wrapper.drawNpc(graphics, entity, x, y, zoomed, rotation, vertical, followCursor, guiLeft, guiTop);
    }
 
 }

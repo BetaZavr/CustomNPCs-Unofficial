@@ -220,6 +220,7 @@ public class ClientProxy extends CommonProxy {
          MenuScreens.register(CustomContainer.container_npc_dead, GuiNPCDeadInventory::new);
          MenuScreens.register(CustomContainer.container_auction_create_lot, SubGuiNpcAuctionCreateLot::new);
          MenuScreens.register(CustomContainer.container_auction_forbidden_item, SubGuiNpcAuctionForbiddenItem::new);
+         MenuScreens.register(CustomContainer.container_entity_inventory, GuiEntityInventory::new);
 
          Optional<? extends ModContainer> cont = ModList.get().getModContainerById(CustomNpcs.MODID);
          cont.ifPresent(modContainer -> modContainer.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, CustomNpcsGuiFactory.FACTORY));
